@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Api(tags = "矿池信息")
 @RestController
-@RequestMapping("/prod-api/system")
+@RequestMapping("/system")
 @Slf4j
 public class PoolInfoController{
 

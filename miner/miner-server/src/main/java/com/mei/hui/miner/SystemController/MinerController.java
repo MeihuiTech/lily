@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Api(tags = "旷工模块【鲍红建】")
 @RestController
-@RequestMapping("/miner")
+@RequestMapping("/system/miner")
 public class MinerController {
 
     @Value("${spring.application.name}")
