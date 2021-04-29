@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class RedisUtil {
 
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate redisTemplate;
 
     /**
      * 设置key-value
@@ -68,4 +68,43 @@ public class RedisUtil {
     public Set<String> keys(String pattern){
         return redisTemplate.keys(pattern);
     }
+
+    /**
+     * 将value加入到 Set 集合中
+     * @param key
+     * @param value
+     * @return
+     */
+    public long sadd(String key,String... value){
+        return redisTemplate.opsForSet().add(key,value);
+    }
+
+    /**
+     * 返回 Set 集合中所有成员
+     * @param key
+     * @return
+     */
+    public Set<String> smembers(String key){
+        return redisTemplate.opsForSet().members(key);
+    }
+
+    /**
+     * 将 key对应的value中储存的数字值增一，然后返回。
+     * @param key
+     * @return
+     */
+    public long incr(String key){
+        return redisTemplate.opsForValue().increment(key);
+    }
+
+    /**
+     * 将 key 对应的value中储存的数字值减一，然后返回。
+     * @param key
+     * @return
+     */
+    public long decr(String key){
+        return redisTemplate.opsForValue().decrement(key);
+    }
+
+
 }
