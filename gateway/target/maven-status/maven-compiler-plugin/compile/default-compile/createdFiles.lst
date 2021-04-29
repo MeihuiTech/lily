@@ -1,9 +1,0 @@
-com\mei\hui\gateway\config\CorsConfig.class
-com\mei\hui\gateway\GateWayStart.class
-com\mei\hui\gateway\exception\JsonExceptionHandler.class
-com\mei\hui\gateway\config\SwaggerHandler.class
-com\mei\hui\gateway\exception\ErrorHandlerConfiguration.class
-com\mei\hui\gateway\config\FeignConfig$GateWayMappingJackson2HttpMessageConverter.class
-com\mei\hui\gateway\config\FeignConfig.class
-com\mei\hui\gateway\config\SwaggerProvider.class
-com\mei\hui\gateway\filter\LoginFilter.class
