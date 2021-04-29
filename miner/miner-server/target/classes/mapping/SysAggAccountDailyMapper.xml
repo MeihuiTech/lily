@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.SysAggAccountDailyMapper">
+    
+    <resultMap type="com.mei.hui.miner.entity.SysAggAccountDaily" id="SysAggAccountDailyResult">
+        <result property="id"    column="id"    />
+        <result property="date"    column="date"    />
+        <result property="minerId"    column="miner_id"    />
+        <result property="lockAward"    column="lock_award"    />
+        <result property="sectorPledge"    column="sector_pledge"    />
+        <result property="balanceAccount"    column="balance_account"    />
+        <result property="balanceAvailable"    column="balance_available"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+    </resultMap>
+
+    <sql id="selectSysAggAccountDailyVo">
+        select id, date, miner_id, lock_award, sector_pledge, balance_account, balance_available, create_time, update_time, create_by from sys_agg_account_daily
+    </sql>
+
+    <select id="selectSysAggAccountDailyList" parameterType="com.mei.hui.miner.entity.SysAggAccountDaily" resultMap="SysAggAccountDailyResult">
+        <include refid="selectSysAggAccountDailyVo"/>
+        <where>  
+            <if test="date != null "> and date = #{date}</if>
+            <if test="minerId != null  and minerId != ''"> and miner_id = #{minerId}</if>
+            <if test="lockAward != null "> and lock_award = #{lockAward}</if>
+            <if test="sectorPledge != null "> and sector_pledge = #{sectorPledge}</if>
+            <if test="balanceAccount != null "> and balance_account = #{balanceAccount}</if>
+            <if test="balanceAvailable != null "> and balance_available = #{balanceAvailable}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysAggAccountDailyById" parameterType="Long" resultMap="SysAggAccountDailyResult">
+        <include refid="selectSysAggAccountDailyVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSysAggAccountDaily" parameterType="com.mei.hui.miner.entity.SysAggAccountDaily" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_agg_account_daily
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="date != null">date,</if>
+            <if test="minerId != null and minerId != ''">miner_id,</if>
+            <if test="lockAward != null">lock_award,</if>
+            <if test="sectorPledge != null">sector_pledge,</if>
+            <if test="balanceAccount != null">balance_account,</if>
+            <if test="balanceAvailable != null">balance_available,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="date != null">#{date},</if>
+            <if test="minerId != null and minerId != ''">#{minerId},</if>
+            <if test="lockAward != null">#{lockAward},</if>
+            <if test="sectorPledge != null">#{sectorPledge},</if>
+            <if test="balanceAccount != null">#{balanceAccount},</if>
+            <if test="balanceAvailable != null">#{balanceAvailable},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysAggAccountDaily" parameterType="com.mei.hui.miner.entity.SysAggAccountDaily">
+        update sys_agg_account_daily
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="date != null">date = #{date},</if>
+            <if test="minerId != null and minerId != ''">miner_id = #{minerId},</if>
+            <if test="lockAward != null">lock_award = #{lockAward},</if>
+            <if test="sectorPledge != null">sector_pledge = #{sectorPledge},</if>
+            <if test="balanceAccount != null">balance_account = #{balanceAccount},</if>
+            <if test="balanceAvailable != null">balance_available = #{balanceAvailable},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysAggAccountDailyById" parameterType="Long">
+        delete from sys_agg_account_daily where id = #{id}
+    </delete>
+
+    <delete id="deleteSysAggAccountDailyByIds" parameterType="String">
+        delete from sys_agg_account_daily where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectSysAggAccountDailyByMinerIdAndDate" resultMap="SysAggAccountDailyResult">
+        <include refid="selectSysAggAccountDailyVo"/>
+        where miner_id = #{minerId} and date = #{date} limit 1
+    </select>
+
+    <select id="selectSysAggAccountDailyByMinerId" resultMap="SysAggAccountDailyResult">
+        <include refid="selectSysAggAccountDailyVo"/>
+        where miner_id = #{minerId} and date &gt;=  #{begin} and date &lt;= #{end}
+    </select>
+</mapper>

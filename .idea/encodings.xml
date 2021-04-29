@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/miner" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/miner-pool-common" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/miner-pool-config" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/miner/miner-feign-client" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/miner/miner-server" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user/user-feign-client" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user/user-server" charset="UTF-8" />
+  </component>
+</project>

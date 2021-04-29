@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.SysAggPowerDailyMapper">
+    
+    <resultMap type="SysAggPowerDaily" id="SysAggPowerDailyResult">
+        <result property="id"    column="id"    />
+        <result property="minerId"    column="miner_id"    />
+        <result property="date"    column="date"    />
+        <result property="powerAvailable"    column="power_available"    />
+        <result property="powerIncrease"    column="power_increase"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectSysAggPowerDailyVo">
+        select id, miner_id, date, power_available, power_increase, create_time, update_time, create_by, update_by from sys_agg_power_daily
+    </sql>
+
+    <select id="selectSysAggPowerDailyList" parameterType="SysAggPowerDaily" resultMap="SysAggPowerDailyResult">
+        <include refid="selectSysAggPowerDailyVo"/>
+        <where>  
+            <if test="minerId != null  and minerId != ''"> and miner_id = #{minerId}</if>
+            <if test="date != null "> and date = #{date}</if>
+            <if test="powerAvailable != null "> and power_available = #{powerAvailable}</if>
+            <if test="powerIncrease != null "> and power_increase = #{powerIncrease}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysAggPowerDailyById" parameterType="Long" resultMap="SysAggPowerDailyResult">
+        <include refid="selectSysAggPowerDailyVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSysAggPowerDaily" parameterType="SysAggPowerDaily">
+        insert into sys_agg_power_daily
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="minerId != null and minerId != ''">miner_id,</if>
+            <if test="date != null">date,</if>
+            <if test="powerAvailable != null">power_available,</if>
+            <if test="powerIncrease != null">power_increase,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="updateBy != null and updateBy != ''">update_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="minerId != null and minerId != ''">#{minerId},</if>
+            <if test="date != null">#{date},</if>
+            <if test="powerAvailable != null">#{powerAvailable},</if>
+            <if test="powerIncrease != null">#{powerIncrease},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysAggPowerDaily" parameterType="SysAggPowerDaily">
+        update sys_agg_power_daily
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="minerId != null and minerId != ''">miner_id = #{minerId},</if>
+            <if test="date != null">date = #{date},</if>
+            <if test="powerAvailable != null">power_available = #{powerAvailable},</if>
+            <if test="powerIncrease != null">power_increase = #{powerIncrease},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysAggPowerDailyById" parameterType="Long">
+        delete from sys_agg_power_daily where id = #{id}
+    </delete>
+
+    <delete id="deleteSysAggPowerDailyByIds" parameterType="String">
+        delete from sys_agg_power_daily where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectSysAggPowerDailyByMinerIdAndDate" resultMap="SysAggPowerDailyResult">
+        <include refid="selectSysAggPowerDailyVo"/>
+        where miner_id = #{minerId} and date = #{date} limit 1
+    </select>
+
+    <select id="selectSysAggPowerDailyByMinerIdAndRange" resultMap="SysAggPowerDailyResult">
+        <include refid="selectSysAggPowerDailyVo"/>
+        where miner_id = #{minerId} and date = #{date} limit 1
+    </select>
+    <select id="selectSysAggPowerDailyByMinerId" resultMap="SysAggPowerDailyResult">
+        <include refid="selectSysAggPowerDailyVo"/>
+        where miner_id = #{minerId} and date &gt;=  #{begin} and date &lt;= #{end}
+    </select>
+</mapper>

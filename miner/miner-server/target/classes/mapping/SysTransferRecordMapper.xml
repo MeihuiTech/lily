@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.SysTransferRecordMapper">
+    
+    <resultMap type="SysTransferRecord" id="SysTransferRecordResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="amount"    column="amount"    />
+        <result property="fee"    column="fee"    />
+        <result property="feeHash"    column="fee_hash"    />
+        <result property="toAddress"    column="to_address"    />
+        <result property="toHash"    column="to_hash"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap type="com.ruoyi.system.domain.SysTransferRecordUserName" id="SysTransferRecordUserNameRet">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="amount"    column="amount"    />
+        <result property="fee"    column="fee"    />
+        <result property="feeHash"    column="fee_hash"    />
+        <result property="toAddress"    column="to_address"    />
+        <result property="toHash"    column="to_hash"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="userName"    column="user_name"    />
+    </resultMap>
+
+    <sql id="selectSysTransferRecordVo">
+        select id, user_id, amount, fee, fee_hash, to_address, to_hash, status, create_time, update_time, remark from sys_transfer_record
+    </sql>
+
+    <sql id="selectSysTransferRecordWrapVo">
+        select a.*,b.user_name from sys_transfer_record a left join sys_user b on a.user_id = b.user_id
+    </sql>
+
+    <select id="selectSysTransferRecordList" parameterType="SysTransferRecord" resultMap="SysTransferRecordResult">
+        <include refid="selectSysTransferRecordVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="fee != null "> and fee = #{fee}</if>
+            <if test="feeHash != null  and feeHash != ''"> and fee_hash = #{feeHash}</if>
+            <if test="toAddress != null  and toAddress != ''"> and to_address = #{toAddress}</if>
+            <if test="toHash != null  and toHash != ''"> and to_hash = #{toHash}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectSysTransferRecordListUserName" parameterType="SysTransferRecord" resultMap="SysTransferRecordUserNameRet">
+        <include refid="selectSysTransferRecordWrapVo"/>
+        <where>
+            <if test="userId != null "> and a.user_id = #{userId}</if>
+            <if test="amount != null "> and a.amount = #{amount}</if>
+            <if test="fee != null "> and a.fee = #{fee}</if>
+            <if test="feeHash != null  and feeHash != ''"> and a.fee_hash = #{feeHash}</if>
+            <if test="toAddress != null  and toAddress != ''"> and a.to_address = #{toAddress}</if>
+            <if test="toHash != null  and toHash != ''"> and a.to_hash = #{toHash}</if>
+            <if test="status != null "> and a.status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysTransferRecordById" parameterType="Long" resultMap="SysTransferRecordResult">
+        <include refid="selectSysTransferRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectTotalWithdrawByUserId" parameterType="Long" resultType="Double">
+        SELECT
+          SUM(`amount` + `fee`) AS `withdraw`
+        FROM
+          `sys_transfer_record`
+        WHERE `user_id` = #{userId} ;
+    </select>
+        
+    <insert id="insertSysTransferRecord" parameterType="SysTransferRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_transfer_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="amount != null">amount,</if>
+            <if test="fee != null">fee,</if>
+            <if test="feeHash != null">fee_hash,</if>
+            <if test="toAddress != null and toAddress != ''">to_address,</if>
+            <if test="toHash != null">to_hash,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="fee != null">#{fee},</if>
+            <if test="feeHash != null">#{feeHash},</if>
+            <if test="toAddress != null and toAddress != ''">#{toAddress},</if>
+            <if test="toHash != null">#{toHash},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysTransferRecord" parameterType="SysTransferRecord">
+        update sys_transfer_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="feeHash != null">fee_hash = #{feeHash},</if>
+            <if test="toHash != null">to_hash = #{toHash},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysTransferRecordById" parameterType="Long">
+        delete from sys_transfer_record where id = #{id}
+    </delete>
+
+    <delete id="deleteSysTransferRecordByIds" parameterType="String">
+        delete from sys_transfer_record where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectTotalEarning" resultType="BigDecimal">
+        select sum(fee) from sys_transfer_record
+    </select>
+
+    <select id="selectTodayEarning" resultType="BigDecimal">
+        select sum(fee) from sys_transfer_record where create_time >= curdate()
+    </select>
+</mapper>
