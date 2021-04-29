@@ -1,6 +1,5 @@
 package com.mei.hui.user.SystemController;
 
-import com.alibaba.csp.sentinel.cluster.TokenService;
 import com.mei.hui.config.smsConfig.SmsUtil;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
@@ -44,9 +43,6 @@ public class SysUserController{
 
     @Autowired
     private ISysPostService postService;
-
-    @Autowired
-    private TokenService tokenService;
 
     @Autowired
     private ISysVerifyCodeService sysVerifyCodeService;

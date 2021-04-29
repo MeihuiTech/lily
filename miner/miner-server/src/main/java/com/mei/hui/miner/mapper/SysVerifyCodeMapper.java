@@ -1,6 +1,6 @@
 package com.mei.hui.miner.mapper;
 
-import com.mei.hui.miner.model.SysVerifyCode;
+import com.mei.hui.miner.entity.SysVerifyCode;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

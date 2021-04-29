@@ -18,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="remark"    column="remark"    />
     </resultMap>
 
-    <resultMap type="com.ruoyi.system.domain.SysTransferRecordUserName" id="SysTransferRecordUserNameRet">
+    <resultMap type="SysTransferRecordUserName" id="SysTransferRecordUserNameRet">
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
         <result property="amount"    column="amount"    />

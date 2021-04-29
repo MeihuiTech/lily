@@ -44,6 +44,10 @@ public class SysDictData extends BasePage
 
     private String updateBy;
 
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
+
     public boolean getDefault()
     {
         return "Y".equals(this.isDefault) ? true : false;

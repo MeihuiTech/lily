@@ -1,6 +1,5 @@
 package com.mei.hui.user.SystemController;
 
-import com.alibaba.csp.sentinel.cluster.TokenService;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysMenu;
@@ -31,8 +30,6 @@ public class SysMenuController
     @Autowired
     private ISysMenuService menuService;
 
-    @Autowired
-    private TokenService tokenService;
     @Autowired
     private ISysUserService sysUserService;
 

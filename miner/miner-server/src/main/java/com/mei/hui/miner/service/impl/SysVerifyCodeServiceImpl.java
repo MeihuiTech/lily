@@ -1,7 +1,7 @@
 package com.mei.hui.miner.service.impl;
 
 import com.mei.hui.miner.mapper.SysVerifyCodeMapper;
-import com.mei.hui.miner.model.SysVerifyCode;
+import com.mei.hui.miner.entity.SysVerifyCode;
 import com.mei.hui.miner.service.ISysVerifyCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

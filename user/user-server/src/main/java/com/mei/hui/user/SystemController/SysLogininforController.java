@@ -16,7 +16,7 @@ import java.util.Map;
  * @author ruoyi
  */
 @RestController
-@RequestMapping("/monitor/logininfor")
+@RequestMapping("/system/monitor/logininfor")
 public class SysLogininforController{
     @Autowired
     private ISysLogininforService logininforService;

@@ -1,6 +1,5 @@
 package com.mei.hui.user.SystemController;
 
-import com.alibaba.csp.sentinel.cluster.TokenService;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
@@ -26,8 +25,6 @@ public class SysRoleController
     @Autowired
     private ISysRoleService roleService;
 
-    @Autowired
-    private TokenService tokenService;
     
     @Autowired
     private SysPermissionService permissionService;

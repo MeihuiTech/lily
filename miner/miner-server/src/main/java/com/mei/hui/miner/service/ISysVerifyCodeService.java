@@ -1,6 +1,6 @@
 package com.mei.hui.miner.service;
 
-import com.mei.hui.miner.model.SysVerifyCode;
+import com.mei.hui.miner.entity.SysVerifyCode;
 import java.util.List;
 
 /**

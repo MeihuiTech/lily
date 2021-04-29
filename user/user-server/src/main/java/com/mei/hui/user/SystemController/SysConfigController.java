@@ -57,7 +57,7 @@ public class SysConfigController
     /**
      * 新增参数配置
      */
-    @PostMapping
+    @PostMapping("/add")
     public Result add(@Validated @RequestBody SysConfig config)
     {
         if ("1".equals(configService.checkConfigKeyUnique(config)))
@@ -72,7 +72,7 @@ public class SysConfigController
     /**
      * 修改参数配置
      */
-    @PutMapping
+    @PostMapping("/edit")
     public Result edit(@Validated @RequestBody SysConfig config)
     {
         if ("1".equals(configService.checkConfigKeyUnique(config)))
@@ -87,7 +87,7 @@ public class SysConfigController
     /**
      * 删除参数配置
      */
-    @DeleteMapping("/{configIds}")
+    @PostMapping("/{configIds}")
     public Result remove(@PathVariable Long[] configIds)
     {
         int rows = configService.deleteConfigByIds(configIds);
@@ -97,7 +97,7 @@ public class SysConfigController
     /**
      * 清空缓存
      */
-    @DeleteMapping("/clearCache")
+    @PostMapping("/clearCache")
     public Result clearCache()
     {
         configService.clearCache();

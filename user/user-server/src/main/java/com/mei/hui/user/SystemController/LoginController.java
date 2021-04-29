@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 @Api(tags = "用户模块【鲍红建】")
 @RestController
-@RequestMapping("/prod-api")
+@RequestMapping("/system")
 @Slf4j
 public class LoginController {
     @Autowired
@@ -92,7 +92,7 @@ public class LoginController {
      * 获取用户信息
      * @return 用户信息
      */
-    @GetMapping("getInfo")
+    @GetMapping("/getInfo")
     public Map<String,Object> getInfo(){
         return loginService.getInfo();
     }

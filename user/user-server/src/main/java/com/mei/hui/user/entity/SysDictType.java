@@ -2,6 +2,8 @@ package com.mei.hui.user.entity;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * 字典类型表 sys_dict_type
  * @author ruoyi
@@ -23,5 +25,12 @@ public class SysDictType
     /** 状态（0正常 1停用） */
     private String status;
 
+    private String createBy;
+
+    private String updateBy;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 
 }
