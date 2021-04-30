@@ -13,7 +13,6 @@ public interface ISysUserService {
 
     Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody);
     String selectUserRoleGroup(String userName);
-    String selectUserPostGroup(String userName);
 
     SysUser getSysUser();
 

@@ -7,7 +7,6 @@ import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.entity.SysVerifyCode;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.SelectUserListInput;
-import com.mei.hui.user.service.ISysPostService;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.user.service.ISysVerifyCodeService;
@@ -43,9 +42,6 @@ public class SysUserController{
     private ISysRoleService roleService;
 
     @Autowired
-    private ISysPostService postService;
-
-    @Autowired
     private ISysVerifyCodeService sysVerifyCodeService;
 
     @RequestMapping("/getSysUser")
@@ -77,11 +73,11 @@ public class SysUserController{
 
         List<SysRole> roles = roleService.selectRoleAll();
         map.put("roles", SysUser.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
-        map.put("posts", postService.selectPostAll());
+        map.put("posts", null);
         if (userId != null)
         {
             map.put("data", userService.selectUserById(userId));
-            map.put("postIds", postService.selectPostListByUserId(userId));
+            map.put("postIds", null);
             map.put("roleIds", roleService.selectRoleListByUserId(userId));
         }
         return map;
@@ -103,7 +99,7 @@ public class SysUserController{
         }
         SysUser userOut = userService.getSysUser();
         user.setCreateBy(userOut.getUserName());
-        user.setPassword(AESUtil.decrypt(user.getPassword()));
+        user.setPassword(AESUtil.encrypt(user.getPassword()));
         int rows = userService.insertUser(user);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }
