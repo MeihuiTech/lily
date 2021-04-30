@@ -31,6 +31,9 @@ public class Swagger2Configuration {
     @Value("${spring.application.name}")
     private String  projectName;
 
+    @Value("${swagger.is.enable}")
+    private boolean swagger_is_enable;
+
     @Bean
     public Docket buildDocket() {
 
@@ -55,6 +58,7 @@ public class Swagger2Configuration {
         aParameters.add(platFormTypeParame.build());
 
         return new Docket(DocumentationType.SWAGGER_2)
+                .enable(swagger_is_enable)
                 .apiInfo(buildApiInf())
                 .select()
                 .apis(RequestHandlerSelectors.any())

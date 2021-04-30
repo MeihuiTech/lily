@@ -63,3 +63,8 @@ pagehelper:
   reasonable: true
   support-methods-arguments: true
   params: count=countSql
+
+# swagger 开关
+swagger:
+  is:
+    enable: true
