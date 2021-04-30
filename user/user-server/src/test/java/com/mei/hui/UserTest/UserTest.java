@@ -15,7 +15,7 @@ public class UserTest {
 
     @Test
     public void entry(){
-        String token = AESUtil.encrypt("1");
+        String token = AESUtil.encrypt("admin123");
         log.info("token = {}",token);
     }
 }

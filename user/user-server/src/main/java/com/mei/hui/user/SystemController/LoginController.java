@@ -1,17 +1,17 @@
 package com.mei.hui.user.SystemController;
 
 import com.google.code.kaptcha.Producer;
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.service.LoginService;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.IdUtils;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FastByteArrayOutputStream;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -50,8 +51,24 @@ public class LoginController {
      */
     @PostMapping("/login")
     public Map<String,Object> login(@RequestBody LoginBody loginBody){
+
+        if(StringUtils.isEmpty(loginBody.getUsername())){
+            throw new MyException(ErrorCode.MYB_111111.getMsg(),"用户姓名不能为空");
+        }
+        if(StringUtils.isEmpty(loginBody.getPassword())){
+            throw new MyException(ErrorCode.MYB_111111.getMsg(),"用户密码不能为空");
+        }
+        if(StringUtils.isEmpty(loginBody.getCode())){
+            throw new MyException(ErrorCode.MYB_111111.getMsg(),"请输入验证码");
+        }
+
         return sysUserService.getSysUserByNameAndPass(loginBody);
     }
+
+    /*@PostMapping("/check")
+    public boolean check(LoginBody loginBody){
+        return sysUserService.getSysUserByNameAndPass(loginBody);
+    }*/
 
     /**
      * 生成验证码
@@ -105,4 +122,14 @@ public class LoginController {
     public Result getRouters(){
        return loginService.getRouters();
     }
+
+    @PostMapping("/logout")
+    public Result logout(){
+        HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
+        String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
+         redisCache.delete(token);
+         return Result.OK;
+    }
+
+
 }

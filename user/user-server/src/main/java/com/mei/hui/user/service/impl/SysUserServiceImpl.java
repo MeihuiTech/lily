@@ -6,10 +6,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.*;
 import com.mei.hui.user.mapper.*;
 import com.mei.hui.user.model.LoginBody;
+import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -39,13 +41,21 @@ public class SysUserServiceImpl implements ISysUserService {
     private SysUserRoleMapper userRoleMapper;
 
     public Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody){
-        if(StringUtils.isEmpty(loginBody.getUsername())){
-            throw new MyException(ErrorCode.MYB_111111.getMsg(),"用户姓名不能为空");
+        /**
+         * 验证码校验
+         */
+       /* String verifyKey = Constants.CAPTCHA_CODE_KEY + loginBody.getUuid();
+        String captcha = redisUtils.get(verifyKey);
+        redisUtils.delete(verifyKey);
+        if (captcha == null){
+            throw  MyException.fail(UserError.MYB_333333.getCode(),"用户名或密码错误");
         }
-        if(StringUtils.isEmpty(loginBody.getPassword())){
-            throw new MyException(ErrorCode.MYB_111111.getMsg(),"用户密码不能为空");
-        }
-        //密码加密
+        if (!loginBody.getCode().equalsIgnoreCase(captcha)){
+            throw  MyException.fail(UserError.MYB_333333.getCode(),"用户名或密码错误");
+        }*/
+        /**
+         * 用户校验
+         */
         String passWord = AESUtil.encrypt(loginBody.getPassword());
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysUser::getUserName,loginBody.getUsername());
@@ -64,7 +74,7 @@ public class SysUserServiceImpl implements ISysUserService {
         //生成token
         result.put(SystemConstants.TOKEN,AESUtil.encrypt(sysUser.getUserId()+""));
         //用户token 有效期30分钟
-        redisUtils.set(token, JSON.toJSONString(sysUser),60, TimeUnit.MINUTES);
+        redisUtils.set(token, JSON.toJSONString(sysUser),60*8, TimeUnit.MINUTES);
         return result;
     }
 
@@ -119,7 +129,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @param user 用户信息
      * @return 用户信息集合信息
      */
-    public Map<String,Object> selectUserList(SysUser user)
+    public Map<String,Object> selectUserList(SelectUserListInput user)
     {
         Integer pageNum = user.getPageNum();
         Integer pageSize = user.getPageSize();

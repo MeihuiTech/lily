@@ -1,6 +1,7 @@
 package com.mei.hui.user.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mei.hui.util.BasePage;
@@ -11,7 +12,7 @@ import java.util.Set;
 
 @Data
 @TableName("sys_user")
-public class SysUser extends BasePage {
+public class SysUser {
 
     @TableId(type= IdType.AUTO)
     private Long userId;
@@ -63,14 +64,19 @@ public class SysUser extends BasePage {
     }
 
     /** 岗位组 */
+
+    @TableField(exist = false)
     private Long[] postIds;
 
     /** 角色组 */
+
+    @TableField(exist = false)
     private Long[] roleIds;
 
     /**
      * 权限列表
      */
+    @TableField(exist = false)
     private Set<String> permissions;
 
 }

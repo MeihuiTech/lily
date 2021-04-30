@@ -3,6 +3,7 @@ package com.mei.hui.user.service;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.LoginBody;
+import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.util.Result;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface ISysUserService {
 
     SysUser getSysUser();
 
-    Map<String,Object> selectUserList(SysUser user);
+    Map<String,Object> selectUserList(SelectUserListInput user);
 
     SysUser selectUserById(Long userId);
 

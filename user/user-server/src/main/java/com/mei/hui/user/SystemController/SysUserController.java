@@ -6,6 +6,7 @@ import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.entity.SysVerifyCode;
 import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysPostService;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
@@ -60,7 +61,7 @@ public class SysUserController{
      */
     @ApiOperation(value = "用户列表")
     @GetMapping("/list")
-    public Map<String,Object> list(SysUser user){
+    public Map<String,Object> list(@RequestBody SelectUserListInput user){
         return userService.selectUserList(user);
     }
 

@@ -2,6 +2,7 @@ package com.mei.hui.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.model.SelectUserListInput;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +17,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param sysUser 用户信息
      * @return 用户信息集合信息
      */
-    List<SysUser> selectUserList(SysUser sysUser);
+    List<SysUser> selectUserList(SelectUserListInput sysUser);
 
 
     /**
