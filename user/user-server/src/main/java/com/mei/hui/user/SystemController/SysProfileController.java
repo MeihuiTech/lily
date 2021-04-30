@@ -36,6 +36,7 @@ public class SysProfileController{
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         result.put("roleGroup", userService.selectUserRoleGroup(user.getUserName()));
         result.put("postGroup", userService.selectUserPostGroup(user.getUserName()));
+        result.put("data",user);
         return result;
     }
 

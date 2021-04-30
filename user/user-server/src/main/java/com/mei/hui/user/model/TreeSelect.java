@@ -1,7 +1,6 @@
 package com.mei.hui.user.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mei.hui.user.entity.SysDept;
 import com.mei.hui.user.entity.SysMenu;
 import java.io.Serializable;
 import java.util.List;
@@ -31,12 +30,12 @@ public class TreeSelect implements Serializable
 
     }
 
-    public TreeSelect(SysDept dept)
-    {
-        this.id = dept.getDeptId();
-        this.label = dept.getDeptName();
-        this.children = dept.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
-    }
+//    public TreeSelect(SysDept dept)
+//    {
+//        this.id = dept.getDeptId();
+//        this.label = dept.getDeptName();
+//        this.children = dept.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
+//    }
 
     public TreeSelect(SysMenu menu)
     {

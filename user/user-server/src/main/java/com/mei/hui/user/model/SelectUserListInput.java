@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @ApiModel
@@ -70,4 +72,21 @@ public class SelectUserListInput extends BasePage {
      * 权限列表
      */
     private Set<String> permissions;
+
+    /** 请求参数 */
+    private Map<String, Object> params;
+
+    public Map<String, Object> getParams()
+    {
+        if (params == null)
+        {
+            params = new HashMap<>();
+        }
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params)
+    {
+        this.params = params;
+    }
 }

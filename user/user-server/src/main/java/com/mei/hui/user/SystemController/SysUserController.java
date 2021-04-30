@@ -61,7 +61,7 @@ public class SysUserController{
      */
     @ApiOperation(value = "用户列表")
     @GetMapping("/list")
-    public Map<String,Object> list(@RequestBody SelectUserListInput user){
+    public Map<String,Object> list(SelectUserListInput user){
         return userService.selectUserList(user);
     }
 

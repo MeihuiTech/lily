@@ -38,4 +38,6 @@ public class SysNotice extends BasePage {
 
     private LocalDateTime updateTime;
 
+    private String remark;
+
 }

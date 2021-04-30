@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mei.hui.util.BasePage;
+import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -78,5 +82,16 @@ public class SysUser {
      */
     @TableField(exist = false)
     private Set<String> permissions;
+
+    @TableField(exist = false)
+    private Double totalBlockAward;
+
+    @TableField(exist = false)
+    private Integer powerAvailable;
+
+    /** 角色对象 */
+    @TableField(exist = false)
+    private List<SysRole> roles;
+
 
 }

@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 角色表 sys_role
@@ -78,4 +80,21 @@ public class SysRole extends BasePage {
     private String createBy;
 
     private String updateBy;
+
+    /** 请求参数 */
+    private Map<String, Object> params;
+
+    public Map<String, Object> getParams()
+    {
+        if (params == null)
+        {
+            params = new HashMap<>();
+        }
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params)
+    {
+        this.params = params;
+    }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mei.hui.util.BasePage;
 import lombok.Data;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 操作日志记录表 oper_log
@@ -66,5 +67,7 @@ public class SysOperLog extends BasePage
     /** 操作时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date operTime;
+
+    private Map<String,Object> params;
 
 }

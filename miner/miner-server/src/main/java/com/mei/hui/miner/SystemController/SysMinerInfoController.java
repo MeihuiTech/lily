@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 矿工信息Controller
@@ -90,7 +92,7 @@ public class SysMinerInfoController {
 
     @ApiOperation(value = "算力按天聚合信息")
     @GetMapping(value = "/{id}/dailyPower")
-    public Result<List<SysAggPowerDaily>> dailyPower(@PathVariable("id") Long id) {
+    public Map<String,Object> dailyPower(@PathVariable("id") Long id) {
         Long userId = HttpRequestUtil.getUserId();
         SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoById(id);
         if (miner == null) {
@@ -102,7 +104,12 @@ public class SysMinerInfoController {
         Date end = DateUtils.getNowDate();
         Date begin = DateUtils.addDays(end,-29);
         List<SysAggPowerDaily> list = sysAggPowerDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
-        return Result.success(list);
+        Map<String,Object> map = new HashMap<>();
+        map.put("code",ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("rows",list);
+        map.put("total",list.size());
+        return map;
     }
 
 }

@@ -34,7 +34,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.error("@========================start-{}========================","gateway");
+        log.info("@========================start-{}========================","gateway");
         String token = exchange.getRequest().getHeaders().getFirst(SystemConstants.TOKEN);
         log.info("token = {}",token);
         String platFormType = exchange.getRequest().getHeaders().getFirst(SystemConstants.PLATTYPE);
@@ -46,7 +46,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         //将现在的request 变成 change对象
         ServerWebExchange build = exchange.mutate().request(host).build();
         //继续往下执行
-        log.error("@========================end-{}========================","gateway");
+        log.info("@========================end-{}========================","gateway");
         return chain.filter(build);
     }
 

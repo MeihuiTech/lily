@@ -17,7 +17,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param sysUser 用户信息
      * @return 用户信息集合信息
      */
-    List<SysUser> selectUserList(SelectUserListInput sysUser);
+    List<SysUser> selectUserList(SysUser sysUser);
 
 
     /**

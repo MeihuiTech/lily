@@ -14,7 +14,7 @@ import java.util.Map;
  * @author ruoyi
  */
 @RestController
-@RequestMapping("/monitor/operlog")
+@RequestMapping("system/monitor/operlog")
 public class SysOperlogController
 {
     @Autowired

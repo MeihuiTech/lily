@@ -45,7 +45,7 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
         }
         log.error("全局异常统一处理:", e);
         log.info("@响应参数:{}", JSON.toJSONString(rs));
-        log.error("@========================end-{}========================","gateway");
+        log.info("@========================end-{}========================","gateway");
         Map<String,Object> map = new HashMap<>();
         map.put("code",rs.getCode());
         map.put("msg",rs.getMsg());

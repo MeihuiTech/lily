@@ -15,6 +15,7 @@ import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,10 +132,12 @@ public class SysUserServiceImpl implements ISysUserService {
      */
     public Map<String,Object> selectUserList(SelectUserListInput user)
     {
+        SysUser sysUser = new SysUser();
+        //BeanUtils.copyProperties(user,sysUser);
         Integer pageNum = user.getPageNum();
         Integer pageSize = user.getPageSize();
         PageHelper.startPage(pageNum, pageSize);
-        List<SysUser> list = sysUserMapper.selectUserList(user);
+        List<SysUser> list = sysUserMapper.selectUserList(sysUser);
         PageInfo<SysUser> pageInfo = new PageInfo<>(list);
 
         //组装返回值
