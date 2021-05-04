@@ -38,8 +38,8 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/baohj/miner-pool.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <url>https://github.com/baohj/miner-pool</url>
+    </scm>
 
     <dependencyManagement>
         <dependencies>
