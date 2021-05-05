@@ -5,7 +5,7 @@
     <groupId>com.mei.hui</groupId>
     <artifactId>miner-pool</artifactId>
     <packaging>pom</packaging>
-    <version>1.1-RELEASE</version>
+    <version>1.1-SNAPSHOT</version>
     <modules>
         <module>miner-pool-config</module>
         <module>user</module>
@@ -39,7 +39,6 @@
     <scm>
         <developerConnection>scm:git:git@github.com:baohj/miner-pool.git</developerConnection>
         <url>https://github.com/baohj/miner-pool</url>
-    <tag>v1.1-RELEASE</tag>
   </scm>
 
     <dependencyManagement>
