@@ -141,6 +141,7 @@
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <arguments>-DskipTests</arguments>
                 </configuration>
             </plugin>
         </plugins>
