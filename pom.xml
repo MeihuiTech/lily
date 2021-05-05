@@ -37,7 +37,8 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:git@github.com:baohj/miner-pool.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/baohj/miner-pool.git</developerConnection>
+        <connection>scm:git:https://github.com/baohj/miner-pool.git</connection>
         <url>https://github.com/baohj/miner-pool</url>
   </scm>
 
