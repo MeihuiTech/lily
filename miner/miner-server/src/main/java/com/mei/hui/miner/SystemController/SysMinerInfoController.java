@@ -30,7 +30,7 @@ import java.util.Map;
 @Api(tags = "矿工信息")
 @RestController
 @RequestMapping("/system/miner")
-public class SysMinerInfoController {
+public class SysMinerInfoController<ISysMachineInfoService> {
 
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
@@ -110,6 +110,25 @@ public class SysMinerInfoController {
         map.put("rows",list);
         map.put("total",list.size());
         return map;
+    }
+
+    /**
+     * 查询矿工信息列表
+     */
+    @ApiOperation(value = "矿工列表")
+    @GetMapping("/list")
+    public Map<String,Object> list(SysMinerInfo sysMinerInfo)
+    {
+        return sysMinerInfoService.findPage(sysMinerInfo);
+    }
+
+    /**
+     * 获取当前矿工的矿机列表
+     */
+    @ApiOperation(value = "矿机列表")
+    @GetMapping(value = "machines/{id}")
+    public Map<String,Object> machines(@PathVariable("id") Long id,int pageNum,int pageSize) {
+        return machines(id,pageNum,pageSize);
     }
 
 }

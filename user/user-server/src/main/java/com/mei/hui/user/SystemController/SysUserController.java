@@ -58,8 +58,8 @@ public class SysUserController{
      * @param req
      * @return
      */
-    @PostMapping("/findSysUserList")
-    public Result<List<SysUserOut>> findSysUserList(@RequestBody FindSysUserListInput req){
+    @RequestMapping(value = "/findSysUserList",method = RequestMethod.POST)
+    public Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req){
         return userService.findSysUserList(req);
     }
 

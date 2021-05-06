@@ -1,7 +1,9 @@
 package com.mei.hui.miner.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.entity.SysTransferRecordUserName;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
@@ -13,8 +15,8 @@ import java.util.List;
  * @author ruoyi
  * @date 2021-03-08
  */
-@Repository
-public interface SysTransferRecordMapper 
+@Mapper
+public interface SysTransferRecordMapper extends BaseMapper<SysTransferRecord>
 {
     /**
      * 查询系统划转记录

@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8082
 
 spring:
   application:
@@ -21,6 +21,8 @@ spring:
 
 # 开启 feign 的熔断功能,设置feign客户端超时时间
 feign:
+  httpclient:
+    enabled: true
   sentinel:
     enabled: true
   client:

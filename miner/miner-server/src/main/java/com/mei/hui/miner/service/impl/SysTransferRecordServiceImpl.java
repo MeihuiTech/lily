@@ -1,5 +1,9 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.miner.entity.SysTransferRecord;
@@ -11,6 +15,7 @@ import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
 import org.springframework.stereotype.Service;
@@ -28,6 +33,7 @@ import java.util.stream.Collectors;
  * @date 2021-03-08
  */
 @Service
+@Slf4j
 public class SysTransferRecordServiceImpl implements ISysTransferRecordService
 {
     @Autowired
@@ -139,18 +145,18 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
      */
     @Override
     public Map<String,Object> selectSysTransferRecordListUserName(SysTransferRecord sysTransferRecord){
-        PageHelper.startPage(Integer.valueOf(sysTransferRecord.getPageNum()+""),Integer.valueOf(sysTransferRecord.getPageSize()+""));
-        List<SysTransferRecordUserName> list = sysTransferRecordMapper.selectSysTransferRecordListUserName(sysTransferRecord);
-        PageInfo<SysTransferRecordUserName> pageInfo = new PageInfo<>(list);
+        LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.setEntity(sysTransferRecord);
+        IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(sysTransferRecord.getPageNum(), sysTransferRecord.getPageSize()), queryWrapper);
         /**
          * 批量获取用户
          */
-        List<Long> userids = list.stream().map(v -> {
+        List<Long> userids = page.getRecords().stream().map(v -> {
             return v.getUserId();
         }).collect(Collectors.toList());
         Map<Long, SysUserOut> userMaps = sysUserToMap(userids);
 
-        list.stream().forEach(v -> {
+        page.getRecords().stream().forEach(v -> {
             SysUserOut user = userMaps.get(v.getUserId());
             v.setUserName(user.getUserName());
         });
@@ -160,8 +166,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg", ErrorCode.MYB_000000.getMsg());
-        map.put("rows", list);
-        map.put("total", pageInfo.getTotal());
+        map.put("rows", page.getRecords());
+        map.put("total", page.getTotal());
         return map;
 
     }
@@ -169,7 +175,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
     public Map<Long,SysUserOut>  sysUserToMap(List<Long> userids){
         FindSysUserListInput input = new FindSysUserListInput();
         input.setUserIds(userids);
+        log.info("请求用户模块");
         Result<List<SysUserOut>> result = userFeignClient.findSysUserList(input);
+        log.info("用户模块返回值:{}", JSON.toJSONString(result));
         Map<Long,SysUserOut> map = new HashMap<>();
         if(ErrorCode.MYB_000000.getCode().equals(result.getCode())){
             List<SysUserOut> users = result.getData();

@@ -52,7 +52,7 @@ public class SysTransferRecordController
     public Map<String,Object> list(SysTransferRecord sysTransferRecord)
     {
         Result<SysUserOut> userResult = userFeignClient.getSysUser();
-        if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
+        if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
         Long userId = userResult.getData().getUserId();

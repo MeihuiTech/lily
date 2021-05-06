@@ -8,6 +8,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
@@ -22,6 +23,6 @@ public interface UserFeignClient {
     @RequestMapping("/getSysUser")
     Result<SysUserOut> getSysUser();
 
-    @PostMapping("/findSysUserList")
-    Result<List<SysUserOut>> findSysUserList(@RequestBody FindSysUserListInput req);
+    @RequestMapping(value = "/findSysUserList",method = RequestMethod.POST)
+    Result<List<SysUserOut>> findSysUserList(@RequestBody  FindSysUserListInput req);
 }

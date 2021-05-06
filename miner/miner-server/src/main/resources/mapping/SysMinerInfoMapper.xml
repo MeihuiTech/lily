@@ -160,4 +160,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <select id="countByMinerId" resultType="Long">
+        select count(1) from sys_machine_info where miner_id = #{minerId}
+    </select>
 </mapper>

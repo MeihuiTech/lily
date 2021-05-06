@@ -1,0 +1,88 @@
+package com.mei.hui.miner.SystemController;
+
+import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.entity.SysSectorInfo;
+import com.mei.hui.miner.entity.SysSectorsWrap;
+import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.miner.service.ISysSectorInfoService;
+import com.mei.hui.miner.service.ISysSectorsWrapService;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 扇区信息聚合Controller
+ * 
+ * @author ruoyi
+ * @date 2021-03-04
+ */
+@Api(value="扇区聚合信息", tags = "扇区聚合信息")
+@RestController
+@RequestMapping("/system/sectors")
+public class SysSectorsWrapController
+{
+    @Autowired
+    private ISysSectorsWrapService sysSectorsWrapService;
+
+    @Autowired
+    private ISysMinerInfoService sysMinerInfoService;
+
+    @Autowired
+    private ISysSectorInfoService sysSectorInfoService;
+
+    /**
+     * 查询扇区信息聚合列表
+     */
+    @ApiOperation(value = "扇区聚合列表")
+    @GetMapping("/list")
+    public Map<String,Object> list(SysSectorsWrap sysSectorsWrap)
+    {
+        return sysSectorsWrapService.list(sysSectorsWrap);
+    }
+
+
+    @ApiOperation(value = "扇区详情")
+    @GetMapping(value = "/{id}")
+    public Map<String,Object> statusList(@PathVariable("id") Long id) {
+        SysSectorsWrap wrap = sysSectorsWrapService.selectSysSectorsWrapById(id);
+        if (wrap == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+        }
+        SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoByMinerId(wrap.getMinerId());
+        Long userId = HttpRequestUtil.getUserId();
+
+        if (userId != null && userId != 1L) {
+            //扇区所属矿工信息丢失，无从判断扇区聚合信息所有权；或扇区聚合信息不属于当前登录者
+            if (miner == null || !miner.getUserId().equals(userId)) {
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
+            }
+        }
+
+        SysSectorInfo sectorInfo = new SysSectorInfo();
+        sectorInfo.setSectorNo(wrap.getSectorNo());
+        sectorInfo.setMinerId(wrap.getMinerId());
+        List<SysSectorInfo> list = sysSectorInfoService.selectSysSectorInfoList(sectorInfo);
+        /**
+         * 组装返回信息
+         */
+        Map<String,Object> map = new HashMap<>();
+        map.put("code", ErrorCode.MYB_000000.getCode());
+        map.put("msg", ErrorCode.MYB_000000.getMsg());
+        map.put("rows", list);
+        map.put("total", list.size());
+        return map;
+    }
+}

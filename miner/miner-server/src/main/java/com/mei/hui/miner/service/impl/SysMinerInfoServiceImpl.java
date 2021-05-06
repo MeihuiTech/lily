@@ -1,16 +1,29 @@
 package com.mei.hui.miner.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.PoolInfo;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.mapper.PoolInfoMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.util.BigDecimalUtil;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 矿工信息Service业务层处理
@@ -43,6 +56,11 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         if (machine != null) {
             miner.setWorkerCount(machine.getWorkerCount());
         }
+        miner.setSectorPledge(BigDecimalUtil.formatFour(miner.getSectorPledge()));
+        miner.setLockAward(BigDecimalUtil.formatFour(miner.getLockAward()));
+        miner.setTotalBlockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward()));
+        miner.setBalanceMinerAvailable(BigDecimalUtil.formatFour(miner.getBalanceMinerAvailable()));
+        miner.setBalanceMinerAccount(BigDecimalUtil.formatFour(miner.getBalanceMinerAccount()));
         return miner;
     }
 
@@ -66,7 +84,36 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     @Override
     public List<SysMinerInfo> selectSysMinerInfoList(SysMinerInfo sysMinerInfo)
     {
-        return sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
+        List<SysMinerInfo> list = null;
+        if(sysMinerInfo.getUserId() == 1L){
+            list = sysMinerInfoMapper.selectSysMinerInfoList(new SysMinerInfo());
+        }else{
+            list = sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
+       }
+        return list;
+    }
+
+    public Map<String,Object> findPage(SysMinerInfo sysMinerInfo)
+    {
+        Long userId = HttpRequestUtil.getUserId();
+        sysMinerInfo.setUserId(userId);
+        LambdaQueryWrapper<SysMinerInfo> query = new LambdaQueryWrapper<>();
+        query.setEntity(sysMinerInfo);
+        IPage<SysMinerInfo> page = sysMinerInfoMapper.selectPage(new Page(sysMinerInfo.getPageNum(), sysMinerInfo.getPageSize()), query);
+        for (SysMinerInfo info: page.getRecords()) {
+            Long c = countByMinerId(info.getMinerId());
+            info.setMachineCount(c);
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("code", ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("rows",page.getRecords());
+        map.put("total",page.getTotal());
+        return map;
+    }
+
+    public Long countByMinerId(String minerId) {
+        return sysMinerInfoMapper.countByMinerId(minerId);
     }
 
     /**
@@ -133,5 +180,28 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     @Override
     public SysTotalEarning selectTotalEarningAndAwardByUserId(Long userId) {
         return sysMinerInfoMapper.selectTotalEarningAndAwardByUserId(userId);
+    }
+
+
+    public Map<String,Object> machines(Long id,int pageNum,int pageSize) {
+
+        Long userId = HttpRequestUtil.getUserId();
+        SysMinerInfo miner = selectSysMinerInfoById(id);
+        if (miner == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+        }
+        if (userId != null && userId != 1L && !userId.equals(miner.getUserId())) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
+        }
+
+        LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SysMinerInfo::getMinerId,miner.getMinerId());
+        IPage<SysMinerInfo> page = sysMinerInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
+        Map<String,Object> map = new HashMap<>();
+        map.put("code", ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("rows",page.getRecords());
+        map.put("total",page.getTotal());
+        return map;
     }
 }

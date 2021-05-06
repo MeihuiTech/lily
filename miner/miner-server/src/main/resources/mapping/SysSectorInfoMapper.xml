@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.SysSectorInfoMapper">
+    
+    <resultMap type="SysSectorInfo" id="SysSectorInfoResult">
+        <result property="id"    column="id"    />
+        <result property="minerId"    column="miner_id"    />
+        <result property="hostname"    column="hostname"    />
+        <result property="sectorNo"    column="sector_no"    />
+        <result property="sectorSize"    column="sector_size"    />
+        <result property="sectorStatus"    column="sector_status"    />
+        <result property="sectorStart"    column="sector_start"    />
+        <result property="sectorDuration"    column="sector_duration"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysSectorInfoVo">
+        select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_start, sector_duration, create_by, create_time, update_by, update_time from sys_sector_info
+    </sql>
+
+    <select id="selectSysSectorInfoList" parameterType="SysSectorInfo" resultMap="SysSectorInfoResult">
+        <include refid="selectSysSectorInfoVo"/>
+        <where>  
+            <if test="minerId != null  and minerId != ''"> and miner_id = #{minerId}</if>
+            <if test="hostname != null  and hostname != ''"> and hostname like concat('%', #{hostname}, '%')</if>
+            <if test="sectorNo != null "> and sector_no = #{sectorNo}</if>
+            <if test="sectorSize != null "> and sector_size = #{sectorSize}</if>
+            <if test="sectorStatus != null "> and sector_status = #{sectorStatus}</if>
+            <if test="sectorStart != null "> and sector_start = #{sectorStart}</if>
+            <if test="sectorDuration != null "> and sector_duration = #{sectorDuration}</if>
+        </where>
+    </select>
+
+    <select id="selectSysSectorInfoById" parameterType="Long" resultMap="SysSectorInfoResult">
+        <include refid="selectSysSectorInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSysSectorInfoByMinerIdAndSectorNoAndStatus" parameterType="SysSectorInfo" resultMap="SysSectorInfoResult">
+        <include refid="selectSysSectorInfoVo"/>
+        where miner_id = #{minerId} and sector_no = #{sectorNo} and sector_status = #{sectorStatus}
+    </select>
+        
+    <insert id="insertSysSectorInfo" parameterType="SysSectorInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_sector_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="minerId != null and minerId != ''">miner_id,</if>
+            <if test="hostname != null and hostname != ''">hostname,</if>
+            <if test="sectorNo != null">sector_no,</if>
+            <if test="sectorSize != null">sector_size,</if>
+            <if test="sectorStatus != null">sector_status,</if>
+            <if test="sectorStart != null">sector_start,</if>
+            <if test="sectorDuration != null">sector_duration,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="minerId != null and minerId != ''">#{minerId},</if>
+            <if test="hostname != null and hostname != ''">#{hostname},</if>
+            <if test="sectorNo != null">#{sectorNo},</if>
+            <if test="sectorSize != null">#{sectorSize},</if>
+            <if test="sectorStatus != null">#{sectorStatus},</if>
+            <if test="sectorStart != null">#{sectorStart},</if>
+            <if test="sectorDuration != null">#{sectorDuration},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysSectorInfo" parameterType="SysSectorInfo">
+        update sys_sector_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="minerId != null and minerId != ''">miner_id = #{minerId},</if>
+            <if test="hostname != null and hostname != ''">hostname = #{hostname},</if>
+            <if test="sectorNo != null">sector_no = #{sectorNo},</if>
+            <if test="sectorSize != null">sector_size = #{sectorSize},</if>
+            <if test="sectorStatus != null">sector_status = #{sectorStatus},</if>
+            <if test="sectorStart != null">sector_start = #{sectorStart},</if>
+            <if test="sectorDuration != null">sector_duration = #{sectorDuration},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysSectorInfoById" parameterType="Long">
+        delete from sys_sector_info where id = #{id}
+    </delete>
+
+    <delete id="deleteSysSectorInfoByIds" parameterType="String">
+        delete from sys_sector_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

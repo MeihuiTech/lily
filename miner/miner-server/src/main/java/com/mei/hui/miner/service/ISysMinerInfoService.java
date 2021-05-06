@@ -4,6 +4,7 @@ import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 矿工信息Service接口
@@ -78,4 +79,10 @@ public interface ISysMinerInfoService
      * @return 结果
      */
     SysTotalEarning selectTotalEarningAndAwardByUserId(Long userId);
+
+    public Long countByMinerId(String minerId);
+
+    Map<String,Object> findPage(SysMinerInfo sysMinerInfo);
+
+    public Map<String,Object> machines(Long id,int pageNum,int pageSize);
 }

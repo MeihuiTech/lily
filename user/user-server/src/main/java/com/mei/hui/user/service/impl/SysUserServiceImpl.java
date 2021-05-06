@@ -110,6 +110,9 @@ public class SysUserServiceImpl implements ISysUserService {
     }
 
     public Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req){
+        if(req.getUserIds() == null || req.getUserIds().size() == 0){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"id集合为空");
+        }
         List<SysUser> list = sysUserMapper.selectBatchIds(req.getUserIds());
         List<SysUserOut> users = list.stream().map(v -> {
             SysUserOut sysUserOut = new SysUserOut();

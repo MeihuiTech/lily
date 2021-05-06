@@ -1,6 +1,11 @@
 package com.mei.hui.miner.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.mei.hui.util.BasePage;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,9 +18,11 @@ import java.time.LocalDateTime;
  * @date 2021-03-08
  */
 @Data
-public class SysTransferRecord extends BasePage
+@TableName("sys_transfer_record")
+public class SysTransferRecord
 {
     /** $column.columnComment */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /** 用户ID */
@@ -46,5 +53,12 @@ public class SysTransferRecord extends BasePage
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    @TableField(exist = false)
+    private long pageNum = 1;
+    @TableField(exist = false)
+    private long pageSize = 10;
+    @TableField(exist = false)
+    private String userName;
 
 }
