@@ -5,6 +5,7 @@ import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.entity.SysVerifyCode;
+import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysRoleService;
@@ -50,6 +51,16 @@ public class SysUserController{
         SysUserOut sysUserOut = new SysUserOut();
         BeanUtils.copyProperties(sysUser,sysUserOut);
         return Result.success(sysUserOut);
+    }
+
+    /**
+     * 批量获取用户信息
+     * @param req
+     * @return
+     */
+    @PostMapping("/findSysUserList")
+    public Result<SysUserOut> findSysUserList(@RequestBody FindSysUserListInput req){
+        return userService.findSysUserList(req);
     }
 
     /**

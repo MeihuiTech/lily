@@ -11,6 +11,8 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.*;
+import com.mei.hui.user.feign.vo.FindSysUserListInput;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.mapper.*;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.model.SelectUserListInput;
@@ -21,12 +23,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class SysUserServiceImpl implements ISysUserService {
@@ -103,6 +107,16 @@ public class SysUserServiceImpl implements ISysUserService {
         Long userId = HttpRequestUtil.getUserId();
         SysUser sysUser = sysUserMapper.selectById(userId);
         return sysUser;
+    }
+
+    public Result<SysUserOut> findSysUserList(FindSysUserListInput req){
+        List<SysUser> list = sysUserMapper.selectBatchIds(req.getUserIds());
+        List<SysUserOut> users = list.stream().map(v -> {
+            SysUserOut sysUserOut = new SysUserOut();
+            BeanUtils.copyProperties(v, sysUserOut);
+            return sysUserOut;
+        }).collect(Collectors.toList());
+        return Result.success(users);
     }
 
     /**

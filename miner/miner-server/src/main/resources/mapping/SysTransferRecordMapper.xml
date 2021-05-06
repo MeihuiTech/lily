@@ -55,7 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectSysTransferRecordListUserName" parameterType="SysTransferRecord" resultMap="SysTransferRecordUserNameRet">
-        <include refid="selectSysTransferRecordWrapVo"/>
+        select a.* from sys_transfer_record a
         <where>
             <if test="userId != null "> and a.user_id = #{userId}</if>
             <if test="amount != null "> and a.amount = #{amount}</if>

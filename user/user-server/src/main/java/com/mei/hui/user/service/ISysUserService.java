@@ -1,13 +1,16 @@
 package com.mei.hui.user.service;
 
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.util.Result;
+import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface ISysUserService {
 
@@ -36,4 +39,6 @@ public interface ISysUserService {
     int resetPwd(SysUser user);
 
     int updateUserStatus(SysUser user);
+
+    Result<SysUserOut> findSysUserList(FindSysUserListInput req);
 }
