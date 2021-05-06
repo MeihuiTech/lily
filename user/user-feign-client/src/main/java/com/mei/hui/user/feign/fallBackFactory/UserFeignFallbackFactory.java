@@ -1,6 +1,7 @@
 package com.mei.hui.user.feign.fallBackFactory;
 
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.Result;
 import feign.hystrix.FallbackFactory;
@@ -22,6 +23,11 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
 
             @Override
             public Result<SysUserOut> getSysUser() {
+                return null;
+            }
+
+            @Override
+            public Result<SysUserOut> findSysUserList(FindSysUserListInput req) {
                 return null;
             }
         };
