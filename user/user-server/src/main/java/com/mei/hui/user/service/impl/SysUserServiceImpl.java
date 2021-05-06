@@ -109,7 +109,7 @@ public class SysUserServiceImpl implements ISysUserService {
         return sysUser;
     }
 
-    public Result<SysUserOut> findSysUserList(FindSysUserListInput req){
+    public Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req){
         List<SysUser> list = sysUserMapper.selectBatchIds(req.getUserIds());
         List<SysUserOut> users = list.stream().map(v -> {
             SysUserOut sysUserOut = new SysUserOut();

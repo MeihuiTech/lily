@@ -8,6 +8,8 @@ import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
 *@Description:
 *@Author: 鲍红建
@@ -27,7 +29,7 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
             }
 
             @Override
-            public Result<SysUserOut> findSysUserList(FindSysUserListInput req) {
+            public Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req) {
                 return null;
             }
         };

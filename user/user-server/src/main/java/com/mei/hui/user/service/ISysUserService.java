@@ -40,5 +40,5 @@ public interface ISysUserService {
 
     int updateUserStatus(SysUser user);
 
-    Result<SysUserOut> findSysUserList(FindSysUserListInput req);
+    Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req);
 }

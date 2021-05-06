@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 /**
 *@Description:
 *@Author: 鲍红建
@@ -21,5 +23,5 @@ public interface UserFeignClient {
     Result<SysUserOut> getSysUser();
 
     @PostMapping("/findSysUserList")
-    Result<SysUserOut> findSysUserList(@RequestBody FindSysUserListInput req);
+    Result<List<SysUserOut>> findSysUserList(@RequestBody FindSysUserListInput req);
 }
