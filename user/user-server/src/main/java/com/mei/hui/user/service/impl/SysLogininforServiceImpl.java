@@ -45,7 +45,7 @@ public class SysLogininforServiceImpl implements ISysLogininforService
     @Override
     public Map<String,Object> selectLogininforList(SysLogininfor logininfor)
     {
-        PageHelper.startPage(logininfor.getPageNum(),logininfor.getPageSize());
+        PageHelper.startPage(Integer.valueOf(logininfor.getPageNum()+""),Integer.valueOf(logininfor.getPageSize()+""));
         List<SysLogininfor> list = logininforMapper.selectLogininforList(logininfor);
         PageInfo<SysLogininfor> pageInfo = new PageInfo<>(list);
         Map<String,Object> map = new HashMap<>();

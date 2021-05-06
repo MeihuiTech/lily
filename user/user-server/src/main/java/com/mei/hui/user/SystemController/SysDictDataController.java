@@ -38,7 +38,7 @@ public class SysDictDataController{
     @GetMapping("/list")
     public Map<String,Object> list(SysDictData dictData)
     {
-        PageHelper.startPage(dictData.getPageNum(), dictData.getPageSize());
+        PageHelper.startPage(Integer.valueOf(dictData.getPageNum()+""),Integer.valueOf(dictData.getPageSize()+""));
         List<SysDictData> list = dictDataService.selectDictDataList(dictData);
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());

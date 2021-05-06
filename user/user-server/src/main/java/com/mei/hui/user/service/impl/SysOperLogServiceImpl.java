@@ -44,7 +44,7 @@ public class SysOperLogServiceImpl implements ISysOperLogService
     @Override
     public Map<String,Object> selectOperLogList(SysOperLog operLog)
     {
-        PageHelper.startPage(operLog.getPageNum(),operLog.getPageSize());
+        PageHelper.startPage(Integer.valueOf(operLog.getPageNum()+""),Integer.valueOf(operLog.getPageSize()+""));
         List<SysOperLog> list = operLogMapper.selectOperLogList(operLog);
         PageInfo<SysOperLog> pageInfo = new PageInfo<>(list);
         Map<String,Object> map = new HashMap<>();

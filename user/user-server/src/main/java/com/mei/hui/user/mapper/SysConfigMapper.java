@@ -2,6 +2,8 @@ package com.mei.hui.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.user.entity.SysConfig;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 /**
@@ -9,6 +11,7 @@ import java.util.List;
  * 
  * @author ruoyi
  */
+@Repository
 public interface SysConfigMapper
 {
     /**

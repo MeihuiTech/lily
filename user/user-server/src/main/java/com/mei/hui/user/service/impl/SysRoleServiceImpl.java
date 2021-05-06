@@ -1,5 +1,8 @@
 package com.mei.hui.user.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.user.common.UserError;
@@ -11,9 +14,12 @@ import com.mei.hui.user.mapper.SysUserRoleMapper;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -40,14 +46,32 @@ public class SysRoleServiceImpl implements ISysRoleService{
     @Override
     public Map<String,Object> selectRoleList(SysRole role)
     {
-        PageHelper.startPage(role.getPageNum(),role.getPageSize());
-        List<SysRole> list = roleMapper.selectRoleList(role);
-        PageInfo<SysRole> pageInfo = new PageInfo<>(list);
+        LambdaQueryWrapper<SysRole> queryWrapper = new LambdaQueryWrapper<>();
+        if(StringUtils.isNotEmpty(role.getRoleName())){
+            queryWrapper.like(SysRole::getRoleName,role.getRoleName());
+        }
+        if(StringUtils.isNotEmpty(role.getStatus())){
+            queryWrapper.eq(SysRole::getStatus,role.getStatus());
+        }
+        if(StringUtils.isNotEmpty(role.getRoleKey())){
+            queryWrapper.like(SysRole::getRoleKey,role.getRoleKey());
+        }
+        if(role.getParams() != null){
+            String beginTime = (String) role.getParams().get("beginTime");
+            String endTime = (String) role.getParams().get("endTime");
+            if(StringUtils.isNotEmpty(beginTime)){
+                queryWrapper.ge(SysRole::getCreateTime,beginTime);
+            }
+            if(StringUtils.isNotEmpty(endTime)){
+                queryWrapper.le(SysRole::getCreateTime,endTime);
+            }
+        }
+        IPage<SysRole> page = roleMapper.selectPage(new Page<>(role.getPageNum(), role.getPageSize()), queryWrapper);
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
-        map.put("rows",list);
-        map.put("total",pageInfo.getTotal());
+        map.put("rows",page.getRecords());
+        map.put("total",page.getTotal());
         return map;
     }
 
@@ -109,9 +133,10 @@ public class SysRoleServiceImpl implements ISysRoleService{
     @Override
     public String checkRoleNameUnique(SysRole role)
     {
-        Long roleId = role.getRoleId() != null ? -1L : role.getRoleId();
-        SysRole info = roleMapper.checkRoleNameUnique(role.getRoleName());
-        if (info != null && info.getRoleId().longValue() != roleId.longValue())
+        LambdaQueryWrapper<SysRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(SysRole::getRoleName,role.getRoleName());
+        List<SysRole> list = roleMapper.selectList(lambdaQueryWrapper);
+        if (list.size() > 0)
         {
             return 1+"";
         }
@@ -125,9 +150,11 @@ public class SysRoleServiceImpl implements ISysRoleService{
      */
     @Override
     public String checkRoleKeyUnique(SysRole role){
-        Long roleId = role.getRoleId() == null ? -1L : role.getRoleId();
-        SysRole info = roleMapper.checkRoleKeyUnique(role.getRoleKey());
-        if (info != null && info.getRoleId().longValue() != roleId.longValue()){
+        LambdaQueryWrapper<SysRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(SysRole::getRoleKey,role.getRoleKey());
+        List<SysRole> list = roleMapper.selectList(lambdaQueryWrapper);
+        if (list.size() > 0)
+        {
             return 1+"";
         }
         return 0+"";
@@ -250,16 +277,18 @@ public class SysRoleServiceImpl implements ISysRoleService{
     public int deleteRoleByIds(Long[] roleIds) {
         for (Long roleId : roleIds) {
             SysRole sysUser = SysRole.builder().roleId(roleId).build();
+            //检查是否是超级管理员角色，是，则不允许删除
             checkRoleAllowed(sysUser);
-            SysRole role = selectRoleById(roleId);
+            //已分配的角色不允许删除
             if (countUserRoleByRoleId(roleId) > 0)
             {
+                SysRole role = selectRoleById(roleId);
                 throw new MyException(UserError.MYB_333333.getCode(),String.format("%1$s已分配,不能删除",role.getRoleName()));
             }
         }
         // 删除角色与菜单关联
         roleMenuMapper.deleteRoleMenu(roleIds);
-        return roleMapper.deleteRoleByIds(roleIds);
+        return roleMapper.deleteBatchIds(Arrays.asList(roleIds));
     }
 
 

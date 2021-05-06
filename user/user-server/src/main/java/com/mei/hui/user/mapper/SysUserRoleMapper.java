@@ -2,6 +2,7 @@ package com.mei.hui.user.mapper;
 
 import com.mei.hui.user.entity.SysUserRole;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
  * 用户与角色关联表 数据层
  * @author ruoyi
  */
+
+@Repository
 public interface SysUserRoleMapper
 {
     /**

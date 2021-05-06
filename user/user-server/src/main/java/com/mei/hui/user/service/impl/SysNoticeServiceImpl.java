@@ -45,7 +45,7 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     @Override
     public Map<String,Object> selectNoticeList(SysNotice notice)
     {
-        PageHelper.startPage(notice.getPageNum(),notice.getPageSize());
+        PageHelper.startPage(Integer.valueOf(notice.getPageNum()+""),Integer.valueOf(notice.getPageSize()+""));
         List<SysNotice> list = noticeMapper.selectNoticeList(notice);
         PageInfo<SysNotice> pageInfo = new PageInfo<>(list);
         Map<String,Object> map = new HashMap<>();

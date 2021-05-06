@@ -77,4 +77,6 @@ public class SysMenu{
 
     private String updateBy;
 
+    private String remark;
+
 }

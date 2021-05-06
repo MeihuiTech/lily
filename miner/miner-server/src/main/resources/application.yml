@@ -36,10 +36,7 @@ mybatis-plus:
 #showSql
 logging:
   level:
-    com:
-      mei:
-        hui:
-          mapper: debug
+    com.mei.hui.miner.mapper: debug
 # 分页配置
 pagehelper:
   helper-dialect: mysql

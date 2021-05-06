@@ -2,6 +2,8 @@ package com.mei.hui.user.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
@@ -47,10 +49,10 @@ public class SysUserServiceImpl implements ISysUserService {
         String captcha = redisUtils.get(verifyKey);
         redisUtils.delete(verifyKey);
         if (captcha == null){
-            throw  MyException.fail(UserError.MYB_333333.getCode(),"用户名或密码错误");
+            throw  MyException.fail(UserError.MYB_333333.getCode(),"验证码错误");
         }
         if (!loginBody.getCode().equalsIgnoreCase(captcha)){
-            throw  MyException.fail(UserError.MYB_333333.getCode(),"用户名或密码错误");
+            throw  MyException.fail(UserError.MYB_333333.getCode(),"验证码错误");
         }
         /**
          * 用户校验
@@ -110,20 +112,34 @@ public class SysUserServiceImpl implements ISysUserService {
      */
     public Map<String,Object> selectUserList(SelectUserListInput user)
     {
-        SysUser sysUser = new SysUser();
-        //BeanUtils.copyProperties(user,sysUser);
-        Integer pageNum = user.getPageNum();
-        Integer pageSize = user.getPageSize();
-        PageHelper.startPage(pageNum, pageSize);
-        List<SysUser> list = sysUserMapper.selectUserList(sysUser);
-        PageInfo<SysUser> pageInfo = new PageInfo<>(list);
-
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        if(StringUtils.isNotEmpty(user.getUserName())){
+            queryWrapper.like(SysUser::getUserName,user.getUserName());
+        }
+        if(StringUtils.isNotEmpty(user.getPhonenumber())){
+            queryWrapper.like(SysUser::getPhonenumber,user.getPhonenumber());
+        }
+        if(StringUtils.isNotEmpty(user.getStatus())){
+            queryWrapper.eq(SysUser::getStatus,user.getStatus());
+        }
+        if(user.getParams() != null){
+            String beginTime = (String) user.getParams().get("beginTime");
+            String endTime = (String) user.getParams().get("endTime");
+            if(StringUtils.isNotEmpty(beginTime)){
+                queryWrapper.ge(SysUser::getCreateTime,beginTime);
+            }
+            if(StringUtils.isNotEmpty(endTime)){
+                queryWrapper.le(SysUser::getCreateTime,endTime);
+            }
+        }
+        queryWrapper.eq(SysUser::getDelFlag,0);
+        IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(user.getPageNum(), user.getPageSize()), queryWrapper);
         //组装返回值
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
-        map.put("total",pageInfo.getTotal());
-        map.put("rows",pageInfo.getList());
+        map.put("total",page.getTotal());
+        map.put("rows",page.getRecords());
         return map;
     }
 

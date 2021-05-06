@@ -9,9 +9,9 @@ import lombok.Data;
 public class BasePage {
 
     @ApiModelProperty(value = "当前页码",required = true)
-    private int pageNum = 1;
+    private long pageNum = 1;
 
     @ApiModelProperty(value = "每页数量",required = true)
-    private int pageSize = 10;
+    private long pageSize = 10;
 
 }

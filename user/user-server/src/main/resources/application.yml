@@ -48,10 +48,7 @@ mybatis-plus:
 #showSql
 logging:
   level:
-    com:
-      mei:
-        hui:
-          mapper: debug
+    com.mei.hui.user.mapper: debug
 
 # 验证码类型 math 数组计算 char 字符验证
 captcha:

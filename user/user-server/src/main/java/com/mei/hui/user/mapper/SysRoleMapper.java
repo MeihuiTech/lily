@@ -1,5 +1,6 @@
 package com.mei.hui.user.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.user.entity.SysRole;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * @author ruoyi
  */
 @Repository
-public interface SysRoleMapper
+public interface SysRoleMapper extends BaseMapper<SysRole>
 {
     /**
      * 根据条件分页查询角色数据

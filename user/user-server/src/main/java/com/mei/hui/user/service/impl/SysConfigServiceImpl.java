@@ -94,7 +94,7 @@ public class SysConfigServiceImpl implements ISysConfigService
     @Override
     public Map<String,Object> selectConfigList(SysConfig config)
     {
-        PageHelper.startPage(config.getPageNum(), config.getPageSize());
+        PageHelper.startPage(Integer.valueOf(config.getPageNum()+""),Integer.valueOf(config.getPageSize()+""));
         List<SysConfig> list = configMapper.selectConfigList(config);
         PageInfo<SysConfig> pageInfo = new PageInfo(list);
         Map<String,Object> map = new HashMap<>();
