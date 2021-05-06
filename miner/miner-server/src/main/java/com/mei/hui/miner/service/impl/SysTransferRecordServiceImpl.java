@@ -131,7 +131,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
      */
     @Override
     public Map<String,Object> selectSysTransferRecordListUserName(SysTransferRecord sysTransferRecord){
-        PageHelper.startPage(sysTransferRecord.getPageNum(),sysTransferRecord.getPageSize());
+        PageHelper.startPage(Integer.valueOf(sysTransferRecord.getPageNum()+""),Integer.valueOf(sysTransferRecord.getPageSize()+""));
         List<SysTransferRecordUserName> list = sysTransferRecordMapper.selectSysTransferRecordListUserName(sysTransferRecord);
         PageInfo<SysTransferRecordUserName> pageInfo = new PageInfo<>(list);
 
