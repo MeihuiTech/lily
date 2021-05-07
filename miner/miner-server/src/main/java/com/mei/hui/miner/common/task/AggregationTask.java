@@ -11,11 +11,15 @@ import com.mei.hui.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Component("aggregationTask")
+@Configuration      //1.主要用于标记配置类，兼备Component的效果。
+@EnableScheduling   // 2.开启定时任务
 public class AggregationTask {
     private static final Logger log = LoggerFactory.getLogger(AggregationTask.class);
 
@@ -27,10 +31,12 @@ public class AggregationTask {
 
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
-
     /**
      * 账户按天聚合
      */
+    //或直接指定时间间隔，例如：5秒
+    //@Scheduled(fixedRate=5000)
+    @Scheduled(cron = "0 0 0 * * ? *")
     public void dailyAccount() {
         log.info("dailyAccount start...");
         SysMinerInfo sysMinerInfo = new SysMinerInfo();
@@ -38,7 +44,7 @@ public class AggregationTask {
         int pageSize = 100;
         while (true) {
             PageHelper.startPage(pageNum,pageSize, "id");
-            List<SysMinerInfo> list = sysMinerInfoService.selectSysMinerInfoList(sysMinerInfo);
+            List<SysMinerInfo> list = sysMinerInfoService.findMinerInfoList(sysMinerInfo);
             for (SysMinerInfo info : list) {
                 insertAccount(info);
                 insertPower(info);
@@ -49,7 +55,6 @@ public class AggregationTask {
                 pageNum ++;
             }
         }
-
         log.info("dailyAccount end...");
     }
 

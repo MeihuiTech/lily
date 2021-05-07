@@ -97,6 +97,10 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return list;
     }
 
+    public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo){
+        return sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
+    }
+
     public Map<String,Object> findPage(SysMinerInfo sysMinerInfo)
     {
         Long userId = HttpRequestUtil.getUserId();
