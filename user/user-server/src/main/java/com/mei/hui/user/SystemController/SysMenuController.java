@@ -39,7 +39,7 @@ public class SysMenuController
     @GetMapping("/list")
     public Result list(SysMenu menu)
     {
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         List<SysMenu> menus = menuService.selectMenuList(menu, user.getUserId());
         return Result.success(menus);
     }
@@ -59,7 +59,7 @@ public class SysMenuController
     @GetMapping("/treeselect")
     public Result treeselect(SysMenu menu)
     {
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         List<SysMenu> menus = menuService.selectMenuList(menu, user.getUserId());
         return Result.success(menuService.buildMenuTreeSelect(menus));
     }
@@ -69,7 +69,7 @@ public class SysMenuController
      */
     @GetMapping(value = "/roleMenuTreeselect/{roleId}")
     public Map<String,Object> roleMenuTreeselect(@PathVariable("roleId") Long roleId){
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         List<SysMenu> menus = menuService.selectMenuList(user.getUserId());
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
@@ -90,7 +90,7 @@ public class SysMenuController
                 && !StringUtils.startsWithAny(menu.getPath(), Constants.HTTP, Constants.HTTPS)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"地址必须以http(s)://开头");
         }
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         menu.setCreateBy(user.getUserName());
         int rows = menuService.insertMenu(menu);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
@@ -111,7 +111,7 @@ public class SysMenuController
         {
             throw MyException.fail(UserError.MYB_333333.getCode(),"上级菜单不能选择自己");
         }
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         menu.setUpdateBy(user.getUserName());
         int rows = menuService.updateMenu(menu);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");

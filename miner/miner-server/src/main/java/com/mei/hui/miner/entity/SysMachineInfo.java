@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * 矿机信息对象 sys_machine_info
  * 
@@ -55,5 +57,9 @@ public class SysMachineInfo
     private Long workerCount;
 
     private Integer online;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 
 }

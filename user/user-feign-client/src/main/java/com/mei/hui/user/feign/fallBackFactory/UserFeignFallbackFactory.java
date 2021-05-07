@@ -23,13 +23,19 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
         log.error("远程接口异常:",throwable);
         return new UserFeignClient() {
 
+
             @Override
-            public Result<SysUserOut> getSysUser() {
+            public Result<SysUserOut> getUserById(SysUserOut sysUserOut) {
                 return null;
             }
 
             @Override
             public Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req) {
+                return null;
+            }
+
+            @Override
+            public Result<SysUserOut> getLoginUser() {
                 return null;
             }
         };

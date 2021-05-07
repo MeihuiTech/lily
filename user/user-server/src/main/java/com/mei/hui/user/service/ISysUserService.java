@@ -17,8 +17,6 @@ public interface ISysUserService {
     Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody);
     String selectUserRoleGroup(String userName);
 
-    SysUser getSysUser();
-
     Map<String,Object> selectUserList(SelectUserListInput user);
 
     SysUser selectUserById(Long userId);
@@ -41,4 +39,8 @@ public interface ISysUserService {
     int updateUserStatus(SysUser user);
 
     Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req);
+
+    SysUser getLoginUser();
+
+    SysUser getUserById(Long userId);
 }

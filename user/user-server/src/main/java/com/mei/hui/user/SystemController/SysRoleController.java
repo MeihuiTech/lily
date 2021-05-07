@@ -57,7 +57,7 @@ public class SysRoleController
         else if ("1".equals(roleService.checkRoleKeyUnique(role))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"角色权限已存在");
         }
-        SysUser user = userService.getSysUser();
+        SysUser user = userService.getLoginUser();
         role.setCreateBy(user.getUserName());
         int rows = roleService.insertRole(role);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
@@ -75,7 +75,7 @@ public class SysRoleController
         }else if ("1".equals(roleService.checkRoleKeyUnique(role))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"角色权限已存在");
         }
-        SysUser user = userService.getSysUser();
+        SysUser user = userService.getLoginUser();
         role.setUpdateBy(user.getUserName());
         if (roleService.updateRole(role) > 0){
             // 更新缓存用户权限
@@ -103,7 +103,7 @@ public class SysRoleController
     @PutMapping("/changeStatus")
     public Result changeStatus(@RequestBody SysRole role)
     {
-        SysUser user = userService.getSysUser();
+        SysUser user = userService.getLoginUser();
         roleService.checkRoleAllowed(role);
         role.setUpdateBy(user.getUserName());
         int rows = roleService.updateRoleStatus(role);

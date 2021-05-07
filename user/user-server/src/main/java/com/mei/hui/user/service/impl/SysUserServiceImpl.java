@@ -103,7 +103,16 @@ public class SysUserServiceImpl implements ISysUserService {
         return idsStr.toString();
     }
 
-    public SysUser getSysUser(){
+    public SysUser getUserById(Long userId){
+        SysUser sysUser = sysUserMapper.selectById(userId);
+        return sysUser;
+    }
+
+    /**
+     * 获取当前登陆用户
+     * @return
+     */
+    public SysUser getLoginUser(){
         Long userId = HttpRequestUtil.getUserId();
         SysUser sysUser = sysUserMapper.selectById(userId);
         return sysUser;

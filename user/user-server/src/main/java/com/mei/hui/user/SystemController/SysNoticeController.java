@@ -48,7 +48,7 @@ public class SysNoticeController{
     @PostMapping
     public Result add(@Validated @RequestBody SysNotice notice)
     {
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         notice.setCreateBy(user.getUserName());
         int rows = noticeService.insertNotice(notice);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
@@ -60,7 +60,7 @@ public class SysNoticeController{
     @PutMapping
     public Result edit(@Validated @RequestBody SysNotice notice)
     {
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         notice.setUpdateBy(user.getUserName());
         int rows = noticeService.updateNotice(notice);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");

@@ -1,5 +1,6 @@
 package com.mei.hui.user.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.smsConfig.SmsUtil;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
@@ -45,12 +46,31 @@ public class SysUserController{
     @Autowired
     private ISysVerifyCodeService sysVerifyCodeService;
 
-    @RequestMapping("/getSysUser")
-    public Result<SysUserOut> getSysUser(){
-        SysUser sysUser = userService.getSysUser();
-        SysUserOut sysUserOut = new SysUserOut();
-        BeanUtils.copyProperties(sysUser,sysUserOut);
-        return Result.success(sysUserOut);
+    /**
+     * 根据 userId 获取用户信息
+     * @return
+     */
+    @PostMapping("/getUserById")
+    public Result<SysUserOut> getUserById(@RequestBody SysUserOut sysUserOut){
+        if(sysUserOut == null || sysUserOut.getUserId() == null){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"请输入用户id");
+        }
+        SysUser sysUser = userService.getUserById(sysUserOut.getUserId());
+        SysUserOut out = new SysUserOut();
+        BeanUtils.copyProperties(sysUser,out);
+        return Result.success(out);
+    }
+
+    /**
+     * 获取当前登陆用户
+     * @return
+     */
+    @PostMapping("/getLoginUser")
+    public Result<SysUserOut> getLoginUser(){
+        SysUser sysUser = userService.getLoginUser();
+        SysUserOut out = new SysUserOut();
+        BeanUtils.copyProperties(sysUser,out);
+        return Result.success(out);
     }
 
     /**
@@ -108,7 +128,7 @@ public class SysUserController{
                 && "1".equals(userService.checkEmailUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱账号已存在");
         }
-        SysUser userOut = userService.getSysUser();
+        SysUser userOut = userService.getLoginUser();
         user.setCreateBy(userOut.getUserName());
         user.setPassword(AESUtil.encrypt(user.getPassword()));
         int rows = userService.insertUser(user);
@@ -131,7 +151,7 @@ public class SysUserController{
                 && "1".equals(userService.checkEmailUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱账号已存在");
         }
-        SysUser userOut = userService.getSysUser();
+        SysUser userOut = userService.getLoginUser();
         user.setUpdateBy(userOut.getUserName());
         int rows = userService.updateUser(user);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
@@ -152,7 +172,7 @@ public class SysUserController{
     @PutMapping("/resetPwd")
     public Result resetPwd(@RequestBody SysUser user){
         userService.checkUserAllowed(user);
-        SysUser sysUser = userService.getSysUser();
+        SysUser sysUser = userService.getLoginUser();
         user.setPassword(AESUtil.encrypt(user.getPassword()));
         user.setUpdateBy(sysUser.getUserName());
         int rows = userService.resetPwd(user);
@@ -166,7 +186,7 @@ public class SysUserController{
     public Result changeStatus(@RequestBody SysUser user)
     {
         userService.checkUserAllowed(user);
-        SysUser sysUser = userService.getSysUser();
+        SysUser sysUser = userService.getLoginUser();
         user.setUpdateBy(sysUser.getUserName());
         int rows = userService.updateUserStatus(user);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
@@ -174,7 +194,7 @@ public class SysUserController{
 
     @PostMapping("/sendSms")
     public Result sendSms() {
-        SysUser user = userService.getSysUser();
+        SysUser user = userService.getLoginUser();
         SysVerifyCode code = sysVerifyCodeService.selectSysVerifyCodeByUserId(user.getUserId());
         if (code != null) {
             LocalDateTime now = LocalDateTime.now();

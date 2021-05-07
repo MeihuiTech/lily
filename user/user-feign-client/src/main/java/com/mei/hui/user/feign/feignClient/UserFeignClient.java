@@ -20,9 +20,26 @@ import java.util.List;
 @FeignClient(name = "user-server",path = "/system/user",fallbackFactory = UserFeignFallbackFactory.class )
 public interface UserFeignClient {
 
-    @RequestMapping("/getSysUser")
-    Result<SysUserOut> getSysUser();
+    /**
+     *
+     * @param sysUserOut
+     * @return
+     */
+    @PostMapping("/getUserById")
+    Result<SysUserOut> getUserById(@RequestBody SysUserOut sysUserOut);
 
+    /**
+     * 批量获取用户
+     * @param req
+     * @return
+     */
     @RequestMapping(value = "/findSysUserList",method = RequestMethod.POST)
     Result<List<SysUserOut>> findSysUserList(@RequestBody  FindSysUserListInput req);
+
+    /**
+     * 获取当前登陆用户
+     * @return
+     */
+    @PostMapping("/getLoginUser")
+     Result<SysUserOut> getLoginUser();
 }

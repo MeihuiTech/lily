@@ -51,7 +51,7 @@ public class SysTransferRecordController
     @GetMapping("/list")
     public Map<String,Object> list(SysTransferRecord sysTransferRecord)
     {
-        Result<SysUserOut> userResult = userFeignClient.getSysUser();
+        Result<SysUserOut> userResult = userFeignClient.getLoginUser();
         if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
@@ -113,7 +113,7 @@ public class SysTransferRecordController
     public Result getUserEarning()
     {
         EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
-        Result<SysUserOut> userResult = userFeignClient.getSysUser();
+        Result<SysUserOut> userResult = userFeignClient.getLoginUser();
         if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
@@ -163,7 +163,7 @@ public class SysTransferRecordController
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {
-        Result<SysUserOut> userResult = userFeignClient.getSysUser();
+        Result<SysUserOut> userResult = userFeignClient.getLoginUser();
         if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }

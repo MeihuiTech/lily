@@ -64,7 +64,7 @@ public class SysConfigController
         {
             throw MyException.fail(UserError.MYB_333333.getCode(),"参数键名已存在");
         }
-        config.setCreateBy(sysUserService.getSysUser().getUserName());
+        config.setCreateBy(sysUserService.getLoginUser().getUserName());
         int rows = configService.insertConfig(config);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }
@@ -79,7 +79,7 @@ public class SysConfigController
         {
             throw MyException.fail(UserError.MYB_333333.getCode(),"参数键名已存在");
         }
-        config.setUpdateBy(sysUserService.getSysUser().getUserName());
+        config.setUpdateBy(sysUserService.getLoginUser().getUserName());
         int rows = configService.updateConfig(config);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }

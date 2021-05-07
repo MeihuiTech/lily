@@ -76,7 +76,7 @@ public class SysDictDataController{
      */
     @PostMapping
     public Result add(@Validated @RequestBody SysDictData dict){
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         dict.setCreateBy(user.getUserName());
         int rows = dictDataService.insertDictData(dict);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
@@ -88,7 +88,7 @@ public class SysDictDataController{
     @PutMapping
     public Result edit(@Validated @RequestBody SysDictData dict)
     {
-        SysUser user = sysUserService.getSysUser();
+        SysUser user = sysUserService.getLoginUser();
         dict.setUpdateBy(user.getUserName());
         int rows = dictDataService.updateDictData(dict);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
