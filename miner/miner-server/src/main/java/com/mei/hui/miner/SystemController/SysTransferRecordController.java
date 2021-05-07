@@ -114,7 +114,7 @@ public class SysTransferRecordController
     {
         EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
         Result<SysUserOut> userResult = userFeignClient.getSysUser();
-        if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
+        if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
         Long userId = userResult.getData().getUserId();
@@ -164,7 +164,7 @@ public class SysTransferRecordController
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {
         Result<SysUserOut> userResult = userFeignClient.getSysUser();
-        if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
+        if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
         SysUserOut user = userResult.getData();

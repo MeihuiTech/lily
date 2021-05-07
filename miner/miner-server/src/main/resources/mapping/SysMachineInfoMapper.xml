@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.SysMachineInfoMapper">
+    
+    <resultMap type="SysMachineInfo" id="SysMachineInfoResult">
+        <result property="id"    column="id"    />
+        <result property="minerId"    column="miner_id"    />
+        <result property="hostname"    column="hostname"    />
+        <result property="cpuModel"    column="cpu_model"    />
+        <result property="cpuCore"    column="cpu_core"    />
+        <result property="memoryUsed"    column="memory_used"    />
+        <result property="memoryTotal"    column="memory_total"    />
+        <result property="gpuModel"    column="gpu_model"    />
+        <result property="gpuCount"    column="gpu_count"    />
+        <result property="diskUsed"    column="disk_used"    />
+        <result property="diskTotal"    column="disk_total"    />
+        <result property="machineType"    column="machine_type"    />
+        <result property="workerCount"    column="worker_count"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="online"    column="online"    />
+    </resultMap>
+
+    <sql id="selectSysMachineInfoVo">
+        select id, miner_id, hostname, cpu_model, cpu_core, memory_used, memory_total, gpu_model, gpu_count, disk_used, disk_total, machine_type, worker_count, create_by, create_time, update_by, update_time, online from sys_machine_info
+    </sql>
+
+    <select id="selectSysMachineInfoList" parameterType="SysMachineInfo" resultMap="SysMachineInfoResult">
+        <include refid="selectSysMachineInfoVo"/>
+        <where>  
+            <if test="minerId != null  and minerId != ''"> and miner_id = #{minerId}</if>
+            <if test="hostname != null  and hostname != ''"> and hostname like concat('%', #{hostname}, '%')</if>
+            <if test="cpuModel != null  and cpuModel != ''"> and cpu_model = #{cpuModel}</if>
+            <if test="cpuCore != null "> and cpu_core = #{cpuCore}</if>
+            <if test="memoryUsed != null "> and memory_used = #{memoryUsed}</if>
+            <if test="memoryTotal != null "> and memory_total = #{memoryTotal}</if>
+            <if test="gpuModel != null  and gpuModel != ''"> and gpu_model = #{gpuModel}</if>
+            <if test="gpuCount != null "> and gpu_count = #{gpuCount}</if>
+            <if test="diskUsed != null "> and disk_used = #{diskUsed}</if>
+            <if test="diskTotal != null "> and disk_total = #{diskTotal}</if>
+            <if test="machineType != null  and machineType != ''"> and machine_type = #{machineType}</if>
+            <if test="workerCount != null "> and worker_count = #{workerCount}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysMachineInfoById" parameterType="Long" resultMap="SysMachineInfoResult">
+        <include refid="selectSysMachineInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSysMachineInfoByMinerAndHostname"  resultMap="SysMachineInfoResult">
+        <include refid="selectSysMachineInfoVo"/>
+        where miner_id = #{minerId} and hostname = #{hostname}
+    </select>
+
+    <select id="countByMinerId" resultType="Long">
+        select count(1) from sys_machine_info where miner_id = #{minerId}
+    </select>
+
+    <select id="selectSysMachineInfoByLimit" resultMap="SysMachineInfoResult">
+        <include refid="selectSysMachineInfoVo"/>
+        limit #{offset}, #{rowCount};
+    </select>
+
+    <insert id="insertSysMachineInfo" parameterType="SysMachineInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_machine_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="minerId != null and minerId != ''">miner_id,</if>
+            <if test="hostname != null">hostname,</if>
+            <if test="cpuModel != null">cpu_model,</if>
+            <if test="cpuCore != null">cpu_core,</if>
+            <if test="memoryUsed != null">memory_used,</if>
+            <if test="memoryTotal != null">memory_total,</if>
+            <if test="gpuModel != null">gpu_model,</if>
+            <if test="gpuCount != null">gpu_count,</if>
+            <if test="diskUsed != null">disk_used,</if>
+            <if test="diskTotal != null">disk_total,</if>
+            <if test="machineType != null">machine_type,</if>
+            <if test="workerCount != null">worker_count,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="online != null">online,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="minerId != null and minerId != ''">#{minerId},</if>
+            <if test="hostname != null">#{hostname},</if>
+            <if test="cpuModel != null">#{cpuModel},</if>
+            <if test="cpuCore != null">#{cpuCore},</if>
+            <if test="memoryUsed != null">#{memoryUsed},</if>
+            <if test="memoryTotal != null">#{memoryTotal},</if>
+            <if test="gpuModel != null">#{gpuModel},</if>
+            <if test="gpuCount != null">#{gpuCount},</if>
+            <if test="diskUsed != null">#{diskUsed},</if>
+            <if test="diskTotal != null">#{diskTotal},</if>
+            <if test="machineType != null">#{machineType},</if>
+            <if test="workerCount != null">#{workerCount},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="online != null">#{online},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysMachineInfo" parameterType="SysMachineInfo">
+        update sys_machine_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="minerId != null and minerId != ''">miner_id = #{minerId},</if>
+            <if test="hostname != null">hostname = #{hostname},</if>
+            <if test="cpuModel != null">cpu_model = #{cpuModel},</if>
+            <if test="cpuCore != null">cpu_core = #{cpuCore},</if>
+            <if test="memoryUsed != null">memory_used = #{memoryUsed},</if>
+            <if test="memoryTotal != null">memory_total = #{memoryTotal},</if>
+            <if test="gpuModel != null">gpu_model = #{gpuModel},</if>
+            <if test="gpuCount != null">gpu_count = #{gpuCount},</if>
+            <if test="diskUsed != null">disk_used = #{diskUsed},</if>
+            <if test="diskTotal != null">disk_total = #{diskTotal},</if>
+            <if test="machineType != null">machine_type = #{machineType},</if>
+            <if test="workerCount != null">worker_count = #{workerCount},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="online != null">online = #{online},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysMachineInfoById" parameterType="Long">
+        delete from sys_machine_info where id = #{id}
+    </delete>
+
+    <delete id="deleteSysMachineInfoByIds" parameterType="String">
+        delete from sys_machine_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

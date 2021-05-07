@@ -128,7 +128,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     @ApiOperation(value = "矿机列表")
     @GetMapping(value = "machines/{id}")
     public Map<String,Object> machines(@PathVariable("id") Long id,int pageNum,int pageSize) {
-        return machines(id,pageNum,pageSize);
+        return sysMinerInfoService.machines(id,pageNum,pageSize);
     }
 
 }

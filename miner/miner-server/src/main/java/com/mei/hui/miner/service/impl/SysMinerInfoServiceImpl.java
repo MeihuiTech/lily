@@ -6,9 +6,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.PoolInfo;
+import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.mapper.PoolInfoMapper;
+import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.BigDecimalUtil;
@@ -39,6 +41,8 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
 
     @Autowired
     PoolInfoMapper poolInfoMapper;
+    @Autowired
+    private SysMachineInfoMapper sysMachineInfoMapper;
 
     /**
      * 查询矿工信息
@@ -194,9 +198,9 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             throw MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
         }
 
-        LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SysMinerInfo::getMinerId,miner.getMinerId());
-        IPage<SysMinerInfo> page = sysMinerInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
+        LambdaQueryWrapper<SysMachineInfo> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SysMachineInfo::getMinerId,miner.getMinerId());
+        IPage<SysMachineInfo> page = sysMachineInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());

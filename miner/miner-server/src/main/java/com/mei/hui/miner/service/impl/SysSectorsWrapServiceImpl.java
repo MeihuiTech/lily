@@ -3,6 +3,8 @@ package com.mei.hui.miner.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.entity.SysSectorsWrap;
 import com.mei.hui.miner.mapper.SysSectorsWrapMapper;
@@ -111,17 +113,17 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
 
     public Map<String,Object> list(SysSectorsWrap sysSectorsWrap) {
         Long userId = HttpRequestUtil.getUserId();
-        LambdaQueryWrapper<SysSectorsWrap> lambdaQueryWrapper = new LambdaQueryWrapper();
-        IPage<SysSectorsWrap> page = sysSectorsWrapMapper.
-                selectPage(new Page<>(sysSectorsWrap.getPageNum(), sysSectorsWrap.getPageSize()), lambdaQueryWrapper);
+        sysSectorsWrap.getParams().put("userId", userId);
+        PageHelper.startPage(Integer.valueOf(sysSectorsWrap.getPageNum()+""),Integer.valueOf(sysSectorsWrap.getPageSize()+""));
+        List<SysSectorsWrap> list = sysSectorsWrapMapper.selectSysSectorsWrapListByUserId(sysSectorsWrap);
         /**
          * 组装返回信息
          */
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg", ErrorCode.MYB_000000.getMsg());
-        map.put("rows", page.getRecords());
-        map.put("total", page.getTotal());
+        map.put("rows",list);
+        map.put("total",new PageInfo(list).getTotal());
         return map;
     }
 
