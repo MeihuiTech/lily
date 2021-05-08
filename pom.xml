@@ -133,10 +133,10 @@
             <url>http://localhost:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>-->
-
+<!--
     <build>
         <plugins>
-           <!-- <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
@@ -145,12 +145,8 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <arguments>-DskipTests</arguments>
                 </configuration>
-            </plugin>-->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-    </build>
+    </build>-->
 
 </project>
