@@ -1,9 +1,12 @@
 <configuration>
 
     <!--读取application.yml配置文件-->
-    <springProperty scope="context" name="serviceName" source="spring.application.name" defaultValue="UnknownService"/>
+    <springProperty scope="context" name="serviceName" source="spring.application.name"/>
     <property name="myConsolePattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [${serviceName},%yellow(%X{X-B3-TraceId}),%green(%X{X-B3-SpanId})] %green(%logger:%L):%msg%n"/>
     <property name="myFilePattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [${serviceName},%X{X-B3-TraceId},%X{X-B3-SpanId}] %logger:%L:%msg%n"/>
+
+    <property name="log.filePath" value="user/local/miner_pool/logs/"/>
+    <property name="log.maxHistory" value="30"/>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -12,19 +15,32 @@
     </appender>
 
     <!-- This is the kafkaAppender -->
-    <!--<appender name="kafkaAppender" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+    <!-- <appender name="kafkaAppender" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+         <encoder>
+             <pattern>${myFilePattern}</pattern>
+         </encoder>
+         <topic>tjgx-log</topic>
+         <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.NoKeyKeyingStrategy" />
+         <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
+         &lt;!&ndash; <partition>0</partition> &ndash;&gt;
+         <producerConfig>bootstrap.servers=localhost:9092</producerConfig>
+     </appender>-->
+
+    <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
+    <appender name="rollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.filePath}/${serviceName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.filePath}/${serviceName}-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${log.maxHistory}</maxHistory>
+        </rollingPolicy>
         <encoder>
             <pattern>${myFilePattern}</pattern>
         </encoder>
-        <topic>tjgx-log</topic>
-        <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.NoKeyKeyingStrategy" />
-        <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
-        &lt;!&ndash; <partition>0</partition> &ndash;&gt;
-        <producerConfig>bootstrap.servers=localhost:9092</producerConfig>
-    </appender>-->
+    </appender>
 
     <root level="info">
-       <!-- <appender-ref ref="kafkaAppender" />-->
+        <!--  <appender-ref ref="kafkaAppender" />-->
         <appender-ref ref="console" />
+        <appender-ref ref="rollingFile" />
     </root>
 </configuration>

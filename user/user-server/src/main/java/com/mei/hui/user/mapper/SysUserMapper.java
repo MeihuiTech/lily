@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.model.SelectUserListInput;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -59,4 +60,13 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return 结果
      */
     public int deleteUserByIds(Long[] userIds);
+
+    /**
+     * 修改用户头像
+     *
+     * @param userId 用户名
+     * @param avatar 头像地址
+     * @return 结果
+     */
+    public int updateUserAvatar(@Param("userId") Long userId, @Param("avatar") String avatar);
 }

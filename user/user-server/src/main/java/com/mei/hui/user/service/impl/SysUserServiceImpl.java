@@ -119,7 +119,7 @@ public class SysUserServiceImpl implements ISysUserService {
     }
 
     public Result<List<SysUserOut>> findSysUserList(FindSysUserListInput req){
-        if(req == null && req.getUserIds() == null || req.getUserIds().size() == 0){
+        if(req == null || req.getUserIds() == null || req.getUserIds().size() == 0){
             throw MyException.fail(UserError.MYB_333333.getCode(),"id集合为空");
         }
         List<SysUser> list = sysUserMapper.selectBatchIds(req.getUserIds());
@@ -327,5 +327,17 @@ public class SysUserServiceImpl implements ISysUserService {
     public int updateUserStatus(SysUser user)
     {
         return sysUserMapper.updateUser(user);
+    }
+
+    /**
+     * 修改用户头像
+     *
+     * @param userId 用户名
+     * @param avatar 头像地址
+     * @return 结果
+     */
+    public boolean updateUserAvatar(Long userId, String avatar)
+    {
+        return sysUserMapper.updateUserAvatar(userId, avatar) > 0;
     }
 }

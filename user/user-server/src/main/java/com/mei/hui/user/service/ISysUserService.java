@@ -43,4 +43,6 @@ public interface ISysUserService {
     SysUser getLoginUser();
 
     SysUser getUserById(Long userId);
+
+    boolean updateUserAvatar(Long userId, String avatar);
 }

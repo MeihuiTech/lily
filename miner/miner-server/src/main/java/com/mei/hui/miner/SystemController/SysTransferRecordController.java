@@ -4,6 +4,7 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.model.EarningVo;
+import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.PoolEarningVo;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
 import com.mei.hui.miner.entity.SysVerifyCode;
@@ -12,6 +13,7 @@ import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.miner.service.ISysVerifyCodeService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
@@ -110,38 +112,35 @@ public class SysTransferRecordController
      * 查询用户收益
      */
     @GetMapping("/getUserEarning")
-    public Result getUserEarning()
-    {
+    public Result getUserEarning(@RequestBody GetUserEarningInput input){
         EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
         Result<SysUserOut> userResult = userFeignClient.getLoginUser();
         if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
         Long userId = userResult.getData().getUserId();
-        
-        //1. 通过user_id从sys_miner_info表中获取总收益和总锁仓收益
-        SysTotalEarning sysTotalEarning = sysMinerInfoService.selectTotalEarningAndAwardByUserId(userId);
-
+        //1. 通过miner_id从sys_miner_info表中获取总收益和总锁仓收益
+        SysTotalEarning sysTotalEarning = sysMinerInfoService.selectTotalEarningAndAwardByUserId(input.getMinerId());
         if (sysTotalEarning == null) {
+            earningVo.setTotalEarning(BigDecimalUtil
+                    .formatFour(new BigDecimal(earningVo.getTotalEarning())).doubleValue());
+            earningVo.setTotalLockAward(BigDecimalUtil
+                    .formatFour(new BigDecimal(earningVo.getTotalLockAward())).doubleValue());
             return Result.success(earningVo);
         }
-
-        earningVo.setTotalEarning(sysTotalEarning.getTotalEarning());
-        earningVo.setTotalLockAward(sysTotalEarning.getTotalLockAward());
-
-        //2. 通过user_id从sys_transfer_record表中获取总的已提取收益
+        earningVo.setTotalEarning(BigDecimalUtil
+                .formatFour(new BigDecimal(sysTotalEarning.getTotalEarning())).doubleValue());
+        earningVo.setTotalLockAward(BigDecimalUtil
+                .formatFour(new BigDecimal(sysTotalEarning.getTotalLockAward())).doubleValue());
+        //2. 通过miner_id从sys_transfer_record表中获取总的已提取收益
         Double totalWithdraw = sysTransferRecordService.selectTotalWithdrawByUserId(userId);
         if (totalWithdraw == null) {
             return Result.success(earningVo);
         }
-
         earningVo.setTotalWithdraw(totalWithdraw);
-
         //3. 根据公式: 总收益 - 锁仓收益 - 已提取收益 = 可提取收益
         double availableEarning = sysTotalEarning.getTotalEarning() - sysTotalEarning.getTotalLockAward() - totalWithdraw;
-
         earningVo.setAvailableEarning(availableEarning);
-
         return Result.success(earningVo);
     }
 

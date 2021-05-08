@@ -68,7 +68,7 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
 
     SysMinerInfo selectSysMinerInfoByUserIdAndMinerId(@Param("userId") Long userId, @Param("minerId") String minerId);
 
-    SysTotalEarning selectTotalEarningAndAwardByUserId(@Param("userId") Long userId);
+    SysTotalEarning selectTotalEarningAndAwardByUserId(@Param("minerId") String minerId);
 
     Long countByMinerId(@Param("minerId") String minerId);
 }

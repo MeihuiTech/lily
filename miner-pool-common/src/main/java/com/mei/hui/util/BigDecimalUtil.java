@@ -13,7 +13,6 @@ public class BigDecimalUtil {
         if(n == null){
             return null;
         }
-        double f1 = n.setScale(4,BigDecimal.ROUND_HALF_UP).doubleValue();
-        return new BigDecimal(f1);
+        return n.setScale(4,BigDecimal.ROUND_HALF_UP);
     }
 }

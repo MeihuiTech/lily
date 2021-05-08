@@ -69,13 +69,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where user_id= #{userId} and miner_id = #{minerId}
     </select>
 
-    <select id="selectTotalEarningAndAwardByUserId" parameterType="Long" resultMap="SysTotalEarningResult">
+    <select id="selectTotalEarningAndAwardByUserId" parameterType="String" resultMap="SysTotalEarningResult">
         SELECT
           SUM(`total_block_award`) AS `total_earning`,
           SUM(`lock_award`) AS `total_lock_award`
         FROM
           `sys_miner_info`
-        WHERE `user_id` = #{userId} ;
+        WHERE `miner_id` = #{minerId} ;
     </select>
         
     <insert id="insertSysMinerInfo" parameterType="com.mei.hui.miner.entity.SysMinerInfo" useGeneratedKeys="true" keyProperty="id">

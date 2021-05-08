@@ -39,7 +39,7 @@ public class LoginController {
     private Producer captchaProducerMath;
     @Autowired
     private RedisUtil redisCache;
-    @Value("${captcha.type}")
+    @Value("${ruoyi.captchaType}")
     private String captchaType;
 
     @Autowired

@@ -75,10 +75,10 @@ public interface ISysMinerInfoService
     /**
      * 获取该用户总收益和总锁仓收益
      *
-     * @param userId 用户ID
+     * @param minerId 用户ID
      * @return 结果
      */
-    SysTotalEarning selectTotalEarningAndAwardByUserId(Long userId);
+    SysTotalEarning selectTotalEarningAndAwardByUserId(String minerId);
 
     public Long countByMinerId(String minerId);
 

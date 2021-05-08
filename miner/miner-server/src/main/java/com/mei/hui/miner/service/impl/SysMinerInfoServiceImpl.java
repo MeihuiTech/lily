@@ -182,12 +182,12 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     /**
      * 获取该用户总收益和总锁仓收益
      *
-     * @param userId 用户ID
+     * @param minerId 矿工id
      * @return 结果
      */
     @Override
-    public SysTotalEarning selectTotalEarningAndAwardByUserId(Long userId) {
-        return sysMinerInfoMapper.selectTotalEarningAndAwardByUserId(userId);
+    public SysTotalEarning selectTotalEarningAndAwardByUserId(String minerId) {
+        return sysMinerInfoMapper.selectTotalEarningAndAwardByUserId(minerId);
     }
 
 
