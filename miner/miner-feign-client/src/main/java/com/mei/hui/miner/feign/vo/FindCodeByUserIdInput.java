@@ -1,0 +1,15 @@
+package com.mei.hui.miner.feign.vo;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+@ApiModel
+public class FindCodeByUserIdInput implements Serializable {
+
+    @ApiModelProperty(value = "用户id",required = true)
+    private Long userId;
+}

@@ -49,4 +49,9 @@ public interface Constants extends SystemConstants {
 
     /** 是否菜单外链（是） */
     String YES_FRAME = "0";
+
+    /**
+     * 资源映射路径 前缀
+     */
+    public static final String RESOURCE_PREFIX = "/profile";
 }

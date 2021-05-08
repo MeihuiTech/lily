@@ -95,7 +95,7 @@ public class HttpUtil {
 			if(isHttps(url)){
 				httpClient = wrapClient(httpClient);
 			}
-			url += queryStr;
+			url += "?"+queryStr;
 			log.info("@请求参数:"+url);
 			HttpGet httpget = new HttpGet(url);
 			response = httpClient.execute(httpget);

@@ -45,9 +45,9 @@ public class SysTransferRecord
 
     /** 0 提币中 1 提币完成 2 提币失败 */
     private Integer status;
-
+    @TableField(exist = false)
     private String createBy;
-
+    @TableField(exist = false)
     private String updateBy;
 
     private LocalDateTime createTime;
@@ -60,5 +60,7 @@ public class SysTransferRecord
     private long pageSize = 10;
     @TableField(exist = false)
     private String userName;
+
+    private String remark;
 
 }

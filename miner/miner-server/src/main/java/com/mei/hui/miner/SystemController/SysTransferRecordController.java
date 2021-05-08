@@ -112,7 +112,7 @@ public class SysTransferRecordController
      * 查询用户收益
      */
     @GetMapping("/getUserEarning")
-    public Result getUserEarning(@RequestBody GetUserEarningInput input){
+    public Result getUserEarning(GetUserEarningInput input){
         EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
         Result<SysUserOut> userResult = userFeignClient.getLoginUser();
         if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){

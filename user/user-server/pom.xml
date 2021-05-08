@@ -5,9 +5,9 @@
         <groupId>com.mei.hui</groupId>
         <version>1.2-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>user-server</artifactId>
 
-    <modelVersion>4.0.0</modelVersion>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -106,6 +106,12 @@
         <dependency>
             <groupId>com.mei.hui</groupId>
             <artifactId>user-feign-client</artifactId>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mei.hui</groupId>
+            <artifactId>miner-feign-client</artifactId>
             <version>1.2-SNAPSHOT</version>
         </dependency>
 
