@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserApplication.class)
 @Slf4j
@@ -31,6 +34,17 @@ public class UserTest {
     public void testRedis() {
         redisUtil.set("testRedisKey","testRedisValue");
         System.out.print(redisUtil.get("testRedisKey"));
+    }
+
+    @Test
+    public void getIP() {
+        InetAddress address = null;
+        try {
+            address = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        log.info("IP:"+address.getHostAddress());
     }
 
 }

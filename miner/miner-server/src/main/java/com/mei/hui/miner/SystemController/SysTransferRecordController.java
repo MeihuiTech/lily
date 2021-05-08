@@ -132,7 +132,7 @@ public class SysTransferRecordController
                 .formatFour(new BigDecimal(sysTotalEarning.getTotalEarning())).doubleValue());
         earningVo.setTotalLockAward(BigDecimalUtil
                 .formatFour(new BigDecimal(sysTotalEarning.getTotalLockAward())).doubleValue());
-        //2. 通过miner_id从sys_transfer_record表中获取总的已提取收益
+        //2. 通过miner_id从sys_transfer_record表中获取总的已提取收益,
         Double totalWithdraw = sysTransferRecordService.selectTotalWithdrawByUserId(userId);
         if (totalWithdraw == null) {
             return Result.success(earningVo);
@@ -140,7 +140,8 @@ public class SysTransferRecordController
         earningVo.setTotalWithdraw(totalWithdraw);
         //3. 根据公式: 总收益 - 锁仓收益 - 已提取收益 = 可提取收益
         double availableEarning = sysTotalEarning.getTotalEarning() - sysTotalEarning.getTotalLockAward() - totalWithdraw;
-        earningVo.setAvailableEarning(availableEarning);
+        earningVo.setAvailableEarning(BigDecimalUtil
+                .formatFour(new BigDecimal(availableEarning)).doubleValue());
         return Result.success(earningVo);
     }
 
@@ -157,7 +158,8 @@ public class SysTransferRecordController
     }
 
     /**
-     * 用户提币
+     * 用户提币：
+     * 1、先校验现有余额是否 大于 将要提取的fil, 余额 - 带提币中的fil > 即将提取的fil
      */
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)

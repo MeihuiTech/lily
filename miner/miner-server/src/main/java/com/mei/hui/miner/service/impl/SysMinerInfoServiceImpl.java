@@ -107,10 +107,15 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         sysMinerInfo.setUserId(userId);
         LambdaQueryWrapper<SysMinerInfo> query = new LambdaQueryWrapper<>();
         query.setEntity(sysMinerInfo);
-        IPage<SysMinerInfo> page = sysMinerInfoMapper.selectPage(new Page(sysMinerInfo.getPageNum(), sysMinerInfo.getPageSize()), query);
+        IPage<SysMinerInfo> page = sysMinerInfoMapper
+                .selectPage(new Page(sysMinerInfo.getPageNum(), sysMinerInfo.getPageSize()), query);
         for (SysMinerInfo info: page.getRecords()) {
             Long c = countByMinerId(info.getMinerId());
             info.setMachineCount(c);
+            info.setBalanceMinerAccount(BigDecimalUtil.formatFour(info.getBalanceMinerAccount()));
+            info.setBalanceMinerAvailable(BigDecimalUtil.formatFour(info.getBalanceMinerAvailable()));
+            info.setSectorPledge(BigDecimalUtil.formatFour(info.getSectorPledge()));
+            info.setTotalBlockAward(BigDecimalUtil.formatFour(info.getTotalBlockAward()));
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());

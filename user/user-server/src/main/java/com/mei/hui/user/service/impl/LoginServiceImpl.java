@@ -11,8 +11,11 @@ import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +24,14 @@ import java.util.Set;
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService{
-
     @Autowired
     private SysUserMapper sysUserMapper;
     @Autowired
     private SysPermissionServiceImpl permissionService;
-
     @Autowired
     private ISysMenuService menuService;
+    @Value("${server.port}")
+    private String serverPort;
 
     public Map<String,Object> getInfo(){
         Long userId = HttpRequestUtil.getUserId();
@@ -38,6 +41,7 @@ public class LoginServiceImpl implements LoginService{
         // 权限集合
         Set<String> permissions = permissionService.getMenuPermission(user);
 
+        user.setAvatar(getIP()+user.getAvatar());
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
@@ -45,6 +49,16 @@ public class LoginServiceImpl implements LoginService{
         result.put("roles", roles);
         result.put("permissions", permissions);
         return result;
+    }
+
+    public String getIP(){
+        InetAddress address = null;
+        try {
+            address = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return "http://"+address.getHostAddress() +":"+serverPort;
     }
 
     /**
