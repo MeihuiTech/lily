@@ -1,17 +1,17 @@
 package com.mei.hui.user.SystemController;
 
-import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.smsConfig.SmsUtil;
+import com.mei.hui.miner.feign.feignClient.MinerFeignClient;
+import com.mei.hui.miner.feign.vo.FindCodeByUserIdInput;
+import com.mei.hui.miner.feign.vo.SysVerifyCodeInput;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
-import com.mei.hui.user.entity.SysVerifyCode;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.user.service.ISysVerifyCodeService;
 import com.mei.hui.util.AESUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
@@ -42,9 +42,11 @@ public class SysUserController{
 
     @Autowired
     private ISysRoleService roleService;
+    @Autowired
+    private MinerFeignClient minerFeignClient;
 
     @Autowired
-    private ISysVerifyCodeService sysVerifyCodeService;
+    private SmsUtil smsUtil;
 
     /**
      * 根据 userId 获取用户信息
@@ -195,10 +197,12 @@ public class SysUserController{
     @PostMapping("/sendSms")
     public Result sendSms() {
         SysUser user = userService.getLoginUser();
-        SysVerifyCode code = sysVerifyCodeService.selectSysVerifyCodeByUserId(user.getUserId());
-        if (code != null) {
+        FindCodeByUserIdInput input = new FindCodeByUserIdInput();
+        input.setUserId(user.getUserId());
+        Result<SysVerifyCodeInput> codeResult = minerFeignClient.findCodeByUserId(input);
+        if (ErrorCode.MYB_000000.getCode().equals(codeResult.getCode())) {
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime date = code.getCreateTime();
+            LocalDateTime date = codeResult.getData().getCreateTime();
             Duration duration = Duration.between(date, now);
             if (duration.toMinutes() < 1) {
                 throw MyException.fail(UserError.MYB_333333.getCode(),"发送频繁，请稍后再试");
@@ -208,15 +212,15 @@ public class SysUserController{
         int max = 999999;
         Random r = new Random();
         String sms = String.valueOf(r.nextInt(max - min + 1) + min);
-        if (SmsUtil.send(user.getPhonenumber(), sms)) {
-            SysVerifyCode sysVerifyCode = new SysVerifyCode();
+        if (smsUtil.send(user.getPhonenumber(), sms)) {
+            SysVerifyCodeInput sysVerifyCode = new SysVerifyCodeInput();
             sysVerifyCode.setVerifyCode(sms);
             sysVerifyCode.setUserId(user.getUserId());
             sysVerifyCode.setStatus(0);
             sysVerifyCode.setPhone(user.getPhonenumber());
             sysVerifyCode.setCreateTime(LocalDateTime.now());
             sysVerifyCode.setUpdateTime(LocalDateTime.now());
-            sysVerifyCodeService.insertSysVerifyCode(sysVerifyCode);
+            minerFeignClient.insertSysVerifyCode(sysVerifyCode);
             return Result.OK;
         } else {
             return Result.fail(UserError.MYB_333333.getCode(),"发送失败");

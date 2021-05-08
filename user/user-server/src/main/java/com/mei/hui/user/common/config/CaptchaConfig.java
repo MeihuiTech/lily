@@ -2,8 +2,13 @@ package com.mei.hui.user.common.config;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.util.Config;
+import com.mei.hui.user.common.Constants;
+import com.mei.hui.user.common.file.RuoYiConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Properties;
 
@@ -15,8 +20,10 @@ import static com.google.code.kaptcha.Constants.*;
  * @author ruoyi
  */
 @Configuration
-public class CaptchaConfig
+public class CaptchaConfig implements WebMvcConfigurer
 {
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
     @Bean(name = "captchaProducer")
     public DefaultKaptcha getKaptchaBean()
     {
@@ -81,5 +88,14 @@ public class CaptchaConfig
         Config config = new Config(properties);
         defaultKaptcha.setConfig(config);
         return defaultKaptcha;
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry)
+    {
+        /** 本地文件上传路径 */
+        registry.addResourceHandler(Constants.RESOURCE_PREFIX + "/**").addResourceLocations("file:" + ruoYiConfig.getProfile() + "/");
+
+
     }
 }
