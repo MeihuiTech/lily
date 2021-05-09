@@ -1,0 +1,20 @@
+server:
+  port: 8082
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: miner-server
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: 4d0b7fdb-5c4b-4abb-adfb-b677249c49b4
+        group: miner_pool
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: 4d0b7fdb-5c4b-4abb-adfb-b677249c49b4
+        group: miner_pool

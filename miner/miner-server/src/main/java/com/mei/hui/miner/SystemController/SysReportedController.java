@@ -110,7 +110,11 @@ public class SysReportedController
         SysSectorsWrap sysSectorsWrapParam = new SysSectorsWrap();
         sysSectorsWrapParam.setMinerId(sysSectorInfo.getMinerId()+"");
         sysSectorsWrapParam.setSectorNo(sysSectorInfo.getSectorNo());
-        sysSectorsWrapParam.setHostname(sysSectorInfo.getHostname());
+        String hostname = sysSectorInfo.getHostname();
+        if("none".equalsIgnoreCase(hostname)){
+            hostname = "";
+        }
+        sysSectorsWrapParam.setHostname(hostname);
         sysSectorsWrapParam.setSectorDuration(sysSectorInfo.getSectorDuration());
         sysSectorsWrapParam.setSectorSize(sysSectorInfo.getSectorSize());
         sysSectorsWrapParam.setSectorStatus(sysSectorInfo.getSectorStatus());

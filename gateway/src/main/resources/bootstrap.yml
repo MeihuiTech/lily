@@ -1,0 +1,24 @@
+server:
+  port: 8071
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: gateway-server
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: 4d0b7fdb-5c4b-4abb-adfb-b677249c49b4
+        group: miner_pool
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: 4d0b7fdb-5c4b-4abb-adfb-b677249c49b4
+        group: miner_pool

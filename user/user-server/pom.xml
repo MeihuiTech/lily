@@ -56,6 +56,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
@@ -97,6 +102,13 @@
             <artifactId>feign-httpclient</artifactId>
         </dependency>
 
+        <!--io常用工具类 -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+
         <dependency>
             <groupId>com.mei.hui</groupId>
             <artifactId>miner-pool-config</artifactId>
@@ -115,12 +127,7 @@
             <version>1.2-SNAPSHOT</version>
         </dependency>
 
-        <!--io常用工具类 -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.5</version>
-        </dependency>
+
     </dependencies>
 
     <build>

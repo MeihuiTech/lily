@@ -72,6 +72,11 @@ public class AggregationTask {
             sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);
         }
     }
+
+    /**
+     *
+     * @param info
+     */
     private void insertAccount(SysMinerInfo info) {
         String date = DateUtils.getDate();
         SysAggAccountDaily data = sysAggAccountDailyService.selectSysAggAccountDailyByMinerIdAndDate(info.getMinerId(),date);
