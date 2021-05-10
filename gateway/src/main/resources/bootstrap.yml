@@ -13,12 +13,12 @@ spring:
           enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
     nacos:
       config:
-        server-addr: 127.0.0.1:8848
+        server-addr: 10.10.15.3:8848
         prefix: ${spring.application.name}
         file-extension: yml
         namespace: 013be443-9f4c-4106-9c96-b34b7211a38b
         group: miner_pool_group
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 10.10.15.3:8848
         namespace: 013be443-9f4c-4106-9c96-b34b7211a38b
         group: miner_pool_group
