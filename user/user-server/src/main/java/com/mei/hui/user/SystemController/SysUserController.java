@@ -1,5 +1,7 @@
 package com.mei.hui.user.SystemController;
 
+import com.alibaba.fastjson.JSON;
+import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsUtil;
 import com.mei.hui.miner.feign.feignClient.MinerFeignClient;
 import com.mei.hui.miner.feign.vo.FindCodeByUserIdInput;
@@ -9,13 +11,11 @@ import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.user.model.ChangeAccountInput;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.AESUtil;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -24,9 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.RequestWrapper;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +46,9 @@ public class SysUserController{
     private ISysRoleService roleService;
     @Autowired
     private MinerFeignClient minerFeignClient;
+
+    @Autowired
+    private RedisUtil redisUtils;
 
     @Autowired
     private SmsUtil smsUtil;
@@ -226,5 +231,27 @@ public class SysUserController{
             return Result.fail(UserError.MYB_333333.getCode(),"发送失败");
         }
     }
+
+    /**
+     * 切换到用户登录账号
+     * @param input
+     * @return
+     */
+    @ApiOperation("管理员切换到普通用户【鲍红建】")
+    @PostMapping("/changeAccount")
+    public Map<String,Object> changeAccount(ChangeAccountInput input){
+
+        SysUser user = userService.selectUserById(input.getUserId());
+        String token = AESUtil.encrypt(user.getUserId() + "");
+        //用户token 有效期30分钟
+        redisUtils.set(token, JSON.toJSONString(user),60*8, TimeUnit.MINUTES);
+
+        Map<String,Object> result = new HashMap<>();
+        result.put("code",ErrorCode.MYB_000000.getCode());
+        result.put("msg",ErrorCode.MYB_000000.getMsg());
+        result.put(SystemConstants.TOKEN,token);
+        return result;
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.mei.hui.UserTest;
 
 import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.config.smsConfig.SmsConfig;
 import com.mei.hui.user.UserApplication;
 import com.mei.hui.util.AESUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ public class UserTest {
 
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private SmsConfig smsConfig;
 
     @Test
     public void entry(){
@@ -45,6 +48,13 @@ public class UserTest {
             e.printStackTrace();
         }
         log.info("IP:"+address.getHostAddress());
+    }
+
+    @Test
+    public void configTest(){
+
+        log.info("sms url:"+smsConfig.getUrl());
+
     }
 
 }
