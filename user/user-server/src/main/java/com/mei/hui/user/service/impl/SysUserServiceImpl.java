@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
@@ -75,11 +76,13 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("code",ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
 
-        String token = AESUtil.encrypt(sysUser.getUserId() + "");
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(SystemConstants.USERID,sysUser.getUserId());
+        claims.put(SystemConstants.STATUS,sysUser.getStatus());
+        claims.put(SystemConstants.DELFLAG,sysUser.getDelFlag());
+        claims.put(SystemConstants.PLATFORM,Constants.WEB);
         //生成token
-        result.put(SystemConstants.TOKEN,AESUtil.encrypt(sysUser.getUserId()+""));
-        //用户token 有效期30分钟
-        redisUtils.set(token, JSON.toJSONString(sysUser),60*8, TimeUnit.MINUTES);
+        result.put(SystemConstants.TOKEN,JwtUtil.createToken(claims));
         return result;
     }
 

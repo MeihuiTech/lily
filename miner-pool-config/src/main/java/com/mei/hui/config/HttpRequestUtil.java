@@ -4,10 +4,13 @@ import com.mei.hui.util.AESUtil;
 import com.mei.hui.util.SystemConstants;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import io.jsonwebtoken.Claims;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpRequestUtil {
 
@@ -17,7 +20,8 @@ public class HttpRequestUtil {
         if(StringUtils.isEmpty(token)){
             throw new MyException(ErrorCode.MYB_111111.getCode(),"token 验证失败");
         }
-        String userId = AESUtil.decrypt(token);
-        return Long.valueOf(userId);
+        Claims claims = JwtUtil.parseToken(token);
+        Long userId = (Long) claims.get(SystemConstants.USERID);
+        return userId;
     }
 }

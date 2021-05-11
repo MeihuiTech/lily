@@ -45,18 +45,8 @@ public class Swagger2Configuration {
                 .name(SystemConstants.TOKEN).description("token 令牌")
                 .modelRef(new ModelRef("string")).required(false).build();
 
-        /**
-         * 设置 head 信息 PLATTYPE
-         */
-        ParameterBuilder platFormTypeParame = new ParameterBuilder();
-        platFormTypeParame.parameterType("header")
-                .name(SystemConstants.PLATTYPE).description("system-后台管理系统端；app-移动端")
-                .modelRef(new ModelRef("string")).required(false).build();
-
         List<Parameter> aParameters = new ArrayList<Parameter>();
         aParameters.add(aParameterBuilder.build());
-        aParameters.add(platFormTypeParame.build());
-
         return new Docket(DocumentationType.SWAGGER_2)
                 .enable(swagger_is_enable)
                 .apiInfo(buildApiInf())

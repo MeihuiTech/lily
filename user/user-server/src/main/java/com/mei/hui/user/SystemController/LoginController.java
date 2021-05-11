@@ -65,11 +65,6 @@ public class LoginController {
         return sysUserService.getSysUserByNameAndPass(loginBody);
     }
 
-    /*@PostMapping("/check")
-    public boolean check(LoginBody loginBody){
-        return sysUserService.getSysUserByNameAndPass(loginBody);
-    }*/
-
     /**
      * 生成验证码
      */

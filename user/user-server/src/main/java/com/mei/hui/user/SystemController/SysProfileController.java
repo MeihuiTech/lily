@@ -1,9 +1,9 @@
 package com.mei.hui.user.SystemController;
 
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.config.RuoYiConfig;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.common.file.FileUploadUtils;
-import com.mei.hui.user.common.file.RuoYiConfig;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.service.ISysUserService;
