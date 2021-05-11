@@ -24,6 +24,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
@@ -331,10 +332,8 @@ public class SysUserServiceImpl implements ISysUserService {
     {
         return sysUserMapper.updateUser(user);
     }
-
     /**
      * 修改用户头像
-     *
      * @param userId 用户名
      * @param avatar 头像地址
      * @return 结果
@@ -342,5 +341,42 @@ public class SysUserServiceImpl implements ISysUserService {
     public boolean updateUserAvatar(Long userId, String avatar)
     {
         return sysUserMapper.updateUserAvatar(userId, avatar) > 0;
+    }
+
+    /**
+     * 冒充用户登录
+     * @param userId
+     * @return
+     */
+    public Map<String,Object> Impersonation(Long userId){
+        /**
+         * 校验userId
+         */
+        if(userId == 0){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"userId 为空");
+        }
+        SysUser sysUser = sysUserMapper.selectById(userId);
+        if(sysUser == null){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"userId 错误");
+        }
+        /**
+         * 生成token
+         */
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(SystemConstants.USERID,sysUser.getUserId());
+        claims.put(SystemConstants.STATUS,sysUser.getStatus());
+        claims.put(SystemConstants.DELFLAG,sysUser.getDelFlag());
+        claims.put(SystemConstants.PLATFORM, Constants.WEB);
+        String token = JwtUtil.createToken(claims);
+
+        /**
+         * 组装响应数据
+         */
+        Map<String,Object> result = new HashMap<>();
+        result.put("code",ErrorCode.MYB_000000.getCode());
+        result.put("msg",ErrorCode.MYB_000000.getMsg());
+        //生成token
+        result.put(SystemConstants.TOKEN,token);
+        return result;
     }
 }

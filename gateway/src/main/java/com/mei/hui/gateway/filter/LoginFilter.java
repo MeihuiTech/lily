@@ -6,6 +6,7 @@ import com.mei.hui.gateway.util.JwtUtil;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -38,13 +39,15 @@ public class LoginFilter  implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        String url = request.getURI().getPath();
         /**
          * 白名单不校验
          */
-        if(gatewaySetting.getWhiteUrls().contains(request.getURI().getPath())){
+        if(gatewaySetting.getWhiteUrls().contains(url)){
             return chain.filter(exchange);
         }
         log.info("@========================start-{}========================","gateway");
+        log.info("请求地址:{}",url);
         String token = exchange.getRequest().getHeaders().getFirst(SystemConstants.TOKEN);
         log.info("token = {}",token);
         //验签

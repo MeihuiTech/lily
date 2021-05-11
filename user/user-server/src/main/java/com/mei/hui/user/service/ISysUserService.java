@@ -45,4 +45,6 @@ public interface ISysUserService {
     SysUser getUserById(Long userId);
 
     boolean updateUserAvatar(Long userId, String avatar);
+
+    Map<String,Object> Impersonation(Long userId);
 }

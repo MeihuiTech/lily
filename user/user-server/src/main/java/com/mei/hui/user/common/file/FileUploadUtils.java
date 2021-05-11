@@ -1,6 +1,6 @@
 package com.mei.hui.user.common.file;
 
-import com.mei.hui.config.config.RuoYiConfig;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.IdUtils;

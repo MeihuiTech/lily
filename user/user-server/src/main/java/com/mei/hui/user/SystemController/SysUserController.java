@@ -1,11 +1,13 @@
 package com.mei.hui.user.SystemController;
 
 import com.alibaba.fastjson.JSON;
+import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsUtil;
 import com.mei.hui.miner.feign.feignClient.MinerFeignClient;
 import com.mei.hui.miner.feign.vo.FindCodeByUserIdInput;
 import com.mei.hui.miner.feign.vo.SysVerifyCodeInput;
+import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
@@ -232,25 +234,10 @@ public class SysUserController{
         }
     }
 
-    /**
-     * 切换到用户登录账号
-     * @param input
-     * @return
-     */
-    @ApiOperation("管理员切换到普通用户【鲍红建】")
-    @PostMapping("/changeAccount")
-    public Map<String,Object> changeAccount(ChangeAccountInput input){
-
-        SysUser user = userService.selectUserById(input.getUserId());
-        String token = AESUtil.encrypt(user.getUserId() + "");
-        //用户token 有效期30分钟
-        redisUtils.set(token, JSON.toJSONString(user),60*8, TimeUnit.MINUTES);
-
-        Map<String,Object> result = new HashMap<>();
-        result.put("code",ErrorCode.MYB_000000.getCode());
-        result.put("msg",ErrorCode.MYB_000000.getMsg());
-        result.put(SystemConstants.TOKEN,token);
-        return result;
+    @ApiOperation(value = "冒充用户登录【鲍红建】")
+    @GetMapping("/impersonate/{userId}")
+    public Map<String,Object> Impersonation(@PathVariable(value = "userId", required = true) Long userId){
+        return userService.Impersonation(userId);
     }
 
 

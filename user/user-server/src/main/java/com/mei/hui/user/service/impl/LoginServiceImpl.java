@@ -8,6 +8,7 @@ import com.mei.hui.user.model.RouterVo;
 import com.mei.hui.user.service.ISysMenuService;
 import com.mei.hui.user.service.LoginService;
 import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.IpUtils;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class LoginServiceImpl implements LoginService{
         // 权限集合
         Set<String> permissions = permissionService.getMenuPermission(user);
 
-        user.setAvatar(getIP()+user.getAvatar());
+        user.setAvatar("http://"+IpUtils.getHostIp()+":"+serverPort+user.getAvatar());
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
@@ -50,17 +51,6 @@ public class LoginServiceImpl implements LoginService{
         result.put("permissions", permissions);
         return result;
     }
-
-    public String getIP(){
-        InetAddress address = null;
-        try {
-            address = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return "http://"+address.getHostAddress() +":"+serverPort;
-    }
-
     /**
      * 获取路由信息
      * @return 路由信息

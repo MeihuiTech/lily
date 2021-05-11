@@ -1,15 +1,17 @@
 package com.mei.hui.user.SystemController;
 
 import com.mei.hui.config.HttpRequestUtil;
-import com.mei.hui.config.config.RuoYiConfig;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.common.file.FileUploadUtils;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.IpUtils;
 import com.mei.hui.util.NotCheck;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +31,8 @@ public class SysProfileController{
     private ISysUserService userService;
     @Autowired
     private SysUserMapper sysUserMapper;
-
+    @Value("${server.port}")
+    private String serverPort;
     /**
      * 个人信息
      */
@@ -63,7 +66,7 @@ public class SysProfileController{
             {
                 map.put("code",ErrorCode.MYB_000000.getCode());
                 map.put("msg",ErrorCode.MYB_000000.getMsg());
-                map.put("imgUrl", avatar);
+                map.put("imgUrl", "http://"+IpUtils.getHostIp()+":"+serverPort+avatar);
                 return map;
             }
         }

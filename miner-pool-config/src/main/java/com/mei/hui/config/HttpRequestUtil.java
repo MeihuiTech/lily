@@ -21,7 +21,7 @@ public class HttpRequestUtil {
             throw new MyException(ErrorCode.MYB_111111.getCode(),"token 验证失败");
         }
         Claims claims = JwtUtil.parseToken(token);
-        Long userId = (Long) claims.get(SystemConstants.USERID);
-        return userId;
+        Integer userId = (Integer) claims.get(SystemConstants.USERID);
+        return Long.valueOf(userId);
     }
 }

@@ -2,7 +2,7 @@ package com.mei.hui.user.common.config;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.util.Config;
-import com.mei.hui.config.config.RuoYiConfig;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.user.common.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

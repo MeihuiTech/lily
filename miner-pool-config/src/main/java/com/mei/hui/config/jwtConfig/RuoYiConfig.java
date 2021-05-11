@@ -1,4 +1,4 @@
-package com.mei.hui.config.config;
+package com.mei.hui.config.jwtConfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
