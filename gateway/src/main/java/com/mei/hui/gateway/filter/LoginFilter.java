@@ -1,11 +1,11 @@
 package com.mei.hui.gateway.filter;
 
-import com.mei.hui.util.AESUtil;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
+
+import com.mei.hui.gateway.util.GatewaySetting;
+import com.mei.hui.gateway.util.JwtUtil;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -22,7 +22,10 @@ import reactor.core.publisher.Mono;
 @Component
 @Slf4j
 public class LoginFilter  implements GlobalFilter, Ordered {
-
+    @Autowired
+    private GatewaySetting gatewaySetting;
+    @Autowired
+    private JwtUtil jwtUtil;
     /**
      * 执行过滤器中的业务逻辑
      *     对请求参数中的token进行判断
@@ -34,10 +37,18 @@ public class LoginFilter  implements GlobalFilter, Ordered {
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
+        /**
+         * 白名单不校验
+         */
+        if(gatewaySetting.getWhiteUrls().contains(request.getURI().getPath())){
+            return chain.filter(exchange);
+        }
         log.info("@========================start-{}========================","gateway");
         String token = exchange.getRequest().getHeaders().getFirst(SystemConstants.TOKEN);
         log.info("token = {}",token);
-        String platFormType = exchange.getRequest().getHeaders().getFirst(SystemConstants.PLATTYPE);
+        //验签
+        jwtUtil.parseToken(token);
     /*    if(StringUtils.isNotEmpty(token)){
             throw new MyException(ErrorCode.MYB_111111.getCode(),"异常");
         }*/
