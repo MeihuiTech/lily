@@ -2,6 +2,8 @@ package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.entity.SysTransferRecordUserName;
+import com.mei.hui.miner.model.SysTransferRecordAllBO;
+import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -82,4 +84,15 @@ public interface ISysTransferRecordService
      * @return 系统划转记录集合
      */
     Map<String,Object> selectSysTransferRecordListUserName(SysTransferRecord sysTransferRecord);
+
+    /*
+    *
+    * @description 汇总查询系统划转记录列表
+    * @author shangbin
+    * @date 2021/5/11 17:04
+    * @param [sysTransferRecordAllBO]
+    * @return com.mei.hui.util.Result
+    * @version v1.0
+    */
+    public Result selectAllTransferRecordList(SysTransferRecordAllBO sysTransferRecordAllBO);
 }
