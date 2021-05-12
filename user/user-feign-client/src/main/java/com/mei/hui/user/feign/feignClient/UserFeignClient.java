@@ -4,11 +4,9 @@ import com.mei.hui.user.feign.fallBackFactory.UserFeignFallbackFactory;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.Result;
+import feign.Param;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,4 +40,7 @@ public interface UserFeignClient {
      */
     @PostMapping("/getLoginUser")
      Result<SysUserOut> getLoginUser();
+
+    @GetMapping("/signin")
+    Result signin(@RequestParam String token);
 }

@@ -1,7 +1,8 @@
 package com.mei.hui.user.SystemController;
 
 import com.google.code.kaptcha.Producer;
-import com.mei.hui.config.CommonUtil;
+import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
@@ -9,9 +10,11 @@ import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.service.LoginService;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
+import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FastByteArrayOutputStream;
@@ -19,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -104,7 +106,7 @@ public class LoginController {
      * 获取用户信息
      * @return 用户信息
      */
-    @GetMapping("/getInfo")
+    @RequestMapping("/getInfo")
     public Map<String,Object> getInfo(){
         return loginService.getInfo();
     }
@@ -118,13 +120,25 @@ public class LoginController {
        return loginService.getRouters();
     }
 
-    @PostMapping("/logout")
+    @RequestMapping("/logout")
     public Result logout(){
-        HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
-        String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
-         redisCache.delete(token);
-         return Result.OK;
+        Long userId = HttpRequestUtil.getUserId();
+        redisCache.delete(Constants.USERID+userId);
+        return Result.OK;
     }
+
+    @GetMapping("/signin")
+    public Result signin(@RequestParam String token){
+        //验签
+        Claims claims = JwtUtil.parseToken(token);
+        Integer userId = (Integer) claims.get(SystemConstants.USERID);
+        if(!redisCache.exists("user:"+userId)){
+            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"token 失效");
+        }
+        return Result.OK;
+    }
+
+
 
 
 }

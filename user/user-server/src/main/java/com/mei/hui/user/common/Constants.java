@@ -55,5 +55,7 @@ public interface Constants extends SystemConstants {
      */
     String RESOURCE_PREFIX = "/profile";
 
+    String USERID="user:";
+
 
 }

@@ -1,12 +1,14 @@
 package com.mei.hui.gateway.filter;
 
-
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.gateway.util.GatewaySetting;
-import com.mei.hui.gateway.util.JwtUtil;
+import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -26,7 +28,9 @@ public class LoginFilter  implements GlobalFilter, Ordered {
     @Autowired
     private GatewaySetting gatewaySetting;
     @Autowired
-    private JwtUtil jwtUtil;
+    private UserFeignClient userFeignClient;
+
+
     /**
      * 执行过滤器中的业务逻辑
      *     对请求参数中的token进行判断
@@ -40,28 +44,28 @@ public class LoginFilter  implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String url = request.getURI().getPath();
+        log.info("@========================start-{}========================","gateway");
+        log.info("请求地址:{}",url);
         /**
          * 白名单不校验
          */
         if(gatewaySetting.getWhiteUrls().contains(url)){
             return chain.filter(exchange);
         }
-        log.info("@========================start-{}========================","gateway");
-        log.info("请求地址:{}",url);
         String token = exchange.getRequest().getHeaders().getFirst(SystemConstants.TOKEN);
         log.info("token = {}",token);
         //验签
-        jwtUtil.parseToken(token);
-    /*    if(StringUtils.isNotEmpty(token)){
-            throw new MyException(ErrorCode.MYB_111111.getCode(),"异常");
+        /*log.info("请求用户模块进行验签");
+        Result signin = userFeignClient.signin(token);
+        log.info("验签结果:{}", JSON.toJSONString(signin));*/
+     /*   if(!ErrorCode.MYB_000000.getCode().equals(signin.getCode())){
+            throw new MyException(signin.getCode(),signin.getMsg());
         }*/
-        //向headers中放文件，记得build
+      /*  //向headers中放文件，记得build
         ServerHttpRequest host = exchange.getRequest().mutate().header(SystemConstants.TOKEN, token).build();
-        //将现在的request 变成 change对象
-        ServerWebExchange build = exchange.mutate().request(host).build();
-        //继续往下执行
+        ServerWebExchange build = exchange.mutate().request(host).build();*/
         log.info("@========================end-{}========================","gateway");
-        return chain.filter(build);
+        return chain.filter(exchange);
     }
 
     /**

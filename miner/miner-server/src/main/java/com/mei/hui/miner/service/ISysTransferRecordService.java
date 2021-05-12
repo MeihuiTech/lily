@@ -2,6 +2,9 @@ package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.entity.SysTransferRecordUserName;
+import com.mei.hui.miner.model.GetUserEarningInput;
+import com.mei.hui.miner.model.SysTransferRecordWrap;
+import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -82,4 +85,13 @@ public interface ISysTransferRecordService
      * @return 系统划转记录集合
      */
     Map<String,Object> selectSysTransferRecordListUserName(SysTransferRecord sysTransferRecord);
+
+    /**
+     * 用户提币
+     * @param sysTransferRecordWrap
+     * @return
+     */
+    Result withdraw(SysTransferRecordWrap sysTransferRecordWrap);
+
+    Result getUserEarning(GetUserEarningInput input);
 }

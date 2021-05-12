@@ -58,8 +58,6 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
-        <!--引入redis lettuce-->
-        <!--引入redis lettuce-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -82,7 +80,6 @@
             <artifactId>jedis</artifactId>
             <version>2.9.0</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.commons</groupId>
