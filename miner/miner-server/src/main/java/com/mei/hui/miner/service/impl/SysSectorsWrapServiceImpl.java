@@ -148,7 +148,7 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int addSector(RequestSectorInfo sysSectorInfo) {
         //1. 查询sys_sectors_wrap 中是否已有该扇区, 没有则插入, 有则获取数据做聚合
         SysSectorsWrap sysSectorsWrapParam = new SysSectorsWrap();
