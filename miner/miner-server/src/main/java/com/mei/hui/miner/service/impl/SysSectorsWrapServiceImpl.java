@@ -195,7 +195,7 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
                 return rows;
             }catch (DataIntegrityViolationException exception) {
                 // 通过唯一性判断该条数据如果已经存在，则直接丢弃，不用更新，返回成功提示
-                log.info("新增扇区信息表抛出异常：[{}]", JSON.toJSONString(sysSectorInfo));
+                log.info("新增扇区信息表抛出异常：[{}]" , JSON.toJSONString(sysSectorInfo));
                 return 1;
             }
         }
