@@ -3,8 +3,8 @@ package com.mei.hui.util;
 public enum ErrorCode {
 
 	MYB_000000("000000", "成功"),
-	MYB_111111("111111", "系统错误,请联系管理员");
-
+	MYB_111111("111111", "系统错误,请联系管理员"),
+	MYB_111002("111002", "token超时");
 
 	private String code;
 	private String msg;

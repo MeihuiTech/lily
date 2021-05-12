@@ -18,7 +18,7 @@ public class HttpRequestUtil {
         HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
         String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
         if(StringUtils.isEmpty(token)){
-            throw new MyException(ErrorCode.MYB_111111.getCode(),"token 验证失败");
+            throw new MyException(ErrorCode.MYB_111111.getCode(),"token 为空");
         }
         Claims claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get(SystemConstants.USERID);

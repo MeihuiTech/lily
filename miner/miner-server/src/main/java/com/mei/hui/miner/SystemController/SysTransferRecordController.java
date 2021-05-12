@@ -1,5 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.entity.SysTransferRecord;
@@ -53,12 +54,6 @@ public class SysTransferRecordController
     @GetMapping("/list")
     public Map<String,Object> list(SysTransferRecord sysTransferRecord)
     {
-        Result<SysUserOut> userResult = userFeignClient.getLoginUser();
-        if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
-            throw MyException.fail(userResult.getCode(),userResult.getMsg());
-        }
-        Long userId = userResult.getData().getUserId();
-        sysTransferRecord.setUserId(userId);
         return sysTransferRecordService.selectSysTransferRecordListUserName(sysTransferRecord);
     }
 
@@ -113,36 +108,7 @@ public class SysTransferRecordController
      */
     @GetMapping("/getUserEarning")
     public Result getUserEarning(GetUserEarningInput input){
-        EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
-        Result<SysUserOut> userResult = userFeignClient.getLoginUser();
-        if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
-            throw MyException.fail(userResult.getCode(),userResult.getMsg());
-        }
-        Long userId = userResult.getData().getUserId();
-        //1. 通过miner_id从sys_miner_info表中获取总收益和总锁仓收益
-        SysTotalEarning sysTotalEarning = sysMinerInfoService.selectTotalEarningAndAwardByUserId(input.getMinerId());
-        if (sysTotalEarning == null) {
-            earningVo.setTotalEarning(BigDecimalUtil
-                    .formatFour(new BigDecimal(earningVo.getTotalEarning())).doubleValue());
-            earningVo.setTotalLockAward(BigDecimalUtil
-                    .formatFour(new BigDecimal(earningVo.getTotalLockAward())).doubleValue());
-            return Result.success(earningVo);
-        }
-        earningVo.setTotalEarning(BigDecimalUtil
-                .formatFour(new BigDecimal(sysTotalEarning.getTotalEarning())).doubleValue());
-        earningVo.setTotalLockAward(BigDecimalUtil
-                .formatFour(new BigDecimal(sysTotalEarning.getTotalLockAward())).doubleValue());
-        //2. 通过miner_id从sys_transfer_record表中获取总的已提取收益,
-        Double totalWithdraw = sysTransferRecordService.selectTotalWithdrawByUserId(userId);
-        if (totalWithdraw == null) {
-            return Result.success(earningVo);
-        }
-        earningVo.setTotalWithdraw(totalWithdraw);
-        //3. 根据公式: 总收益 - 锁仓收益 - 已提取收益 = 可提取收益
-        double availableEarning = sysTotalEarning.getTotalEarning() - sysTotalEarning.getTotalLockAward() - totalWithdraw;
-        earningVo.setAvailableEarning(BigDecimalUtil
-                .formatFour(new BigDecimal(availableEarning)).doubleValue());
-        return Result.success(earningVo);
+        return sysTransferRecordService.getUserEarning(input);
     }
 
     @GetMapping("/getPoolEarning")
@@ -164,36 +130,6 @@ public class SysTransferRecordController
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {
-        Result<SysUserOut> userResult = userFeignClient.getLoginUser();
-        if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
-            throw MyException.fail(userResult.getCode(),userResult.getMsg());
-        }
-        SysUserOut user = userResult.getData();
-        BigDecimal fee = user.getFeeRate().multiply(sysTransferRecordWrap.getAmount());
-        sysTransferRecordWrap.setFee(fee);
-
-        //1. 校验验证码, 如果校验成功, 将验证码设置为已使用
-        Long userId = user.getUserId();
-        SysVerifyCode sysVerifyCode = new SysVerifyCode();
-        sysVerifyCode.setUserId(userId);
-        sysVerifyCode.setVerifyCode(sysTransferRecordWrap.getVerifyCode());
-
-        SysVerifyCode sysVerifyCodeRet = sysVerifyCodeService.selectSysVerifyCodeByUserIdAndVerifyCode(sysVerifyCode);
-        if (sysVerifyCodeRet == null) {
-            return Result.fail(MinerError.MYB_222222.getCode(),"验证码错误");
-        }
-        sysVerifyCodeRet.setStatus(1);
-        sysVerifyCodeRet.setUpdateTime(LocalDateTime.now());
-        sysVerifyCodeService.updateSysVerifyCode(sysVerifyCodeRet);
-
-        //2. 验证通过后, 记录提币申请
-        SysTransferRecord sysTransferRecord = new SysTransferRecord();
-        BeanUtils.copyProperties(sysTransferRecordWrap, sysTransferRecord);
-        sysTransferRecord.setUserId(userId);
-        sysTransferRecord.setCreateTime(LocalDateTime.now());
-        sysTransferRecord.setUpdateTime(LocalDateTime.now());
-        sysTransferRecord.setStatus(0);
-        int rows = sysTransferRecordService.insertSysTransferRecord(sysTransferRecord);
-        return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
+        return sysTransferRecordService.withdraw(sysTransferRecordWrap);
     }
 }

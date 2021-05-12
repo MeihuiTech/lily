@@ -86,6 +86,13 @@
             <version>1.2-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.mei.hui</groupId>
+            <artifactId>user-feign-client</artifactId>
+            <version>1.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -38,6 +38,11 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
             public Result<SysUserOut> getLoginUser() {
                 return null;
             }
+
+            @Override
+            public Result signin(String token) {
+                return null;
+            }
         };
     }
 }

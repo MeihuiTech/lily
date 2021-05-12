@@ -3,7 +3,10 @@ package com.mei.hui.config;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
@@ -54,11 +57,18 @@ public class JwtUtil {
      * @return
      * @throws JWTDecodeException
      */
-    public static Claims parseToken(String encodedToken) throws JWTDecodeException {
-        Claims claims = Jwts.parser()
-                .setSigningKey(staticRuoYiConfig.getJwtSecret())
-                .parseClaimsJws(encodedToken)
-                .getBody();
+    public static Claims parseToken(String encodedToken)  {
+        Claims claims = null;
+        try{
+            claims = Jwts.parser()
+                    .setSigningKey(staticRuoYiConfig.getJwtSecret())
+                    .parseClaimsJws(encodedToken)
+                    .getBody();
+        }catch (ExpiredJwtException exp){
+            throw MyException.fail(ErrorCode.MYB_111002.getCode(),ErrorCode.MYB_111002.getMsg());
+        }catch (JWTDecodeException dex){
+            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"token 验签错误");
+        }
         return claims;
     }
 

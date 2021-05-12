@@ -84,6 +84,7 @@ public class SysUserServiceImpl implements ISysUserService {
         claims.put(SystemConstants.PLATFORM,Constants.WEB);
         //生成token
         result.put(SystemConstants.TOKEN,JwtUtil.createToken(claims));
+        redisUtils.set(Constants.USERID+sysUser.getUserId(),"1",8,TimeUnit.HOURS);
         return result;
     }
 
@@ -164,12 +165,13 @@ public class SysUserServiceImpl implements ISysUserService {
         }
         queryWrapper.eq(SysUser::getDelFlag,0);
         IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(user.getPageNum(), user.getPageSize()), queryWrapper);
+        List<SysUser> list = page.getRecords().stream().filter(v -> v.getUserId() != null && 1L != v.getUserId()).collect(Collectors.toList());
         //组装返回值
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
         map.put("total",page.getTotal());
-        map.put("rows",page.getRecords());
+        map.put("rows",list);
         return map;
     }
 

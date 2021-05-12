@@ -106,5 +106,14 @@ public class RedisUtil {
         return redisTemplate.opsForValue().decrement(key);
     }
 
+    /**
+     * 判断 key 是否存在
+     * @param key
+     * @return
+     */
+    public boolean exists(String key){
+        return redisTemplate.hasKey(key);
+    }
+
 
 }

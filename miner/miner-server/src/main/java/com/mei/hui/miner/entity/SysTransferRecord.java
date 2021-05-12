@@ -44,6 +44,8 @@ public class SysTransferRecord
     /** 提币HASH */
     private String toHash;
 
+    private String minerId;
+
     /** 0 提币中 1 提币完成 2 提币失败 */
     private Integer status;
     @TableField(exist = false)

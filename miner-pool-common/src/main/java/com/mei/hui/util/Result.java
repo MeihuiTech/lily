@@ -39,6 +39,9 @@ public class Result<T> implements Serializable {
         this.msg = msg;
     }
 
+    public Result(){
+    }
+
 
 
 }
