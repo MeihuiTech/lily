@@ -164,9 +164,9 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
         sysSectorsWrapParam.setMinerId(sysSectorInfo.getMinerId()+"");
         sysSectorsWrapParam.setSectorNo(sysSectorInfo.getSectorNo());
         String hostname = sysSectorInfo.getHostname();
-        if("none".equalsIgnoreCase(hostname)){
+        /*if("none".equalsIgnoreCase(hostname)){
             hostname = "";
-        }
+        }*/
         sysSectorsWrapParam.setHostname(hostname);
         sysSectorsWrapParam.setSectorDuration(sysSectorInfo.getSectorDuration());
         sysSectorsWrapParam.setSectorSize(sysSectorInfo.getSectorSize());
@@ -182,10 +182,11 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
                 log.info("新增扇区信息聚合表:[{}]" , JSON.toJSONString(sysSectorsWrapParam));
                 insertSysSectorsWrap(sysSectorsWrapParam);
             }catch (DataIntegrityViolationException exception) {
-                if (sysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()) {
+                if (sysSectorInfo != null && sysSectorsWrap != null && sysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()) {
                     log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表:[{}]" , JSON.toJSONString(sysSectorsWrap));
                     updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo);
                 }
+                log.info("新增扇区信息聚合表抛出异常");
             }
         } else if (sysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()) {
             log.info("修改扇区信息聚合表:[{}]" , JSON.toJSONString(sysSectorsWrap));
