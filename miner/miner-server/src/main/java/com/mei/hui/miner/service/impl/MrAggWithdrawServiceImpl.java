@@ -52,13 +52,34 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
         if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
             ids = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
         }
+        if(ids.size() == 0){
+            return new PageResult();
+        }
         /**
          * 查询用户收益提现分页列表
          */
-        QueryWrapper<MrAggWithdraw> queryWrapper = new QueryWrapper<>();
-        //queryWrapper.orderBy(true,input.isAsc(),input.getCloumName());
+        LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
+        //排序
+        if("totalFee".equals(input.getCloumName())){
+            if(input.isAsc()){
+                //true升序
+                queryWrapper.orderByAsc(MrAggWithdraw::getTotalFee);
+            }else {
+                //降序
+                queryWrapper.orderByDesc(MrAggWithdraw::getTotalFee);
+            }
+        }
+        if("tatalCount".equals(input.getCloumName())){
+            if(input.isAsc()){
+                //true升序
+                queryWrapper.orderByAsc(MrAggWithdraw::getTatalCount);
+            }else {
+                //降序
+                queryWrapper.orderByDesc(MrAggWithdraw::getTatalCount);
+            }
+        }
         if(ids.size() > 0){
-            queryWrapper.in("sys_user_id",ids);
+            queryWrapper.in(MrAggWithdraw::getSysUserId,ids);
         }
         IPage<MrAggWithdraw> page = mrAggWithdrawMapper
                 .selectPage(new Page<>(input.getPageNum(), input.getPageSize()), queryWrapper);

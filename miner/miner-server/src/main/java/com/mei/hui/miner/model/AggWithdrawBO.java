@@ -14,10 +14,10 @@ public class AggWithdrawBO extends BasePage {
     private String userName;
 
 
-    @ApiModelProperty(value = "true 升序，默认false")
-    private boolean isAsc = false;
+    @ApiModelProperty(value = "true 升序，false 降序")
+    private boolean isAsc;
 
     @ApiModelProperty(value = "排序字段名称")
-    private String cloumName = "take_total_mony";
+    private String cloumName;
 
 }
