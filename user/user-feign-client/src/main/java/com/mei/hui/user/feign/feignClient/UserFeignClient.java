@@ -1,10 +1,7 @@
 package com.mei.hui.user.feign.feignClient;
 
 import com.mei.hui.user.feign.fallBackFactory.UserFeignFallbackFactory;
-import com.mei.hui.user.feign.vo.FindSysUserListInput;
-import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
-import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
-import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.user.feign.vo.*;
 import com.mei.hui.util.Result;
 import feign.Param;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -43,8 +40,8 @@ public interface UserFeignClient {
     @PostMapping("/getLoginUser")
      Result<SysUserOut> getLoginUser();
 
-    @GetMapping("/signin")
-    Result signin(@RequestParam String token);
+    @GetMapping("/sign")
+    Result sign(@RequestBody SignBO signBO);
 
     /**
      * 用户信息模糊查询

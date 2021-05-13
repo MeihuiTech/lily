@@ -23,7 +23,7 @@ public class MrAggWithdraw {
 
     private BigDecimal takeTotalMony;
 
-    private BigDecimal total_fee;
+    private BigDecimal totalFee;
 
-    private Integer tatal_count;
+    private Integer tatalCount;
 }

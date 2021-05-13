@@ -6,6 +6,7 @@ import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
+import com.mei.hui.user.feign.vo.SignBO;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.service.LoginService;
 import com.mei.hui.user.service.ISysUserService;
@@ -127,10 +128,10 @@ public class LoginController {
         return Result.OK;
     }
 
-    @GetMapping("/signin")
-    public Result signin(@RequestParam String token){
+    @GetMapping("/sign ")
+    public Result sign(@RequestBody SignBO signBO){
         //验签
-        Claims claims = JwtUtil.parseToken(token);
+        Claims claims = JwtUtil.parseToken(signBO.getToken());
         Integer userId = (Integer) claims.get(SystemConstants.USERID);
         if(!redisCache.exists("user:"+userId)){
             throw MyException.fail(ErrorCode.MYB_111111.getCode(),"token 失效");

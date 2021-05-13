@@ -56,7 +56,7 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
          * 查询用户收益提现分页列表
          */
         QueryWrapper<MrAggWithdraw> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderBy(true,input.isAsc(),input.getCloumName());
+        //queryWrapper.orderBy(true,input.isAsc(),input.getCloumName());
         if(ids.size() > 0){
             queryWrapper.in("sys_user_id",ids);
         }

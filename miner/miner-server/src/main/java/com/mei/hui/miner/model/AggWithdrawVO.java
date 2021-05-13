@@ -22,9 +22,12 @@ public class AggWithdrawVO {
     @ApiModelProperty("用户名称")
     private String userName;
 
+    @ApiModelProperty("提现总额")
     private BigDecimal takeTotalMony;
 
+    @ApiModelProperty("提现缴纳平台费用总额")
     private BigDecimal totalFee;
 
+    @ApiModelProperty("提现次数")
     private Integer tatalCount;
 }

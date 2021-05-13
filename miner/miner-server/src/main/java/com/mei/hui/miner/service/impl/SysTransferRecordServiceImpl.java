@@ -136,17 +136,17 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         log.info("查询提现汇总表记录,userId={}",userId);
         List<MrAggWithdraw> aggWithdraws = mrAggWithdrawMapper.selectList(queryWrapper);
         log.info("查询提现汇总表记录,结果:{}",JSON.toJSONString(aggWithdraws));
-        if(aggWithdraws.size() < 0){
+        if(aggWithdraws.size() == 0){
             log.info("新增提现汇总信息");
             MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(transferRecord.getAmount())
-                    .tatal_count(1).total_fee(transferRecord.getFee()).build();
+                    .tatalCount(1).totalFee(transferRecord.getFee()).build();
             mrAggWithdrawMapper.insert(insertAggWithdraw);
         }else{
             log.info("更新提现汇总信息");
             MrAggWithdraw mrAggWithdraw = aggWithdraws.get(0);
             mrAggWithdraw.setTakeTotalMony(mrAggWithdraw.getTakeTotalMony().add(transferRecord.getAmount()));
-            mrAggWithdraw.setTatal_count(mrAggWithdraw.getTatal_count() + 1);
-            mrAggWithdraw.setTotal_fee(mrAggWithdraw.getTotal_fee().add(transferRecord.getFee()));
+            mrAggWithdraw.setTatalCount(mrAggWithdraw.getTatalCount() + 1);
+            mrAggWithdraw.setTotalFee(mrAggWithdraw.getTotalFee().add(transferRecord.getFee()));
             mrAggWithdrawMapper.updateById(mrAggWithdraw);
         }
         return 1;
@@ -241,16 +241,29 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.orderByAsc(SysTransferRecord::getStatus);
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(sysTransferRecord.getPageNum(), sysTransferRecord.getPageSize()), queryWrapper);
+        List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
+        /**
+         * 查询用户
+         */
+        Map<Long,SysUserOut> map = new HashMap<>();
+        if(ids.size() > 0){
+            FindSysUserListInput findSysUserListInput = new FindSysUserListInput();
+            findSysUserListInput.setUserIds(ids);
+            Result<List<SysUserOut>> users = userFeignClient.findSysUserList(findSysUserListInput);
+            users.getData().stream().forEach(v->map.put(v.getUserId(),v));
+        }
         /**
          * 组装返回信息
          */
-        Map<String,Object> map = new HashMap<>();
-        map.put("code", ErrorCode.MYB_000000.getCode());
-        map.put("msg", ErrorCode.MYB_000000.getMsg());
-        map.put("rows", page.getRecords());
-        map.put("total", page.getTotal());
-        return map;
-
+        if(map.size() > 0){
+            page.getRecords().stream().forEach(v->v.setUserName(map.get(v.getUserId()).getUserName()));
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("code", ErrorCode.MYB_000000.getCode());
+        result.put("msg", ErrorCode.MYB_000000.getMsg());
+        result.put("rows", page.getRecords());
+        result.put("total", page.getTotal());
+        return result;
     }
 
     public Map<Long,SysUserOut>  sysUserToMap(List<Long> userids){
@@ -282,10 +295,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
          * 一：提取金额 < 可提现金额 - 提币中 金额
          */
         //获取可提现金额
-        SysMinerInfo sysMinerInfo = sysMinerInfoMapper.selectById(sysTransferRecordWrap.getMinerId());
-        if(sysMinerInfo == null){
+        LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper();
+        wrapper.eq(SysMinerInfo::getMinerId,sysTransferRecordWrap.getMinerId());
+        wrapper.eq(SysMinerInfo::getUserId,HttpRequestUtil.getUserId());
+        List<SysMinerInfo> miners = sysMinerInfoMapper.selectList(wrapper);
+        if(miners.size() == 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
         }
+        SysMinerInfo sysMinerInfo = miners.get(0);
         BigDecimal balanceMinerAvailable = sysMinerInfo.getBalanceMinerAvailable();
 
         //获取提币中的金额(注意手续费)
@@ -333,7 +350,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         sysTransferRecord.setStatus(0);
         sysTransferRecord.setMinerId(sysTransferRecordWrap.getMinerId());
         sysTransferRecord.setCreateTime(LocalDateTime.now());
-        int rows = sysTransferRecordMapper.insertSysTransferRecord(sysTransferRecord);
+        int rows = sysTransferRecordMapper.insert(sysTransferRecord);
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 

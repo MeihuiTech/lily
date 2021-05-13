@@ -1,4 +1,4 @@
-package com.mei.hui.gateway.util;
+package com.mei.hui.gateway.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,7 +11,7 @@ import java.util.List;
 @ConfigurationProperties("setting")
 @Component
 @RefreshScope
-public class GatewaySetting {
+public class WhiteConfig {
 
     private List<String> whiteUrls;
 

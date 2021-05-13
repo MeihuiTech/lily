@@ -1,17 +1,23 @@
 package com.mei.hui.gateway.config;
 
+import feign.Logger;
 import feign.codec.Decoder;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.support.ResponseEntityDecoder;
 import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 /**
 *@Description:
 *@Author: 鲍红建
@@ -19,6 +25,18 @@ import java.util.List;
 */
 @SpringBootConfiguration
 public class FeignConfig {
+
+    @Bean
+    Logger.Level feignLevel() {
+        return Logger.Level.FULL;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
+        return new HttpMessageConverters(converters.orderedStream().collect(Collectors.toList()));
+    }
+/*
     @Bean
     public Decoder feignDecoder() {
         return new ResponseEntityDecoder(new SpringDecoder(feignHttpMessageConverter()));
@@ -35,5 +53,5 @@ public class FeignConfig {
             mediaTypes.add(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8"));
             setSupportedMediaTypes(mediaTypes);
         }
-    }
+    }*/
 }
