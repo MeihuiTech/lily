@@ -13,6 +13,8 @@ import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.*;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.mapper.*;
 import com.mei.hui.user.model.LoginBody;
@@ -134,6 +136,25 @@ public class SysUserServiceImpl implements ISysUserService {
             return sysUserOut;
         }).collect(Collectors.toList());
         return Result.success(users);
+    }
+
+    /**
+     * 用户模糊查询
+     * @param req
+     * @return
+     */
+    public Result<List<FindSysUsersByNameVO>> findSysUsersByName(FindSysUsersByNameBO req){
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUser::getStatus,0);
+        queryWrapper.eq(SysUser::getDelFlag,0);
+        queryWrapper.like(SysUser::getUserName,req.getName());
+        List<SysUser> users = sysUserMapper.selectList(queryWrapper);
+        List<FindSysUsersByNameVO> list = users.stream().map(v -> {
+            FindSysUsersByNameVO vo = new FindSysUsersByNameVO();
+            BeanUtils.copyProperties(v, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return Result.success(list);
     }
 
     /**

@@ -134,10 +134,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <select id="selectTotalEarning" resultType="BigDecimal">
-        select sum(fee) from sys_transfer_record
+        select sum(fee) from sys_transfer_record where status = 1
     </select>
 
     <select id="selectTodayEarning" resultType="BigDecimal">
-        select sum(fee) from sys_transfer_record where create_time >= curdate()
+        select sum(fee) from sys_transfer_record where create_time >= curdate() and status = 1
     </select>
 </mapper>

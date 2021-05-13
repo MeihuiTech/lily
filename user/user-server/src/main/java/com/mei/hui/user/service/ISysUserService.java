@@ -2,6 +2,8 @@ package com.mei.hui.user.service;
 
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.model.SelectUserListInput;
@@ -47,4 +49,11 @@ public interface ISysUserService {
     boolean updateUserAvatar(Long userId, String avatar);
 
     Map<String,Object> Impersonation(Long userId);
+
+    /**
+     * 用户模糊查询
+     * @param req
+     * @return
+     */
+    Result<List<FindSysUsersByNameVO>> findSysUsersByName(FindSysUsersByNameBO req);
 }

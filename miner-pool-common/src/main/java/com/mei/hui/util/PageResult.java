@@ -21,12 +21,12 @@ public class PageResult<T> {
     private String msg = ErrorCode.MYB_000000.getMsg();
 
     @ApiModelProperty(value = "总页数")
-    private int total;
+    private long total;
 
     @ApiModelProperty(value = "数据列表")
     private List<T> rows;
 
-    public PageResult(int total,List<T> rows){
+    public PageResult(long total,List<T> rows){
         this.total = total;
         this.rows = rows;
     }

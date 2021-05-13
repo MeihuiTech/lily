@@ -49,16 +49,15 @@ public class SysTransferRecordController
     private ISysVerifyCodeService sysVerifyCodeService;
 
     /**
-     * 查询系统划转记录列表
+     * 查询系统划转记录列表,普通用户
      */
     @GetMapping("/list")
-    public Map<String,Object> list(SysTransferRecord sysTransferRecord)
-    {
-        return sysTransferRecordService.selectSysTransferRecordListUserName(sysTransferRecord);
+    public Map<String,Object> list(SysTransferRecord sysTransferRecord){
+        return sysTransferRecordService.findTransferRecords(sysTransferRecord);
     }
 
     /**
-     * 查询系统划转记录列表
+     * 查询系统划转记录列表，管理员用户
      */
     @GetMapping("/listForAdmin")
     public Map<String,Object> listForAdmin(SysTransferRecord sysTransferRecord)

@@ -94,4 +94,6 @@ public interface ISysTransferRecordService
     Result withdraw(SysTransferRecordWrap sysTransferRecordWrap);
 
     Result getUserEarning(GetUserEarningInput input);
+
+    Map<String,Object> findTransferRecords(SysTransferRecord sysTransferRecord);
 }

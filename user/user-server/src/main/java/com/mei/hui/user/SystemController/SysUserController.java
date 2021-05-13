@@ -12,6 +12,8 @@ import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.ChangeAccountInput;
 import com.mei.hui.user.model.SelectUserListInput;
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.xml.ws.RequestWrapper;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -90,6 +93,16 @@ public class SysUserController{
     @RequestMapping(value = "/findSysUserList",method = RequestMethod.POST)
     public Result<List<SysUserOut>> findSysUserList(@RequestBody FindSysUserListInput req){
         return userService.findSysUserList(req);
+    }
+
+    /**
+     * 模糊查询
+     * @param req
+     * @return
+     */
+    @PostMapping("/findSysUsersByName")
+    public Result<List<FindSysUsersByNameVO>> findSysUsersByName(@RequestBody FindSysUsersByNameBO req){
+        return userService.findSysUsersByName(req);
     }
 
     /**
