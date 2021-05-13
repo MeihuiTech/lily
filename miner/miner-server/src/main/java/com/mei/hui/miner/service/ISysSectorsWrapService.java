@@ -2,6 +2,7 @@ package com.mei.hui.miner.service;
 
 
 import com.mei.hui.miner.entity.SysSectorsWrap;
+import com.mei.hui.miner.model.RequestSectorInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -74,4 +75,17 @@ public interface ISysSectorsWrapService
     public SysSectorsWrap selectSysSectorsWrapByMinerIdAndSectorNo(SysSectorsWrap sysSectorsWrap);
 
     public Map<String,Object> list(SysSectorsWrap sysSectorsWrap);
+
+    /*
+    *
+    * @description 新增扇区信息
+    * @author shangbin
+    * @date 2021/5/12 14:46
+    * @param [sysSectorInfo]
+    * @return int
+    * @version v1.0.0
+    */
+    public int addSector(RequestSectorInfo sysSectorInfo);
+
+    public int testInsert(SysSectorsWrap sysSectorsWrap);
 }

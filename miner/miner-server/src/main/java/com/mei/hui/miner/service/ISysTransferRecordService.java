@@ -12,15 +12,15 @@ import java.util.Map;
 
 /**
  * 系统划转记录Service接口
- * 
+ *
  * @author ruoyi
  * @date 2021-03-08
  */
-public interface ISysTransferRecordService 
+public interface ISysTransferRecordService
 {
     /**
      * 查询系统划转记录
-     * 
+     *
      * @param id 系统划转记录ID
      * @return 系统划转记录
      */
@@ -28,7 +28,7 @@ public interface ISysTransferRecordService
 
     /**
      * 查询系统划转记录列表
-     * 
+     *
      * @param sysTransferRecord 系统划转记录
      * @return 系统划转记录集合
      */
@@ -36,7 +36,7 @@ public interface ISysTransferRecordService
 
     /**
      * 新增系统划转记录
-     * 
+     *
      * @param sysTransferRecord 系统划转记录
      * @return 结果
      */
@@ -44,7 +44,7 @@ public interface ISysTransferRecordService
 
     /**
      * 修改系统划转记录
-     * 
+     *
      * @param sysTransferRecord 系统划转记录
      * @return 结果
      */
@@ -52,7 +52,7 @@ public interface ISysTransferRecordService
 
     /**
      * 批量删除系统划转记录
-     * 
+     *
      * @param ids 需要删除的系统划转记录ID
      * @return 结果
      */
@@ -60,7 +60,7 @@ public interface ISysTransferRecordService
 
     /**
      * 删除系统划转记录信息
-     * 
+     *
      * @param id 系统划转记录ID
      * @return 结果
      */
@@ -96,4 +96,5 @@ public interface ISysTransferRecordService
     Result getUserEarning(GetUserEarningInput input);
 
     Map<String,Object> findTransferRecords(SysTransferRecord sysTransferRecord);
+
 }

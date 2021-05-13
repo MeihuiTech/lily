@@ -46,9 +46,6 @@ public class SysReportedController
     private ISysMachineInfoService sysMachineInfoService;
 
     @Autowired
-    private ISysSectorInfoService sysSectorInfoService;
-
-    @Autowired
     private ISysSectorsWrapService sysSectorsWrapService;
 
     @Autowired
@@ -103,42 +100,13 @@ public class SysReportedController
      * 新增扇区信息
      */
     @ApiOperation(value = "新增扇区")
-    @PostMapping("sector")
+    @PostMapping("/sector")
     public Result sector(@Validated @RequestBody RequestSectorInfo sysSectorInfo)
     {
-        //1. 查询sys_sectors_wrap 中是否已有该扇区, 没有则插入, 有则获取数据做聚合
-        SysSectorsWrap sysSectorsWrapParam = new SysSectorsWrap();
-        sysSectorsWrapParam.setMinerId(sysSectorInfo.getMinerId()+"");
-        sysSectorsWrapParam.setSectorNo(sysSectorInfo.getSectorNo());
-        String hostname = sysSectorInfo.getHostname();
-        if("none".equalsIgnoreCase(hostname)){
-            hostname = "";
-        }
-        sysSectorsWrapParam.setHostname(hostname);
-        sysSectorsWrapParam.setSectorDuration(sysSectorInfo.getSectorDuration());
-        sysSectorsWrapParam.setSectorSize(sysSectorInfo.getSectorSize());
-        sysSectorsWrapParam.setSectorStatus(sysSectorInfo.getSectorStatus());
-        sysSectorsWrapParam.setCreateTime(LocalDateTime.now());
-        sysSectorsWrapParam.setUpdateTime(LocalDateTime.now());
-
-        SysSectorsWrap sysSectorsWrap = sysSectorsWrapService.selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrapParam);
-        if (sysSectorsWrap == null) {
-            sysSectorsWrapService.insertSysSectorsWrap(sysSectorsWrapParam);
-        } else if (sysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()) {
-            sysSectorsWrap.setSectorDuration(sysSectorsWrap.getSectorDuration() + sysSectorInfo.getSectorDuration());
-            sysSectorsWrap.setSectorStatus(sysSectorInfo.getSectorStatus());
-            sysSectorsWrapService.updateSysSectorsWrap(sysSectorsWrap);
-        }
-
-        //2. 查询 sys_sector_info 中是否已存在该记录, 如果已存在则更新
-        SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
-        if (sectorInfo != null) {
-            sysSectorInfo.setId(sectorInfo.getId());
-            int rows = sysSectorInfoService.updateSysSectorInfo(sysSectorInfo);
-            return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
-        }
-        int rows = sysSectorInfoService.insertSysSectorInfo(sysSectorInfo);
+        int rows = sysSectorsWrapService.addSector(sysSectorInfo);
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
+
+
 
 }

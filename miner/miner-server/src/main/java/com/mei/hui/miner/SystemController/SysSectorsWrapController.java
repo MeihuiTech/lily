@@ -11,6 +11,7 @@ import com.mei.hui.miner.service.ISysSectorsWrapService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -84,5 +85,27 @@ public class SysSectorsWrapController
         map.put("rows", list);
         map.put("total", list.size());
         return map;
+    }
+
+    /*
+    *
+    * @description 手动测试插入扇区信息聚合表
+    * @author shangbin
+    * @date 2021/5/12 15:54
+    * @param []
+    * @return int
+    * @version v1.0.0
+    */
+//    @GetMapping(value = "/testInsert")
+    public int testInsert() {
+        SysSectorsWrap sysSectorsWrap = new SysSectorsWrap();
+        sysSectorsWrap.setMinerId("f0693008");
+        sysSectorsWrap.setHostname("none");
+        sysSectorsWrap.setSectorNo(Long.valueOf("43626"));
+        sysSectorsWrap.setSectorSize(Long.valueOf("68719476736"));
+        sysSectorsWrap.setSectorStatus(8);
+        sysSectorsWrap.setSectorDuration(Long.valueOf(0));
+        return sysSectorsWrapService.testInsert(sysSectorsWrap);
+
     }
 }
