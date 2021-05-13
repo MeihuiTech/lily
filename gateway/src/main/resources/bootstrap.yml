@@ -7,8 +7,7 @@ spring:
 ---
 #开发环境
 spring:
-  profiles:
-    active: dev
+  profiles: dev
   application:
     name: gateway-server
   cloud:
@@ -30,8 +29,7 @@ spring:
 ---
 #生产环境
 spring:
-  profiles:
-    active: prod
+  profiles: prod
   application:
     name: gateway-server
   cloud:

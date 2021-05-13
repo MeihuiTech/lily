@@ -4,12 +4,10 @@ server:
 spring:
   profiles:
     active: dev
-
 ---
 #测试环境
 spring:
-  profiles:
-    active: dev
+  profiles: dev
   application:
     name: miner-server
   cloud:
@@ -28,8 +26,7 @@ spring:
 ---
 #生产环境
 spring:
-  profiles:
-    active: prod
+  profiles: prod
   application:
     name: miner-server
   cloud:
