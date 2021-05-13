@@ -147,6 +147,15 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
         return sysSectorsWrapMapper.selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrap);
     }
 
+    /**
+    *
+    * @description 新增扇区信息
+    * @author shangbin
+    * @date 2021/5/13 10:17
+    * @param [sysSectorInfo]
+    * @return int
+    * @version v1.0.0
+    */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int addSector(RequestSectorInfo sysSectorInfo) {
