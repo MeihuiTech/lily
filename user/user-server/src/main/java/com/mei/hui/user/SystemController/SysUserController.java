@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.xml.ws.RequestWrapper;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -153,6 +154,9 @@ public class SysUserController{
         SysUser userOut = userService.getLoginUser();
         user.setCreateBy(userOut.getUserName());
         user.setPassword(AESUtil.encrypt(user.getPassword()));
+        //费率 / 100 先这样处理，下期修改
+        BigDecimal rate = user.getFeeRate().divide(new BigDecimal(100));
+        user.setFeeRate(BigDecimalUtil.formatFour(rate));
         int rows = userService.insertUser(user);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }
@@ -175,6 +179,9 @@ public class SysUserController{
         }
         SysUser userOut = userService.getLoginUser();
         user.setUpdateBy(userOut.getUserName());
+        //费率 / 100 先这样处理，下期修改
+        BigDecimal rate = user.getFeeRate().divide(new BigDecimal(100));
+        user.setFeeRate(BigDecimalUtil.formatFour(rate));
         int rows = userService.updateUser(user);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }

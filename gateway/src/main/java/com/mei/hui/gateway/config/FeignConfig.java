@@ -39,16 +39,15 @@ public class FeignConfig {
     }
 
     public ObjectFactory<HttpMessageConverters> feignHttpMessageConverter() {
-        //final HttpMessageConverters httpMessageConverters = new HttpMessageConverters(new GateWayMappingJackson2HttpMessageConverter());
-        final HttpMessageConverters httpMessageConverters = new HttpMessageConverters(new MappingJackson2HttpMessageConverter());
+        final HttpMessageConverters httpMessageConverters = new HttpMessageConverters(new GateWayMappingJackson2HttpMessageConverter());
         return () -> httpMessageConverters;
     }
 
- /*   public class GateWayMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
+    public class GateWayMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
         GateWayMappingJackson2HttpMessageConverter(){
             List<MediaType> mediaTypes = new ArrayList<>();
             mediaTypes.add(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8"));
             setSupportedMediaTypes(mediaTypes);
         }
-    }*/
+    }
 }
