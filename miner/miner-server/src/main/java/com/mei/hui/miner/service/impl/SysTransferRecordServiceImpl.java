@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.*;
+import com.mei.hui.miner.entity.MrAggWithdraw;
+import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.entity.SysTransferRecord;
+import com.mei.hui.miner.entity.SysVerifyCode;
 import com.mei.hui.miner.mapper.MrAggWithdrawMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.mapper.SysTransferRecordMapper;
@@ -29,12 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -305,7 +301,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         SysMinerInfo sysMinerInfo = miners.get(0);
         BigDecimal balanceMinerAvailable = sysMinerInfo.getBalanceMinerAvailable();
 
-        //获取提币中的金额(注意手续费)
+        //获取提币中的金额
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(SysTransferRecord::getUserId, HttpRequestUtil.getUserId());
         queryWrapper.eq(SysTransferRecord::getStatus,0);
@@ -313,9 +309,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         BigDecimal gettingEarning = new BigDecimal(0);
         transferRecord.stream().forEach(v->{
             gettingEarning.add(v.getAmount());
-            gettingEarning.add(v.getFee());
         });
-        //提取金额 < 可提现金额 - （提币中金额+手续费）
+        //提取金额 < 可提现金额 - （提币中金额）
         BigDecimal account = balanceMinerAvailable.subtract(gettingEarning).subtract(sysTransferRecordWrap.getAmount());
         if(account.compareTo(new BigDecimal(0)) < 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"金额不够");
@@ -325,7 +320,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
         SysUserOut user = userResult.getData();
-        BigDecimal fee = user.getFeeRate().multiply(sysTransferRecordWrap.getAmount());
+        BigDecimal fee = user.getFeeRate().multiply(sysTransferRecordWrap.getAmount()).divide(new BigDecimal(100));
         sysTransferRecordWrap.setFee(fee);
 
         //1. 校验验证码, 如果校验成功, 将验证码设置为已使用
@@ -388,7 +383,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         //已提取收益
         BigDecimal totalWithdraw = BigDecimal.ZERO;
         for(SysTransferRecord record : transfers ) {
-            totalWithdraw = totalWithdraw.add(record.getFee()).add(record.getAmount());
+            totalWithdraw = totalWithdraw.add(record.getAmount());
         }
         earningVo.setTotalWithdraw(BigDecimalUtil.formatFour(totalWithdraw).doubleValue());
         /**
