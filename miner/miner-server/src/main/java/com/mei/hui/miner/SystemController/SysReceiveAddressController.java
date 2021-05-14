@@ -77,9 +77,9 @@ public class SysReceiveAddressController {
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 
-    /*
-     *
-     * @description 编辑收款地址
+    /**
+     * 编辑收款地址：先逻辑删除原来的，再新建一个新的，保留历史记录
+     * @description
      * @author shangbin
      * @date 2021/5/14 10:49
      * @param [sysReceiveAddress]
@@ -114,8 +114,6 @@ public class SysReceiveAddressController {
         SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
         BeanUtils.copyProperties(sysReceiveAddressBO,sysReceiveAddress);
         sysReceiveAddress.setUserId(userId);
-        sysReceiveAddress.setUpdateBy(userId + "");
-        sysReceiveAddress.setUpdateTime(new Date());
         int rows = sysReceiveAddressService.updateReceiveAddress(sysReceiveAddress);
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }

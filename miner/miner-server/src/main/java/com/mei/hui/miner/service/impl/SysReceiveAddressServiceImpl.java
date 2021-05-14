@@ -5,8 +5,11 @@ import com.mei.hui.miner.entity.SysReceiveAddress;
 import com.mei.hui.miner.mapper.SysReceiveAddressMapper;
 import com.mei.hui.miner.service.ISysReceiveAddressService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * 收款地址表
@@ -44,12 +47,10 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     */
     @Override
     public SysReceiveAddress selectSysReceiveAddressById(Long id) {
-        SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
-        sysReceiveAddress.setId(id);
-        sysReceiveAddress.setDelFlag(false);
-        // TODO 一会需要修改：根据id查询没有被删除的收款地址
-
-
+        SysReceiveAddress sysReceiveAddress = sysReceiveAddressMapper.selectById(id);
+        if (sysReceiveAddress.getDelFlag()) {
+            return null;
+        }
         return sysReceiveAddress;
     }
 
@@ -65,6 +66,12 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     */
     @Override
     public int updateReceiveAddress(SysReceiveAddress sysReceiveAddress) {
+        SysReceiveAddress updateSysReceiveAddress = new SysReceiveAddress();
+        BeanUtils.copyProperties(sysReceiveAddress,updateSysReceiveAddress);
+        updateSysReceiveAddress.setDelFlag(true);
+        updateSysReceiveAddress.setUpdateTime(new Date());
+        // TODO 一会修改这
+
         log.info("编辑收款地址：【{}】",JSON.toJSON(sysReceiveAddress));
         return sysReceiveAddressMapper.updateById(sysReceiveAddress);
     }

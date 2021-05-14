@@ -1,13 +1,16 @@
 package com.mei.hui.miner.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.entity.SysCurrency;
 import com.mei.hui.miner.mapper.SysCurrencyMapper;
 import com.mei.hui.miner.model.SysCurrencyVO;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,10 +40,11 @@ public class SysCurrencyServiceImpl implements ISysCurrencyService {
     public List<SysCurrencyVO> listCurrency() {
         SysCurrency sysCurrency = new SysCurrency();
         sysCurrency.setDelFlag(false);
-        // TODO 一会需要修改：
-
-
-//        sysCurrencyMapper.
-        return null;
+        QueryWrapper<SysCurrency> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(sysCurrency);
+        List<SysCurrency> sysCurrencyList = sysCurrencyMapper.selectList(queryWrapper);
+        List<SysCurrencyVO> sysCurrencyVOList = new ArrayList<>();
+        BeanUtils.copyProperties(sysCurrencyList,sysCurrencyVOList);
+        return sysCurrencyVOList;
     }
 }
