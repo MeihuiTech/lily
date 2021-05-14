@@ -53,7 +53,7 @@ public interface Constants extends SystemConstants {
     /**
      * 资源映射路径 前缀
      */
-    String RESOURCE_PREFIX = "/user-server/profile";
+    String RESOURCE_PREFIX = "/profile";
 
     String USERID="user:";
 
