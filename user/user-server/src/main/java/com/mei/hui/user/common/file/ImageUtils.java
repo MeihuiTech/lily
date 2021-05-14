@@ -1,6 +1,7 @@
 package com.mei.hui.user.common.file;
 
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
+import com.mei.hui.user.common.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class ImageUtils
             {
                 // 本机地址
                 String localPath = RuoYiConfig.getProfile();
-                String downloadPath = localPath + StringUtils.substringAfter(url,"/profile");
+                String downloadPath = localPath + StringUtils.substringAfter(url, Constants.RESOURCE_PREFIX);
                 in = new FileInputStream(downloadPath);
             }
             return IOUtils.toByteArray(in);

@@ -40,7 +40,7 @@ public interface UserFeignClient {
     @PostMapping("/getLoginUser")
      Result<SysUserOut> getLoginUser();
 
-    @GetMapping("/sign")
+    @PostMapping("/sign")
     Result sign(@RequestBody SignBO signBO);
 
     /**

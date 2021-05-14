@@ -47,7 +47,7 @@ public class AopController {
 		//获取请求的request
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = attributes.getRequest();
-    	if(!request.getRequestURL().toString().contains("/user/profile/avatar")){
+    	if(!request.getRequestURL().toString().contains("/avatar")){
 			log.info("@请求url:{},请求参数:{}",request.getRequestURL().toString(),getReqParameter(joinPoint));
 		}
     }

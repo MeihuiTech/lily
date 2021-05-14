@@ -128,7 +128,7 @@ public class LoginController {
         return Result.OK;
     }
 
-    @GetMapping("/sign ")
+    @PostMapping("/sign ")
     public Result sign(@RequestBody SignBO signBO){
         //验签
         Claims claims = JwtUtil.parseToken(signBO.getToken());

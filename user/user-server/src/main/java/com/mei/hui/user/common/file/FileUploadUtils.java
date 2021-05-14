@@ -1,6 +1,7 @@
 package com.mei.hui.user.common.file;
 
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
+import com.mei.hui.user.common.Constants;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.IdUtils;
@@ -146,7 +147,7 @@ public class FileUploadUtils
     {
         int dirLastIndex = RuoYiConfig.getProfile().length() + 1;
         String currentDir = StringUtils.substring(uploadDir, dirLastIndex);
-        String pathFileName =  "/profile/" + currentDir + "/" + fileName;
+        String pathFileName =  Constants.RESOURCE_PREFIX+"/" + currentDir + "/" + fileName;
         return pathFileName;
     }
 
