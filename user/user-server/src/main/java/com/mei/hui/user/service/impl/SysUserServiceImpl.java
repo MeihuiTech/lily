@@ -2,10 +2,9 @@ package com.mei.hui.user.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
@@ -21,14 +20,14 @@ import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +35,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class SysUserServiceImpl implements ISysUserService {
     @Autowired
@@ -256,6 +256,7 @@ public class SysUserServiceImpl implements ISysUserService {
     public int insertUser(SysUser user)
     {
         // 新增用户信息
+        user.setCreateTime(LocalDateTime.now());
         int rows = sysUserMapper.insert(user);
         // 新增用户与角色管理
         insertUserRole(user);
@@ -400,6 +401,45 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         //生成token
         result.put(SystemConstants.TOKEN,token);
+        return result;
+    }
+
+    /**
+     * 修改用户基本信息
+     *
+     * @param user 用户信息
+     * @return 结果
+     */
+    public int updateUserProfile(SysUser user){
+        return sysUserMapper.updateUser(user);
+    }
+
+    /**
+     * 修改用户信息
+     * @param user
+     * @return
+     */
+    public Map<String,Object> updateProfile(SysUser user){
+        if(user.getUserId() == null || user.getUserId() ==0){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"userId为空");
+        }
+        Long userId = user.getUserId();
+        log.info("查询用户信息，userId = {}",userId);
+        SysUser sysUser = sysUserMapper.selectById(userId);
+        log.info("查询用户信息,结果:{}", JSON.toJSONString(sysUser));
+        if(sysUser == null){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"userId错误");
+        }
+        LambdaUpdateWrapper<SysUser> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(SysUser::getUserId,userId);
+        updateWrapper.set(SysUser::getNickName,user.getNickName());
+        updateWrapper.set(SysUser::getPhonenumber,user.getPhonenumber());
+        updateWrapper.set(SysUser::getEmail,user.getEmail());
+        sysUserMapper.update(null,updateWrapper);
+        updateWrapper.set(SysUser::getSex,user.getSex());
+        Map<String,Object> result = new HashMap<>();
+        result.put("code",ErrorCode.MYB_000000.getCode());
+        result.put("msg",ErrorCode.MYB_000000.getMsg());
         return result;
     }
 }

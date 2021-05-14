@@ -56,4 +56,8 @@ public interface ISysUserService {
      * @return
      */
     Result<List<FindSysUsersByNameVO>> findSysUsersByName(FindSysUsersByNameBO req);
+
+    int updateUserProfile(SysUser user);
+
+    Map<String,Object> updateProfile(SysUser user);
 }

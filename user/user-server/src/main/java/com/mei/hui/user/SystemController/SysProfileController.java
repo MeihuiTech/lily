@@ -7,9 +7,7 @@ import com.mei.hui.user.common.file.FileUploadUtils;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.IpUtils;
-import com.mei.hui.util.NotCheck;
+import com.mei.hui.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +23,7 @@ import java.util.Map;
  * @author ruoyi
  */
 @RestController
-@RequestMapping("/system")
+@RequestMapping("/system/user/profile")
 public class SysProfileController{
     @Autowired
     private ISysUserService userService;
@@ -36,7 +34,7 @@ public class SysProfileController{
     /**
      * 个人信息
      */
-    @GetMapping("/user/profile")
+    @GetMapping
     public Map<String,Object> profile(){
         Long userId = HttpRequestUtil.getUserId();
         SysUser user = sysUserMapper.selectById(userId);
@@ -52,7 +50,7 @@ public class SysProfileController{
     /**
      * 头像上传
      */
-    @PostMapping("/user/profile/avatar")
+    @PostMapping("/avatar")
     @NotCheck
     public Map<String,Object> avatar(@RequestParam("avatarfile") MultipartFile file) throws IOException
     {
@@ -72,6 +70,33 @@ public class SysProfileController{
         }
         map.put("code",UserError.MYB_333333.getCode());
         map.put("msg",UserError.MYB_333333.getMsg());
+        return map;
+    }
+
+    /**
+     * 修改用户
+     */
+    @PutMapping
+    public Map<String,Object> updateProfile(@RequestBody SysUser user){
+       return userService.updateProfile(user);
+    }
+
+    /**
+     * 重置密码
+     */
+    @PutMapping("/updatePwd")
+    public Map<String,Object> updatePwd(String oldPassword, String newPassword)
+    {
+        SysUser loginUser = userService.getLoginUser();
+        if(!loginUser.getPassword().equals(AESUtil.encrypt(oldPassword))){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"旧密码错误");
+        }
+        if(loginUser.getPassword().equals(AESUtil.encrypt(newPassword))){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"新密码不能与旧密码相同");
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("code",ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
         return map;
     }
 

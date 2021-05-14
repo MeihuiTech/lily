@@ -11,6 +11,7 @@ import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededExceptio
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -92,9 +93,7 @@ public class FileUploadUtils
      * @param allowedExtension 上传文件类型
      * @return 返回上传成功的文件名
      * @throws FileSizeLimitExceededException 如果超出最大大小
-     * @throws FileNameLengthLimitExceededException 文件名太长
      * @throws IOException 比如读写文件出错时
-     * @throws InvalidExtensionException 文件校验异常
      */
     public static final String upload(String baseDir, MultipartFile file, String[] allowedExtension) throws Exception
     {
@@ -108,7 +107,11 @@ public class FileUploadUtils
         String fileName = extractFilename(file);
 
         File desc = getAbsoluteFile(baseDir, fileName);
-        file.transferTo(desc);
+       // file.transferTo(desc);
+        FileOutputStream out = new FileOutputStream(desc);
+        out.write(file.getBytes());
+        out.flush();
+        out.close();
         String pathFileName = getPathFileName(baseDir, fileName);
         return pathFileName;
     }
