@@ -65,7 +65,7 @@ public class SysProfileController{
             {
                 map.put("code",ErrorCode.MYB_000000.getCode());
                 map.put("msg",ErrorCode.MYB_000000.getMsg());
-                map.put("imgUrl",avatar);
+                map.put("imgUrl","/user-server/"+avatar);
                 return map;
             }
         }
