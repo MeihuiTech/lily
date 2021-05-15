@@ -42,7 +42,7 @@ public class LoginServiceImpl implements LoginService{
         // 权限集合
         Set<String> permissions = permissionService.getMenuPermission(user);
 
-        user.setAvatar(user.getAvatar());
+        user.setAvatar("/user-server/"+user.getAvatar());
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
