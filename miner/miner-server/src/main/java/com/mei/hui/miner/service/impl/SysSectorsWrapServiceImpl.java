@@ -125,6 +125,13 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
         sysSectorsWrap.getParams().put("userId", userId);
         PageHelper.startPage(Integer.valueOf(sysSectorsWrap.getPageNum()+""),Integer.valueOf(sysSectorsWrap.getPageSize()+""));
         List<SysSectorsWrap> list = sysSectorsWrapMapper.selectSysSectorsWrapListByUserId(sysSectorsWrap);
+        for (SysSectorsWrap dbSysSectorsWrap:list) {
+            // 显示GB，原来单位是B
+            dbSysSectorsWrap.setSectorSize(dbSysSectorsWrap.getSectorSize()/1024/1024/1024);
+            if ("none".equals(dbSysSectorsWrap.getHostname())) {
+                dbSysSectorsWrap.setHostname("");
+            }
+        }
         /**
          * 组装返回信息
          */
