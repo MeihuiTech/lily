@@ -62,4 +62,8 @@ public class SysMachineInfo
 
     private LocalDateTime updateTime;
 
+    private String createBy;
+
+    private String updateBy;
+
 }
