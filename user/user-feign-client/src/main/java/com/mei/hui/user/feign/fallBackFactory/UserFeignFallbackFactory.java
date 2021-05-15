@@ -38,7 +38,7 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
             }
 
             @Override
-            public Result sign(@RequestBody SignBO signBO) {
+            public Result sign(String token) {
                 return null;
             }
 

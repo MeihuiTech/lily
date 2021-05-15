@@ -75,16 +75,15 @@ public class SysUserServiceImpl implements ISysUserService {
             throw new MyException(ErrorCode.MYB_111111.getCode(),"用户和或密码错误");
         }
         SysUser sysUser = sysUsers.get(0);
-        Map<String,Object> result = new HashMap<>();
-        result.put("code",ErrorCode.MYB_000000.getCode());
-        result.put("msg",ErrorCode.MYB_000000.getMsg());
-
         Map<String, Object> claims = new HashMap<>();
         claims.put(SystemConstants.USERID,sysUser.getUserId());
         claims.put(SystemConstants.STATUS,sysUser.getStatus());
         claims.put(SystemConstants.DELFLAG,sysUser.getDelFlag());
         claims.put(SystemConstants.PLATFORM,Constants.WEB);
         //生成token
+        Map<String,Object> result = new HashMap<>();
+        result.put("code",ErrorCode.MYB_000000.getCode());
+        result.put("msg",ErrorCode.MYB_000000.getMsg());
         result.put(SystemConstants.TOKEN,JwtUtil.createToken(claims));
         redisUtils.set(Constants.USERID+sysUser.getUserId(),"1",8,TimeUnit.HOURS);
         return result;

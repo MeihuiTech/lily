@@ -40,9 +40,8 @@ public interface UserFeignClient {
     @PostMapping("/getLoginUser")
      Result<SysUserOut> getLoginUser();
 
-    @PostMapping("/sign")
-    Result sign(@RequestBody SignBO signBO);
-
+    @RequestMapping(value = "/sign/{token}",method = RequestMethod.GET)
+    public Result sign(@PathVariable(value = "token") String token);
     /**
      * 用户信息模糊查询
      * @param req

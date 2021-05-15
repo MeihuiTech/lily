@@ -6,7 +6,6 @@ import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
-import com.mei.hui.user.feign.vo.SignBO;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.service.LoginService;
 import com.mei.hui.user.service.ISysUserService;
@@ -15,7 +14,6 @@ import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FastByteArrayOutputStream;
@@ -128,10 +126,10 @@ public class LoginController {
         return Result.OK;
     }
 
-    @PostMapping("/sign ")
-    public Result sign(@RequestBody SignBO signBO){
+    @RequestMapping(value = "/user/sign/{token}",method = RequestMethod.GET)
+    public Result sign(@PathVariable(value = "token") String token){
         //验签
-        Claims claims = JwtUtil.parseToken(signBO.getToken());
+        Claims claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get(SystemConstants.USERID);
         if(!redisCache.exists("user:"+userId)){
             throw MyException.fail(ErrorCode.MYB_111111.getCode(),"token 失效");
