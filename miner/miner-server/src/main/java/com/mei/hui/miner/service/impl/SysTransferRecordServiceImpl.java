@@ -236,6 +236,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
     public Map<String,Object> selectSysTransferRecordListUserName(SysTransferRecord sysTransferRecord){
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.orderByAsc(SysTransferRecord::getStatus);
+        queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(sysTransferRecord.getPageNum(), sysTransferRecord.getPageSize()), queryWrapper);
         List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
         /**

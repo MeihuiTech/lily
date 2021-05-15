@@ -17,12 +17,9 @@ import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +104,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         sysMinerInfo.setUserId(userId);
         LambdaQueryWrapper<SysMinerInfo> query = new LambdaQueryWrapper<>();
         query.setEntity(sysMinerInfo);
+        query.orderByDesc(SysMinerInfo::getCreateTime);
         IPage<SysMinerInfo> page = sysMinerInfoMapper
                 .selectPage(new Page(sysMinerInfo.getPageNum(), sysMinerInfo.getPageSize()), query);
         for (SysMinerInfo info: page.getRecords()) {
