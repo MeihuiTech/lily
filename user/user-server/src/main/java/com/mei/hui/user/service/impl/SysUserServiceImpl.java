@@ -400,6 +400,7 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         //生成token
         result.put(SystemConstants.TOKEN,token);
+        redisUtils.set(Constants.USERID+sysUser.getUserId(),"1",8,TimeUnit.HOURS);
         return result;
     }
 
