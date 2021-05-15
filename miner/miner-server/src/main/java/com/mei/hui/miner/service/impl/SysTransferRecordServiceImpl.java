@@ -127,23 +127,25 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         /**
          * 如果是提现成功，则修改提现汇总表
          */
-        LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(MrAggWithdraw::getSysUserId,userId);
-        log.info("查询提现汇总表记录,userId={}",userId);
-        List<MrAggWithdraw> aggWithdraws = mrAggWithdrawMapper.selectList(queryWrapper);
-        log.info("查询提现汇总表记录,结果:{}",JSON.toJSONString(aggWithdraws));
-        if(aggWithdraws.size() == 0){
-            log.info("新增提现汇总信息");
-            MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(transferRecord.getAmount())
-                    .tatalCount(1).totalFee(transferRecord.getFee()).build();
-            mrAggWithdrawMapper.insert(insertAggWithdraw);
-        }else{
-            log.info("更新提现汇总信息");
-            MrAggWithdraw mrAggWithdraw = aggWithdraws.get(0);
-            mrAggWithdraw.setTakeTotalMony(mrAggWithdraw.getTakeTotalMony().add(transferRecord.getAmount()));
-            mrAggWithdraw.setTatalCount(mrAggWithdraw.getTatalCount() + 1);
-            mrAggWithdraw.setTotalFee(mrAggWithdraw.getTotalFee().add(transferRecord.getFee()));
-            mrAggWithdrawMapper.updateById(mrAggWithdraw);
+        if(sysTransferRecord.getStatus() == 1){
+            LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(MrAggWithdraw::getSysUserId,userId);
+            log.info("查询提现汇总表记录,userId={}",userId);
+            List<MrAggWithdraw> aggWithdraws = mrAggWithdrawMapper.selectList(queryWrapper);
+            log.info("查询提现汇总表记录,结果:{}",JSON.toJSONString(aggWithdraws));
+            if(aggWithdraws.size() == 0){
+                log.info("新增提现汇总信息");
+                MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(transferRecord.getAmount())
+                        .tatalCount(1).totalFee(transferRecord.getFee()).build();
+                mrAggWithdrawMapper.insert(insertAggWithdraw);
+            }else{
+                log.info("更新提现汇总信息");
+                MrAggWithdraw mrAggWithdraw = aggWithdraws.get(0);
+                mrAggWithdraw.setTakeTotalMony(mrAggWithdraw.getTakeTotalMony().add(transferRecord.getAmount()));
+                mrAggWithdraw.setTatalCount(mrAggWithdraw.getTatalCount() + 1);
+                mrAggWithdraw.setTotalFee(mrAggWithdraw.getTotalFee().add(transferRecord.getFee()));
+                mrAggWithdrawMapper.updateById(mrAggWithdraw);
+            }
         }
         return 1;
     }
