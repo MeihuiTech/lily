@@ -1,13 +1,10 @@
 package com.mei.hui.user.SystemController;
 
-import com.alibaba.fastjson.JSON;
-import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsUtil;
 import com.mei.hui.miner.feign.feignClient.MinerFeignClient;
 import com.mei.hui.miner.feign.vo.FindCodeByUserIdInput;
 import com.mei.hui.miner.feign.vo.SysVerifyCodeInput;
-import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
@@ -15,11 +12,13 @@ import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.user.model.ChangeAccountInput;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.*;
+import com.mei.hui.util.AESUtil;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -28,12 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
-import javax.xml.ws.RequestWrapper;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**

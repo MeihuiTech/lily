@@ -16,10 +16,9 @@ import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2021-03-02
  */
+@Slf4j
 @Service
 public class SysMinerInfoServiceImpl implements ISysMinerInfoService
 {
@@ -88,11 +88,14 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     @Override
     public List<SysMinerInfo> selectSysMinerInfoList(SysMinerInfo sysMinerInfo)
     {
-        List<SysMinerInfo> list = null;
-        if(sysMinerInfo.getUserId() == 1L){
-            list = sysMinerInfoMapper.selectSysMinerInfoList(new SysMinerInfo());
+        List<SysMinerInfo> list = new ArrayList<>();
+        if(sysMinerInfo.getUserId() !=null && sysMinerInfo.getUserId() == 1L){
+            log.info("查询矿工信息列表：【{}】",sysMinerInfo.getUserId());
+            list =  sysMinerInfoMapper.selectList(null);
         }else{
-            list = sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
+            LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.eq(SysMinerInfo::getUserId,sysMinerInfo.getUserId());
+            list =  sysMinerInfoMapper.selectList(queryWrapper);
        }
         return list;
     }
@@ -107,6 +110,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         sysMinerInfo.setUserId(userId);
         LambdaQueryWrapper<SysMinerInfo> query = new LambdaQueryWrapper<>();
         query.setEntity(sysMinerInfo);
+        query.orderByDesc(SysMinerInfo::getCreateTime);
         IPage<SysMinerInfo> page = sysMinerInfoMapper
                 .selectPage(new Page(sysMinerInfo.getPageNum(), sysMinerInfo.getPageSize()), query);
         for (SysMinerInfo info: page.getRecords()) {

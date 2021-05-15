@@ -11,12 +11,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectMinerInfoByUserId" parameterType="Long" resultMap="PoolInfoResult">
         select count(1) as "miner_count"
-        from sys_miner_info where user_id =  #{userId};
+        from sys_miner_info
+        <where>
+            <if test="userId != null and userId != 1">
+                user_id =  #{userId}
+            </if>
+        </where>
     </select>
 
     <select id="selectMachineInfoByUserId" parameterType="Long" resultMap="PoolInfoResult">
         select sum(machine.worker_count) as "worker_count"
-        from (select miner_id , user_id from sys_miner_info where user_id = #{userId}) miner left join
+        from (select miner_id , user_id from sys_miner_info
+        <where>
+            <if test="userId != null and userId != 1">
+                user_id =  #{userId}
+            </if>
+        </where>
+        ) miner left join
              sys_machine_info machine on machine.miner_id = miner.miner_id
     </select>
 

@@ -2,10 +2,8 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.entity.MrAggWithdraw;
 import com.mei.hui.miner.mapper.MrAggWithdrawMapper;
 import com.mei.hui.miner.model.AggWithdrawBO;
@@ -20,6 +18,7 @@ import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,7 +51,7 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
         if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
             ids = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
         }
-        if(ids.size() == 0){
+        if(StringUtils.isNotEmpty(input.getUserName()) && ids.size() == 0){
             return new PageResult();
         }
         /**
