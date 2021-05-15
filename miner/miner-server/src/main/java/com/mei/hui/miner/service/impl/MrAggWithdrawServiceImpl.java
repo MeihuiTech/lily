@@ -77,6 +77,15 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
                 queryWrapper.orderByDesc(MrAggWithdraw::getTatalCount);
             }
         }
+        if("takeTotalMony".equals(input.getCloumName())){
+            if(input.isAsc()){
+                //true升序
+                queryWrapper.orderByAsc(MrAggWithdraw::getTakeTotalMony);
+            }else {
+                //降序
+                queryWrapper.orderByDesc(MrAggWithdraw::getTakeTotalMony);
+            }
+        }
         if(ids.size() > 0){
             queryWrapper.in(MrAggWithdraw::getSysUserId,ids);
         }
