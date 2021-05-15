@@ -16,6 +16,7 @@ import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2021-03-02
  */
+@Slf4j
 @Service
 public class SysMinerInfoServiceImpl implements ISysMinerInfoService
 {
@@ -88,6 +90,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     {
         List<SysMinerInfo> list = new ArrayList<>();
         if(sysMinerInfo.getUserId() !=null && sysMinerInfo.getUserId() == 1L){
+            log.info("查询矿工信息列表：【{}】",sysMinerInfo.getUserId());
             list =  sysMinerInfoMapper.selectList(null);
         }else{
             LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
