@@ -44,7 +44,11 @@ public class SysCurrencyServiceImpl implements ISysCurrencyService {
         queryWrapper.setEntity(sysCurrency);
         List<SysCurrency> sysCurrencyList = sysCurrencyMapper.selectList(queryWrapper);
         List<SysCurrencyVO> sysCurrencyVOList = new ArrayList<>();
-        BeanUtils.copyProperties(sysCurrencyList,sysCurrencyVOList);
+        for (SysCurrency dbSysCurrency:sysCurrencyList) {
+            SysCurrencyVO sysCurrencyVO = new SysCurrencyVO();
+            BeanUtils.copyProperties(dbSysCurrency,sysCurrencyVO);
+            sysCurrencyVOList.add(sysCurrencyVO);
+        }
         return sysCurrencyVOList;
     }
 }

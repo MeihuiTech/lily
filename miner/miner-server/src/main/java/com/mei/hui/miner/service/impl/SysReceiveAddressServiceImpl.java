@@ -5,7 +5,6 @@ import com.mei.hui.miner.entity.SysReceiveAddress;
 import com.mei.hui.miner.mapper.SysReceiveAddressMapper;
 import com.mei.hui.miner.service.ISysReceiveAddressService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +54,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     }
 
     /**
-    * 编辑收款地址
+    * 编辑收款地址，先逻辑删除，后新增
     *
     * @description
     * @author shangbin
@@ -66,13 +65,17 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     */
     @Override
     public int updateReceiveAddress(SysReceiveAddress sysReceiveAddress) {
-        SysReceiveAddress updateSysReceiveAddress = new SysReceiveAddress();
-        BeanUtils.copyProperties(sysReceiveAddress,updateSysReceiveAddress);
-        updateSysReceiveAddress.setDelFlag(true);
-        updateSysReceiveAddress.setUpdateTime(new Date());
+//        SysReceiveAddress updateSysReceiveAddress = new SysReceiveAddress();
+//        BeanUtils.copyProperties(sysReceiveAddress,updateSysReceiveAddress);
+        sysReceiveAddress.setDelFlag(true);
+        sysReceiveAddress.setUpdateTime(new Date());
+        log.info("先逻辑删除收款地址：【{}】",JSON.toJSON(sysReceiveAddress));
+        sysReceiveAddressMapper.updateById(sysReceiveAddress);
         // TODO 一会修改这
-
-        log.info("编辑收款地址：【{}】",JSON.toJSON(sysReceiveAddress));
-        return sysReceiveAddressMapper.updateById(sysReceiveAddress);
+        sysReceiveAddress.setId(null);
+        sysReceiveAddress.setDelFlag(false);
+        sysReceiveAddress.setUpdateTime(null);
+        log.info("新增收款地址：【{}】",JSON.toJSON(sysReceiveAddress));
+        return sysReceiveAddressMapper.insert(sysReceiveAddress);
     }
 }
