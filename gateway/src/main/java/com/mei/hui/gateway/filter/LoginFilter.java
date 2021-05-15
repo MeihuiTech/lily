@@ -8,6 +8,7 @@ import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -46,6 +47,9 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         String url = request.getURI().getPath();
         log.info("@========================start-{}========================","gateway");
         log.info("请求地址:{}",url);
+        if(StringUtils.isNotEmpty(url) && url.contains("profile/avatar")){
+            return chain.filter(exchange);
+        }
         /**
          * 白名单不校验
          */
