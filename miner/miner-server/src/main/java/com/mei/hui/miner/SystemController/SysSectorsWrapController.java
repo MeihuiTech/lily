@@ -11,10 +11,8 @@ import com.mei.hui.miner.service.ISysSectorsWrapService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -76,6 +74,13 @@ public class SysSectorsWrapController
         sectorInfo.setSectorNo(wrap.getSectorNo());
         sectorInfo.setMinerId(wrap.getMinerId());
         List<SysSectorInfo> list = sysSectorInfoService.selectSysSectorInfoList(sectorInfo);
+        for (SysSectorInfo dbSysSectorInfo:list) {
+            // 显示GB，原来单位是B，结果肯定是整数，不会出来小数点
+            dbSysSectorInfo.setSectorSize(dbSysSectorInfo.getSectorSize()/1024/1024/1024);
+            if ("none".equals(dbSysSectorInfo.getHostname())) {
+                dbSysSectorInfo.setHostname("");
+            }
+        }
         /**
          * 组装返回信息
          */
