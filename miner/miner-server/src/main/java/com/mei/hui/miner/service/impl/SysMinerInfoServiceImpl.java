@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.PoolInfo;
-import com.mei.hui.miner.entity.SysMachineInfo;
-import com.mei.hui.miner.entity.SysMinerInfo;
-import com.mei.hui.miner.entity.SysTotalEarning;
+import com.mei.hui.miner.entity.*;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.mapper.PoolInfoMapper;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
@@ -16,15 +14,17 @@ import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 矿工信息Service业务层处理
@@ -220,5 +220,20 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         map.put("rows",page.getRecords());
         map.put("total",page.getTotal());
         return map;
+    }
+    /**
+     * 通过userid 集合批量获取旷工
+     */
+    public Result<List<AggMinerVO>> findBatchMinerByUserId(List<Long> userIds) {
+        if(userIds == null || userIds.size() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"用户集合不能为空");
+        }
+        List<AggMiner> list = sysMachineInfoMapper.findBatchMinerByUserId(userIds);
+        List<AggMinerVO> lt = list.stream().map(v -> {
+            AggMinerVO aggMinerVO = new AggMinerVO();
+            BeanUtils.copyProperties(v,aggMinerVO);
+            return aggMinerVO;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
     }
 }

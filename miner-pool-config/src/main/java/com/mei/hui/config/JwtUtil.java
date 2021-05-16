@@ -46,6 +46,7 @@ public class JwtUtil {
         Date expDate = new Date(System.currentTimeMillis() + staticRuoYiConfig.getJwtMinutes() * 60 * 1000);
         String token = Jwts.builder()
                 .setClaims(claims)
+                .setIssuedAt(new Date())
                 .setExpiration(expDate)
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
         return token;

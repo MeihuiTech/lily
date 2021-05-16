@@ -3,12 +3,12 @@ package com.mei.hui.gateway.filter;
 import com.alibaba.fastjson.JSON;
 import com.mei.hui.gateway.config.WhiteConfig;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
-import com.mei.hui.user.feign.vo.SignBO;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -47,6 +47,9 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         String url = request.getURI().getPath();
         log.info("@========================start-{}========================","gateway");
         log.info("请求地址:{}",url);
+        if(StringUtils.isNotEmpty(url) && url.contains("profile/avatar")){
+            return chain.filter(exchange);
+        }
         /**
          * 白名单不校验
          */
@@ -56,17 +59,12 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         String token = exchange.getRequest().getHeaders().getFirst(SystemConstants.TOKEN);
         log.info("token = {}",token);
         //验签
-        /*log.info("请求用户模块进行验签");
-        SignBO signBO = new SignBO();
-        signBO.setToken(token);
-        Result signin = userFeignClient.sign(signBO);
+        log.info("请求用户模块进行验签");
+        Result signin = userFeignClient.authority(token);
         log.info("验签结果:{}", JSON.toJSONString(signin));
         if(!ErrorCode.MYB_000000.getCode().equals(signin.getCode())){
             throw new MyException(signin.getCode(),signin.getMsg());
-        }*/
-      /*  //向headers中放文件，记得build
-        ServerHttpRequest host = exchange.getRequest().mutate().header(SystemConstants.TOKEN, token).build();
-        ServerWebExchange build = exchange.mutate().request(host).build();*/
+        }
         log.info("@========================end-{}========================","gateway");
         return chain.filter(exchange);
     }

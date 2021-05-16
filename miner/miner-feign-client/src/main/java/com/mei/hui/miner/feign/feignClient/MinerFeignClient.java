@@ -1,13 +1,14 @@
 package com.mei.hui.miner.feign.feignClient;
 
 import com.mei.hui.miner.feign.fallBackFactory.MinerFeignFallbackFactory;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.feign.vo.FindCodeByUserIdInput;
 import com.mei.hui.miner.feign.vo.SysVerifyCodeInput;
 import com.mei.hui.util.Result;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
 *@Description:
@@ -22,4 +23,6 @@ public interface MinerFeignClient {
 
     @PostMapping("/insertSysVerifyCode")
     public Result insertSysVerifyCode(@RequestBody SysVerifyCodeInput input);
+
+
 }

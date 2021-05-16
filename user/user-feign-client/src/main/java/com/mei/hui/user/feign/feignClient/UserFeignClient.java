@@ -39,10 +39,6 @@ public interface UserFeignClient {
      */
     @PostMapping("/getLoginUser")
      Result<SysUserOut> getLoginUser();
-
-    @PostMapping("/sign")
-    Result sign(@RequestBody SignBO signBO);
-
     /**
      * 用户信息模糊查询
      * @param req
@@ -50,4 +46,7 @@ public interface UserFeignClient {
      */
     @PostMapping("/findSysUsersByName")
     Result<List<FindSysUsersByNameVO>> findSysUsersByName(@RequestBody FindSysUsersByNameBO req);
+
+    @PostMapping("/authority")
+    Result authority(@RequestBody String token);
 }

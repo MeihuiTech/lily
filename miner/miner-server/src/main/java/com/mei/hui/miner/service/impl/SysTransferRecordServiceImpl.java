@@ -202,6 +202,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysTransferRecord::getUserId,HttpRequestUtil.getUserId());
         queryWrapper.eq(SysTransferRecord::getMinerId,sysTransferRecord.getMinerId());
+        queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(sysTransferRecord.getPageNum(), sysTransferRecord.getPageSize()), queryWrapper);
         /**
          * 批量获取用户

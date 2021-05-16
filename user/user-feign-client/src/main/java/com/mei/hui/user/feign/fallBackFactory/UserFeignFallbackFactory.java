@@ -38,12 +38,12 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
             }
 
             @Override
-            public Result sign(@RequestBody SignBO signBO) {
+            public Result<List<FindSysUsersByNameVO>> findSysUsersByName(FindSysUsersByNameBO req) {
                 return null;
             }
 
             @Override
-            public Result<List<FindSysUsersByNameVO>> findSysUsersByName(FindSysUsersByNameBO req) {
+            public Result authority(String token) {
                 return null;
             }
         };
