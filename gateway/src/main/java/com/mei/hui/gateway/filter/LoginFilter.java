@@ -60,7 +60,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         log.info("token = {}",token);
         //验签
         log.info("请求用户模块进行验签");
-        Result signin = userFeignClient.sign(token);
+        Result signin = userFeignClient.authority(token);
         log.info("验签结果:{}", JSON.toJSONString(signin));
         if(!ErrorCode.MYB_000000.getCode().equals(signin.getCode())){
             throw new MyException(signin.getCode(),signin.getMsg());

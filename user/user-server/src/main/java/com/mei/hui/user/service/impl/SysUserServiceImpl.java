@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.*;
@@ -42,10 +44,10 @@ public class SysUserServiceImpl implements ISysUserService {
     private SysRoleMapper roleMapper;
     @Autowired
     protected SysUserMapper sysUserMapper;
-
     @Autowired
     private RedisUtil redisUtils;
-
+    @Autowired
+    private AggMinerFeignClient aggMinerFeignClient;
     @Autowired
     private SysUserRoleMapper userRoleMapper;
 
@@ -75,17 +77,19 @@ public class SysUserServiceImpl implements ISysUserService {
             throw new MyException(ErrorCode.MYB_111111.getCode(),"用户和或密码错误");
         }
         SysUser sysUser = sysUsers.get(0);
+        Map<String,Object> result = new HashMap<>();
+        result.put("code",ErrorCode.MYB_000000.getCode());
+        result.put("msg",ErrorCode.MYB_000000.getMsg());
+
         Map<String, Object> claims = new HashMap<>();
         claims.put(SystemConstants.USERID,sysUser.getUserId());
         claims.put(SystemConstants.STATUS,sysUser.getStatus());
         claims.put(SystemConstants.DELFLAG,sysUser.getDelFlag());
         claims.put(SystemConstants.PLATFORM,Constants.WEB);
         //生成token
-        Map<String,Object> result = new HashMap<>();
-        result.put("code",ErrorCode.MYB_000000.getCode());
-        result.put("msg",ErrorCode.MYB_000000.getMsg());
+        String token = JwtUtil.createToken(claims);
         result.put(SystemConstants.TOKEN,JwtUtil.createToken(claims));
-        redisUtils.set(Constants.USERID+sysUser.getUserId(),"1",8,TimeUnit.HOURS);
+        redisUtils.set(token,"1",8,TimeUnit.HOURS);
         return result;
     }
 
@@ -183,9 +187,35 @@ public class SysUserServiceImpl implements ISysUserService {
                 queryWrapper.le(SysUser::getCreateTime,endTime);
             }
         }
+        /**
+         * 查询用户信息
+         */
         queryWrapper.eq(SysUser::getDelFlag,0);
+        log.info("查询用户,入参:{}",queryWrapper.toString());
         IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(user.getPageNum(), user.getPageSize()), queryWrapper);
+        log.info("查询用户,出参:{}",page.toString());
         List<SysUser> list = page.getRecords().stream().filter(v -> v.getUserId() != null && 1L != v.getUserId()).collect(Collectors.toList());
+        /**
+         * 获取用户的总算力和总收益
+         */
+        if(list.size() > 0){
+            List<Long> userIds = list.stream().map(v -> v.getUserId()).collect(Collectors.toList());
+            log.info("查询总算力和总收益,入参：{}",JSON.toJSONString(userIds));
+            Result<List<AggMinerVO>> aggMinerResult = aggMinerFeignClient.findBatchMinerByUserId(userIds);
+            log.info("查询总算力和总收益,出参：{}",JSON.toJSONString(aggMinerResult));
+            if(ErrorCode.MYB_000000.getCode().equals(aggMinerResult.getCode())){
+                List<AggMinerVO> aggMiners = aggMinerResult.getData();
+                Map<Long,AggMinerVO> maps = new HashMap<>();
+                aggMiners.stream().forEach(v->maps.put(v.getUserId(),v));
+
+                //将总算力和总收益加入到 SysUser 对象中
+                list.stream().forEach(v->{
+                    AggMinerVO vo = maps.get(v.getUserId());
+                    v.setPowerAvailable(vo != null ? vo.getPowerAvailable().intValue() : 0);
+                    v.setTotalBlockAward(vo != null ? BigDecimalUtil.formatFour(vo.getTotalBlockAward()).doubleValue() : 0);
+                });
+            }
+        }
         //组装返回值
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
@@ -400,7 +430,6 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         //生成token
         result.put(SystemConstants.TOKEN,token);
-        redisUtils.set(Constants.USERID+sysUser.getUserId(),"1",8,TimeUnit.HOURS);
         return result;
     }
 

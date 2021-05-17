@@ -1,8 +1,11 @@
 package com.mei.hui.miner.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.mei.hui.miner.entity.AggMiner;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 /**
@@ -11,6 +14,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2021-03-02
  */
+@Repository
 public interface SysMachineInfoMapper  extends BaseMapper<SysMachineInfo>
 {
     /**
@@ -73,4 +77,11 @@ public interface SysMachineInfoMapper  extends BaseMapper<SysMachineInfo>
      * @return 结果
      */
     List<SysMachineInfo> selectSysMachineInfoByLimit(@Param("offset") Integer offset, @Param("rowCount") Integer rowCount);
+
+    /**
+     * 获取用户的总算力，总收益
+     * @param userIds
+     * @return
+     */
+    List<AggMiner> findBatchMinerByUserId(List<Long> userIds);
 }

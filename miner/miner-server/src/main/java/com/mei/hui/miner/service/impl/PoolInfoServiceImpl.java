@@ -32,7 +32,9 @@ public class PoolInfoServiceImpl implements IPoolInfoService {
          * 查询旷工
          */
         LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SysMinerInfo::getUserId,userId);
+        if(userId != 1){
+            queryWrapper.eq(SysMinerInfo::getUserId,userId);
+        }
         List<SysMinerInfo> miners = sysMinerInfoMapper.selectList(queryWrapper);
         /**
          * 查询矿机

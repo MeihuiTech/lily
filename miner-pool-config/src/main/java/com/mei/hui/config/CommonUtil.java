@@ -14,12 +14,7 @@ public class CommonUtil {
 
 
     public static HttpServletRequest getHttpServletRequest() {
-        try {
             return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        } catch (Exception e) {
-            log.error("feign 拦截器异常:",e);
-            return null;
-        }
     }
 
     /**

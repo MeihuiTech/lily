@@ -1,7 +1,10 @@
 package com.mei.hui.miner.service;
 
+import com.mei.hui.miner.entity.AggMiner;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.util.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -87,4 +90,9 @@ public interface ISysMinerInfoService
     public Map<String,Object> machines(Long id,int pageNum,int pageSize);
 
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo);
+
+    /**
+     * 通过userid 集合批量获取旷工
+     */
+    Result<List<AggMinerVO>> findBatchMinerByUserId(List<Long> userIds);
 }

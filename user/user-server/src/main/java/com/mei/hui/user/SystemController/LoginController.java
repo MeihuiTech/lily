@@ -1,6 +1,7 @@
 package com.mei.hui.user.SystemController;
 
 import com.google.code.kaptcha.Producer;
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -121,17 +123,15 @@ public class LoginController {
 
     @RequestMapping("/logout")
     public Result logout(){
-        Long userId = HttpRequestUtil.getUserId();
-        redisCache.delete(Constants.USERID+userId);
+        HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
+        String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
+        redisCache.delete(token);
         return Result.OK;
     }
 
-    @RequestMapping(value = "/user/sign/{token}",method = RequestMethod.GET)
-    public Result sign(@PathVariable(value = "token") String token){
-        //验签
-        Claims claims = JwtUtil.parseToken(token);
-        Integer userId = (Integer) claims.get(SystemConstants.USERID);
-        if(!redisCache.exists("user:"+userId)){
+    @PostMapping("/user/authority")
+    public Result authority(@RequestBody String token){
+        if(!redisCache.exists(token)){
             throw MyException.fail(ErrorCode.MYB_111111.getCode(),"token 失效");
         }
         return Result.OK;

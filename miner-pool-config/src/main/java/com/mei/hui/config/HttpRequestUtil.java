@@ -1,16 +1,11 @@
 package com.mei.hui.config;
 
-import com.mei.hui.util.AESUtil;
 import com.mei.hui.util.SystemConstants;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import io.jsonwebtoken.Claims;
 import org.springframework.util.StringUtils;
-
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HttpRequestUtil {
 

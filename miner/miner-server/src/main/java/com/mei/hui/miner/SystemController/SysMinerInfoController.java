@@ -2,9 +2,11 @@ package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.AggMiner;
 import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -12,10 +14,8 @@ import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -129,6 +129,15 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     @GetMapping(value = "machines/{id}")
     public Map<String,Object> machines(@PathVariable("id") Long id,int pageNum,int pageSize) {
         return sysMinerInfoService.machines(id,pageNum,pageSize);
+    }
+
+    /**
+     * 通过userid 集合批量获取旷工
+     */
+    @ApiOperation(value = "通过userid 集合批量获取旷工")
+    @GetMapping(value = "/findBatchMinerByUserId")
+    public Result<List<AggMinerVO>> findBatchMinerByUserId(@RequestParam("userIds") List<Long> userIds) {
+        return sysMinerInfoService.findBatchMinerByUserId(userIds);
     }
 
 }

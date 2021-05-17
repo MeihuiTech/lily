@@ -4,6 +4,9 @@ server:
 spring:
   profiles:
     active: dev
+  main:
+    allow-bean-definition-overriding: true
+
 ---
 #测试环境
 spring:

@@ -39,9 +39,6 @@ public interface UserFeignClient {
      */
     @PostMapping("/getLoginUser")
      Result<SysUserOut> getLoginUser();
-
-    @RequestMapping(value = "/sign/{token}",method = RequestMethod.GET)
-    public Result sign(@PathVariable(value = "token") String token);
     /**
      * 用户信息模糊查询
      * @param req
@@ -49,4 +46,7 @@ public interface UserFeignClient {
      */
     @PostMapping("/findSysUsersByName")
     Result<List<FindSysUsersByNameVO>> findSysUsersByName(@RequestBody FindSysUsersByNameBO req);
+
+    @PostMapping("/authority")
+    Result authority(@RequestBody String token);
 }
