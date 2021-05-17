@@ -4,7 +4,12 @@ public enum ErrorCode {
 
 	MYB_000000("000000", "成功"),
 	MYB_111111("111111", "系统错误,请联系管理员"),
-	MYB_111002("111002", "token超时");
+	/**
+	 * token异常错误
+	 */
+	MYB_111002("111002", "token过期"),
+	MYB_111003("111003", "token失效"),
+	MYB_111004("111004", "token验签错误");
 
 	private String code;
 	private String msg;

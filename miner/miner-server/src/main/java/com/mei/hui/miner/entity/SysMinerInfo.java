@@ -26,6 +26,13 @@ public class SysMinerInfo
 
     private Integer sectorError;
 
+    //窗口序号
+    private Long deadLineIndex;
+    //窗口扇区数
+    private Long deadLineSectors;
+    //窗口运行时间
+    private Long provingPeriodStart;
+
     /**
      * 锁仓收益, 单位FIL
      */

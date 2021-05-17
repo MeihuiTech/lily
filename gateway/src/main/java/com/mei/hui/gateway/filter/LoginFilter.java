@@ -13,10 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.nio.charset.StandardCharsets;
 
 /**
 *@Description:
@@ -60,10 +66,23 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         log.info("token = {}",token);
         //验签
         log.info("请求用户模块进行验签");
-        Result signin = userFeignClient.authority(token);
-        log.info("验签结果:{}", JSON.toJSONString(signin));
-        if(!ErrorCode.MYB_000000.getCode().equals(signin.getCode())){
-            throw new MyException(signin.getCode(),signin.getMsg());
+        Result auth = userFeignClient.authority(token);
+        log.info("验签结果:{}", JSON.toJSONString(auth));
+        String code = auth.getCode();
+        if(ErrorCode.MYB_111002.getCode().equals(code) || ErrorCode.MYB_111003.getCode().equals(code)
+                || ErrorCode.MYB_111004.getCode().equals(code)){
+            ServerHttpResponse response = exchange.getResponse();
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            Result result = new Result();
+            result.setCode(code);
+            result.setMsg(auth.getMsg());
+            byte[] bytes = JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8);
+            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+            return exchange.getResponse().writeWith(Flux.just(buffer));
+        }else{
+            if(!ErrorCode.MYB_000000.getCode().equals(auth.getCode())){
+                throw new MyException(auth.getCode(),auth.getMsg());
+            }
         }
         log.info("@========================end-{}========================","gateway");
         return chain.filter(exchange);

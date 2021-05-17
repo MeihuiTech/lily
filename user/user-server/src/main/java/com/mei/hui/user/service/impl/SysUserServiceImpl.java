@@ -421,7 +421,6 @@ public class SysUserServiceImpl implements ISysUserService {
         claims.put(SystemConstants.DELFLAG,sysUser.getDelFlag());
         claims.put(SystemConstants.PLATFORM, Constants.WEB);
         String token = JwtUtil.createToken(claims);
-
         /**
          * 组装响应数据
          */
@@ -430,6 +429,7 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         //生成token
         result.put(SystemConstants.TOKEN,token);
+        redisUtils.set(token,"1");
         return result;
     }
 

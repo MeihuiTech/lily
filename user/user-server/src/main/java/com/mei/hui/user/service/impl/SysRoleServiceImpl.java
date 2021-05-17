@@ -134,6 +134,9 @@ public class SysRoleServiceImpl implements ISysRoleService{
     public String checkRoleNameUnique(SysRole role)
     {
         LambdaQueryWrapper<SysRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if(role.getRoleId() != null){
+            lambdaQueryWrapper.ne(SysRole::getRoleId,role.getRoleId());
+        }
         lambdaQueryWrapper.eq(SysRole::getRoleName,role.getRoleName());
         List<SysRole> list = roleMapper.selectList(lambdaQueryWrapper);
         if (list.size() > 0)
@@ -151,6 +154,9 @@ public class SysRoleServiceImpl implements ISysRoleService{
     @Override
     public String checkRoleKeyUnique(SysRole role){
         LambdaQueryWrapper<SysRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if(role.getRoleId() != null){
+            lambdaQueryWrapper.ne(SysRole::getRoleId,role.getRoleId());
+        }
         lambdaQueryWrapper.eq(SysRole::getRoleKey,role.getRoleKey());
         List<SysRole> list = roleMapper.selectList(lambdaQueryWrapper);
         if (list.size() > 0)

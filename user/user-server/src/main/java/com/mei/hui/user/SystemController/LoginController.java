@@ -132,7 +132,7 @@ public class LoginController {
     @PostMapping("/user/authority")
     public Result authority(@RequestBody String token){
         if(!redisCache.exists(token)){
-            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"token 失效");
+            throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
         }
         return Result.OK;
     }
