@@ -1,5 +1,6 @@
 package com.mei.hui.miner.common.task;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
@@ -35,14 +36,17 @@ public class AggregationTask {
     //或直接指定时间间隔，例如：5秒
     @Scheduled(cron = "0 0 0 */1 * ?")
     public void dailyAccount() {
-        log.info("dailyAccount start...");
+        log.info("======================AggregationTask-start===================");
         SysMinerInfo sysMinerInfo = new SysMinerInfo();
         int pageNum = 1;
         int pageSize = 100;
         while (true) {
             PageHelper.startPage(pageNum,pageSize, "id");
+            log.info("获取旷工,入参: pageNum = {},pageSize = {}",pageNum,pageSize);
             List<SysMinerInfo> list = sysMinerInfoService.findMinerInfoList(sysMinerInfo);
+            log.info("获取旷工,出参: {}", JSON.toJSONString(list));
             for (SysMinerInfo info : list) {
+                log.info("旷工信息:{}",JSON.toJSONString(info));
                 insertAccount(info);
                 insertPower(info);
             }
@@ -52,14 +56,22 @@ public class AggregationTask {
                 pageNum ++;
             }
         }
-        log.info("dailyAccount end...");
+        log.info("======================AggregationTask-end===================");
     }
 
     private void insertPower(SysMinerInfo info){
+        log.info("算力聚合表");
         String date = DateUtils.getDate();
-        SysAggPowerDaily today = sysAggPowerDailyService.selectSysAggPowerDailyByMinerIdAndDate(info.getMinerId(),date);
+        //当前日期转换成YYYY-mm-dd 格式
+        String dateStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.parseDate(date));
+        log.info("查询当天算力聚合表,入参:minerId = {},date={}",info.getMinerId(),dateStr);
+        SysAggPowerDaily today = sysAggPowerDailyService.selectSysAggPowerDailyByMinerIdAndDate(info.getMinerId(),dateStr);
+        log.info("查询当天算力聚合表,出参:{}",JSON.toJSONString(today));
         if (today == null) {
-            SysAggPowerDaily yesterday = sysAggPowerDailyService.selectSysAggPowerDailyByMinerIdAndDate(info.getMinerId(), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,  DateUtils.addDays(DateUtils.parseDate(date), -1)));
+            String yesterDateStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.addDays(DateUtils.parseDate(date), -1));
+            log.info("查询昨天算力聚合表,入参:minerId ={},date={}",info.getMinerId(),yesterDateStr);
+            SysAggPowerDaily yesterday = sysAggPowerDailyService.selectSysAggPowerDailyByMinerIdAndDate(info.getMinerId(),yesterDateStr);
+            log.info("查询昨天算力聚合表,出参:{}",JSON.toJSONString(yesterDateStr));
             SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
             sysAggPowerDaily.setMinerId(info.getMinerId());
             sysAggPowerDaily.setDate(date);
@@ -69,7 +81,9 @@ public class AggregationTask {
             } else {
                 sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable().longValue());
             }
-            sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);
+            log.info("算力聚合表插入数据,入参:{}",JSON.toJSONString(sysAggPowerDaily));
+            int result = sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);
+            log.info("算力聚合表插入数据,返回值:{}",result);
         }
     }
 
@@ -78,8 +92,11 @@ public class AggregationTask {
      * @param info
      */
     private void insertAccount(SysMinerInfo info) {
+        log.info("账户聚合表");
         String date = DateUtils.getDate();
+        log.info("查询账户聚合表,入参:minerId = {},date={}",info.getMinerId(),date);
         SysAggAccountDaily data = sysAggAccountDailyService.selectSysAggAccountDailyByMinerIdAndDate(info.getMinerId(),date);
+        log.info("查询账户聚合表,出参:",JSON.toJSONString(data));
         if (data == null) {
             SysAggAccountDaily sysAggAccountDaily = new SysAggAccountDaily();
             sysAggAccountDaily.setMinerId(info.getMinerId());
@@ -88,7 +105,9 @@ public class AggregationTask {
             sysAggAccountDaily.setBalanceAvailable(info.getBalanceMinerAvailable());
             sysAggAccountDaily.setSectorPledge(info.getSectorPledge());
             sysAggAccountDaily.setLockAward(info.getLockAward());
-            sysAggAccountDailyService.insertSysAggAccountDaily(sysAggAccountDaily);
+            log.info("账户聚合表新增数据,入参:{}",JSON.toJSONString(sysAggAccountDaily));
+            int result = sysAggAccountDailyService.insertSysAggAccountDaily(sysAggAccountDaily);
+            log.info("账户聚合表新增数据,返回值:{}",result);
         }
     }
 }
