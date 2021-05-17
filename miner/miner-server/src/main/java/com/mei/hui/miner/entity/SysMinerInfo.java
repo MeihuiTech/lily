@@ -27,9 +27,9 @@ public class SysMinerInfo
     private Integer sectorError;
 
     //窗口序号
-    private Long deadLineIndex;
+    private Long deadlineIndex;
     //窗口扇区数
-    private Long deadLineSectors;
+    private Long deadlineSectors;
     //窗口运行时间
     private Long provingPeriodStart;
 
