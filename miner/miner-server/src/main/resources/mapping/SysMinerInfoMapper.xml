@@ -100,8 +100,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
-            <if test="deadLineIndex != null">dead_line_index,</if>
-            <if test="deadLineSectors != null">dead_line_sectors,</if>
+            <if test="deadlineIndex != null">deadline_index,</if>
+            <if test="deadlineSectors != null">deadline_sectors,</if>
             <if test="provingPeriodStart != null">proving_period_start,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -124,8 +124,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
-            <if test="deadLineIndex != null">#{deadLineIndex},</if>
-            <if test="deadLineSectors != null">#{deadLineSectors},</if>
+            <if test="deadlineIndex != null">#{deadlineIndex},</if>
+            <if test="deadlineSectors != null">#{deadlineSectors},</if>
             <if test="provingPeriodStart != null">#{provingPeriodStart},</if>
          </trim>
     </insert>
@@ -152,8 +152,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="deadLineIndex != null">dead_line_index = #{deadLineIndex},</if>
-            <if test="deadLineSectors != null">dead_line_sectors = #{deadLineSectors},</if>
+            <if test="deadlineIndex != null">deadline_index = #{deadlineIndex},</if>
+            <if test="deadlineSectors != null">deadline_sectors = #{deadlineSectors},</if>
             <if test="provingPeriodStart != null">proving_period_start = #{provingPeriodStart},</if>
         </trim>
         where id = #{id}

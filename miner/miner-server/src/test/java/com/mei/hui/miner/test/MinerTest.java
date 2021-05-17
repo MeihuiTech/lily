@@ -40,8 +40,8 @@ public class MinerTest {
     @Test
     public void testMydql(){
         SysMinerInfo miner = sysMinerInfoMapper.selectById(29);
-        miner.setDeadLineIndex(100000L);
-        miner.setDeadLineSectors(10000L);
+   /*     miner.setDeadLineIndex(100000L);
+        miner.setDeadLineSectors(10000L);*/
         miner.setProvingPeriodStart(100000L);
         miner.setId(30L);
        // sysMinerInfoService.updateSysMinerInfo(miner);
