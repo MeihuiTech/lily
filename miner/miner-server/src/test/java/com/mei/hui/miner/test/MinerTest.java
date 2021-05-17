@@ -2,7 +2,12 @@ package com.mei.hui.miner.test;
 
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
+import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.mapper.SysMinerInfoMapper;
+import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.AESUtil;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +22,10 @@ public class MinerTest {
 
     @Autowired
     private RedisUtil redisUtil;
-
+    @Autowired
+    private ISysMinerInfoService sysMinerInfoService;
+    @Autowired
+    private SysMinerInfoMapper sysMinerInfoMapper;
     @Test
     public void entry(){
         String token = AESUtil.encrypt("1");
@@ -28,6 +36,16 @@ public class MinerTest {
     public void testRedis() {
         redisUtil.set("testRedisKey","testRedisValue");
         System.out.print(redisUtil.get("testRedisKey"));
+    }
+    @Test
+    public void testMydql(){
+        SysMinerInfo miner = sysMinerInfoMapper.selectById(29);
+        miner.setDeadLineIndex(100000L);
+        miner.setDeadLineSectors(10000L);
+        miner.setProvingPeriodStart(100000L);
+        miner.setId(30L);
+       // sysMinerInfoService.updateSysMinerInfo(miner);
+        sysMinerInfoService.insertSysMinerInfo(miner);
     }
 
 }
