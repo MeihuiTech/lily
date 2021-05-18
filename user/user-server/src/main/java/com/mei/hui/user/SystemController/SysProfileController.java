@@ -86,19 +86,9 @@ public class SysProfileController{
      * 重置密码
      */
     @PutMapping("/updatePwd")
-    public Map<String,Object> updatePwd(String oldPassword, String newPassword)
+    public Result updatePwd(String oldPassword, String newPassword)
     {
-        SysUser loginUser = userService.getLoginUser();
-        if(!loginUser.getPassword().equals(AESUtil.encrypt(oldPassword))){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"旧密码错误");
-        }
-        if(loginUser.getPassword().equals(AESUtil.encrypt(newPassword))){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"新密码不能与旧密码相同");
-        }
-        Map<String,Object> map = new HashMap<>();
-        map.put("code",ErrorCode.MYB_000000.getCode());
-        map.put("msg",ErrorCode.MYB_000000.getMsg());
-        return map;
+        return userService.updatePwd(oldPassword,newPassword);
     }
 
 

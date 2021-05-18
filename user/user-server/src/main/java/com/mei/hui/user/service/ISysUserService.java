@@ -60,4 +60,6 @@ public interface ISysUserService {
     int updateUserProfile(SysUser user);
 
     Map<String,Object> updateProfile(SysUser user);
+
+    Result updatePwd(String oldPassword, String newPassword);
 }

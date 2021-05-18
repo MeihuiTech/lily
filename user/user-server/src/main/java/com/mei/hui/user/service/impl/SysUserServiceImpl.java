@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
@@ -471,5 +472,28 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("code",ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         return result;
+    }
+
+    public Result updatePwd(String oldPassword, String newPassword){
+        SysUser loginUser = sysUserMapper.selectById(HttpRequestUtil.getUserId());
+        if(!loginUser.getPassword().equals(AESUtil.encrypt(oldPassword))){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"旧密码错误");
+        }
+        if(loginUser.getPassword().equals(AESUtil.encrypt(newPassword))){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"新密码不能与旧密码相同");
+        }
+        int oldLength = oldPassword.length();
+        if(CommonUtil.isContainChinese(oldPassword) || oldLength < 6 || oldLength > 20){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"旧密码格式错误");
+        }
+        int newLength = newPassword.length();
+        if(CommonUtil.isContainChinese(newPassword) || newLength < 6 || newLength > 20){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"新密码格式错误");
+        }
+        LambdaUpdateWrapper<SysUser> lambdaUpdateWrapper = new LambdaUpdateWrapper();
+        lambdaUpdateWrapper.eq(SysUser::getUserId,loginUser.getUserId());
+        lambdaUpdateWrapper.set(SysUser::getPassword,AESUtil.encrypt(newPassword));
+        sysUserMapper.update(null,lambdaUpdateWrapper);
+        return Result.OK;
     }
 }

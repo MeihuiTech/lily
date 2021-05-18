@@ -87,7 +87,7 @@ public class UserTest {
 
     @Test
     public void jwtDecodeTest(){
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoi6bKN57qi5bu6IiwiZXhwIjoxNjIwNzE0MjY3LCJ1c2VySWQiOjMzfQ.VV4FZq21N7ZIStCmLfG8iV35_NZubc1JOaJ4eaIA";
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJkZWxfZmxhZyI6IjAiLCJleHAiOjE2MjEzODUyNDAsInVzZXJJZCI6MSwiaWF0IjoxNjIxMzI1MjQwLCJwbGF0Zm9ybSI6IndlYiIsInN0YXR1cyI6IjAifQ.lu6NYnOwgKX4KjL9Sh4TbqYt2X2X3ewrNOPh2RXoEFI";
         Claims claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get("userId");
         String name = (String) claims.get("name");

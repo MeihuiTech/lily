@@ -125,15 +125,20 @@ public class LoginController {
     public Result logout(){
         HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
         String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
-        redisCache.delete(token);
+        if(StringUtils.isNotEmpty(token)){
+            redisCache.delete(token);
+        }
         return Result.OK;
     }
 
     @PostMapping("/user/authority")
     public Result authority(@RequestBody String token){
+        //是否主动退出，如果redis无值，则是主动退出
         if(!redisCache.exists(token)){
             throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
         }
+        //token 验签，校验是否过期
+        JwtUtil.parseToken(token);
         return Result.OK;
     }
 

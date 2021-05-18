@@ -67,8 +67,8 @@ public class JwtUtil {
                     .getBody();
         }catch (ExpiredJwtException exp){
             throw MyException.fail(ErrorCode.MYB_111002.getCode(),ErrorCode.MYB_111002.getMsg());
-        }catch (JWTDecodeException dex){
-            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"token 验签错误");
+        }catch (Exception dex){
+            throw MyException.fail(ErrorCode.MYB_111004.getCode(),"token 验签错误");
         }
         return claims;
     }
