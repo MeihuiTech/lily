@@ -297,7 +297,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper();
         wrapper.eq(SysMinerInfo::getMinerId,sysTransferRecordWrap.getMinerId());
         wrapper.eq(SysMinerInfo::getUserId,HttpRequestUtil.getUserId());
+        log.info("查询旷工信息,入参:{}",wrapper.toString());
         List<SysMinerInfo> miners = sysMinerInfoMapper.selectList(wrapper);
+        log.info("查询旷工信息,出参:{}",JSON.toJSONString(miners));
         if(miners.size() == 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
         }
@@ -308,11 +310,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(SysTransferRecord::getUserId, HttpRequestUtil.getUserId());
         queryWrapper.eq(SysTransferRecord::getStatus,0);
+        log.info("获取提币中的金额,入参:{}",queryWrapper.toString());
         List<SysTransferRecord> transferRecord = sysTransferRecordMapper.selectList(queryWrapper);
+        log.info("获取提币中的金额,出参:{}",JSON.toJSONString(transferRecord));
         BigDecimal gettingEarning = new BigDecimal(0);
         transferRecord.stream().forEach(v->{
             gettingEarning.add(v.getAmount());
         });
+        log.info("提币中的金额:{}",gettingEarning);
         //提取金额 < 可提现金额 - （提币中金额）
         BigDecimal account = balanceMinerAvailable.subtract(gettingEarning).subtract(sysTransferRecordWrap.getAmount());
         if(account.compareTo(new BigDecimal(0)) < 0){

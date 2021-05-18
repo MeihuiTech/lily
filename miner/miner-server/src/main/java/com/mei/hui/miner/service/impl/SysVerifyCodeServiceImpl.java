@@ -101,7 +101,6 @@ public class SysVerifyCodeServiceImpl implements ISysVerifyCodeService
     }
     /**
      * 查询验证码是否有效
-     *
      * @param sysVerifyCode 系统验证码
      * @return 系统验证码
      */
