@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mei.hui.util.BasePage;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -95,5 +96,12 @@ public class SysUser {
     @TableField(exist = false)
     private List<SysRole> roles;
 
+    @TableField(exist = false)
+    @ApiModelProperty(value = "短信验证码")
+    private String smsCode;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "业务名称,输入字符串")
+    private String serviceName;
 
 }

@@ -48,7 +48,8 @@ public class RedisUtil {
      * @return 获取到的值
      */
     public String get(String key) {
-        return String.valueOf(redisTemplate.opsForValue().get(key));
+        Object value = redisTemplate.opsForValue().get(key);
+        return value == null ? null :String.valueOf(value);
     }
 
     /**
