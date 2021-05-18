@@ -314,9 +314,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         List<SysTransferRecord> transferRecord = sysTransferRecordMapper.selectList(queryWrapper);
         log.info("获取提币中的金额,出参:{}",JSON.toJSONString(transferRecord));
         BigDecimal gettingEarning = new BigDecimal(0);
-        transferRecord.stream().forEach(v->{
-            gettingEarning.add(v.getAmount());
-        });
+        for(SysTransferRecord record : transferRecord){
+            gettingEarning = gettingEarning.add(record.getAmount());
+        }
         log.info("提币中的金额:{}",gettingEarning);
         //提取金额 < 可提现金额 - （提币中金额）
         BigDecimal account = balanceMinerAvailable.subtract(gettingEarning).subtract(sysTransferRecordWrap.getAmount());
