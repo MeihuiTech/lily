@@ -14,10 +14,13 @@ import lombok.Data;
 @Api("不分页排序查询币种列表出参")
 public class SysCurrencyVO {
 
+    @ApiModelProperty(value = "币种id")
+    private Integer id;
+
     @ApiModelProperty(value = "币种名称")
     private String name;
 
     @ApiModelProperty(value = "币种图片地址")
-    private String picAddress;
+    private String imgUrl;
 
 }

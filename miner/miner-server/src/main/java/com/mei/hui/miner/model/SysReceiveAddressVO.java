@@ -20,7 +20,7 @@ public class SysReceiveAddressVO {
     private Long currencyId;
 
     @ApiModelProperty(value = "收款地址")
-    private String receiveAddr;
+    private String address;
 
     @ApiModelProperty(value = "备注")
     private String remark;

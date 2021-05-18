@@ -1,18 +1,12 @@
 package com.mei.hui.miner.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * @author shangbin
- * @version v1.0.0
- * @date $ $
- **/
-@Api("收款地址入参")
 @Data
-public class SysReceiveAddressBO {
+@ApiModel
+public class UpdateReceiveAddressBO {
 
     @ApiModelProperty(value = "币种表id",required = true)
     private Integer currencyId;
@@ -28,6 +22,5 @@ public class SysReceiveAddressBO {
 
     @ApiModelProperty(value = "业务名称,输入字符串",required = true)
     private String serviceName;
-
 
 }

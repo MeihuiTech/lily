@@ -9,24 +9,29 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * 收款地址表
+ * 币种表
  */
 @Data
-@TableName("miner_receive_address")
-public class SysReceiveAddress {
+@TableName("miner_currency")
+public class Currency {
 
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Integer id;
 
-    private Long userId;
+    private String name;
 
-    private Integer currencyId;
+    private String imgUrl;
 
-    private String address;
+    private Integer sort;
 
-    private String remark;
+    //1-可用;0-不可用
+    private Integer status;
+
+    private String createBy;
 
     private LocalDateTime createTime;
+
+    private String updateBy;
 
     private LocalDateTime updateTime;
 

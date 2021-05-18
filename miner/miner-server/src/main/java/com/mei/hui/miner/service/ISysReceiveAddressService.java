@@ -1,6 +1,10 @@
 package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysReceiveAddress;
+import com.mei.hui.miner.model.SysReceiveAddressBO;
+import com.mei.hui.miner.model.SysReceiveAddressVO;
+import com.mei.hui.miner.model.UpdateReceiveAddressBO;
+import com.mei.hui.util.Result;
 
 /*
 *
@@ -17,31 +21,28 @@ public interface ISysReceiveAddressService {
     * @description
     * @author shangbin
     * @date 2021/5/14 11:30
-    * @param [sysReceiveAddress]
     * @return int
     * @version v1.0.0
     */
-    public int addReceiveAddress(SysReceiveAddress sysReceiveAddress);
+    Result addReceiveAddress(SysReceiveAddressBO sysReceiveAddress);
 
     /**
     * 根据id查询没有被删除的收款地址
     * @description
     * @author shangbin
     * @date 2021/5/14 11:46
-    * @param [id]
     * @return com.mei.hui.miner.entity.SysReceiveAddress
     * @version v1.0.0
     */
-    public SysReceiveAddress selectSysReceiveAddressById(Long id);
+    Result<SysReceiveAddressVO> selectSysReceiveAddressById(Long id);
 
     /**
     * 编辑收款地址
     * @description
     * @author shangbin
     * @date 2021/5/14 13:37
-    * @param [sysReceiveAddress]
     * @return int
     * @version v1.0.0
     */
-    public int updateReceiveAddress(SysReceiveAddress sysReceiveAddress);
+    Result updateReceiveAddress(UpdateReceiveAddressBO bo);
 }

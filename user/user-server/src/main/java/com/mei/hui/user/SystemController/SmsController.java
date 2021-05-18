@@ -24,7 +24,7 @@ public class SmsController {
     @Autowired
     private SmsService smsService;
 
-    @ApiOperation("发送验证码")
+    @ApiOperation("发送验证码,添加地址:add_receive_address;修改个人信息:edit_user_info")
     @PostMapping("/send")
     public Result send(@RequestBody SmsSendBO smsSendBO){
         if(smsSendBO == null || StringUtils.isEmpty(smsSendBO.getServiceName())){

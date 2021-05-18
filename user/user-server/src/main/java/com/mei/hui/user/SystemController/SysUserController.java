@@ -1,5 +1,6 @@
 package com.mei.hui.user.SystemController;
 
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsUtil;
 import com.mei.hui.miner.feign.feignClient.MinerFeignClient;
@@ -149,6 +150,13 @@ public class SysUserController{
                 && "1".equals(userService.checkEmailUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱账号已存在");
         }
+        /**
+         * 校验是否包含中文，6到20个字符
+         */
+        int length = user.getPassword().length();
+        if(CommonUtil.isContainChinese(user.getPassword()) || length < 6 || length > 20){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"密码格式错误");
+        }
         SysUser userOut = userService.getLoginUser();
         user.setCreateBy(userOut.getUserName());
         user.setPassword(AESUtil.encrypt(user.getPassword()));
@@ -193,6 +201,16 @@ public class SysUserController{
     @PutMapping("/resetPwd")
     public Result resetPwd(@RequestBody SysUser user){
         userService.checkUserAllowed(user);
+        /**
+         * 校验是否包含中文，6到20个字符
+         */
+        if(StringUtils.isEmpty(user.getPassword())){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"请输入密码");
+        }
+        int length = user.getPassword().length();
+        if(CommonUtil.isContainChinese(user.getPassword()) || length < 6 || length > 20){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"密码格式错误");
+        }
         SysUser sysUser = userService.getLoginUser();
         user.setPassword(AESUtil.encrypt(user.getPassword()));
         user.setUpdateBy(sysUser.getUserName());
