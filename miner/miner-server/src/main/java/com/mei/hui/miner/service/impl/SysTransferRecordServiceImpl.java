@@ -9,7 +9,6 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.MrAggWithdraw;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTransferRecord;
-import com.mei.hui.miner.entity.SysVerifyCode;
 import com.mei.hui.miner.mapper.MrAggWithdrawMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.mapper.SysTransferRecordMapper;
@@ -331,20 +330,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         BigDecimal fee = user.getFeeRate().multiply(sysTransferRecordWrap.getAmount()).divide(new BigDecimal(100));
         sysTransferRecordWrap.setFee(fee);
 
-        //1. 校验验证码, 如果校验成功, 将验证码设置为已使用
+        //记录提币申请
         Long userId = user.getUserId();
-        SysVerifyCode sysVerifyCode = new SysVerifyCode();
-        sysVerifyCode.setUserId(userId);
-        sysVerifyCode.setVerifyCode(sysTransferRecordWrap.getVerifyCode());
-        SysVerifyCode sysVerifyCodeRet = sysVerifyCodeService.selectSysVerifyCodeByUserIdAndVerifyCode(sysVerifyCode);
-        if (sysVerifyCodeRet == null) {
-            return Result.fail(MinerError.MYB_222222.getCode(),"验证码错误");
-        }
-        sysVerifyCodeRet.setStatus(1);
-        sysVerifyCodeRet.setUpdateTime(LocalDateTime.now());
-        sysVerifyCodeService.updateSysVerifyCode(sysVerifyCodeRet);
-
-        //2. 验证通过后, 记录提币申请
         SysTransferRecord sysTransferRecord = new SysTransferRecord();
         BeanUtils.copyProperties(sysTransferRecordWrap, sysTransferRecord);
         sysTransferRecord.setUserId(userId);
@@ -353,6 +340,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         sysTransferRecord.setStatus(0);
         sysTransferRecord.setMinerId(sysTransferRecordWrap.getMinerId());
         sysTransferRecord.setCreateTime(LocalDateTime.now());
+        log.info("记录提币申请：【{}】", JSON.toJSON(sysTransferRecord));
         int rows = sysTransferRecordMapper.insert(sysTransferRecord);
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
