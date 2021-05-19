@@ -1,11 +1,6 @@
 package com.mei.hui.user.SystemController;
 
 import com.mei.hui.config.CommonUtil;
-import com.mei.hui.config.redisConfig.RedisUtil;
-import com.mei.hui.config.smsConfig.SmsUtil;
-import com.mei.hui.miner.feign.feignClient.MinerFeignClient;
-import com.mei.hui.miner.feign.vo.FindCodeByUserIdInput;
-import com.mei.hui.miner.feign.vo.SysVerifyCodeInput;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
@@ -28,12 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -49,14 +41,7 @@ public class SysUserController{
 
     @Autowired
     private ISysRoleService roleService;
-    @Autowired
-    private MinerFeignClient minerFeignClient;
 
-    @Autowired
-    private RedisUtil redisUtils;
-
-    @Autowired
-    private SmsUtil smsUtil;
 
     /**
      * 根据 userId 获取用户信息
@@ -231,37 +216,14 @@ public class SysUserController{
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }
 
+    /**
+     * 仅供提取收益发送验证码使用，已经不建议使用
+     * @return
+     */
+    @ApiOperation(value = "仅供提取收益发送验证码使用，已经不建议使用")
     @PostMapping("/sendSms")
     public Result sendSms() {
-        SysUser user = userService.getLoginUser();
-        FindCodeByUserIdInput input = new FindCodeByUserIdInput();
-        input.setUserId(user.getUserId());
-        Result<SysVerifyCodeInput> codeResult = minerFeignClient.findCodeByUserId(input);
-        if (ErrorCode.MYB_000000.getCode().equals(codeResult.getCode())) {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime date = codeResult.getData().getCreateTime();
-            Duration duration = Duration.between(date, now);
-            if (duration.toMinutes() < 1) {
-                throw MyException.fail(UserError.MYB_333333.getCode(),"发送频繁，请稍后再试");
-            }
-        }
-        int min = 123456;
-        int max = 999999;
-        Random r = new Random();
-        String sms = String.valueOf(r.nextInt(max - min + 1) + min);
-        if (smsUtil.send(user.getPhonenumber(), sms)) {
-            SysVerifyCodeInput sysVerifyCode = new SysVerifyCodeInput();
-            sysVerifyCode.setVerifyCode(sms);
-            sysVerifyCode.setUserId(user.getUserId());
-            sysVerifyCode.setStatus(0);
-            sysVerifyCode.setPhone(user.getPhonenumber());
-            sysVerifyCode.setCreateTime(LocalDateTime.now());
-            sysVerifyCode.setUpdateTime(LocalDateTime.now());
-            minerFeignClient.insertSysVerifyCode(sysVerifyCode);
-            return Result.OK;
-        } else {
-            return Result.fail(UserError.MYB_333333.getCode(),"发送失败");
-        }
+        return Result.OK;
     }
 
     @ApiOperation(value = "冒充用户登录【鲍红建】")
