@@ -159,7 +159,6 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
     * @description 新增扇区信息
     * @author shangbin
     * @date 2021/5/13 10:17
-    * @param [sysSectorInfo]
     * @return int
     * @version v1.0.0
     */

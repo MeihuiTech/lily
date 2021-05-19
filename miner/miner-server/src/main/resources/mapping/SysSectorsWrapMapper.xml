@@ -31,6 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="sectorSize != null "> and sector_size = #{sectorSize}</if>
         <if test="sectorStatus != null "> and sector_status = #{sectorStatus}</if>
         <if test="sectorDuration != null "> and sector_duration = #{sectorDuration}</if>
+        ORDER BY sector_no DESC
     </select>
 
     <select id="selectSysSectorsWrapList" parameterType="SysSectorsWrap" resultMap="SysSectorsWrapResult">
