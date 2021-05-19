@@ -13,6 +13,7 @@ import com.mei.hui.miner.model.UpdateReceiveAddressBO;
 import com.mei.hui.miner.service.ISysReceiveAddressService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
+import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -63,7 +64,6 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     * @description
     * @author shangbin
     * @date 2021/5/14 13:54
-    * @param [id]
     * @return com.mei.hui.miner.entity.SysReceiveAddress
     * @version v1.0.0
     */
@@ -89,7 +89,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     public Result updateReceiveAddress(UpdateReceiveAddressBO bo) {
         Long userId = HttpRequestUtil.getUserId();
         //检查验证码是否正确
-        String code = redisUtils.get(bo.getServiceName() + "_" + userId);
+        String code = redisUtils.get(String.format(SystemConstants.SMSKKEY,bo.getServiceName(),userId));
         if(StringUtils.isEmpty(code)){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码已失效");
         }

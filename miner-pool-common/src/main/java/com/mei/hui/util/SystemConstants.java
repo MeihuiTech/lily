@@ -19,4 +19,8 @@ public interface SystemConstants {
     String WEB = "web";
     String APP = "app";
 
+    //短信验证码格式sms:serviceName:userId
+    String SMSKKEY="sms:%s:%s";
+
+
 }

@@ -55,7 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectSysMinerInfoById" parameterType="Long" resultMap="SysMinerInfoResult">
-        <include refid="selectSysMinerInfoVo"/>
+        select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available, sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account, blocks_per_day, total_blocks, power_increase_per_day, create_by, create_time, update_by, update_time from sys_miner_info
         where id = #{id}
     </select>
 

@@ -384,10 +384,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         lambdaQueryWrapper.eq(SysTransferRecord::getStatus,1);//提币成功
         lambdaQueryWrapper.eq(SysTransferRecord::getUserId,userId);
         lambdaQueryWrapper.eq(SysTransferRecord::getMinerId,minerId);
-        log.info("查询提取记录");
+        log.info("查询提币完成的记录");
         List<SysTransferRecord> transfers = sysTransferRecordMapper.selectList(lambdaQueryWrapper);
-        log.info("提取记录查询结果:{}",JSON.toJSONString(transfers));
-
+        log.info("提币完成的记录查询结果:{}",JSON.toJSONString(transfers));
         //已提取收益
         BigDecimal totalWithdraw = BigDecimal.ZERO;
         for(SysTransferRecord record : transfers ) {
@@ -400,6 +399,19 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         earningVo.setTotalEarning(BigDecimalUtil.formatFour(miner.getTotalBlockAward()).doubleValue());
         earningVo.setTotalLockAward(BigDecimalUtil.formatFour(miner.getLockAward()).doubleValue());
         earningVo.setAvailableEarning(BigDecimalUtil.formatFour(miner.getBalanceMinerAvailable()).doubleValue());
+        //添加 正在提币中的数量
+        LambdaQueryWrapper<SysTransferRecord> drawingWrapper = new LambdaQueryWrapper();
+        drawingWrapper.eq(SysTransferRecord::getStatus,0);//提币中
+        drawingWrapper.eq(SysTransferRecord::getUserId,userId);
+        drawingWrapper.eq(SysTransferRecord::getMinerId,minerId);
+        log.info("查询提币中的记录");
+        List<SysTransferRecord> transferRecords = sysTransferRecordMapper.selectList(drawingWrapper);
+        log.info("提币中的记录查询结果:{}",JSON.toJSONString(transfers));
+        BigDecimal drawing = BigDecimal.ZERO;
+        for(SysTransferRecord record : transferRecords ) {
+            drawing = drawing.add(record.getAmount());
+        }
+        earningVo.setDrawingEarning(BigDecimalUtil.formatFour(drawing).doubleValue());
         return Result.success(earningVo);
     }
 }

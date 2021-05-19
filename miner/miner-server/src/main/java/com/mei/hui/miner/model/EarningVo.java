@@ -16,6 +16,9 @@ public class EarningVo {
     /** 用户可提取金额 */
     private double availableEarning;
 
+    /** 正在提币中的fil*/
+    private double drawingEarning;
+
     public EarningVo() {
     }
 

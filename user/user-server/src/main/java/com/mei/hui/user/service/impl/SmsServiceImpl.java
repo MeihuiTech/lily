@@ -11,6 +11,7 @@ import com.mei.hui.user.model.SmsSendBO;
 import com.mei.hui.user.service.SmsService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
+import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class SmsServiceImpl implements SmsService {
     public Result send(SmsSendBO smsSendBO){
         Long userId = HttpRequestUtil.getUserId();
         //查看用户1分钟之内是否应发送过验证码
-        String code = redisUtil.get(smsSendBO.getServiceName() + "_" + userId);
+        String code = redisUtil.get(String.format(SystemConstants.SMSKKEY,smsSendBO.getServiceName(),userId));
         if(StringUtils.isNotEmpty(code)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"验证码已经发送");
         }
