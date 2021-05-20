@@ -2,17 +2,17 @@ server:
   port: 8082
 
 spring:
+  application:
+    name: miner-server
   profiles:
     active: dev
   main:
     allow-bean-definition-overriding: true
 
 ---
-#测试环境
+#开发环境
 spring:
   profiles: dev
-  application:
-    name: miner-server
   cloud:
     nacos:
       config:
@@ -25,13 +25,27 @@ spring:
         server-addr: 10.10.15.3:8848
         namespace: 013be443-9f4c-4106-9c96-b34b7211a38b
         group: miner_pool_group
-
+        register-enabled: false
+---
+#测试环境
+spring:
+  profiles: test
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.10.15.3:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
+        group: miner_pool_group
+      discovery:
+        server-addr: 10.10.15.3:8848
+        namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
+        group: miner_pool_group
 ---
 #生产环境
 spring:
   profiles: prod
-  application:
-    name: miner-server
   cloud:
     nacos:
       config:
