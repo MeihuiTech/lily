@@ -8,6 +8,9 @@ import lombok.Data;
 @ApiModel
 public class UpdateReceiveAddressBO {
 
+    @ApiModelProperty(value = "id",required = true)
+    private Long id;
+
     @ApiModelProperty(value = "币种表id",required = true)
     private Integer currencyId;
 

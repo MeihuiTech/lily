@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mei.hui.miner.entity.PoolInfo;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.entity.SysMinerInfo;
-import com.mei.hui.miner.mapper.PoolInfoMapper;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.IPoolInfoService;

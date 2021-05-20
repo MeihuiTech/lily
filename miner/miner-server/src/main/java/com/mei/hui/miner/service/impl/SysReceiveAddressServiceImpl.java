@@ -1,6 +1,8 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
@@ -33,20 +35,34 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     @Autowired
     private SysReceiveAddressMapper sysReceiveAddressMapper;
     /**
-     * 新增地址
+     * 新增收款地址
      * @param sysReceiveAddress
      * @return
      */
+    @Override
     public Result addReceiveAddress(SysReceiveAddressBO sysReceiveAddress) {
         Long userId = HttpRequestUtil.getUserId();
         //检查验证码是否正确
-        String code = redisUtils.get(sysReceiveAddress.getServiceName() + "_" + userId);
+        String smsCode = String.format(SystemConstants.SMSKEY,sysReceiveAddress.getServiceName(),userId);
+        String code = redisUtils.get(smsCode);
         if(StringUtils.isEmpty(code)){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码已失效");
         }
         if(!code.equals(sysReceiveAddress.getSmsCode())){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码错误");
         }
+
+        //单一币种只添加1个收款地址
+        SysReceiveAddress dbSysReceiveAddress = new SysReceiveAddress();
+        dbSysReceiveAddress.setUserId(userId);
+        dbSysReceiveAddress.setCurrencyId(sysReceiveAddress.getCurrencyId());
+        QueryWrapper<SysReceiveAddress> sysReceiveAddressQueryWrapper = new QueryWrapper<>();
+        sysReceiveAddressQueryWrapper.setEntity(dbSysReceiveAddress);
+        List<SysReceiveAddress> dbSysReceiveAddressList = sysReceiveAddressMapper.selectList(sysReceiveAddressQueryWrapper);
+        if (dbSysReceiveAddressList != null && dbSysReceiveAddressList.size() > 0) {
+            return Result.fail(MinerError.MYB_222222.getCode(),"单一币种只添加1个收款地址");
+        }
+
         //新增地址
         SysReceiveAddress  receiveAddress= new SysReceiveAddress();
         receiveAddress.setUserId(userId);
@@ -55,7 +71,15 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         receiveAddress.setRemark(sysReceiveAddress.getRemark());
         receiveAddress.setCreateTime(LocalDateTime.now());
         receiveAddress.setUpdateTime(LocalDateTime.now());
+        log.info("新增收款地址:【{}】",JSON.toJSON(receiveAddress));
         int rows = sysReceiveAddressMapper.insert(receiveAddress);
+
+        // 清空验证码
+        log.info("清空验证码smsCode:【{}】,code:【{}】",smsCode,code);
+        redisUtils.delete(smsCode);
+        String smsCodeTime = String.format(SystemConstants.SMSKEYTIME,sysReceiveAddress.getServiceName(),userId);
+        redisUtils.delete(smsCodeTime);
+
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 
@@ -67,6 +91,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     * @return com.mei.hui.miner.entity.SysReceiveAddress
     * @version v1.0.0
     */
+    @Override
     public Result<SysReceiveAddressVO> selectSysReceiveAddressById(Long id) {
         SysReceiveAddress dbSysReceiveAddress = sysReceiveAddressMapper.selectById(id);
         if (dbSysReceiveAddress == null) {
@@ -78,7 +103,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     }
 
     /**
-    * 编辑收款地址，先逻辑删除，后新增
+    * 编辑收款地址
     *
     * @description
     * @author shangbin
@@ -86,10 +111,12 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     * @return int
     * @version v1.0.0
     */
+    @Override
     public Result updateReceiveAddress(UpdateReceiveAddressBO bo) {
         Long userId = HttpRequestUtil.getUserId();
         //检查验证码是否正确
-        String code = redisUtils.get(String.format(SystemConstants.SMSKKEY,bo.getServiceName(),userId));
+        String smsCode =String.format(SystemConstants.SMSKEY,bo.getServiceName(),userId);
+        String code = redisUtils.get(smsCode);
         if(StringUtils.isEmpty(code)){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码已失效");
         }
@@ -110,6 +137,14 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         updateWrapper.set(SysReceiveAddress::getAddress,bo.getAddress());
         updateWrapper.set(SysReceiveAddress::getRemark,bo.getRemark());
         int rows = sysReceiveAddressMapper.update(null,updateWrapper);
+        log.info("编辑收款地址:【{}】",rows);
+
+        // 清空验证码
+        log.info("清空验证码smsCode:【{}】,code:【{}】",smsCode,code);
+        redisUtils.delete(smsCode);
+        String smsCodeTime = String.format(SystemConstants.SMSKEYTIME,bo.getServiceName(),userId);
+        redisUtils.delete(smsCodeTime);
+
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 }

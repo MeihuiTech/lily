@@ -20,7 +20,7 @@ public class SysCurrencyVO {
     @ApiModelProperty(value = "币种名称")
     private String name;
 
-    @ApiModelProperty(value = "币种图片地址")
-    private String imgUrl;
+    @ApiModelProperty(value = "代币的简称：fil")
+    private String type;
 
 }

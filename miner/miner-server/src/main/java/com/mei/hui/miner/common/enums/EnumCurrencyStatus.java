@@ -1,7 +1,7 @@
 package com.mei.hui.miner.common.enums;
 
 /**
- * 货比状态
+ * 货币状态
  */
 public enum  EnumCurrencyStatus {
 

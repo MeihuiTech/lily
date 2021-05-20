@@ -1,18 +1,15 @@
 package com.mei.hui.miner.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.common.enums.EnumCurrencyStatus;
 import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.mapper.SysCurrencyMapper;
 import com.mei.hui.miner.model.SysCurrencyVO;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +38,7 @@ public class CurrencyServiceImpl implements ISysCurrencyService {
             SysCurrencyVO vo = new SysCurrencyVO();
             vo.setId(v.getId());
             vo.setName(v.getName());
-            vo.setImgUrl(v.getImgUrl());
+            vo.setType(v.getType());
             return vo;
         }).collect(Collectors.toList());
     }

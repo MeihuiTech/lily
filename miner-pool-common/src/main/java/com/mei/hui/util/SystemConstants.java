@@ -20,7 +20,10 @@ public interface SystemConstants {
     String APP = "app";
 
     //短信验证码格式sms:serviceName:userId
-    String SMSKKEY="sms:%s:%s";
+    String SMSKEY="sms:%s:%s";
+
+    //短信验证码1分钟有效时间格式sms:serviceName:userIdtime
+    String SMSKEYTIME="sms:%s:%stime";
 
 
 }

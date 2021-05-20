@@ -1,29 +1,18 @@
 package com.mei.hui.miner.SystemController;
 
-import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.entity.SysTransferRecord;
-import com.mei.hui.miner.model.EarningVo;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.PoolEarningVo;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
-import com.mei.hui.miner.entity.SysVerifyCode;
-import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
-import com.mei.hui.miner.service.ISysVerifyCodeService;
-import com.mei.hui.user.feign.feignClient.UserFeignClient;
-import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.util.BigDecimalUtil;
-import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -39,14 +28,6 @@ public class SysTransferRecordController
     @Autowired
     private ISysTransferRecordService sysTransferRecordService;
 
-    @Autowired
-    private ISysMinerInfoService sysMinerInfoService;
-
-    @Autowired
-    private UserFeignClient userFeignClient;
-
-    @Autowired
-    private ISysVerifyCodeService sysVerifyCodeService;
 
     /**
      * 查询系统划转记录列表,普通用户

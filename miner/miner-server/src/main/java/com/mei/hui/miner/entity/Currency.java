@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * 币种表
@@ -20,7 +19,7 @@ public class Currency {
 
     private String name;
 
-    private String imgUrl;
+    private String type;
 
     private Integer sort;
 
