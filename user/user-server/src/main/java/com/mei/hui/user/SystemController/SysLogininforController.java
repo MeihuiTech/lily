@@ -71,8 +71,7 @@ public class SysLogininforController{
         Map<String,Object> map = new HashMap<>();
         map.put("code", 200);
         map.put("msg",ErrorCode.MYB_000000.getMsg());
-        map.put("data", path);
-       // Constants.RESOURCE_PREFIX + "/"+
+        map.put("data", "/user-server/"+Constants.RESOURCE_PREFIX + "/"+filename);
         return map;
     }
     /**
