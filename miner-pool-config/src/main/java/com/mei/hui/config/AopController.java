@@ -2,6 +2,7 @@ package com.mei.hui.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mei.hui.util.NotAop;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -44,12 +45,14 @@ public class AopController {
     @Before("webLog()")
     public void before(JoinPoint joinPoint) {
     	log.info("@========================start-{}========================",projectName);
-		//获取请求的request
-		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = attributes.getRequest();
-    	if(!request.getRequestURL().toString().contains("/avatar")){
+		NotAop notAop = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(NotAop.class);
+		if(notAop == null){
+			//获取请求的request
+			ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+			HttpServletRequest request = attributes.getRequest();
 			log.info("@请求url:{},请求参数:{}",request.getRequestURL().toString(),getReqParameter(joinPoint));
 		}
+
     }
     
 /*    @AfterThrowing(pointcut = "webLog()", throwing = "ex")

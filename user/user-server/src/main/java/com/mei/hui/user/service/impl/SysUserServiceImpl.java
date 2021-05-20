@@ -23,6 +23,7 @@ import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
+import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,8 +53,11 @@ public class SysUserServiceImpl implements ISysUserService {
     private AggMinerFeignClient aggMinerFeignClient;
     @Autowired
     private SysUserRoleMapper userRoleMapper;
+    @Autowired
+    private SysLogininforMapper sysLogininforMapper;
 
     public Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody){
+
         /**
          * 验证码校验
          */
@@ -92,7 +97,28 @@ public class SysUserServiceImpl implements ISysUserService {
         String token = JwtUtil.createToken(claims);
         result.put(SystemConstants.TOKEN,JwtUtil.createToken(claims));
         redisUtils.set(token,"1",8,TimeUnit.HOURS);
+        insertLoginInfo(sysUser);
         return result;
+    }
+
+    public void insertLoginInfo(SysUser sysUser){
+        try {
+            HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
+            final UserAgent userAgent = UserAgent.parseUserAgentString(httpServletRequest.getHeader("User-Agent"));
+            // 获取客户端操作系统
+            String os = userAgent.getOperatingSystem().getName();
+            // 获取客户端浏览器
+            String browser = userAgent.getBrowser().getName();
+            final String ip = IpUtils.getIpAddr(httpServletRequest);
+            SysLogininfor logininfor = new SysLogininfor();
+            logininfor.setUserName(sysUser.getUserName());
+            logininfor.setIpaddr(ip);
+            logininfor.setBrowser(browser);
+            logininfor.setOs(os);
+            sysLogininforMapper.insertLogininfor(logininfor);
+        } catch (Exception e) {
+            log.info("登陆日志插入失败");
+        }
     }
 
     /**
@@ -483,11 +509,11 @@ public class SysUserServiceImpl implements ISysUserService {
             throw MyException.fail(UserError.MYB_333333.getCode(),"新密码不能与旧密码相同");
         }
         int oldLength = oldPassword.length();
-        if(CommonUtil.isContainChinese(oldPassword) || oldLength < 6 || oldLength > 20){
+        if(CommonUtil.isContainChinese(oldPassword) || oldLength < 8 || oldLength > 32){
             throw MyException.fail(UserError.MYB_333333.getCode(),"旧密码格式错误");
         }
         int newLength = newPassword.length();
-        if(CommonUtil.isContainChinese(newPassword) || newLength < 6 || newLength > 20){
+        if(CommonUtil.isContainChinese(newPassword) || newLength < 8 || newLength > 32){
             throw MyException.fail(UserError.MYB_333333.getCode(),"新密码格式错误");
         }
         LambdaUpdateWrapper<SysUser> lambdaUpdateWrapper = new LambdaUpdateWrapper();

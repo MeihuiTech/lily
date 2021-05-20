@@ -53,7 +53,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         String url = request.getURI().getPath();
         log.info("@========================start-{}========================","gateway");
         log.info("请求地址:{}",url);
-        if(StringUtils.isNotEmpty(url) && url.contains("profile/avatar")){
+        if(StringUtils.isNotEmpty(url) && url.contains("/profile/")){
             return chain.filter(exchange);
         }
         /**

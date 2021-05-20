@@ -37,4 +37,6 @@ public interface ISysLogininforService
      * 清空系统登录日志
      */
     public void cleanLogininfor();
+
+    public List<SysLogininfor> findLogin(SysLogininfor logininfor);
 }
