@@ -25,5 +25,10 @@ public interface SystemConstants {
     //短信验证码1分钟后可以重新发送，时间格式sms:serviceName:userIdtime
     String SMSKEYTIME="sms:%s:%stime";
 
+    String KEY_ALGORITHM = "AES";
+    /**
+     * 默认的加密算法
+     */
+    String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
 
 }

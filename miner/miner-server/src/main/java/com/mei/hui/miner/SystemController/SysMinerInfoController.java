@@ -54,6 +54,9 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         Date begin = DateUtils.addDays(end,-29);
         List<SysAggAccountDaily> list = sysAggAccountDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
 
+        list.stream().forEach(v->{
+            v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));
+        });
         PageResult<SysAggAccountDaily> pageResult = new PageResult(list.size(), list);
         return pageResult;
     }

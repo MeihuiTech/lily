@@ -21,20 +21,11 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    @Autowired
-    private RuoYiConfig ruoYiConfig;
     private static RuoYiConfig staticRuoYiConfig;
 
-    @PostConstruct
-    public void init(){
-        if(ruoYiConfig.getJwtMinutes() == 0){
-            //默认
-            ruoYiConfig.setJwtMinutes(1);
-        }
-        if(StringUtils.isEmpty(ruoYiConfig.getJwtSecret())){
-            log.error("ruoyi.jwtSecret不能为空");
-        }
-        staticRuoYiConfig = this.ruoYiConfig;
+    @Autowired
+    public void setRuoYiConfig(RuoYiConfig ruoYiConfig) {
+        this.staticRuoYiConfig = ruoYiConfig;
     }
     /**
      * 加密
