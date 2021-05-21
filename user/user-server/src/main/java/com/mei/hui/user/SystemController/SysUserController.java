@@ -1,5 +1,6 @@
 package com.mei.hui.user.SystemController;
 
+import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
@@ -11,7 +12,6 @@ import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.AESUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;

@@ -22,5 +22,10 @@ public interface SystemConstants {
     //短信验证码格式sms:serviceName:userId
     String SMSKKEY="sms:%s:%s";
 
+    String KEY_ALGORITHM = "AES";
+    /**
+     * 默认的加密算法
+     */
+    String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
 
 }

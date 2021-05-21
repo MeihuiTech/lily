@@ -23,6 +23,11 @@ public class RuoYiConfig
      */
     private long jwtMinutes;
 
+    /**
+     * aes 秘钥
+     */
+    private String aesSecret;
+
     public static String getProfile()
     {
         return profile;
@@ -69,5 +74,13 @@ public class RuoYiConfig
 
     public void setJwtMinutes(long jwtMinutes) {
         this.jwtMinutes = jwtMinutes;
+    }
+
+    public String getAesSecret() {
+        return aesSecret;
+    }
+
+    public void setAesSecret(String aesSecret) {
+        this.aesSecret = aesSecret;
     }
 }

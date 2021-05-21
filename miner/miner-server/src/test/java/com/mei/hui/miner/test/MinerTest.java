@@ -1,13 +1,11 @@
 package com.mei.hui.miner.test;
 
+import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
-import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.ISysMinerInfoService;
-import com.mei.hui.util.AESUtil;
-import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
