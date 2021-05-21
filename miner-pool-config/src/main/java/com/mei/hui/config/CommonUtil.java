@@ -1,5 +1,6 @@
 package com.mei.hui.config;
 
+import com.mei.hui.util.SmsServiceNameEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -11,6 +12,16 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+* 公共方法类
+*
+* @description
+* @author shangbin
+* @date 2021/5/21 13:31
+* @param
+* @return
+* @version v1.0.0
+*/
 @Slf4j
 public class CommonUtil {
 
@@ -50,4 +61,24 @@ public class CommonUtil {
         }
         return false;
     }
+
+    /**
+    * 验证servicename是否在  验证码ServiceName枚举类  里,true存在，false不存在
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/21 13:14
+    * @param [serviceName]
+    * @return boolean
+    * @version v1.0.0
+    */
+    public static boolean isExistSmsServiceNameEnum(String serviceName) {
+        for(SmsServiceNameEnum serviceNameEnum : SmsServiceNameEnum.values()) {
+            if (serviceNameEnum.name().equals(serviceName)) {
+                return true;
+            }
+        }
+        return  false;
+    }
+
 }

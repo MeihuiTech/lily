@@ -1,6 +1,7 @@
 package com.mei.hui.user.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsUtil;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -38,13 +40,18 @@ public class SmsServiceImpl implements SmsService {
     @Override
     public Result send(SmsSendBO smsSendBO){
         Long userId = HttpRequestUtil.getUserId();
+        String serviceName = smsSendBO.getServiceName();
+        // 验证前端传过来的serviceName是否在枚举类里面
+        if (!CommonUtil.isExistSmsServiceNameEnum(serviceName)) {
+            throw MyException.fail(UserError.MYB_333333.getCode(),"业务名称不存在");
+        }
         //查看用户1分钟之内是否应发送过验证码
-        String smsCodeTime = String.format(SystemConstants.SMSKEYTIME,smsSendBO.getServiceName(),userId);
+        String smsCodeTime = String.format(SystemConstants.SMSKEYTIME, serviceName, userId);
         String timeCode = redisUtil.get(smsCodeTime);
         if(StringUtils.isNotEmpty(timeCode)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"验证码已经发送");
         }
-        String smsCode = String.format(SystemConstants.SMSKEY,smsSendBO.getServiceName(),userId);
+        String smsCode = String.format(SystemConstants.SMSKEY,serviceName,userId);
         String code = redisUtil.get(smsCode);
         //生成6位验证码
         int min = 123456;

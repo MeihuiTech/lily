@@ -19,10 +19,10 @@ public interface SystemConstants {
     String WEB = "web";
     String APP = "app";
 
-    //短信验证码格式sms:serviceName:userId
+    //短信验证码5分钟有效，格式sms:serviceName:userId
     String SMSKEY="sms:%s:%s";
 
-    //短信验证码1分钟有效时间格式sms:serviceName:userIdtime
+    //短信验证码1分钟后可以重新发送，时间格式sms:serviceName:userIdtime
     String SMSKEYTIME="sms:%s:%stime";
 
 

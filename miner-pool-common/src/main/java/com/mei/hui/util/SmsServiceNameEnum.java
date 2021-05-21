@@ -8,7 +8,7 @@ package com.mei.hui.util;
  **/
 public enum  SmsServiceNameEnum {
 
-
+    withdraw("提取收益"),
     addReceiveAddress("新增收款地址"),
     updateReceiveAddress("编辑收款地址");
 

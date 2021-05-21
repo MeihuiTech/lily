@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.MrAggWithdraw;
 import com.mei.hui.miner.entity.SysMinerInfo;
@@ -16,14 +17,10 @@ import com.mei.hui.miner.model.EarningVo;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
 import com.mei.hui.miner.service.ISysTransferRecordService;
-import com.mei.hui.miner.service.ISysVerifyCodeService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.util.BigDecimalUtil;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -53,11 +50,11 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
     @Autowired
     private UserFeignClient userFeignClient;
     @Autowired
-    private ISysVerifyCodeService sysVerifyCodeService;
-    @Autowired
     private SysMinerInfoMapper sysMinerInfoMapper;
     @Autowired
     private MrAggWithdrawMapper mrAggWithdrawMapper;
+    @Autowired
+    private RedisUtil redisUtils;
 
     /**
      * 查询系统划转记录
@@ -285,10 +282,24 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
      * 用户提币：
      * 1、先校验现有余额是否 大于 将要提取的fil, 余额 - 带提币中的fil > 即将提取的fil
      */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result withdraw(SysTransferRecordWrap sysTransferRecordWrap){
         if(sysTransferRecordWrap.getMinerId() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择旷工");
         }
+
+        Long userId = HttpRequestUtil.getUserId();
+        //检查验证码是否正确
+        String smsCode = String.format(SystemConstants.SMSKEY,SmsServiceNameEnum.withdraw.name(),userId);
+        String code = redisUtils.get(smsCode);
+        if(StringUtils.isEmpty(code)){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码已失效");
+        }
+        if(!code.equals(sysTransferRecordWrap.getVerifyCode())){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码错误");
+        }
+
         /**
          * 一：提取金额 < 可提现金额 - 提币中 金额
          */
@@ -331,7 +342,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         sysTransferRecordWrap.setFee(fee);
 
         //记录提币申请
-        Long userId = user.getUserId();
         SysTransferRecord sysTransferRecord = new SysTransferRecord();
         BeanUtils.copyProperties(sysTransferRecordWrap, sysTransferRecord);
         sysTransferRecord.setUserId(userId);
@@ -342,6 +352,13 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         sysTransferRecord.setCreateTime(LocalDateTime.now());
         log.info("记录提币申请：【{}】", JSON.toJSON(sysTransferRecord));
         int rows = sysTransferRecordMapper.insert(sysTransferRecord);
+
+        // 清空验证码
+        log.info("清空验证码smsCode:【{}】,code:【{}】",smsCode,code);
+        redisUtils.delete(smsCode);
+        String smsCodeTime = String.format(SystemConstants.SMSKEYTIME,SmsServiceNameEnum.withdraw.name(),userId);
+        redisUtils.delete(smsCodeTime);
+
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 

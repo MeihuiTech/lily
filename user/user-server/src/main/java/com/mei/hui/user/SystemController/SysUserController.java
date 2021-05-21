@@ -9,12 +9,11 @@ import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.SelectUserListInput;
+import com.mei.hui.user.model.SmsSendBO;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.AESUtil;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.user.service.SmsService;
+import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +41,8 @@ public class SysUserController{
     @Autowired
     private ISysRoleService roleService;
 
+    @Autowired
+    private SmsService smsService;
 
     /**
      * 根据 userId 获取用户信息
@@ -217,13 +218,15 @@ public class SysUserController{
     }
 
     /**
-     * 仅供提取收益发送验证码使用，已经不建议使用
+     * 仅供提取收益发送验证码使用，其它业务不能使用
      * @return
      */
-    @ApiOperation(value = "仅供提取收益发送验证码使用，已经不建议使用")
+    @ApiOperation(value = "仅供提取收益发送验证码使用，其它业务不能使用")
     @PostMapping("/sendSms")
     public Result sendSms() {
-        return Result.OK;
+        SmsSendBO smsSendBO = new SmsSendBO();
+        smsSendBO.setServiceName(SmsServiceNameEnum.withdraw.name());
+        return smsService.send(smsSendBO);
     }
 
     @ApiOperation(value = "冒充用户登录【鲍红建】")
