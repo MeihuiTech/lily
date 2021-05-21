@@ -90,7 +90,7 @@ public class SysUser {
     private Double totalBlockAward;
 
     @TableField(exist = false)
-    private Integer powerAvailable;
+    private Long powerAvailable;
 
     /** 角色对象 */
     @TableField(exist = false)

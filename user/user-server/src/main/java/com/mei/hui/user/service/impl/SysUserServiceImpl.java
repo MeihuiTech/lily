@@ -240,7 +240,7 @@ public class SysUserServiceImpl implements ISysUserService {
                 //将总算力和总收益加入到 SysUser 对象中
                 list.stream().forEach(v->{
                     AggMinerVO vo = maps.get(v.getUserId());
-                    v.setPowerAvailable(vo != null ? vo.getPowerAvailable().intValue() : 0);
+                    v.setPowerAvailable(vo != null ? vo.getPowerAvailable().longValue() : 0);
                     v.setTotalBlockAward(vo != null ? BigDecimalUtil.formatFour(vo.getTotalBlockAward()).doubleValue() : 0);
                 });
             }
