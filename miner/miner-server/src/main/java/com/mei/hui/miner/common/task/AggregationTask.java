@@ -75,11 +75,11 @@ public class AggregationTask {
             SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
             sysAggPowerDaily.setMinerId(info.getMinerId());
             sysAggPowerDaily.setDate(date);
-            sysAggPowerDaily.setPowerAvailable(info.getPowerAvailable().longValue());
+            sysAggPowerDaily.setPowerAvailable(info.getPowerAvailable());
             if (yesterday != null) {
-                sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable().longValue() - yesterday.getPowerAvailable());
+                sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable().subtract(yesterday.getPowerAvailable()));
             } else {
-                sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable().longValue());
+                sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable());
             }
             log.info("算力聚合表插入数据,入参:{}",JSON.toJSONString(sysAggPowerDaily));
             int result = sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);

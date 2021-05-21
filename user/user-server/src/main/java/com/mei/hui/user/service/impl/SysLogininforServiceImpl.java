@@ -56,6 +56,8 @@ public class SysLogininforServiceImpl implements ISysLogininforService
         return map;
     }
 
+
+
     /**
      * 批量删除系统登录日志
      * 
@@ -75,5 +77,10 @@ public class SysLogininforServiceImpl implements ISysLogininforService
     public void cleanLogininfor()
     {
         logininforMapper.cleanLogininfor();
+    }
+
+    public List<SysLogininfor> findLogin(SysLogininfor logininfor)
+    {
+        return logininforMapper.selectLogininforList(logininfor);
     }
 }

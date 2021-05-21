@@ -52,7 +52,7 @@ public class SysProfileController{
      * 头像上传
      */
     @PostMapping("/avatar")
-    @NotCheck
+    @NotAop
     public Map<String,Object> avatar(@RequestParam("avatarfile") MultipartFile file) throws IOException
     {
         Map<String,Object> map = new HashMap<>();

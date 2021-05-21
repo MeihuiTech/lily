@@ -139,7 +139,7 @@ public class SysUserController{
          * 校验是否包含中文，6到20个字符
          */
         int length = user.getPassword().length();
-        if(CommonUtil.isContainChinese(user.getPassword()) || length < 6 || length > 20){
+        if(CommonUtil.isContainChinese(user.getPassword()) || length < 8 || length > 32){
             throw MyException.fail(UserError.MYB_333333.getCode(),"密码格式错误");
         }
         SysUser userOut = userService.getLoginUser();
@@ -193,7 +193,7 @@ public class SysUserController{
             throw MyException.fail(UserError.MYB_333333.getCode(),"请输入密码");
         }
         int length = user.getPassword().length();
-        if(CommonUtil.isContainChinese(user.getPassword()) || length < 6 || length > 20){
+        if(CommonUtil.isContainChinese(user.getPassword()) || length < 8 || length > 32){
             throw MyException.fail(UserError.MYB_333333.getCode(),"密码格式错误");
         }
         SysUser sysUser = userService.getLoginUser();

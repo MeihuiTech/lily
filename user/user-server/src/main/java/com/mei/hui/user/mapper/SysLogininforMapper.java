@@ -1,6 +1,8 @@
 package com.mei.hui.user.mapper;
 
 import com.mei.hui.user.entity.SysLogininfor;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,7 @@ import java.util.List;
  * 
  * @author ruoyi
  */
+@Repository
 public interface SysLogininforMapper
 {
     /**
