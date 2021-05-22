@@ -46,7 +46,6 @@ spring:
         server-addr: 10.10.15.3:8848
         namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
         group: miner_pool_group
-        register-enabled: false
 ---
 #生产环境
 spring:
