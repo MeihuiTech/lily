@@ -41,7 +41,7 @@ public class SysReceiveAddressController {
     }
 
     /**
-    * 根据id查询没有被删除的收款地址
+    * 根据id查询收款地址
     *
     * @description
     * @author shangbin
@@ -49,10 +49,27 @@ public class SysReceiveAddressController {
     * @return com.mei.hui.util.Result
     * @version v1.0.0
     */
-    @ApiOperation(value = "根据id查询没有被删除的收款地址")
+    @ApiOperation(value = "根据id查询收款地址")
     @GetMapping("/{id}")
     public Result<SysReceiveAddressVO> selectSysReceiveAddressById(@PathVariable("id") Long id) {
        return sysReceiveAddressService.selectSysReceiveAddressById(id);
     }
+
+    /**
+    * 根据币种id查询收款地址
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/21 18:50
+    * @param [currencyId]
+    * @return com.mei.hui.util.Result<com.mei.hui.miner.model.SysReceiveAddressVO>
+    * @version v1.0.0
+    */
+    @ApiOperation(value = "根据币种id查询收款地址")
+    @GetMapping("/selectByCurrencyId")
+    public Result<SysReceiveAddressVO> selectSysReceiveAddressByCurrencyId(@RequestParam("currencyId") Long currencyId) {
+        return sysReceiveAddressService.selectSysReceiveAddressByCurrencyId(currencyId);
+    }
+
 
 }

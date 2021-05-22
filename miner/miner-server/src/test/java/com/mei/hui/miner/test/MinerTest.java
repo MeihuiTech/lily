@@ -1,11 +1,15 @@
 package com.mei.hui.miner.test;
 
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +28,11 @@ public class MinerTest {
     private ISysMinerInfoService sysMinerInfoService;
     @Autowired
     private SysMinerInfoMapper sysMinerInfoMapper;
+
+    @Autowired
+    private UserFeignClient userFeignClient;
+
+
     @Test
     public void entry(){
         String token = AESUtil.encrypt("1");
@@ -45,5 +54,14 @@ public class MinerTest {
        // sysMinerInfoService.updateSysMinerInfo(miner);
         sysMinerInfoService.insertSysMinerInfo(miner);
     }
+
+    @Test
+    public  void testGetUserById(){
+        SysUserOut sysUserOut = new SysUserOut();
+        sysUserOut.setUserId(5L);
+        Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+        System.out.print(JSON.toJSON(sysUserOutResult));
+    }
+
 
 }

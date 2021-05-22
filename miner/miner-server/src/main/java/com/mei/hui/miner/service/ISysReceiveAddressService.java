@@ -1,6 +1,5 @@
 package com.mei.hui.miner.service;
 
-import com.mei.hui.miner.entity.SysReceiveAddress;
 import com.mei.hui.miner.model.SysReceiveAddressBO;
 import com.mei.hui.miner.model.SysReceiveAddressVO;
 import com.mei.hui.miner.model.UpdateReceiveAddressBO;
@@ -45,4 +44,16 @@ public interface ISysReceiveAddressService {
     * @version v1.0.0
     */
     Result updateReceiveAddress(UpdateReceiveAddressBO bo);
+
+    /**
+    * 根据币种id查询收款地址
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/21 18:51
+    * @param [currencyId]
+    * @return com.mei.hui.util.Result<com.mei.hui.miner.model.SysReceiveAddressVO>
+    * @version v1.0.0
+    */
+    public Result<SysReceiveAddressVO> selectSysReceiveAddressByCurrencyId(Long currencyId);
 }

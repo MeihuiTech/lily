@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * 收款地址表
@@ -20,7 +19,7 @@ public class SysReceiveAddress {
 
     private Long userId;
 
-    private Integer currencyId;
+    private Long currencyId;
 
     private String address;
 

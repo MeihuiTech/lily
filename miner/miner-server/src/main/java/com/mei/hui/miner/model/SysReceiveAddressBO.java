@@ -1,6 +1,5 @@
 package com.mei.hui.miner.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,13 +14,13 @@ import lombok.Data;
 public class SysReceiveAddressBO {
 
     @ApiModelProperty(value = "币种表id",required = true)
-    private Integer currencyId;
+    private Long currencyId;
 
     @ApiModelProperty(value = "收款地址",required = true)
     private String address;
 
-    @ApiModelProperty(value = "备注")
-    private String remark;
+//    @ApiModelProperty(value = "备注")
+//    private String remark;
 
     @ApiModelProperty(value = "短信验证码",required = true)
     private String smsCode;

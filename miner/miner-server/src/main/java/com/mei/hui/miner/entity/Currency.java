@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Currency {
 
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     private String name;
 
