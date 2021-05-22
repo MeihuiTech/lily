@@ -23,11 +23,11 @@ spring:
         server-addr: 10.10.15.3:8848
         prefix: ${spring.application.name}
         file-extension: yml
-        namespace: 013be443-9f4c-4106-9c96-b34b7211a38b
+        namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
         group: miner_pool_group
       discovery:
         server-addr: 10.10.15.3:8848
-        namespace: 013be443-9f4c-4106-9c96-b34b7211a38b
+        namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
         group: miner_pool_group
         register-enabled: false
 ---
@@ -46,7 +46,6 @@ spring:
         server-addr: 10.10.15.3:8848
         namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
         group: miner_pool_group
-        register-enabled: false
 ---
 #生产环境
 spring:

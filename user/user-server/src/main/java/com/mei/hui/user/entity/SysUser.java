@@ -87,10 +87,10 @@ public class SysUser {
     private Set<String> permissions;
 
     @TableField(exist = false)
-    private Double totalBlockAward;
+    private BigDecimal totalBlockAward;
 
     @TableField(exist = false)
-    private Integer powerAvailable;
+    private BigDecimal powerAvailable;
 
     /** 角色对象 */
     @TableField(exist = false)
