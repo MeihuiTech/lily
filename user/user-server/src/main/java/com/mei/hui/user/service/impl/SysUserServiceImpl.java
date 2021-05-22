@@ -14,14 +14,21 @@ import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
-import com.mei.hui.user.entity.*;
+import com.mei.hui.user.entity.SysLogininfor;
+import com.mei.hui.user.entity.SysRole;
+import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.entity.SysUserRole;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.user.mapper.*;
+import com.mei.hui.user.mapper.SysLogininforMapper;
+import com.mei.hui.user.mapper.SysRoleMapper;
+import com.mei.hui.user.mapper.SysUserMapper;
+import com.mei.hui.user.mapper.SysUserRoleMapper;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.model.SelectUserListInput;
+import com.mei.hui.user.model.SysUserBO;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -478,11 +485,30 @@ public class SysUserServiceImpl implements ISysUserService {
      * @param user
      * @return
      */
-    public Map<String,Object> updateProfile(SysUser user){
+    @Override
+    public Map<String,Object> updateProfile(SysUserBO sysUserBO){
+        SysUser user = new SysUser();
+        BeanUtils.copyProperties(sysUserBO,user);
         if(user.getUserId() == null || user.getUserId() ==0){
             throw MyException.fail(UserError.MYB_333333.getCode(),"userId为空");
         }
+
+        Long loginUserId = HttpRequestUtil.getUserId();
+        //检查验证码是否正确
+        String smsCode = String.format(SystemConstants.SMSKEY,sysUserBO.getServiceName(),loginUserId);
+        String code = redisUtils.get(smsCode);
+        if(StringUtils.isEmpty(code)){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"验证码已失效");
+        }
+        if(!code.equals(sysUserBO.getSmsCode())){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"验证码错误");
+        }
+
         Long userId = user.getUserId();
+        if (loginUserId.longValue() != userId.longValue()) {
+            throw MyException.fail(UserError.MYB_333333.getCode(),"只能修改登录人自己的信息");
+        }
+
         log.info("查询用户信息，userId = {}",userId);
         SysUser sysUser = sysUserMapper.selectById(userId);
         log.info("查询用户信息,结果:{}", JSON.toJSONString(sysUser));
@@ -494,8 +520,15 @@ public class SysUserServiceImpl implements ISysUserService {
         updateWrapper.set(SysUser::getNickName,user.getNickName());
         updateWrapper.set(SysUser::getPhonenumber,user.getPhonenumber());
         updateWrapper.set(SysUser::getEmail,user.getEmail());
+//        updateWrapper.set(SysUser::getSex,user.getSex());
         sysUserMapper.update(null,updateWrapper);
-        updateWrapper.set(SysUser::getSex,user.getSex());
+
+        // 清空验证码
+        log.info("清空验证码smsCode:【{}】,code:【{}】",smsCode,code);
+        redisUtils.delete(smsCode);
+        String smsCodeTime = String.format(SystemConstants.SMSKEYTIME,sysUserBO.getServiceName(),loginUserId);
+        redisUtils.delete(smsCodeTime);
+
         Map<String,Object> result = new HashMap<>();
         result.put("code",ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
