@@ -107,6 +107,10 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         Date end = DateUtils.getNowDate();
         Date begin = DateUtils.addDays(end,-29);
         List<SysAggPowerDaily> list = sysAggPowerDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
+        list.stream().forEach(v->{
+           // v.setPowerAvailable(v.getPowerIncrease());
+            v.setPowerIncrease(v.getPowerAvailable());
+        });
         Map<String,Object> map = new HashMap<>();
         map.put("code",ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
