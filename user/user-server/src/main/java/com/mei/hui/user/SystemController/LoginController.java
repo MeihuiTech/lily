@@ -44,7 +44,8 @@ public class LoginController {
     private RedisUtil redisCache;
     @Value("${ruoyi.captchaType}")
     private String captchaType;
-
+    @Autowired
+    private RedisUtil redisUtils;
     @Autowired
     private LoginService loginService;
     /**
@@ -138,7 +139,16 @@ public class LoginController {
             throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
         }
         //token 验签，校验是否过期
-        JwtUtil.parseToken(token);
+        Claims claims = JwtUtil.parseToken(token);
+        Integer userId = (Integer)claims.get("userId");
+        /**
+         * 校验是否已经被下线ht
+         */
+        String offline = String.format(Constants.OfflineUser, userId);
+        if (redisUtils.exists(offline)){
+            redisUtils.delete(offline);
+            throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
+        }
         return Result.OK;
     }
 
