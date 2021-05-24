@@ -41,6 +41,7 @@ public class SysProfileController{
     public Map<String,Object> profile(){
         Long userId = HttpRequestUtil.getUserId();
         SysUser user = sysUserMapper.selectById(userId);
+        user.setPassword(null);
         user.setAvatar("/user-server"+user.getAvatar());
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());

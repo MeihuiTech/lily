@@ -9,6 +9,7 @@ import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
@@ -52,6 +53,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class SysUserServiceImpl implements ISysUserService {
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
     @Autowired
     private SysRoleMapper roleMapper;
     @Autowired
@@ -105,7 +108,7 @@ public class SysUserServiceImpl implements ISysUserService {
         //生成token
         String token = JwtUtil.createToken(claims);
         result.put(SystemConstants.TOKEN,JwtUtil.createToken(claims));
-        redisUtils.set(token,"1",8,TimeUnit.HOURS);
+        redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         insertLoginInfo(sysUser);
         return result;
     }
@@ -250,6 +253,7 @@ public class SysUserServiceImpl implements ISysUserService {
                     AggMinerVO vo = maps.get(v.getUserId());
                     v.setPowerAvailable(vo != null ? vo.getPowerAvailable() : new BigDecimal(0));
                     v.setTotalBlockAward(vo != null ? BigDecimalUtil.formatFour(vo.getTotalBlockAward()) : new BigDecimal(0));
+                    v.setPassword(null);
                 });
             }
         }
@@ -466,7 +470,7 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         //生成token
         result.put(SystemConstants.TOKEN,token);
-        redisUtils.set(token,"1");
+        redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         return result;
     }
 
