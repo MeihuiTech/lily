@@ -246,6 +246,7 @@ public class SysUserServiceImpl implements ISysUserService {
                     AggMinerVO vo = maps.get(v.getUserId());
                     v.setPowerAvailable(vo != null ? vo.getPowerAvailable() : new BigDecimal(0));
                     v.setTotalBlockAward(vo != null ? BigDecimalUtil.formatFour(vo.getTotalBlockAward()) : new BigDecimal(0));
+                    v.setPassword(null);
                 });
             }
         }
