@@ -22,8 +22,8 @@ public class SysReceiveAddressVO {
     @ApiModelProperty(value = "收款地址")
     private String address;
 
-    @ApiModelProperty(value = "备注")
-    private String remark;
+//    @ApiModelProperty(value = "备注")
+//    private String remark;
 
 
 }

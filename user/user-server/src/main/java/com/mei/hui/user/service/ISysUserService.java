@@ -7,12 +7,11 @@ import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.model.SelectUserListInput;
+import com.mei.hui.user.model.SysUserBO;
 import com.mei.hui.util.Result;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public interface ISysUserService {
 
@@ -59,7 +58,7 @@ public interface ISysUserService {
 
     int updateUserProfile(SysUser user);
 
-    Map<String,Object> updateProfile(SysUser user);
+    Map<String,Object> updateProfile(SysUserBO user);
 
     Result updatePwd(String oldPassword, String newPassword);
 }

@@ -17,8 +17,8 @@ public class UpdateReceiveAddressBO {
     @ApiModelProperty(value = "收款地址",required = true)
     private String address;
 
-    @ApiModelProperty(value = "备注")
-    private String remark;
+//    @ApiModelProperty(value = "备注")
+//    private String remark;
 
     @ApiModelProperty(value = "短信验证码",required = true)
     private String smsCode;

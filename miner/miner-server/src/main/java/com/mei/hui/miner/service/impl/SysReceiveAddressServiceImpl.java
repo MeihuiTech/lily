@@ -34,6 +34,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     private RedisUtil redisUtils;
     @Autowired
     private SysReceiveAddressMapper sysReceiveAddressMapper;
+
     /**
      * 新增收款地址
      * @param sysReceiveAddress
@@ -68,9 +69,8 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         receiveAddress.setUserId(userId);
         receiveAddress.setCurrencyId(sysReceiveAddress.getCurrencyId());
         receiveAddress.setAddress(sysReceiveAddress.getAddress());
-        receiveAddress.setRemark(sysReceiveAddress.getRemark());
+//        receiveAddress.setRemark(sysReceiveAddress.getRemark());
         receiveAddress.setCreateTime(LocalDateTime.now());
-        receiveAddress.setUpdateTime(LocalDateTime.now());
         log.info("新增收款地址:【{}】",JSON.toJSON(receiveAddress));
         int rows = sysReceiveAddressMapper.insert(receiveAddress);
 
@@ -84,7 +84,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     }
 
     /**
-    * 根据id查询没有被删除的收款地址
+    * 根据id查询收款地址
     * @description
     * @author shangbin
     * @date 2021/5/14 13:54
@@ -135,7 +135,8 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         LambdaUpdateWrapper<SysReceiveAddress> updateWrapper = new LambdaUpdateWrapper();
         updateWrapper.eq(SysReceiveAddress::getId,sysReceiveAddress.getId());
         updateWrapper.set(SysReceiveAddress::getAddress,bo.getAddress());
-        updateWrapper.set(SysReceiveAddress::getRemark,bo.getRemark());
+        updateWrapper.set(SysReceiveAddress::getUpdateTime,LocalDateTime.now());
+//        updateWrapper.set(SysReceiveAddress::getRemark,bo.getRemark());
         int rows = sysReceiveAddressMapper.update(null,updateWrapper);
         log.info("编辑收款地址:【{}】",rows);
 
@@ -147,4 +148,34 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
 
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
+
+    /**
+    * 根据币种id查询收款地址
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/21 18:52
+    * @param [currencyId]
+    * @return com.mei.hui.util.Result<com.mei.hui.miner.model.SysReceiveAddressVO>
+    * @version v1.0.0
+    */
+    @Override
+    public Result<SysReceiveAddressVO> selectSysReceiveAddressByCurrencyId(Long currencyId) {
+        Long userId = HttpRequestUtil.getUserId();
+        SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
+        sysReceiveAddress.setUserId(userId);
+        sysReceiveAddress.setCurrencyId(currencyId);
+        QueryWrapper<SysReceiveAddress> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(sysReceiveAddress);
+        List<SysReceiveAddress> sysReceiveAddressList = sysReceiveAddressMapper.selectList(queryWrapper);
+        if (sysReceiveAddressList != null && sysReceiveAddressList.size() > 0) {
+            SysReceiveAddressVO sysReceiveAddressVO = new SysReceiveAddressVO();
+            BeanUtils.copyProperties(sysReceiveAddressList.get(0),sysReceiveAddressVO);
+            return Result.success(sysReceiveAddressVO);
+        }
+        return Result.OK;
+    }
+
+
+
 }

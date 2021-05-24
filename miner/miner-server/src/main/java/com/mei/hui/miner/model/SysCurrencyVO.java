@@ -15,7 +15,7 @@ import lombok.Data;
 public class SysCurrencyVO {
 
     @ApiModelProperty(value = "币种id")
-    private Integer id;
+    private Long id;
 
     @ApiModelProperty(value = "币种名称")
     private String name;

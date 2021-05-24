@@ -6,8 +6,11 @@ import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.common.file.FileUploadUtils;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysUserMapper;
+import com.mei.hui.user.model.SysUserBO;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.*;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.NotAop;
+import com.mei.hui.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -79,7 +82,7 @@ public class SysProfileController{
      * 修改用户
      */
     @PutMapping
-    public Map<String,Object> updateProfile(@RequestBody SysUser user){
+    public Map<String,Object> updateProfile(@RequestBody SysUserBO user){
        return userService.updateProfile(user);
     }
 
