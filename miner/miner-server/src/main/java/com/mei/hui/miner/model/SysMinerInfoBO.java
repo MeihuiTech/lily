@@ -18,7 +18,7 @@ public class SysMinerInfoBO extends SysMinerInfo {
 
 
     @ApiModelProperty(value = "true 升序，false 降序")
-    private boolean isAsc;
+    private boolean asc;
 
     @ApiModelProperty(value = "排序字段名称")
     private String cloumName;

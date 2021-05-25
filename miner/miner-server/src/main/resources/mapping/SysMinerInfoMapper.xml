@@ -189,14 +189,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select count(1) from sys_machine_info where miner_id = #{minerId}
     </select>
     
-    <select id="pageMinerInfo" parameterMap="com.mei.hui.miner.model.SysMinerInfoBO" resultMap="com.mei.hui.miner.entity.SysMinerInfo">
+    <select id="pageMinerInfo" resultType="com.mei.hui.miner.model.SysMinerInfoVO">
         SELECT
+            mi.id,
+            mi.miner_id minerId,
             mi.balance_miner_account balanceMinerAccount,
-            mi.balance_miner_available balance_miner_available,
+            mi.balance_miner_available balanceMinerAvailable,
             mi.sector_pledge sectorPledge,
             mi.total_block_award totalBlockAward,
             mi.power_available powerAvailable,
-            smi.count
+            smi.count machineCount
         FROM
             sys_miner_info mi,
             (
@@ -206,15 +208,83 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 FROM
                     sys_miner_info i
                 LEFT JOIN sys_machine_info m ON i.miner_id = m.miner_id
-                WHERE
-                    i.user_id = 5
+                <where>
+                    <if test="userId != null">
+                        i.user_id = #{userId}
+                    </if>
+                </where>
                 GROUP BY
                     m.miner_id
             ) smi
         WHERE
             mi.miner_id = smi.miner_id
-        ORDER BY
-            smi.count DESC
+        <choose>
+            <when test="cloumName != null and cloumName != ''">
+                <if test="'powerAvailable' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY mi.power_available
+                        </when>
+                        <otherwise>
+                            ORDER BY mi.power_available desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'balanceMinerAvailable' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY mi.balance_miner_available
+                        </when>
+                        <otherwise>
+                            ORDER BY mi.balance_miner_available desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'balanceMinerAccount' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY mi.balance_miner_account
+                        </when>
+                        <otherwise>
+                            ORDER BY mi.balance_miner_account desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'totalBlockAward' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY mi.total_block_award
+                        </when>
+                        <otherwise>
+                            ORDER BY mi.total_block_award desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'sectorPledge' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY mi.sector_pledge
+                        </when>
+                        <otherwise>
+                            ORDER BY mi.sector_pledge desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'machineCount' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY smi.count
+                        </when>
+                        <otherwise>
+                            ORDER BY smi.count desc
+                        </otherwise>
+                    </choose>
+                </if>
+            </when>
+            <otherwise>
+                ORDER BY mi.create_time
+            </otherwise>
+        </choose>
     </select>
     
 </mapper>

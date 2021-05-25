@@ -11,6 +11,7 @@ import com.mei.hui.miner.mapper.PoolInfoMapper;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.miner.model.SysMinerInfoVO;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
@@ -110,76 +111,25 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     @Override
     public Map<String,Object> findPage(SysMinerInfoBO sysMinerInfoBO)
     {
-        SysMinerInfo sysMinerInfo = new SysMinerInfo();
-        BeanUtils.copyProperties(sysMinerInfoBO,sysMinerInfo);
         boolean isAsc = sysMinerInfoBO.isAsc();
         String cloumName = sysMinerInfoBO.getCloumName();
-
         Long userId = HttpRequestUtil.getUserId();
-        sysMinerInfo.setUserId(userId);
-        LambdaQueryWrapper<SysMinerInfo> query = new LambdaQueryWrapper<>();
-        query.setEntity(sysMinerInfo);
-        if ("powerAvailable".equals(cloumName)){
-            if (isAsc){
-                query.orderByAsc(SysMinerInfo::getPowerAvailable);
-            }else {
-                query.orderByDesc(SysMinerInfo::getPowerAvailable);
-            }
-        } else if ("balanceMinerAvailable".equals(cloumName)){
-            if (isAsc){
-                query.orderByAsc(SysMinerInfo::getBalanceMinerAvailable);
-            }else {
-                query.orderByDesc(SysMinerInfo::getBalanceMinerAvailable);
-            }
-        } else if ("balanceMinerAccount".equals(cloumName)){
-            if (isAsc){
-                query.orderByAsc(SysMinerInfo::getBalanceMinerAccount);
-            }else {
-                query.orderByDesc(SysMinerInfo::getBalanceMinerAccount);
-            }
-        } else if ("totalBlockAward".equals(cloumName)){
-            if (isAsc){
-                query.orderByAsc(SysMinerInfo::getTotalBlockAward);
-            }else {
-                query.orderByDesc(SysMinerInfo::getTotalBlockAward);
-            }
-        } else if ("sectorPledge".equals(cloumName)){
-            if (isAsc){
-                query.orderByAsc(SysMinerInfo::getSectorPledge);
-            }else {
-                query.orderByDesc(SysMinerInfo::getSectorPledge);
-            }
-        } else if ("machineCount".equals(cloumName)){
-            if (isAsc){
-
-            }else {
-
-            }
-        } else {
-            query.orderByDesc(SysMinerInfo::getCreateTime);
-        }
-        IPage<SysMinerInfo> page = sysMinerInfoMapper
-                .selectPage(new Page(sysMinerInfo.getPageNum(), sysMinerInfo.getPageSize()), query);
-        for (SysMinerInfo info: page.getRecords()) {
-            Long c = countByMinerId(info.getMinerId());
-            info.setMachineCount(c);
-            info.setBalanceMinerAccount(BigDecimalUtil.formatFour(info.getBalanceMinerAccount()));
-            info.setBalanceMinerAvailable(BigDecimalUtil.formatFour(info.getBalanceMinerAvailable()));
-            info.setSectorPledge(BigDecimalUtil.formatFour(info.getSectorPledge()));
-            info.setTotalBlockAward(BigDecimalUtil.formatFour(info.getTotalBlockAward()));
-            info.setPowerAvailable(BigDecimalUtil.formatTwo(info.getPowerAvailable()));
-        }
 
         Page<SysMinerInfo> minerInfoPage = new Page<>(sysMinerInfoBO.getPageNum(),sysMinerInfoBO.getPageSize());
-        IPage<SysMinerInfo> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,sysMinerInfoBO);
-        // 获取数据
-        List<SysMinerInfo> records = result.getRecords();
+        IPage<SysMinerInfoVO> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,userId,isAsc,cloumName);
+        for (SysMinerInfoVO sysMinerInfoVO:result.getRecords()) {
+            sysMinerInfoVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAccount()));
+            sysMinerInfoVO.setBalanceMinerAvailable(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAvailable()));
+            sysMinerInfoVO.setSectorPledge(BigDecimalUtil.formatFour(sysMinerInfoVO.getSectorPledge()));
+            sysMinerInfoVO.setTotalBlockAward(BigDecimalUtil.formatFour(sysMinerInfoVO.getTotalBlockAward()));
+            sysMinerInfoVO.setPowerAvailable(BigDecimalUtil.formatTwo(sysMinerInfoVO.getPowerAvailable()));
+        }
 
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
-        map.put("rows",page.getRecords());
-        map.put("total",page.getTotal());
+        map.put("rows",minerInfoPage.getRecords());
+        map.put("total",minerInfoPage.getTotal());
         return map;
     }
 
