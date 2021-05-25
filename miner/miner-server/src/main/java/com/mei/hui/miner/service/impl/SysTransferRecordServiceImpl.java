@@ -290,15 +290,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         }
 
         Long userId = HttpRequestUtil.getUserId();
-        //检查验证码是否正确
-        String smsCode = String.format(SystemConstants.SMSKEY,SmsServiceNameEnum.withdraw.name(),userId);
-        String code = redisUtils.get(smsCode);
-        if(StringUtils.isEmpty(code)){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码已失效");
-        }
-        if(!code.equals(sysTransferRecordWrap.getVerifyCode())){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码错误");
-        }
 
         /**
          * 一：提取金额 < 可提现金额 - 提币中 金额
@@ -352,12 +343,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         sysTransferRecord.setCreateTime(LocalDateTime.now());
         log.info("记录提币申请：【{}】", JSON.toJSON(sysTransferRecord));
         int rows = sysTransferRecordMapper.insert(sysTransferRecord);
-
-        // 清空验证码
-        log.info("清空验证码smsCode:【{}】,code:【{}】",smsCode,code);
-        redisUtils.delete(smsCode);
-        String smsCodeTime = String.format(SystemConstants.SMSKEYTIME,SmsServiceNameEnum.withdraw.name(),userId);
-        redisUtils.delete(smsCodeTime);
 
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }

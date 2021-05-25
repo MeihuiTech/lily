@@ -1,5 +1,6 @@
 package com.mei.hui.user.SystemController;
 
+import com.alibaba.nacos.api.config.filter.IFilterConfig;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
@@ -138,6 +139,21 @@ public class SysUserController{
      */
     @PostMapping
     public Result add(@Validated @RequestBody SysUser user){
+        String email = user.getEmail();
+        if (StringUtils.isEmpty(email)){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱不能为空");
+        }
+        if (!CommonUtil.isEmail(email)){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱格式不正确");
+        }
+        String phonenumber = user.getPhonenumber();
+        if (StringUtils.isEmpty(phonenumber)){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"手机号不能为空");
+        }
+        if (!CommonUtil.isMobile(phonenumber)){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"手机号格式不正确");
+        }
+
         if ("1".equals(userService.checkUserNameUnique(user.getUserName()))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"登录账号已存在");
         }else if (StringUtils.isNotEmpty(user.getPhonenumber())

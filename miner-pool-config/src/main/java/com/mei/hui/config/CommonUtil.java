@@ -68,7 +68,7 @@ public class CommonUtil {
     * @description
     * @author shangbin
     * @date 2021/5/21 13:14
-    * @param [serviceName]
+    * @param serviceName
     * @return boolean
     * @version v1.0.0
     */
@@ -79,6 +79,48 @@ public class CommonUtil {
             }
         }
         return  false;
+    }
+
+    /**
+    * 验证手机号格式是否正确，1开头，后面10位数字
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/24 19:15
+    * @param mobile
+    * @return boolean
+    * @version v1.0.0
+    */
+    public static boolean isMobile(String mobile) {
+        String regex = "^1\\d{10}$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(mobile);
+        return m.matches();
+    }
+
+    /**
+    * 验证邮箱格式是否正确，格式如下：登录名@主机名.域名
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/24 19:24
+    * @param email
+    * @return boolean
+    * @version v1.0.0
+    */
+    public static boolean isEmail(String email) {
+        String regex = "^(\\w+([-.][A-Za-z0-9]+)*){3,18}@\\w+([-.][A-Za-z0-9]+)*\\.\\w+([-.][A-Za-z0-9]+)*$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(email);
+        return m.matches();
+    }
+
+
+    public static void main(String[] args) {
+        String mobile = "18056389877";
+        String email = "dfafsd@234.com";
+//        System.out.print(isMobile(mobile));
+        System.out.print(isEmail(email));
     }
 
 }
