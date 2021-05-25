@@ -20,7 +20,9 @@ public class SysMinerInfoBO extends SysMinerInfo {
     @ApiModelProperty(value = "true 升序，false 降序")
     private boolean asc;
 
-    @ApiModelProperty(value = "排序字段名称")
+    @ApiModelProperty(value = "排序字段名称：balanceMinerAccount(挖矿账户余额)," +
+            "balanceMinerAvailable(矿工可用余额),sectorPledge(扇区质押)," +
+            "totalBlockAward(累计出块奖励),powerAvailable(有效算力),machineCount(矿机数量)")
     private String cloumName;
 
 

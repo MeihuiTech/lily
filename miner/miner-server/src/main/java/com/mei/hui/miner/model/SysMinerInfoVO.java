@@ -19,7 +19,7 @@ public class SysMinerInfoVO {
     private Long id;
 
     @ApiModelProperty(value = "矿工ID")
-    private String minerId;;
+    private String minerId;
 
     @ApiModelProperty(value = "挖矿账户余额, 单位FIL")
     private BigDecimal balanceMinerAccount;
