@@ -41,7 +41,6 @@ public interface Constants extends SystemConstants {
     String HTTPS = "https://";
 
     /** 校验返回结果码 */
-    String UNIQUE = "0";
     String NOT_UNIQUE = "1";
 
     /** 是否为系统默认（是） */
@@ -55,7 +54,10 @@ public interface Constants extends SystemConstants {
      */
     String RESOURCE_PREFIX = "/profile";
 
-    String USERID="user:";
+   /**
+    * offline:userId
+    */
+    String OfflineUser="offline:%s";
 
 
 }

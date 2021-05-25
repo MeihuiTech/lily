@@ -3,6 +3,9 @@ package com.mei.hui.user.SystemController;
 import com.alibaba.nacos.api.config.filter.IFilterConfig;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.CommonUtil;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
+import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +52,10 @@ public class SysUserController{
 
     @Autowired
     private SmsService smsService;
-
+    @Autowired
+    private RedisUtil redisUtils;
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
     /**
      * 根据 userId 获取用户信息
      * @return
@@ -253,6 +260,20 @@ public class SysUserController{
     @GetMapping("/impersonate/{userId}")
     public Map<String,Object> Impersonation(@PathVariable(value = "userId", required = true) Long userId){
         return userService.Impersonation(userId);
+    }
+
+    /**
+     * 1、一键下线功能，调动一键下线接口，向redis 存下线的用户id
+     * 2、在网关鉴权时查redis，看看用户是否被下线，如果是则返回token超时，并删除缓存，否则鉴权通过
+     * @param userId
+     * @return
+     */
+    @ApiOperation(value = "一键下线【鲍红建】")
+    @GetMapping("/offline/{userId}")
+    public Result offline(@PathVariable Long userId){
+        String offline = String.format(Constants.OfflineUser, userId);
+        redisUtils.set(offline,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
+        return Result.OK;
     }
 
 
