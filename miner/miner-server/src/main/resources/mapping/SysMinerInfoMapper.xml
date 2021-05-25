@@ -188,4 +188,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="countByMinerId" resultType="Long">
         select count(1) from sys_machine_info where miner_id = #{minerId}
     </select>
+    
+    <select id="pageMinerInfo" parameterMap="com.mei.hui.miner.model.SysMinerInfoBO" resultMap="com.mei.hui.miner.entity.SysMinerInfo">
+        SELECT
+            mi.balance_miner_account balanceMinerAccount,
+            mi.balance_miner_available balance_miner_available,
+            mi.sector_pledge sectorPledge,
+            mi.total_block_award totalBlockAward,
+            mi.power_available powerAvailable,
+            smi.count
+        FROM
+            sys_miner_info mi,
+            (
+                SELECT
+                    m.miner_id,
+                    count(m.miner_id) count
+                FROM
+                    sys_miner_info i
+                LEFT JOIN sys_machine_info m ON i.miner_id = m.miner_id
+                WHERE
+                    i.user_id = 5
+                GROUP BY
+                    m.miner_id
+            ) smi
+        WHERE
+            mi.miner_id = smi.miner_id
+        ORDER BY
+            smi.count DESC
+    </select>
+    
 </mapper>

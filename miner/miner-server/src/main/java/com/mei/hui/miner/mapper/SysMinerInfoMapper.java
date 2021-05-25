@@ -1,8 +1,10 @@
 package com.mei.hui.miner.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
+import com.mei.hui.miner.model.SysMinerInfoBO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -71,4 +73,6 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     SysTotalEarning selectTotalEarningAndAwardByUserId(@Param("minerId") String minerId);
 
     Long countByMinerId(@Param("minerId") String minerId);
+
+    public IPage<SysMinerInfo> pageMinerInfo(IPage<SysMinerInfo> page, SysMinerInfoBO sysMinerInfoBO);
 }

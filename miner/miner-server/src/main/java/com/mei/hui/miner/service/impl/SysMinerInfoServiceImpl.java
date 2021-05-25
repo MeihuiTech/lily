@@ -10,11 +10,13 @@ import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.mapper.PoolInfoMapper;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
+import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,13 +107,57 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
     }
 
-    public Map<String,Object> findPage(SysMinerInfo sysMinerInfo)
+    @Override
+    public Map<String,Object> findPage(SysMinerInfoBO sysMinerInfoBO)
     {
+        SysMinerInfo sysMinerInfo = new SysMinerInfo();
+        BeanUtils.copyProperties(sysMinerInfoBO,sysMinerInfo);
+        boolean isAsc = sysMinerInfoBO.isAsc();
+        String cloumName = sysMinerInfoBO.getCloumName();
+
         Long userId = HttpRequestUtil.getUserId();
         sysMinerInfo.setUserId(userId);
         LambdaQueryWrapper<SysMinerInfo> query = new LambdaQueryWrapper<>();
         query.setEntity(sysMinerInfo);
-        query.orderByDesc(SysMinerInfo::getCreateTime);
+        if ("powerAvailable".equals(cloumName)){
+            if (isAsc){
+                query.orderByAsc(SysMinerInfo::getPowerAvailable);
+            }else {
+                query.orderByDesc(SysMinerInfo::getPowerAvailable);
+            }
+        } else if ("balanceMinerAvailable".equals(cloumName)){
+            if (isAsc){
+                query.orderByAsc(SysMinerInfo::getBalanceMinerAvailable);
+            }else {
+                query.orderByDesc(SysMinerInfo::getBalanceMinerAvailable);
+            }
+        } else if ("balanceMinerAccount".equals(cloumName)){
+            if (isAsc){
+                query.orderByAsc(SysMinerInfo::getBalanceMinerAccount);
+            }else {
+                query.orderByDesc(SysMinerInfo::getBalanceMinerAccount);
+            }
+        } else if ("totalBlockAward".equals(cloumName)){
+            if (isAsc){
+                query.orderByAsc(SysMinerInfo::getTotalBlockAward);
+            }else {
+                query.orderByDesc(SysMinerInfo::getTotalBlockAward);
+            }
+        } else if ("sectorPledge".equals(cloumName)){
+            if (isAsc){
+                query.orderByAsc(SysMinerInfo::getSectorPledge);
+            }else {
+                query.orderByDesc(SysMinerInfo::getSectorPledge);
+            }
+        } else if ("machineCount".equals(cloumName)){
+            if (isAsc){
+
+            }else {
+
+            }
+        } else {
+            query.orderByDesc(SysMinerInfo::getCreateTime);
+        }
         IPage<SysMinerInfo> page = sysMinerInfoMapper
                 .selectPage(new Page(sysMinerInfo.getPageNum(), sysMinerInfo.getPageSize()), query);
         for (SysMinerInfo info: page.getRecords()) {
@@ -123,6 +169,12 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             info.setTotalBlockAward(BigDecimalUtil.formatFour(info.getTotalBlockAward()));
             info.setPowerAvailable(BigDecimalUtil.formatTwo(info.getPowerAvailable()));
         }
+
+        Page<SysMinerInfo> minerInfoPage = new Page<>(sysMinerInfoBO.getPageNum(),sysMinerInfoBO.getPageSize());
+        IPage<SysMinerInfo> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,sysMinerInfoBO);
+        // 获取数据
+        List<SysMinerInfo> records = result.getRecords();
+
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());

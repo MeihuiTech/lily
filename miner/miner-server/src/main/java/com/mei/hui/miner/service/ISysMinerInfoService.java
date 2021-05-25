@@ -4,6 +4,7 @@ import com.mei.hui.miner.entity.AggMiner;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.util.Result;
 
 import java.util.List;
@@ -85,7 +86,7 @@ public interface ISysMinerInfoService
 
     public Long countByMinerId(String minerId);
 
-    Map<String,Object> findPage(SysMinerInfo sysMinerInfo);
+    Map<String,Object> findPage(SysMinerInfoBO sysMinerInfoBO);
 
     public Map<String,Object> machines(Long id,int pageNum,int pageSize);
 
