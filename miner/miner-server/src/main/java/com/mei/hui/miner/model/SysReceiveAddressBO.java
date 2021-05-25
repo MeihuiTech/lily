@@ -25,7 +25,7 @@ public class SysReceiveAddressBO {
     @ApiModelProperty(value = "短信验证码",required = true)
     private String smsCode;
 
-    @ApiModelProperty(value = "业务名称,输入字符串",required = true)
+    @ApiModelProperty(value = "业务名称,输入字符串：addReceiveAddress(\"新增收款地址\"),updateReceiveAddress(\"编辑收款地址\"),updateUser(\"修改用户信息\")",required = true)
     private String serviceName;
 
 

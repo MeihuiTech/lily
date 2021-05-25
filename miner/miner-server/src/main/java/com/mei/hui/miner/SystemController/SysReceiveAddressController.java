@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@Api(value = "收款地址表",tags = "收款地址表")
+@Api(value = "收款地址",tags = "收款地址")
 @RestController
 @RequestMapping("/receiveAddress")
 public class SysReceiveAddressController {
@@ -49,8 +49,8 @@ public class SysReceiveAddressController {
     * @return com.mei.hui.util.Result
     * @version v1.0.0
     */
-    @ApiOperation(value = "根据id查询收款地址")
-    @GetMapping("/{id}")
+//    @ApiOperation(value = "根据id查询收款地址")
+//    @GetMapping("/{id}")
     public Result<SysReceiveAddressVO> selectSysReceiveAddressById(@PathVariable("id") Long id) {
        return sysReceiveAddressService.selectSysReceiveAddressById(id);
     }
