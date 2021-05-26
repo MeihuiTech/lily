@@ -20,7 +20,7 @@ import java.util.List;
  * @date
  **/
 @Slf4j
-@Api(value = "币种表",tags = "币种表")
+@Api(value = "币种",tags = "币种")
 @RestController
 @RequestMapping("/currency")
 public class CurrencyController {

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/code")
-@Api(tags = "验证码模块")
+//@Api(tags = "验证码模块")
 public class SysVerifyCodeController {
     @Autowired
     private ISysVerifyCodeService sysVerifyCodeService;

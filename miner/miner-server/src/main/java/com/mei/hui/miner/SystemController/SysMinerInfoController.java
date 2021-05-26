@@ -7,6 +7,7 @@ import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -124,9 +125,9 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      */
     @ApiOperation(value = "矿工列表")
     @GetMapping("/list")
-    public Map<String,Object> list(SysMinerInfo sysMinerInfo)
+    public Map<String,Object> list(SysMinerInfoBO sysMinerInfoBO)
     {
-        return sysMinerInfoService.findPage(sysMinerInfo);
+        return sysMinerInfoService.findPage(sysMinerInfoBO);
     }
 
     /**
