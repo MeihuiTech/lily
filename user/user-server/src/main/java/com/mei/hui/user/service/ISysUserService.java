@@ -61,4 +61,16 @@ public interface ISysUserService {
     Map<String,Object> updateProfile(SysUserBO user);
 
     Result updatePwd(String oldPassword, String newPassword);
+
+    /**
+    * 根据apiKey查询用户的userId
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/26 11:20
+    * @param [apiKey]
+    * @return com.mei.hui.util.Result<java.lang.String>
+    * @version v1.0.0
+    */
+    public Result<Long> findUserIdByApiKey(java.lang.String apiKey);
 }

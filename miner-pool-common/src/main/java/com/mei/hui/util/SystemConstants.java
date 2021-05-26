@@ -31,4 +31,9 @@ public interface SystemConstants {
      */
     String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
 
+    /**
+     * 供上报接口确定唯一性用
+     */
+    String APIKEY = "x-api-key";
+
 }
