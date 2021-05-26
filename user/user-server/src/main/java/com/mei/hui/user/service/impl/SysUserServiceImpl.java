@@ -2,6 +2,7 @@ package com.mei.hui.user.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -198,6 +199,20 @@ public class SysUserServiceImpl implements ISysUserService {
             return vo;
         }).collect(Collectors.toList());
         return Result.success(list);
+    }
+
+    @Override
+    public Result<Long> findUserIdByApiKey(String apiKey) {
+        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<>();
+        SysUser sysUser = new SysUser();
+        sysUser.setStatus("0");
+        sysUser.setDelFlag("0");
+        sysUser.setApiKey(apiKey);
+        List<SysUser> sysUserList = sysUserMapper.selectList(queryWrapper);
+        if (sysUserList != null && sysUserList.size() > 0) {
+            return Result.success(sysUserList.get(0).getUserId());
+        }
+        return Result.OK;
     }
 
     /**
@@ -561,4 +576,5 @@ public class SysUserServiceImpl implements ISysUserService {
         sysUserMapper.update(null,lambdaUpdateWrapper);
         return Result.OK;
     }
+
 }

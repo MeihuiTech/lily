@@ -49,6 +49,8 @@ public class SysUser {
 
     private LocalDateTime loginDate;
 
+    private String apiKey;
+
     private String createBy;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

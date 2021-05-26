@@ -18,10 +18,7 @@ import com.mei.hui.user.model.SmsSendBO;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.user.service.SmsService;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
-import com.mei.hui.util.SmsServiceNameEnum;
+import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -104,6 +101,24 @@ public class SysUserController{
     }
 
     /**
+     * 根据apiKey查询用户的userId
+     *
+     * @description
+     * @author shangbin
+     * @date 2021/5/26 11:18
+     * @param [apiKey]
+     * @return com.mei.hui.util.Result<java.lang.String>
+     * @version v1.0.0
+     */
+    @PostMapping("/findUserIdByApiKey")
+    public Result<Long> findUserIdByApiKey(@RequestParam("apiKey") String apiKey) {
+        if (StringUtils.isEmpty(apiKey)){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"apiKey不能为空");
+        }
+        return userService.findUserIdByApiKey(apiKey);
+    }
+
+    /**
      * 获取用户列表
      */
     @ApiOperation(value = "用户列表")
@@ -173,6 +188,7 @@ public class SysUserController{
         SysUser userOut = userService.getLoginUser();
         user.setCreateBy(userOut.getUserName());
         user.setPassword(AESUtil.encrypt(user.getPassword()));
+        user.setApiKey(IdUtils.fastSimpleUUID());
         int rows = userService.insertUser(user);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }

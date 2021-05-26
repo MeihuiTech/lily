@@ -49,4 +49,18 @@ public interface UserFeignClient {
 
     @PostMapping("/authority")
     Result authority(@RequestBody String token);
+
+    /**
+    * 根据apiKey查询用户的userId
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/26 11:18
+    * @param [apiKey]
+    * @return com.mei.hui.util.Result<java.lang.String>
+    * @version v1.0.0
+    */
+    @PostMapping("/findUserIdByApiKey")
+    Result<Long> findUserIdByApiKey(@RequestParam("apiKey") String apiKey);
+
 }
