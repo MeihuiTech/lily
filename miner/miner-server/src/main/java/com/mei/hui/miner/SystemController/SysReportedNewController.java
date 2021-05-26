@@ -62,9 +62,10 @@ public class SysReportedNewController
         Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
         if (!ErrorCode.MYB_000000.getCode().equals(userIdResult.getCode())
                 || userIdResult.getData() == null) {
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"当前用户不存在");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"apiKey不存在");
         }
         Long userId = userIdResult.getData();
+        sysMinerInfo.setUserId(userId);
 
         SysUserOut sysUserInput = new SysUserOut();
         sysUserInput.setUserId(userId);
@@ -97,7 +98,7 @@ public class SysReportedNewController
         Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
         if (!ErrorCode.MYB_000000.getCode().equals(userIdResult.getCode())
                 || userIdResult.getData() == null) {
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"当前用户不存在");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"apiKey不存在");
         }
 
         SysMachineInfo machine = sysMachineInfoService.selectSysMachineInfoByMinerAndHostname(sysMachineInfo.getMinerId(),sysMachineInfo.getHostname());
@@ -124,7 +125,7 @@ public class SysReportedNewController
         Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
         if (!ErrorCode.MYB_000000.getCode().equals(userIdResult.getCode())
                 || userIdResult.getData() == null) {
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"当前用户不存在");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"apiKey不存在");
         }
 
         int rows = sysSectorsWrapService.addSector(sysSectorInfo);

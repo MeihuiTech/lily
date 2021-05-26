@@ -208,6 +208,7 @@ public class SysUserServiceImpl implements ISysUserService {
         sysUser.setStatus("0");
         sysUser.setDelFlag("0");
         sysUser.setApiKey(apiKey);
+        queryWrapper.setEntity(sysUser);
         List<SysUser> sysUserList = sysUserMapper.selectList(queryWrapper);
         if (sysUserList != null && sysUserList.size() > 0) {
             return Result.success(sysUserList.get(0).getUserId());
