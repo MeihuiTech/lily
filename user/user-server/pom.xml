@@ -109,6 +109,12 @@
             <version>2.5</version>
         </dependency>
 
+        <!--amqp的起步依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.mei.hui</groupId>
             <artifactId>miner-pool-config</artifactId>

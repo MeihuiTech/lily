@@ -9,14 +9,37 @@ import javax.servlet.http.HttpServletRequest;
 
 public class HttpRequestUtil {
 
+    /**
+     * 获取当前用户id
+     * @return
+     */
     public static Long getUserId(){
+        Claims claims = parseToken();
+        Integer userId = (Integer) claims.get(SystemConstants.USERID);
+        return Long.valueOf(userId);
+    }
+
+    /**
+     * 获取用户当前使用的币种id
+     * @return
+     */
+    public static Long getCurrencyId(){
+        Claims claims = parseToken();
+        Integer currencyId = (Integer) claims.get(SystemConstants.CURRENCYID);
+        return Long.valueOf(currencyId);
+    }
+
+    /**
+     * 解析token
+     * @return
+     */
+    private static Claims parseToken(){
         HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
         String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
         if(StringUtils.isEmpty(token)){
             throw new MyException(ErrorCode.MYB_111111.getCode(),"token 为空");
         }
         Claims claims = JwtUtil.parseToken(token);
-        Integer userId = (Integer) claims.get(SystemConstants.USERID);
-        return Long.valueOf(userId);
+        return claims;
     }
 }

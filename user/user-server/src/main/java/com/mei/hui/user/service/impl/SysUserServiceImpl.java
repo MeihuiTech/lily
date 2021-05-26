@@ -102,8 +102,7 @@ public class SysUserServiceImpl implements ISysUserService {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(SystemConstants.USERID,sysUser.getUserId());
-        claims.put(SystemConstants.STATUS,sysUser.getStatus());
-        claims.put(SystemConstants.DELFLAG,sysUser.getDelFlag());
+        claims.put(SystemConstants.CURRENCYID,sysUser.getCurrencyId());
         claims.put(SystemConstants.PLATFORM,Constants.WEB);
         //生成token
         String token = JwtUtil.createToken(claims);
@@ -458,9 +457,8 @@ public class SysUserServiceImpl implements ISysUserService {
          */
         Map<String, Object> claims = new HashMap<>();
         claims.put(SystemConstants.USERID,sysUser.getUserId());
-        claims.put(SystemConstants.STATUS,sysUser.getStatus());
-        claims.put(SystemConstants.DELFLAG,sysUser.getDelFlag());
-        claims.put(SystemConstants.PLATFORM, Constants.WEB);
+        claims.put(SystemConstants.CURRENCYID,sysUser.getCurrencyId());
+        claims.put(SystemConstants.PLATFORM,Constants.WEB);
         String token = JwtUtil.createToken(claims);
         /**
          * 组装响应数据

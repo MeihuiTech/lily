@@ -11,9 +11,8 @@ public interface SystemConstants {
      * 放入token 中的数据
      */
     String USERID = "userId";
-    //帐号状态（0正常 1停用）
-    String STATUS = "status";
-    String DELFLAG = "del_flag";
+
+    String CURRENCYID = "currency_id";
     String PLATFORM = "platform";
 
     String WEB = "web";
