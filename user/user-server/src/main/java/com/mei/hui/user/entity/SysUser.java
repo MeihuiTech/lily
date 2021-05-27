@@ -80,7 +80,7 @@ public class SysUser {
     /** 角色组 */
 
     @TableField(exist = false)
-    private Long[] roleIds;
+    private Long roleIds;
 
     /**
      * 权限列表
