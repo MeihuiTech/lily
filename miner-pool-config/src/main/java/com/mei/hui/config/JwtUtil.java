@@ -34,11 +34,9 @@ public class JwtUtil {
      * @throws JWTCreationException
      */
     public static String createToken(Map<String, Object> claims) throws JWTCreationException {
-        Date expDate = new Date(System.currentTimeMillis() + staticRuoYiConfig.getJwtMinutes() * 60 * 1000);
         String token = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date())
-                .setExpiration(expDate)
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
         return token;
     }

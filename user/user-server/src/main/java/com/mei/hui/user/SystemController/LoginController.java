@@ -4,6 +4,7 @@ import com.google.code.kaptcha.Producer;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
@@ -48,6 +49,8 @@ public class LoginController {
     private RedisUtil redisUtils;
     @Autowired
     private LoginService loginService;
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
     /**
      * 登录方法
      * @param loginBody 登录信息
@@ -149,6 +152,7 @@ public class LoginController {
             redisUtils.delete(offline);
             throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
         }
+        redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         return Result.OK;
     }
 
