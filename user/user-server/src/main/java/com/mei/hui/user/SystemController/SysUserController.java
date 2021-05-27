@@ -142,7 +142,9 @@ public class SysUserController{
         map.put("posts", null);
         if (userId != null)
         {
-            map.put("data", userService.selectUserById(userId));
+            SysUser sysUser= userService.selectUserById(userId);
+            sysUser.setPassword(null);
+            map.put("data", sysUser);
             map.put("postIds", null);
             map.put("roleIds", roleService.selectRoleListByUserId(userId));
         }
