@@ -33,10 +33,10 @@ import javax.servlet.http.HttpServletRequest;
  * @author ruoyi
  * @date 2021-05-26
  */
-@Api(value="客户端上报信息", tags = "信息上报")
+@Api(value="fil客户端上报信息", tags = "fil客户端上报信息")
 @RestController
-@RequestMapping("/v2/system/reported")
-public class SysReportedNewController
+@RequestMapping("/fil/reported")
+public class FilReportedController
 {
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
