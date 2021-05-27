@@ -518,7 +518,7 @@ public class SysUserServiceImpl implements ISysUserService {
         String smsCode = String.format(SystemConstants.SMSKEY,sysUserBO.getServiceName(),loginUserId);
         String code = redisUtils.get(smsCode);
         if(StringUtils.isEmpty(code)){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"验证码已失效");
+            throw MyException.fail(UserError.MYB_333333.getCode(),"验证码错误");
         }
         if(!code.equals(sysUserBO.getSmsCode())){
             throw MyException.fail(UserError.MYB_333333.getCode(),"验证码错误");
