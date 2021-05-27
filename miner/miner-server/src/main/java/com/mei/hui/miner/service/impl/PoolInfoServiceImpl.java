@@ -1,11 +1,14 @@
 package com.mei.hui.miner.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.entity.PoolInfo;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
+import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.service.IPoolInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +27,16 @@ public class PoolInfoServiceImpl implements IPoolInfoService {
     @Autowired
     private SysMachineInfoMapper sysMachineInfoMapper;
 
+    @Autowired
+    private ChiaMinerMapper xchMinerMapper;
 
+    /**
+     * 查询file币，旷工，矿机数量
+     * @return
+     */
     @Override
-    public PoolInfo selectPoolInfoByUserId(Long userId) {
+    public PoolInfo selectPoolInfoByUserId(Long currencyId) {
+        Long userId = HttpRequestUtil.getUserId();
         /**
          * 查询旷工
          */
@@ -48,6 +58,19 @@ public class PoolInfoServiceImpl implements IPoolInfoService {
         PoolInfo poolInfo = new PoolInfo();
         poolInfo.setMinerCount(Long.valueOf(miners.size()));
         poolInfo.setWorkerCount(Long.valueOf(machines.size()));
+        return poolInfo;
+    }
+
+    public PoolInfo getXchMinerAmount(Long currencyId){
+        Long userId = HttpRequestUtil.getUserId();
+        /**
+         * 查询旷工
+         */
+        LambdaQueryWrapper<ChiaMiner> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(ChiaMiner::getUserId,userId);
+        List<ChiaMiner> xchMiners = xchMinerMapper.selectList(queryWrapper);
+        PoolInfo poolInfo = new PoolInfo();
+        poolInfo.setMinerCount(Long.valueOf(xchMiners.size()));
         return poolInfo;
     }
 }

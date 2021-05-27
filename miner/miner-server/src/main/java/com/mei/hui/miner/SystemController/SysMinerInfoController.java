@@ -2,12 +2,11 @@ package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.AggMiner;
-import com.mei.hui.miner.entity.SysAggAccountDaily;
-import com.mei.hui.miner.entity.SysMinerInfo;
-import com.mei.hui.miner.entity.SysAggPowerDaily;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
+import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -43,23 +42,13 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     @ApiOperation(value = "账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
     public PageResult dailyAccount(@PathVariable("id") Long id) {
-        Long userId = HttpRequestUtil.getUserId();
-        SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoById(id);
-        if (miner == null) {
-            throw new MyException(MinerError.MYB_222222.getCode(),"资源不存在");
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
+            return sysMinerInfoService.dailyAccount(id);
+        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+            return sysMinerInfoService.chiaDailyAccount(id);
         }
-        if (userId != 1L && !userId.equals(miner.getUserId())) {
-            throw new MyException(MinerError.MYB_222222.getCode(),"没有权限");
-        }
-        Date end = DateUtils.getNowDate();
-        Date begin = DateUtils.addDays(end,-29);
-        List<SysAggAccountDaily> list = sysAggAccountDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
-
-        list.stream().forEach(v->{
-            v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));
-        });
-        PageResult<SysAggAccountDaily> pageResult = new PageResult(list.size(), list);
-        return pageResult;
+        return null;
     }
 
     /**
@@ -67,11 +56,14 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      */
     @ApiOperation(value = "矿工列表不分页")
     @GetMapping("/listAll")
-    public PageResult<SysMinerInfo> listAll(SysMinerInfo sysMinerInfo)
-    {
-        Long userId = HttpRequestUtil.getUserId();
-        sysMinerInfo.setUserId(userId);
-        List<SysMinerInfo> list = sysMinerInfoService.selectSysMinerInfoList(sysMinerInfo);
+    public PageResult<SysMinerInfo> listAll(SysMinerInfo sysMinerInfo){
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        List<SysMinerInfo> list = null;
+        if(CurrencyEnum.FIL.getCurrencyId() == currencyId){
+            list = sysMinerInfoService.selectSysMinerInfoList(sysMinerInfo);
+        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){
+            list = sysMinerInfoService.findXchMinerList();
+        }
         return new PageResult(list.size(),list);
     }
 
@@ -81,42 +73,36 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      */
     @ApiOperation(value = "矿工详情")
     @GetMapping(value = "/{id}")
-    public Result getInfo(@PathVariable("id") Long id)
-    {
-        Long userId = HttpRequestUtil.getUserId();
-        SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoById(id);
-        if (miner == null) {
-            throw  MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+    public Result getInfo(@PathVariable("id") Long id){
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
+            SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoById(id);
+            if (miner == null) {
+                throw  MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+            }
+            return Result.success(miner);
+        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+            XchMinerDetailBO xchMinerDetailBO = sysMinerInfoService.getXchMinerById(id);
+            if (xchMinerDetailBO == null) {
+                throw  MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+            }
+            return Result.success(xchMinerDetailBO);
         }
-        if (userId != null && 1L == userId && !userId.equals(miner.getUserId())) {
-            MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
-        }
-        return Result.success(sysMinerInfoService.selectSysMinerInfoById(id));
+        return Result.fail(MinerError.MYB_222222.getCode(),"用户当前币种异常");
     }
 
     @ApiOperation(value = "算力按天聚合信息")
     @GetMapping(value = "/{id}/dailyPower")
     public Map<String,Object> dailyPower(@PathVariable("id") Long id) {
-        Long userId = HttpRequestUtil.getUserId();
-        SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoById(id);
-        if (miner == null) {
-            throw  MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
+            return sysMinerInfoService.dailyPower(id);
+        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+            return sysMinerInfoService.chiaDailyPower(id);
         }
-        if (userId != null && 1L == userId && !userId.equals(miner.getUserId())) {
-            MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
-        }
-        Date end = DateUtils.getNowDate();
-        Date begin = DateUtils.addDays(end,-29);
-        List<SysAggPowerDaily> list = sysAggPowerDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
-        list.stream().forEach(v->{
-           // v.setPowerAvailable(v.getPowerIncrease());
-            v.setPowerIncrease(v.getPowerAvailable());
-        });
         Map<String,Object> map = new HashMap<>();
-        map.put("code",ErrorCode.MYB_000000.getCode());
-        map.put("msg",ErrorCode.MYB_000000.getMsg());
-        map.put("rows",list);
-        map.put("total",list.size());
+        map.put("code",MinerError.MYB_222222.getCode());
+        map.put("msg","获取聚合信息错误");
         return map;
     }
 

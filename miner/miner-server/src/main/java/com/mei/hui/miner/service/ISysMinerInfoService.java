@@ -1,10 +1,11 @@
 package com.mei.hui.miner.service;
 
-import com.mei.hui.miner.entity.AggMiner;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.miner.model.XchMinerDetailBO;
+import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 
 import java.util.List;
@@ -18,6 +19,12 @@ import java.util.Map;
  */
 public interface ISysMinerInfoService
 {
+    /**
+     * 获取起亚币
+     * @param id
+     * @return
+     */
+    XchMinerDetailBO getXchMinerById(Long id);
     /**
      * 查询矿工信息
      *
@@ -96,4 +103,38 @@ public interface ISysMinerInfoService
      * 通过userid 集合批量获取旷工
      */
     Result<List<AggMinerVO>> findBatchMinerByUserId(List<Long> userIds);
+
+    /**
+     * 获取起亚币旷工列表
+     * @return
+     */
+    List<SysMinerInfo> findXchMinerList();
+
+    /**
+     * 获取fil币算力
+     * @param id
+     * @return
+     */
+    Map<String,Object> dailyPower(Long id);
+
+    /**
+     * 获取起亚币币聚合信息
+     * @param id
+     * @return
+     */
+    Map<String,Object> chiaDailyPower(Long id);
+
+    /**
+     * 获取 fil 币 收益增长列表
+     * @param id
+     * @return
+     */
+    PageResult dailyAccount(Long id);
+
+    /**
+     * 获取 chia 币 收益增长列表
+     * @param id
+     * @return
+     */
+    PageResult chiaDailyAccount(Long id);
 }

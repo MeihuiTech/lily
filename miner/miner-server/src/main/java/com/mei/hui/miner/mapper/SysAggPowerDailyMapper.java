@@ -1,5 +1,6 @@
 package com.mei.hui.miner.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.List;
  * @date 2021-04-06
  */
 @Repository
-public interface SysAggPowerDailyMapper 
+public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
 {
     /**
      * 查询算力按天聚合

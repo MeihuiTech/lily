@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -16,6 +18,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MinerApplication .class)
@@ -61,6 +65,13 @@ public class MinerTest {
         sysUserOut.setUserId(5L);
         Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
         System.out.print(JSON.toJSON(sysUserOutResult));
+    }
+
+    @Test
+    public  void CurrencyTest(){
+        String date = DateUtils.getDate();
+        String yesterDateStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.addDays(DateUtils.parseDate(date), -1));
+        System.out.print(yesterDateStr);
     }
 
 

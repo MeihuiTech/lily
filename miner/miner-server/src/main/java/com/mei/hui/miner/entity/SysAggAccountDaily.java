@@ -41,4 +41,6 @@ public class SysAggAccountDaily
 
     private String createBy;
 
+    private String type;
+
 }

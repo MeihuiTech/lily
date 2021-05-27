@@ -1,5 +1,8 @@
 package com.mei.hui.miner.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -12,9 +15,11 @@ import java.time.LocalDateTime;
  * @date 2021-04-06
  */
 @Data
+@TableName("sys_agg_power_daily")
 public class SysAggPowerDaily{
 
     /** $column.columnComment */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /** 矿工id */
@@ -29,6 +34,8 @@ public class SysAggPowerDaily{
 
     /** 算力增长 */
     private BigDecimal powerIncrease;
+
+    private String type;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

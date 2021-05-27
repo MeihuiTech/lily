@@ -1,32 +1,32 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
-import com.mei.hui.miner.mapper.PoolInfoMapper;
-import com.mei.hui.miner.mapper.SysMachineInfoMapper;
-import com.mei.hui.miner.mapper.SysMinerInfoMapper;
+import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.SysMinerInfoVO;
+import com.mei.hui.miner.model.XchMinerDetailBO;
+import com.mei.hui.miner.service.ISysAggAccountDailyService;
+import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
-import com.mei.hui.util.BigDecimalUtil;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
-import io.swagger.annotations.ApiModelProperty;
+import com.mei.hui.util.*;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,11 +41,56 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
 {
     @Autowired
     private SysMinerInfoMapper sysMinerInfoMapper;
-
     @Autowired
     PoolInfoMapper poolInfoMapper;
     @Autowired
     private SysMachineInfoMapper sysMachineInfoMapper;
+    @Autowired
+    private ChiaMinerMapper chiaMinerMapper;
+    @Autowired
+    private SysAggPowerDailyMapper sysAggPowerDailyMapper;
+    @Autowired
+    private ISysAggPowerDailyService sysAggPowerDailyService;
+    @Autowired
+    private ISysAggAccountDailyService sysAggAccountDailyService;
+    @Autowired
+    private SysAggAccountDailyMapper sysAggAccountDailyMapper;
+    /**
+     * 查询矿工信息
+     * @param id 主键
+     * @return 矿工信息
+     */
+    @Override
+    public XchMinerDetailBO getXchMinerById(Long id){
+        log.info("获取起亚币,入参:minerId = {}",id);
+        ChiaMiner xchMiner = chiaMinerMapper.selectById(id);
+        log.info("获取起亚币,出参:{}", JSON.toJSONString(xchMiner));
+        if (xchMiner == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"起亚币矿机不存在");
+        }
+        XchMinerDetailBO xchMinerDetailBO = new XchMinerDetailBO();
+        xchMinerDetailBO.setBalanceMinerAccount(BigDecimalUtil.formatFour(xchMiner.getBalanceMinerAccount()));
+        xchMinerDetailBO.setBlocksAmount(xchMiner.getBlocksAmount());
+        xchMinerDetailBO.setPowerAvailable(xchMiner.getPowerAvailable());
+        xchMinerDetailBO.setTotalBlockAward(BigDecimalUtil.formatFour(xchMiner.getTotalBlockAward()));
+
+        /**
+         * 获取算力增速，从算力聚合表查询前一天的算力增速
+         */
+        String date = DateUtils.getDate();
+        String yesterDateStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.addDays(DateUtils.parseDate(date), -1));
+
+        LambdaQueryWrapper<SysAggPowerDaily> query = new LambdaQueryWrapper<>();
+        query.eq(SysAggPowerDaily::getMinerId,xchMiner.getMinerId());
+        query.eq(SysAggPowerDaily::getType, CurrencyEnum.CHIA.name());
+        query.eq(SysAggPowerDaily::getDate,yesterDateStr);
+        List<SysAggPowerDaily> aggPowers = sysAggPowerDailyMapper.selectList(query);
+        if (aggPowers.size() > 0){
+            SysAggPowerDaily agg = aggPowers.get(0);
+            xchMinerDetailBO.setPowerIncrease(agg.getPowerIncrease());
+        }
+        return xchMinerDetailBO;
+    }
 
     /**
      * 查询矿工信息
@@ -90,19 +135,46 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
      * @return 矿工信息
      */
     @Override
-    public List<SysMinerInfo> selectSysMinerInfoList(SysMinerInfo sysMinerInfo)
-    {
+    public List<SysMinerInfo> selectSysMinerInfoList(SysMinerInfo sysMinerInfo){
+        Long userId = HttpRequestUtil.getUserId();
         List<SysMinerInfo> list = new ArrayList<>();
-        if(sysMinerInfo.getUserId() !=null && sysMinerInfo.getUserId() == 1L){
-            log.info("查询矿工信息列表：【{}】",sysMinerInfo.getUserId());
+        if(userId !=null && userId == 1L){
+            log.info("查询矿工信息列表：【{}】",userId);
             list =  sysMinerInfoMapper.selectList(null);
         }else{
             LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
-            queryWrapper.eq(SysMinerInfo::getUserId,sysMinerInfo.getUserId());
+            queryWrapper.eq(SysMinerInfo::getUserId,userId);
             list =  sysMinerInfoMapper.selectList(queryWrapper);
        }
         return list;
     }
+
+    /**
+     * 获取 起亚币 旷工列表
+     * @return
+     */
+    @Override
+    public List<SysMinerInfo> findXchMinerList(){
+        Long userId = HttpRequestUtil.getUserId();
+        List<ChiaMiner> list = null;
+        if(userId !=null && userId == 1L){
+            log.info("查询矿工信息列表：【{}】",userId);
+            list = chiaMinerMapper.selectList(null);
+        }else{
+            LambdaQueryWrapper<ChiaMiner> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.eq(ChiaMiner::getUserId,userId);
+            list = chiaMinerMapper.selectList(queryWrapper);
+        }
+        List<SysMinerInfo> miners = list.stream().map(v -> {
+            SysMinerInfo miner = new SysMinerInfo();
+            miner.setUserId(userId);
+            miner.setBalanceMinerAccount(v.getBalanceMinerAccount());
+            miner.setMinerId(v.getMinerId());
+            return miner;
+        }).collect(Collectors.toList());
+        return miners;
+    }
+
 
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo){
         return sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
@@ -239,5 +311,122 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             return aggMinerVO;
         }).collect(Collectors.toList());
         return Result.success(lt);
+    }
+    /**
+     * 获取fil币聚合信息
+     * @param id
+     * @return
+     */
+    public Map<String,Object> dailyPower(Long id) {
+        Long userId = HttpRequestUtil.getUserId();
+        SysMinerInfo miner = selectSysMinerInfoById(id);
+        if (miner == null) {
+            throw  MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+        }
+        if (userId != null && 1L == userId && !userId.equals(miner.getUserId())) {
+            MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
+        }
+        Date end = DateUtils.getNowDate();
+        Date begin = DateUtils.addDays(end,-29);
+        List<SysAggPowerDaily> list = sysAggPowerDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
+        list.stream().forEach(v->{
+            // v.setPowerAvailable(v.getPowerIncrease());
+            v.setPowerIncrease(v.getPowerAvailable());
+        });
+        Map<String,Object> map = new HashMap<>();
+        map.put("code",ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("rows",list);
+        map.put("total",list.size());
+        return map;
+    }
+    /**
+     * 获取起亚币币聚合信息
+     * @param id
+     * @return
+     */
+    public Map<String,Object> chiaDailyPower(Long id) {
+        Long userId = HttpRequestUtil.getUserId();
+        log.info("获取起亚币,入参:minerId = {}",id);
+        ChiaMiner xchMiner = chiaMinerMapper.selectById(id);
+        log.info("获取起亚币,出参:{}", JSON.toJSONString(xchMiner));
+        if (xchMiner == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"起亚币矿机不存在");
+        }
+        if (1L != userId && !userId.equals(xchMiner.getUserId())) {
+            MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
+        }
+        Date end = DateUtils.getNowDate();
+        Date begin = DateUtils.addDays(end,-29);
+        LambdaQueryWrapper<SysAggPowerDaily> query = new LambdaQueryWrapper<>();
+        query.eq(SysAggPowerDaily::getMinerId,xchMiner.getMinerId());
+        query.gt(SysAggPowerDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin));
+        query.lt(SysAggPowerDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
+        query.eq(SysAggPowerDaily::getType,CurrencyEnum.CHIA.name());
+        List<SysAggPowerDaily> list =  sysAggPowerDailyMapper.selectList(query);
+        list.stream().forEach(v->{
+            // v.setPowerAvailable(v.getPowerIncrease());
+            v.setPowerIncrease(v.getPowerAvailable());
+        });
+        Map<String,Object> map = new HashMap<>();
+        map.put("code",ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("rows",list);
+        map.put("total",list.size());
+        return map;
+    }
+    /**
+     * 获取 fil 币 收益增长列表
+     * @param id
+     * @return
+     */
+    public PageResult dailyAccount(Long id) {
+        Long userId = HttpRequestUtil.getUserId();
+        SysMinerInfo miner = selectSysMinerInfoById(id);
+        if (miner == null) {
+            throw new MyException(MinerError.MYB_222222.getCode(),"资源不存在");
+        }
+        if (userId != 1L && !userId.equals(miner.getUserId())) {
+            throw new MyException(MinerError.MYB_222222.getCode(),"没有权限");
+        }
+        Date end = DateUtils.getNowDate();
+        Date begin = DateUtils.addDays(end,-29);
+        List<SysAggAccountDaily> list = sysAggAccountDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
+
+        list.stream().forEach(v->{
+            v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));
+        });
+        PageResult<SysAggAccountDaily> pageResult = new PageResult(list.size(), list);
+        return pageResult;
+    }
+    /**
+     * 获取 chia 币 收益增长列表
+     * @param id
+     * @return
+     */
+    public PageResult chiaDailyAccount(Long id) {
+        Long userId = HttpRequestUtil.getUserId();
+        log.info("获取起亚币,入参:minerId = {}",id);
+        ChiaMiner xchMiner = chiaMinerMapper.selectById(id);
+        log.info("获取起亚币,出参:{}", JSON.toJSONString(xchMiner));
+        if (xchMiner == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"起亚币矿机不存在");
+        }
+        if (1L != userId && !userId.equals(xchMiner.getUserId())) {
+            MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
+        }
+        Date end = DateUtils.getNowDate();
+        Date begin = DateUtils.addDays(end,-29);
+        LambdaQueryWrapper<SysAggAccountDaily> query = new LambdaQueryWrapper<>();
+        query.eq(SysAggAccountDaily::getMinerId,xchMiner.getMinerId());
+        query.gt(SysAggAccountDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin));
+        query.lt(SysAggAccountDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
+        query.eq(SysAggAccountDaily::getType,CurrencyEnum.CHIA.name());
+        List<SysAggAccountDaily> list = sysAggAccountDailyMapper.selectList(query);
+        list.stream().forEach(v->{
+            v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));
+        });
+        PageResult<SysAggAccountDaily> pageResult = new PageResult(list.size(), list);
+        return pageResult;
     }
 }
