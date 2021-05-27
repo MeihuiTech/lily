@@ -13,11 +13,4 @@ public class AggWithdrawBO extends BasePage {
     @ApiModelProperty("用户名称")
     private String userName;
 
-
-    @ApiModelProperty(value = "true 升序，false 降序")
-    private boolean isAsc;
-
-    @ApiModelProperty(value = "排序字段名称")
-    private String cloumName;
-
 }

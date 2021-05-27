@@ -97,4 +97,11 @@ public interface ISysTransferRecordService
 
     Map<String,Object> findTransferRecords(SysTransferRecord sysTransferRecord);
 
+    /**
+     * 获取起亚币收益详情
+     * @param input
+     * @return
+     */
+    Result getUserChiaEarning(GetUserEarningInput input);
+
 }

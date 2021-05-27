@@ -67,4 +67,12 @@ public class SysTransferRecord
 
     private String remark;
 
+    private String type;
+
+    @TableField(exist = false)
+    private boolean isAsc;
+
+    @TableField(exist = false)
+    private String cloumName;
+
 }

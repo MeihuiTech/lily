@@ -7,9 +7,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
+import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
+import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.entity.MrAggWithdraw;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTransferRecord;
+import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.mapper.MrAggWithdrawMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.mapper.SysTransferRecordMapper;
@@ -43,8 +47,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class SysTransferRecordServiceImpl implements ISysTransferRecordService
-{
+public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Autowired
     private SysTransferRecordMapper sysTransferRecordMapper;
     @Autowired
@@ -54,11 +57,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
     @Autowired
     private MrAggWithdrawMapper mrAggWithdrawMapper;
     @Autowired
-    private RedisUtil redisUtils;
-
+    private ChiaMinerMapper chiaMinerMapper;
     /**
      * 查询系统划转记录
-     * 
      * @param id 系统划转记录ID
      * @return 系统划转记录
      */
@@ -194,17 +195,37 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
 
     @Override
     public Map<String,Object> findTransferRecords(SysTransferRecord sysTransferRecord) {
+        Long currencyId = HttpRequestUtil.getCurrencyId();
         if (StringUtils.isEmpty(sysTransferRecord.getMinerId())) {
             throw MyException.fail(MinerError.MYB_222222.getCode(), "minerId不能为空值");
         }
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
+        if("createTime".equals(sysTransferRecord.getCloumName())){
+            if(sysTransferRecord.isAsc()){
+                queryWrapper.orderByAsc(SysTransferRecord::getCreateTime);
+            }else{
+                queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
+            }
+        }else if("amount".equals(sysTransferRecord.getCloumName())){
+            if(sysTransferRecord.isAsc()){
+                queryWrapper.orderByAsc(SysTransferRecord::getAmount);
+            }else{
+                queryWrapper.orderByDesc(SysTransferRecord::getAmount);
+            }
+        }else if("fee".equals(sysTransferRecord.getCloumName())){
+            if(sysTransferRecord.isAsc()){
+                queryWrapper.orderByAsc(SysTransferRecord::getFee);
+            }else{
+                queryWrapper.orderByDesc(SysTransferRecord::getFee);
+            }
+        }else{
+            queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
+        }
         queryWrapper.eq(SysTransferRecord::getUserId,HttpRequestUtil.getUserId());
         queryWrapper.eq(SysTransferRecord::getMinerId,sysTransferRecord.getMinerId());
-        queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
+        queryWrapper.eq(SysTransferRecord::getType,CurrencyEnum.getCurrency(currencyId).name());
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(sysTransferRecord.getPageNum(), sysTransferRecord.getPageSize()), queryWrapper);
-        /**
-         * 批量获取用户
-         */
+        //批量获取用户
         List<Long> userids = page.getRecords().stream().map(v -> {
             return v.getUserId();
         }).collect(Collectors.toList());
@@ -401,6 +422,56 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         for(SysTransferRecord record : transferRecords ) {
             drawing = drawing.add(record.getAmount());
         }
+        earningVo.setDrawingEarning(BigDecimalUtil.formatFour(drawing).doubleValue());
+        return Result.success(earningVo);
+    }
+    /**
+     * 获取起亚币收益详情
+     * @param input
+     * @return
+     */
+    public Result getUserChiaEarning(GetUserEarningInput input){
+        Long userId = HttpRequestUtil.getUserId();
+        String minerId = input.getMinerId();
+        if(StringUtils.isEmpty(minerId)){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId 为空");
+        }
+        EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
+        /**
+         *获取旷工信息
+         */
+        log.info("查询旷工信息,userId ={},minerId={}",userId,minerId);
+        LambdaQueryWrapper<ChiaMiner> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ChiaMiner::getMinerId,minerId);
+        queryWrapper.eq(ChiaMiner::getUserId,userId);
+        List<ChiaMiner> miners = chiaMinerMapper.selectList(queryWrapper);
+        log.info("旷工信息查询结果:{}",JSON.toJSONString(miners));
+        if(miners == null || miners.size() == 0){
+            return Result.success(earningVo);
+        }
+        ChiaMiner miner = miners.get(0);
+        earningVo.setTotalEarning(BigDecimalUtil.formatFour(miner.getBalanceMinerAccount()).doubleValue());
+        /**
+         * 获取已提取收益
+         */
+        LambdaQueryWrapper<SysTransferRecord> lambdaQueryWrapper = new LambdaQueryWrapper();
+        lambdaQueryWrapper.ne(SysTransferRecord::getStatus,2);//提币成功
+        lambdaQueryWrapper.eq(SysTransferRecord::getUserId,userId);
+        lambdaQueryWrapper.eq(SysTransferRecord::getMinerId,minerId);
+        lambdaQueryWrapper.eq(SysTransferRecord::getType, CurrencyEnum.CHIA.name());
+        log.info("查询提币完成的记录");
+        List<SysTransferRecord> transfers = sysTransferRecordMapper.selectList(lambdaQueryWrapper);
+        log.info("提币完成的记录查询结果:{}",JSON.toJSONString(transfers));
+        BigDecimal totalWithdraw = BigDecimal.ZERO;//已提取的收益
+        BigDecimal drawing = BigDecimal.ZERO;//提取中的收益
+        for(SysTransferRecord record : transfers ) {
+            if(record.getStatus() == TransferRecordStatusEnum.FINISH.getStatus()){
+                totalWithdraw = totalWithdraw.add(record.getAmount());
+            }else if(record.getStatus() == TransferRecordStatusEnum.DRAWING.getStatus()){
+                drawing = drawing.add(record.getAmount());
+            }
+        }
+        earningVo.setTotalWithdraw(BigDecimalUtil.formatFour(totalWithdraw).doubleValue());
         earningVo.setDrawingEarning(BigDecimalUtil.formatFour(drawing).doubleValue());
         return Result.success(earningVo);
     }

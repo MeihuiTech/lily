@@ -1,6 +1,9 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.PoolEarningVo;
@@ -13,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -88,7 +92,13 @@ public class SysTransferRecordController
      */
     @GetMapping("/getUserEarning")
     public Result getUserEarning(GetUserEarningInput input){
-        return sysTransferRecordService.getUserEarning(input);
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId() == currencyId){
+            return sysTransferRecordService.getUserEarning(input);
+        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){
+            return sysTransferRecordService.getUserChiaEarning(input);
+        }
+        return null;
     }
 
     @GetMapping("/getPoolEarning")
