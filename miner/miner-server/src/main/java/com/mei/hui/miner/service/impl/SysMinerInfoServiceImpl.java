@@ -180,6 +180,11 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
     }
 
+    /**
+     * 获取 fil 币旷工
+     * @param sysMinerInfoBO
+     * @return
+     */
     @Override
     public Map<String,Object> findPage(SysMinerInfoBO sysMinerInfoBO)
     {
@@ -196,7 +201,6 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             sysMinerInfoVO.setTotalBlockAward(BigDecimalUtil.formatFour(sysMinerInfoVO.getTotalBlockAward()));
             sysMinerInfoVO.setPowerAvailable(BigDecimalUtil.formatTwo(sysMinerInfoVO.getPowerAvailable()));
         }
-
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
@@ -247,34 +251,10 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return sysMinerInfoMapper.deleteSysMinerInfoByIds(ids);
     }
 
-    /**
-     * 删除矿工信息信息
-     * 
-     * @param id 矿工信息ID
-     * @return 结果
-     */
-    @Override
-    public int deleteSysMinerInfoById(Long id)
-    {
-        return sysMinerInfoMapper.deleteSysMinerInfoById(id);
-    }
-
     @Override
     public SysMinerInfo selectSysMinerInfoByUserIdAndMinerId(Long userId, String minerId) {
         return sysMinerInfoMapper.selectSysMinerInfoByUserIdAndMinerId(userId, minerId);
     }
-
-    /**
-     * 获取该用户总收益和总锁仓收益
-     *
-     * @param minerId 矿工id
-     * @return 结果
-     */
-    @Override
-    public SysTotalEarning selectTotalEarningAndAwardByUserId(String minerId) {
-        return sysMinerInfoMapper.selectTotalEarningAndAwardByUserId(minerId);
-    }
-
 
     public Map<String,Object> machines(Long id,int pageNum,int pageSize) {
 

@@ -7,6 +7,7 @@ import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
+import com.mei.hui.miner.service.ChiaMinerService;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -38,6 +39,8 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     private ISysAggPowerDailyService sysAggPowerDailyService;
     @Autowired
     private ISysAggAccountDailyService sysAggAccountDailyService;
+    @Autowired
+    private ChiaMinerService chiaMinerService;
 
     @ApiOperation(value = "账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
@@ -100,10 +103,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
             return sysMinerInfoService.chiaDailyPower(id);
         }
-        Map<String,Object> map = new HashMap<>();
-        map.put("code",MinerError.MYB_222222.getCode());
-        map.put("msg","获取聚合信息错误");
-        return map;
+        return null;
     }
 
     /**
@@ -111,9 +111,14 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      */
     @ApiOperation(value = "矿工列表")
     @GetMapping("/list")
-    public Map<String,Object> list(SysMinerInfoBO sysMinerInfoBO)
-    {
-        return sysMinerInfoService.findPage(sysMinerInfoBO);
+    public Map<String,Object> list(SysMinerInfoBO sysMinerInfoBO){
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
+            return sysMinerInfoService.findPage(sysMinerInfoBO);
+        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+            return chiaMinerService.findChiaMinerPage(sysMinerInfoBO);
+        }
+        return null;
     }
 
     /**

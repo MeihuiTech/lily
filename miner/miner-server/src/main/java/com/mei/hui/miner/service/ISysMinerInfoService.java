@@ -73,23 +73,8 @@ public interface ISysMinerInfoService
      */
     public int deleteSysMinerInfoByIds(Long[] ids);
 
-    /**
-     * 删除矿工信息信息
-     *
-     * @param id 矿工信息ID
-     * @return 结果
-     */
-    public int deleteSysMinerInfoById(Long id);
-
     SysMinerInfo selectSysMinerInfoByUserIdAndMinerId(Long userId, String minerId);
 
-    /**
-     * 获取该用户总收益和总锁仓收益
-     *
-     * @param minerId 用户ID
-     * @return 结果
-     */
-    SysTotalEarning selectTotalEarningAndAwardByUserId(String minerId);
 
     public Long countByMinerId(String minerId);
 
@@ -137,4 +122,5 @@ public interface ISysMinerInfoService
      * @return
      */
     PageResult chiaDailyAccount(Long id);
+
 }
