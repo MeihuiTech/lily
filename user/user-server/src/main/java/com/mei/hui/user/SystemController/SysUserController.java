@@ -138,7 +138,7 @@ public class SysUserController{
         map.put("msg",ErrorCode.MYB_000000.getMsg());
 
         List<SysRole> roles = roleService.selectRoleAll();
-        map.put("roles",roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
+        map.put("roles", SysUser.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
         map.put("posts", null);
         if (userId != null)
         {
