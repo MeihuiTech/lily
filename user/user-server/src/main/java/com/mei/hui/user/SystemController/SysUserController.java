@@ -106,7 +106,7 @@ public class SysUserController{
      * @description
      * @author shangbin
      * @date 2021/5/26 11:18
-     * @param [apiKey]
+     * @param
      * @return com.mei.hui.util.Result<java.lang.String>
      * @version v1.0.0
      */
@@ -140,13 +140,13 @@ public class SysUserController{
         List<SysRole> roles = roleService.selectRoleAll();
         map.put("roles", SysUser.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
         map.put("posts", null);
-        if (userId != null)
-        {
+        if (userId != null){
+            List<Integer> roleIds = roleService.selectRoleListByUserId(userId);
             SysUser sysUser= userService.selectUserById(userId);
             sysUser.setPassword(null);
             map.put("data", sysUser);
             map.put("postIds", null);
-            map.put("roleIds", roleService.selectRoleListByUserId(userId));
+            map.put("roleIds",roleIds.size() > 0 ? roleIds.get(0):null);
         }
         return map;
     }
