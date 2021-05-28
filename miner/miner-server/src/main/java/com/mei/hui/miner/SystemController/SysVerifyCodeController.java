@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/code")
+//@RestController
+//@RequestMapping("/code")
 //@Api(tags = "验证码模块")
 public class SysVerifyCodeController {
     @Autowired
@@ -26,8 +26,8 @@ public class SysVerifyCodeController {
      * 根据 userId 获取用户信息
      * @return
      */
-    @ApiOperation(value = "根据用户获取验证码")
-    @PostMapping("/findCodeByUserId")
+//    @ApiOperation(value = "根据用户获取验证码")
+//    @PostMapping("/findCodeByUserId")
     public Result<SysVerifyCodeInput> findCodeByUserId(@RequestBody FindCodeByUserIdInput input){
         SysVerifyCode code = sysVerifyCodeService.selectSysVerifyCodeByUserId(input.getUserId());
         SysVerifyCodeInput sysVerifyCodeInput = new SysVerifyCodeInput();
@@ -35,8 +35,8 @@ public class SysVerifyCodeController {
         return Result.success(sysVerifyCodeInput);
     }
 
-    @ApiOperation(value = "新增验证码")
-    @PostMapping("/insertSysVerifyCode")
+//    @ApiOperation(value = "新增验证码")
+//    @PostMapping("/insertSysVerifyCode")
     public Result insertSysVerifyCode(@RequestBody SysVerifyCodeInput input){
         SysVerifyCode sysVerifyCode = new SysVerifyCode();
         BeanUtils.copyProperties(input,sysVerifyCode);

@@ -47,7 +47,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         String smsCode = String.format(SystemConstants.SMSKEY,sysReceiveAddress.getServiceName(),userId);
         String code = redisUtils.get(smsCode);
         if(StringUtils.isEmpty(code)){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码已失效");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码错误");
         }
         if(!code.equals(sysReceiveAddress.getSmsCode())){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码错误");
@@ -118,7 +118,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         String smsCode =String.format(SystemConstants.SMSKEY,bo.getServiceName(),userId);
         String code = redisUtils.get(smsCode);
         if(StringUtils.isEmpty(code)){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码已失效");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码错误");
         }
         if(!code.equals(bo.getSmsCode())){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"验证码错误");

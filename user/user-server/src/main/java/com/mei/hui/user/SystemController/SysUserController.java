@@ -18,10 +18,7 @@ import com.mei.hui.user.model.SmsSendBO;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.user.service.SmsService;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
-import com.mei.hui.util.SmsServiceNameEnum;
+import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -104,6 +101,24 @@ public class SysUserController{
     }
 
     /**
+     * 根据apiKey查询用户的userId
+     *
+     * @description
+     * @author shangbin
+     * @date 2021/5/26 11:18
+     * @param
+     * @return com.mei.hui.util.Result<java.lang.String>
+     * @version v1.0.0
+     */
+    @PostMapping("/findUserIdByApiKey")
+    public Result<Long> findUserIdByApiKey(@RequestParam("apiKey") String apiKey) {
+        if (StringUtils.isEmpty(apiKey)){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"apiKey不能为空");
+        }
+        return userService.findUserIdByApiKey(apiKey);
+    }
+
+    /**
      * 获取用户列表
      */
     @ApiOperation(value = "用户列表")
@@ -125,11 +140,13 @@ public class SysUserController{
         List<SysRole> roles = roleService.selectRoleAll();
         map.put("roles", SysUser.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
         map.put("posts", null);
-        if (userId != null)
-        {
-            map.put("data", userService.selectUserById(userId));
+        if (userId != null){
+            List<Integer> roleIds = roleService.selectRoleListByUserId(userId);
+            SysUser sysUser= userService.selectUserById(userId);
+            sysUser.setPassword(null);
+            map.put("data", sysUser);
             map.put("postIds", null);
-            map.put("roleIds", roleService.selectRoleListByUserId(userId));
+            map.put("roleIds",roleIds.size() > 0 ? roleIds.get(0):null);
         }
         return map;
     }
@@ -139,13 +156,13 @@ public class SysUserController{
      */
     @PostMapping
     public Result add(@Validated @RequestBody SysUser user){
-        String email = user.getEmail();
+        /*String email = user.getEmail();
         if (StringUtils.isEmpty(email)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱不能为空");
         }
         if (!CommonUtil.isEmail(email)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱格式不正确");
-        }
+        }*/
         String phonenumber = user.getPhonenumber();
         if (StringUtils.isEmpty(phonenumber)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号不能为空");
@@ -159,10 +176,10 @@ public class SysUserController{
         }else if (StringUtils.isNotEmpty(user.getPhonenumber())
                 && "1".equals(userService.checkPhoneUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
-        }else if (StringUtils.isNotEmpty(user.getEmail())
+        }/*else if (StringUtils.isNotEmpty(user.getEmail())
                 && "1".equals(userService.checkEmailUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱账号已存在");
-        }
+        }*/
         /**
          * 校验是否包含中文，6到20个字符
          */
@@ -173,6 +190,7 @@ public class SysUserController{
         SysUser userOut = userService.getLoginUser();
         user.setCreateBy(userOut.getUserName());
         user.setPassword(AESUtil.encrypt(user.getPassword()));
+        user.setApiKey(IdUtils.fastSimpleUUID());
         int rows = userService.insertUser(user);
         return rows > 0 ? Result.OK : Result.fail(UserError.MYB_333333.getCode(),"失败");
     }
@@ -189,10 +207,10 @@ public class SysUserController{
                 && "1".equals(userService.checkPhoneUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
         }
-        else if (StringUtils.isNotEmpty(user.getEmail())
+        /*else if (StringUtils.isNotEmpty(user.getEmail())
                 && "1".equals(userService.checkEmailUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱账号已存在");
-        }
+        }*/
         SysUser userOut = userService.getLoginUser();
         user.setUpdateBy(userOut.getUserName());
         int rows = userService.updateUser(user);

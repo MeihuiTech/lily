@@ -49,6 +49,8 @@ public class SysUser {
 
     private LocalDateTime loginDate;
 
+    private String apiKey;
+
     private String createBy;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -80,7 +82,7 @@ public class SysUser {
     /** 角色组 */
 
     @TableField(exist = false)
-    private Long[] roleIds;
+    private Long roleIds;
 
     /**
      * 权限列表
