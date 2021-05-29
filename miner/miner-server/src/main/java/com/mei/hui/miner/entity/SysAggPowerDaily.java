@@ -50,4 +50,6 @@ public class SysAggPowerDaily{
 
     private Long totalBlocks;
 
+    private BigDecimal blockAwardIncrease;
+
 }
