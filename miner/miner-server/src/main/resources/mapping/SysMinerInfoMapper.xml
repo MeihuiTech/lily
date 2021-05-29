@@ -286,5 +286,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </otherwise>
         </choose>
     </select>
-    
+
+    <select id="selectAllBlocksPerDay" resultType="long">
+        SELECT
+            SUM(i.blocks_per_day) blocksPerDay
+        FROM
+            sys_miner_info i
+    </select>
+
+    <select id="selectAllBalanceMinerAccount" resultType="decimal">
+        SELECT
+            SUM(i.balance_miner_account) balanceMinerAccount
+        FROM
+            sys_miner_info i;
+    </select>
+
+    <select id="selectAllPowerAvailable" resultType="decimal">
+        SELECT
+            SUM(i.power_available) powerAvailable
+        FROM
+            sys_miner_info i
+    </select>
+
+    <select id="selectAllMinerIdCount" resultType="long">
+        SELECT
+            COUNT(i.miner_id) minerCount
+        FROM
+            sys_miner_info i
+    </select>
+
 </mapper>

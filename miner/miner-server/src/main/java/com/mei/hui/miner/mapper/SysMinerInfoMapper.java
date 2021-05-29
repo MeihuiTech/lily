@@ -9,6 +9,7 @@ import com.mei.hui.miner.model.SysMinerInfoVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -76,4 +77,52 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     Long countByMinerId(@Param("minerId") String minerId);
 
     public IPage<SysMinerInfoVO> pageMinerInfo(IPage<SysMinerInfo> page, @Param("userId") Long userId, @Param("isAsc") boolean isAsc, @Param("cloumName")String cloumName);
+
+    /**
+    * 查询FIL币矿工信息表里所有的当天出块份数
+    * 
+    * @description 
+    * @author shangbin
+    * @date 2021/5/28 15:58
+    * @param [] 
+    * @return java.math.BigDecimal 
+    * @version v1.0.0
+    */
+    public Long selectAllBlocksPerDay();
+
+    /**
+    * 管理员首页-旷工统计数据-平台总资产
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/28 17:05
+    * @param []
+    * @return java.math.BigDecimal
+    * @version v1.0.0
+    */
+    public BigDecimal selectAllBalanceMinerAccount();
+
+    /**
+    * 管理员首页-旷工统计数据-平台有效算力
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/28 17:16
+    * @param []
+    * @return java.math.BigDecimal
+    * @version v1.0.0
+    */
+    public BigDecimal selectAllPowerAvailable();
+
+    /**
+    * 管理员首页-旷工统计数据-活跃旷工
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/28 17:22
+    * @param []
+    * @return java.lang.Long
+    * @version v1.0.0
+    */
+    public Long selectAllMinerIdCount();
 }

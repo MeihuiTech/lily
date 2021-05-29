@@ -35,6 +35,11 @@ public class SysAggPowerDaily{
     /** 算力增长 */
     private BigDecimal powerIncrease;
 
+    /**
+     * 累计出块奖励,单位FIL
+     */
+    private BigDecimal totalBlockAward;
+
     private String type;
 
     /** 创建时间 */
