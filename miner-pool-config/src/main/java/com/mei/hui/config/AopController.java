@@ -50,7 +50,8 @@ public class AopController {
 			//获取请求的request
 			ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 			HttpServletRequest request = attributes.getRequest();
-			log.info("@请求url:{},请求参数:{}",request.getRequestURL().toString(),getReqParameter(joinPoint));
+			log.info("@请求url:{},userId:{},currencyId:{},请求参数:{}",request.getRequestURL().toString(),HttpRequestUtil.getUserId(),
+					HttpRequestUtil.getCurrencyId(),getReqParameter(joinPoint));
 		}
 
     }
