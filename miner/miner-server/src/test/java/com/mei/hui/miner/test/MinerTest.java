@@ -5,8 +5,10 @@ import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.common.enums.CurrencyEnum;
+import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
+import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @RunWith(SpringRunner.class)
@@ -35,7 +38,8 @@ public class MinerTest {
 
     @Autowired
     private UserFeignClient userFeignClient;
-
+    @Autowired
+    private ISysAggPowerDailyService sysAggPowerDailyService;
 
     @Test
     public void entry(){
@@ -72,6 +76,16 @@ public class MinerTest {
         String date = DateUtils.getDate();
         String yesterDateStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.addDays(DateUtils.parseDate(date), -1));
         System.out.print(yesterDateStr);
+    }
+
+    @Test
+    public void AggTest(){
+        SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
+        sysAggPowerDaily.setMinerId("f01234");
+        sysAggPowerDaily.setDate("2021-05-29");
+        sysAggPowerDaily.setPowerAvailable(new BigDecimal(2222));
+        log.info("算力聚合表插入数据,入参:{}",JSON.toJSONString(sysAggPowerDaily));
+        int result = sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);
     }
 
 

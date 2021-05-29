@@ -2,6 +2,7 @@ package com.mei.hui.user.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -199,6 +200,21 @@ public class SysUserServiceImpl implements ISysUserService {
         return Result.success(list);
     }
 
+    @Override
+    public Result<Long> findUserIdByApiKey(String apiKey) {
+        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<>();
+        SysUser sysUser = new SysUser();
+        sysUser.setStatus("0");
+        sysUser.setDelFlag("0");
+        sysUser.setApiKey(apiKey);
+        queryWrapper.setEntity(sysUser);
+        List<SysUser> sysUserList = sysUserMapper.selectList(queryWrapper);
+        if (sysUserList != null && sysUserList.size() > 0) {
+            return Result.success(sysUserList.get(0).getUserId());
+        }
+        return Result.OK;
+    }
+
     /**
      * 根据条件分页查询用户列表
      * @param user 用户信息
@@ -339,18 +355,15 @@ public class SysUserServiceImpl implements ISysUserService {
      */
     public void insertUserRole(SysUser user)
     {
-        Long[] roles = user.getRoleIds();
-        if (roles!=null && roles.length > 0)
+        Long roles = user.getRoleIds();
+        if (roles!=null)
         {
             // 新增用户与角色管理
             List<SysUserRole> list = new ArrayList<SysUserRole>();
-            for (Long roleId : roles)
-            {
-                SysUserRole ur = new SysUserRole();
-                ur.setUserId(user.getUserId());
-                ur.setRoleId(roleId);
-                list.add(ur);
-            }
+            SysUserRole ur = new SysUserRole();
+            ur.setUserId(user.getUserId());
+            ur.setRoleId(roles);
+            list.add(ur);
             if (list.size() > 0)
             {
                 userRoleMapper.batchUserRole(list);
@@ -500,7 +513,7 @@ public class SysUserServiceImpl implements ISysUserService {
         String smsCode = String.format(SystemConstants.SMSKEY,sysUserBO.getServiceName(),loginUserId);
         String code = redisUtils.get(smsCode);
         if(StringUtils.isEmpty(code)){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"验证码已失效");
+            throw MyException.fail(UserError.MYB_333333.getCode(),"验证码错误");
         }
         if(!code.equals(sysUserBO.getSmsCode())){
             throw MyException.fail(UserError.MYB_333333.getCode(),"验证码错误");
@@ -559,4 +572,5 @@ public class SysUserServiceImpl implements ISysUserService {
         sysUserMapper.update(null,lambdaUpdateWrapper);
         return Result.OK;
     }
+
 }

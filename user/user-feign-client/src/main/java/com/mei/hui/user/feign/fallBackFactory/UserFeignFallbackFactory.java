@@ -46,6 +46,11 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
             public Result authority(String token) {
                 return null;
             }
+
+            @Override
+            public Result<Long> findUserIdByApiKey(String apiKey) {
+                return null;
+            }
         };
     }
 }

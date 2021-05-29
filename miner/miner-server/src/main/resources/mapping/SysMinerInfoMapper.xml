@@ -282,7 +282,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 </if>
             </when>
             <otherwise>
-                ORDER BY mi.create_time
+                ORDER BY mi.power_available desc
             </otherwise>
         </choose>
     </select>

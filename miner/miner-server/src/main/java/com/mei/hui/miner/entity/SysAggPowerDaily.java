@@ -53,6 +53,8 @@ public class SysAggPowerDaily{
 
     private String updateBy;
 
+    private Long totalBlocks;
 
+    private BigDecimal blockAwardIncrease;
 
 }
