@@ -315,4 +315,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             sys_miner_info i
     </select>
 
+    <select id="powerAvailablePage" resultType="com.mei.hui.miner.model.PowerAvailableFilVO">
+        SELECT
+            i.user_id userId,
+            SUM(i.power_available) powerAvailable,
+        <if test="allPowerAvailable != null">
+            SUM(i.power_available) / #{allPowerAvailable} powerAvailablePercent,
+        </if>
+            SUM(i.total_block_award) totalBlockAward,
+            SUM(d.block_award_increase) / SUM(
+                i.power_available / 1024 / 1024 / 1024 / 1024
+            ) miningEfficiency,
+            SUM(d.power_increase) powerIncrease
+        FROM
+            sys_miner_info i
+        LEFT JOIN sys_agg_power_daily d ON i.miner_id = d.miner_id
+        <where>
+            <if test="yesterDayDate != null and yesterDayDate != ''">
+              d.date = #{yesterDayDate}
+            </if>
+        </where>
+        GROUP BY
+            i.user_id
+        ORDER BY
+            SUM(i.power_available)
+    </select>
+
 </mapper>

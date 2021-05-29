@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 
 @Slf4j
@@ -34,7 +35,9 @@ public class AdminFirstController {
     @ApiOperation("管理员首页-旷工统计数据")
     @GetMapping("/allCount")
     public Result adminFirstAllCount(){
-        Long currencyId = HttpRequestUtil.getCurrencyId();
+        // TODO 自己测试使用，一会修改回来
+//        Long currencyId = HttpRequestUtil.getCurrencyId();
+        Long currencyId = 1L;
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             AdminFirstCollectFilVO adminFirstCollectFilVO = new AdminFirstCollectFilVO();
             // 管理员首页-旷工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
@@ -59,10 +62,9 @@ public class AdminFirstController {
 
     @ApiOperation("管理员首页-平台有效算力排行榜")
     @GetMapping("/powerAvailablePage")
-     public Result powerAvailablePage(@RequestBody BasePage basePage){
-        PowerAvailableFilVO powerAvailableFilVO = new PowerAvailableFilVO();
-
-        return null;
+     public Map<String,Object> powerAvailablePage(BasePage basePage){
+        String yesterDayDate = DateUtils.getYesterDayDateYmd();
+        return adminFirstService.powerAvailablePage(yesterDayDate,basePage);
     }
 
 }

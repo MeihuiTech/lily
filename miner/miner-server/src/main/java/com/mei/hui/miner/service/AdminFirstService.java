@@ -1,8 +1,10 @@
 package com.mei.hui.miner.service;
 
+import com.mei.hui.util.BasePage;
 import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 public interface AdminFirstService {
 
@@ -54,4 +56,16 @@ public interface AdminFirstService {
     * @version v1.0.0
     */
     public Long selectAllMinerIdCount();
+
+    /**
+    * 管理员首页-平台有效算力排行榜
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/29 14:12
+    * @param [basePage]
+    * @return com.mei.hui.util.Result
+    * @version v1.0.0
+    */
+    public Map<String,Object> powerAvailablePage(String yesterDayDate, BasePage basePage);
 }

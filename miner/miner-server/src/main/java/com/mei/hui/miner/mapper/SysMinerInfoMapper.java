@@ -2,8 +2,10 @@ package com.mei.hui.miner.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
+import com.mei.hui.miner.model.PowerAvailableFilVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.SysMinerInfoVO;
 import org.apache.ibatis.annotations.Param;
@@ -125,4 +127,16 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     * @version v1.0.0
     */
     public Long selectAllMinerIdCount();
+
+    /**
+    * 管理员首页-平台有效算力排行榜
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/5/29 14:19
+    * @param [yesterDayDate, allPowerAvailable]
+    * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.model.PowerAvailableFilVO>
+    * @version v1.0.0
+    */
+    public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("yesterDayDate") String yesterDayDate, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
 }
