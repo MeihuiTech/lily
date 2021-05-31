@@ -139,4 +139,5 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     * @version v1.0.0
     */
     public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("yesterDayDate") String yesterDayDate, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
+
 }

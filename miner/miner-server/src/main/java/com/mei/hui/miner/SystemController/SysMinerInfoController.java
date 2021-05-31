@@ -7,7 +7,7 @@ import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
-import com.mei.hui.miner.service.ChiaMinerService;
+import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -17,8 +17,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +38,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     @Autowired
     private ISysAggAccountDailyService sysAggAccountDailyService;
     @Autowired
-    private ChiaMinerService chiaMinerService;
+    private IChiaMinerService chiaMinerService;
 
     @ApiOperation(value = "账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")

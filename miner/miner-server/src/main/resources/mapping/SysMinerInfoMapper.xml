@@ -313,6 +313,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             COUNT(i.miner_id) minerCount
         FROM
             sys_miner_info i
+        where i.power_available > 0
     </select>
 
     <select id="powerAvailablePage" resultType="com.mei.hui.miner.model.PowerAvailableFilVO">
@@ -324,15 +325,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
             SUM(i.total_block_award) totalBlockAward,
             SUM(d.block_award_increase) / SUM(
-                i.power_available / 1024 / 1024 / 1024 / 1024
+                d.power_available / 1024 / 1024 / 1024 / 1024
             ) miningEfficiency,
             SUM(d.power_increase) powerIncrease
         FROM
             sys_miner_info i
         LEFT JOIN sys_agg_power_daily d ON i.miner_id = d.miner_id
         <where>
+            d.type = 'FIL'
             <if test="yesterDayDate != null and yesterDayDate != ''">
-              d.date = #{yesterDayDate}
+                and d.date = #{yesterDayDate}
             </if>
         </where>
         GROUP BY
