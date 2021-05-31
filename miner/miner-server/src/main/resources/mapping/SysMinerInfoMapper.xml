@@ -286,5 +286,59 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </otherwise>
         </choose>
     </select>
-    
+
+    <select id="selectAllBlocksPerDay" resultType="long">
+        SELECT
+            SUM(i.blocks_per_day) blocksPerDay
+        FROM
+            sys_miner_info i
+    </select>
+
+    <select id="selectAllBalanceMinerAccount" resultType="decimal">
+        SELECT
+            SUM(i.balance_miner_account) balanceMinerAccount
+        FROM
+            sys_miner_info i;
+    </select>
+
+    <select id="selectAllPowerAvailable" resultType="decimal">
+        SELECT
+            SUM(i.power_available) powerAvailable
+        FROM
+            sys_miner_info i
+    </select>
+
+    <select id="selectAllMinerIdCount" resultType="long">
+        SELECT
+            COUNT(i.miner_id) minerCount
+        FROM
+            sys_miner_info i
+    </select>
+
+    <select id="powerAvailablePage" resultType="com.mei.hui.miner.model.PowerAvailableFilVO">
+        SELECT
+            i.user_id userId,
+            SUM(i.power_available) powerAvailable,
+        <if test="allPowerAvailable != null">
+            SUM(i.power_available) / #{allPowerAvailable} powerAvailablePercent,
+        </if>
+            SUM(i.total_block_award) totalBlockAward,
+            SUM(d.block_award_increase) / SUM(
+                i.power_available / 1024 / 1024 / 1024 / 1024
+            ) miningEfficiency,
+            SUM(d.power_increase) powerIncrease
+        FROM
+            sys_miner_info i
+        LEFT JOIN sys_agg_power_daily d ON i.miner_id = d.miner_id
+        <where>
+            <if test="yesterDayDate != null and yesterDayDate != ''">
+              d.date = #{yesterDayDate}
+            </if>
+        </where>
+        GROUP BY
+            i.user_id
+        ORDER BY
+            SUM(i.power_available)
+    </select>
+
 </mapper>

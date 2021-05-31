@@ -35,7 +35,7 @@ public class SysProfileController{
     @Value("${server.port}")
     private String serverPort;
     /**
-     * 个人信息
+     * 查询当前登录人的个人详细信息
      */
     @GetMapping
     public Map<String,Object> profile(){

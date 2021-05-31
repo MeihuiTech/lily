@@ -1,6 +1,7 @@
 package com.mei.hui.miner.model;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ import lombok.Data;
  * @version v1.0.0
  * @date $ $
  **/
-@Api("收款地址出参")
+@ApiModel("收款地址出参")
 @Data
 public class SysReceiveAddressVO {
 

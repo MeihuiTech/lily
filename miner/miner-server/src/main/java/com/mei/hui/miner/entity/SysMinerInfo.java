@@ -58,8 +58,14 @@ public class SysMinerInfo
      */
     private BigDecimal balanceMinerAccount;
 
+    /**
+     * 当天出块份数
+     */
     private Long blocksPerDay;
 
+    /**
+     * 累计出块份数
+     */
     private Long totalBlocks;
 
     private BigDecimal powerIncreasePerDay;

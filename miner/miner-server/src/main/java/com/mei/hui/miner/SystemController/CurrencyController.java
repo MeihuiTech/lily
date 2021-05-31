@@ -30,7 +30,7 @@ public class CurrencyController {
     /**
     *
     * @description不分页排序查询币种列表
-    * @param []
+    * @param
     * @return com.mei.hui.util.Result
     * @version v1.0.0
     */

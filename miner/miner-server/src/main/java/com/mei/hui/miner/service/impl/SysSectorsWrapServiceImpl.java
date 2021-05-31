@@ -182,8 +182,6 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
 
         SysSectorsWrap sysSectorsWrap = selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrapParam);
         if (sysSectorsWrap == null) {
-        // TODO 一会修改，测试用
-//        if (sysSectorsWrap != null) {
             try {
                 log.info("新增扇区信息聚合表:[{}]" , JSON.toJSONString(sysSectorsWrapParam));
                 insertSysSectorsWrap(sysSectorsWrapParam);
@@ -203,8 +201,6 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
         SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
         int rows = 0;
         if (sectorInfo == null) {
-//         TODO 一会修改 ，测试用
-//        if (sectorInfo != null) {
             try {
                 log.info("新增扇区信息表:[{}]" , JSON.toJSONString(sysSectorInfo));
                 rows = sysSectorInfoService.insertSysSectorInfo(sysSectorInfo);

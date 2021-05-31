@@ -5,6 +5,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import java.lang.management.ManagementFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -129,6 +130,18 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     {
         long time = ManagementFactory.getRuntimeMXBean().getStartTime();
         return new Date(time);
+    }
+
+    /**
+     * 获取昨天的日期
+     * @return
+     */
+    public static String getYesterDayDateYmd()
+    {
+        Calendar cal=Calendar.getInstance();
+        cal.add(Calendar.DATE,-1);
+        Date d=cal.getTime();
+        return parseDateToStr(YYYY_MM_DD, d);
     }
 
     /**

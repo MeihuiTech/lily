@@ -81,6 +81,7 @@ public class AggregationTask {
             } else {
                 sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable());
             }
+            sysAggPowerDaily.setTotalBlockAward(info.getTotalBlockAward());
             log.info("算力聚合表插入数据,入参:{}",JSON.toJSONString(sysAggPowerDaily));
             int result = sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);
             log.info("算力聚合表插入数据,返回值:{}",result);
