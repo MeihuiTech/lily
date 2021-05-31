@@ -23,9 +23,9 @@ spring:
         group: miner_pool_group
       discovery:
         server-addr: 10.10.15.3:8848
-        namespace: e8fc6aa4-d7a3-43bf-bd71-f937444814c5
+        namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
         group: miner_pool_group
-        #register-enabled: false
+        register-enabled: false
 ---
 #测试环境
 spring:
