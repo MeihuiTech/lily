@@ -311,6 +311,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(SysTransferRecord::getUserId, HttpRequestUtil.getUserId());
         queryWrapper.eq(SysTransferRecord::getStatus,0);
+        queryWrapper.eq(SysTransferRecord::getMinerId, sysTransferRecordWrap.getMinerId());
         log.info("获取提币中的金额,入参:{}",queryWrapper.toString());
         List<SysTransferRecord> transferRecord = sysTransferRecordMapper.selectList(queryWrapper);
         log.info("获取提币中的金额,出参:{}",JSON.toJSONString(transferRecord));
