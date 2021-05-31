@@ -8,6 +8,7 @@ import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -122,5 +123,53 @@ public interface ISysMinerInfoService
      * @return
      */
     PageResult chiaDailyAccount(Long id);
+
+    /**
+     * fil管理员首页-旷工统计数据-当天出块份数
+     *
+     * @description
+     * @author shangbin
+     * @date 2021/5/28 15:37
+     * @param [yesterDay]
+     * @return void
+     * @version v1.0.0
+     */
+    public Long selectFilAllBlocksPerDay();
+
+    /**
+     * fil管理员首页-旷工统计数据-平台总资产
+     *
+     * @description
+     * @author shangbin
+     * @date 2021/5/28 17:04
+     * @param []
+     * @return java.math.BigDecimal
+     * @version v1.0.0
+     */
+    public BigDecimal selectFilAllBalanceMinerAccount();
+
+    /**
+     * fil管理员首页-旷工统计数据-平台有效算力
+     *
+     * @description
+     * @author shangbin
+     * @date 2021/5/28 17:16
+     * @param []
+     * @return java.math.BigDecimal
+     * @version v1.0.0
+     */
+    public BigDecimal selectFilAllPowerAvailable();
+
+    /**
+     * fil管理员首页-旷工统计数据-活跃旷工
+     *
+     * @description
+     * @author shangbin
+     * @date 2021/5/28 17:22
+     * @param []
+     * @return java.lang.Long
+     * @version v1.0.0
+     */
+    public Long selectFilAllMinerIdCount();
 
 }

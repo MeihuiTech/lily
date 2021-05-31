@@ -7,17 +7,19 @@ import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.model.SysMinerInfoBO;
-import com.mei.hui.miner.service.ChiaMinerService;
+import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.util.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 @Slf4j
-public class ChiaMinerServiceImpl implements ChiaMinerService {
+public class ChiaMinerServiceImpl implements IChiaMinerService {
     @Autowired
     private ChiaMinerMapper chiaMinerMapper;
     /**
@@ -58,4 +60,42 @@ public class ChiaMinerServiceImpl implements ChiaMinerService {
         map.put("total",page.getTotal());
         return map;
     }
+
+    /**
+     * chia管理员首页-旷工统计数据-平台总资产
+     * @return
+     */
+    @Override
+    public BigDecimal selectFilAllBalanceMinerAccount() {
+        return chiaMinerMapper.selectAllBalanceMinerAccount();
+    }
+
+    /**
+     * chia管理员首页-旷工统计数据-平台有效算力
+     * @return
+     */
+    @Override
+    public BigDecimal selectFilAllPowerAvailable() {
+        return chiaMinerMapper.selectAllPowerAvailable();
+    }
+
+    /**
+     * chia管理员首页-旷工统计数据-活跃旷工
+     * @return
+     */
+    @Override
+    public Long selectFilAllMinerIdCount() {
+        return chiaMinerMapper.selectAllMinerIdCount();
+    }
+
+    /**
+     * chia管理员首页-旷工统计数据-当天出块份数
+     * @return
+     */
+    @Override
+    public Long selectFilAllBlocksPerDay(String yesterDayDate) {
+        return chiaMinerMapper.selectAllBlocksPerDay(yesterDayDate);
+    }
+
+
 }

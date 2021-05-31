@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 @ApiModel("管理员首页-平台有效算力排行榜出参")
 public class PowerAvailableFilVO {
 
-    @ApiModelProperty(value = "排行")
-    private Long no;
+//    @ApiModelProperty(value = "排行")
+//    private Long no;
 
     @ApiModelProperty(value = "用户ID")
     private Long userId;

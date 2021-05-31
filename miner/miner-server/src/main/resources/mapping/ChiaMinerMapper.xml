@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.ChiaMinerMapper">
+
+    <select id="selectAllBalanceMinerAccount" resultType="decimal">
+        SELECT
+            SUM(i.balance_miner_account) balanceMinerAccount
+        FROM
+            chia_miner i;
+    </select>
+
+    <select id="selectAllPowerAvailable" resultType="decimal">
+        SELECT
+            SUM(i.power_available) powerAvailable
+        FROM
+            chia_miner i
+    </select>
+
+    <select id="selectAllMinerIdCount" resultType="long">
+        SELECT
+            COUNT(i.miner_id) minerCount
+        FROM
+            chia_miner i
+        where i.power_available > 0
+    </select>
+
+    <select id="selectAllBlocksPerDay" resultType="long">
+        SELECT
+            SUM(m.total_blocks) - SUM(d.total_blocks)
+        FROM
+            chia_miner m
+        LEFT JOIN sys_agg_power_daily d
+        on m.miner_id = d.miner_id
+        <where>
+             d.type = 'CHIA'
+            <if test="yesterDayDate != null and yesterDayDate != ''">
+                and d.date = #{yesterDayDate}
+            </if>
+        </where>
+        GROUP BY m.user_id
+    </select>
+
+    <select id="powerAvailablePage" resultType="com.mei.hui.miner.model.PowerAvailableFilVO">
+        SELECT
+        i.user_id userId,
+        SUM(i.power_available) powerAvailable,
+        <if test="allPowerAvailable != null">
+            SUM(i.power_available) / #{allPowerAvailable} powerAvailablePercent,
+        </if>
+        SUM(i.total_block_award) totalBlockAward,
+        SUM(d.block_award_increase) / SUM(
+        d.power_available / 1024 / 1024 / 1024 / 1024
+        ) miningEfficiency,
+        SUM(d.power_increase) powerIncrease
+        FROM
+        chia_miner i
+        LEFT JOIN sys_agg_power_daily d ON i.miner_id = d.miner_id
+        <where>
+            d.type = 'CHIA'
+            <if test="yesterDayDate != null and yesterDayDate != ''">
+                and d.date = #{yesterDayDate}
+            </if>
+        </where>
+        GROUP BY
+        i.user_id
+        ORDER BY
+        SUM(i.power_available)
+    </select>
+
+</mapper>

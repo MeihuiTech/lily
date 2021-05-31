@@ -5,6 +5,8 @@ import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsConfig;
 import com.mei.hui.user.UserApplication;
+import com.mei.hui.user.common.Constants;
+import com.mei.hui.util.SystemConstants;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -109,9 +111,14 @@ public class UserTest {
         return false;
     }
 
-    public static void main(String[] args) {
-        String str = "123abd";
-        log.info("是否包含中文:{}",str.length());
-
+    @Test
+    public void testToken() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(SystemConstants.USERID,5);
+        claims.put(SystemConstants.CURRENCYID,2L);
+        claims.put(SystemConstants.PLATFORM,Constants.WEB);
+        //生成token
+        String token = JwtUtil.createToken(claims);
+        System.out.print(token);
     }
 }
