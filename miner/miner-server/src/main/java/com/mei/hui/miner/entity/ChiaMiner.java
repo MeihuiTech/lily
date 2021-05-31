@@ -28,8 +28,8 @@ public class ChiaMiner {
     //总资产, 单位XCH
     private BigDecimal balanceMinerAccount;
 
-    //出块分数
-    private Long blocksAmount;
+    //累计出块份数
+    private Long totalBlocks;
 
     private LocalDateTime createTime;
 

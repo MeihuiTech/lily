@@ -18,8 +18,8 @@ public class XchMinerDetailBO {
     @ApiModelProperty("总资产, 单位XCH")
     private BigDecimal balanceMinerAccount;
 
-    @ApiModelProperty("出块分数")
-    private Long blocksAmount;
+    @ApiModelProperty("累计出块份数")
+    private Long totalBlocks;
 
     @ApiModelProperty("算力增长,单位B")
     private BigDecimal powerIncrease;

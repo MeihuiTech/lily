@@ -71,7 +71,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         }
         XchMinerDetailBO xchMinerDetailBO = new XchMinerDetailBO();
         xchMinerDetailBO.setBalanceMinerAccount(BigDecimalUtil.formatFour(xchMiner.getBalanceMinerAccount()));
-        xchMinerDetailBO.setBlocksAmount(xchMiner.getBlocksAmount());
+        xchMinerDetailBO.setTotalBlocks(xchMiner.getTotalBlocks());
         xchMinerDetailBO.setPowerAvailable(xchMiner.getPowerAvailable());
         xchMinerDetailBO.setTotalBlockAward(BigDecimalUtil.formatFour(xchMiner.getTotalBlockAward()));
 
