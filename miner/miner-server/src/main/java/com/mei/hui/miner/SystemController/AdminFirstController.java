@@ -1,5 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.model.AdminFirstCollectVO;
 import com.mei.hui.miner.service.IAdminFirstService;
@@ -29,8 +30,8 @@ public class AdminFirstController {
     @GetMapping("/allCount")
     public Result adminFirstAllCount(){
         // TODO 自己测试使用，一会修改回来
-//        Long currencyId = HttpRequestUtil.getCurrencyId();
-        Long currencyId = 2L;
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+//        Long currencyId = 2L;
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             adminFirstCollectVO = adminFirstService.filAdminFirstAllCount();
@@ -47,8 +48,8 @@ public class AdminFirstController {
     @GetMapping("/powerAvailablePage")
      public Map<String,Object> powerAvailablePage(BasePage basePage){
         // TODO 自己测试使用，一会修改回来
-//        Long currencyId = HttpRequestUtil.getCurrencyId();
-        Long currencyId = 2L;
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+//        Long currencyId = 2L;
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             return adminFirstService.filPowerAvailablePage(yesterDayDate,basePage);
