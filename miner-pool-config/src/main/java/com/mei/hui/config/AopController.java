@@ -3,7 +3,9 @@ package com.mei.hui.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mei.hui.util.NotAop;
+import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -50,10 +52,12 @@ public class AopController {
 			//获取请求的request
 			ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 			HttpServletRequest request = attributes.getRequest();
-			log.info("@请求url:{},userId:{},currencyId:{},请求参数:{}",request.getRequestURL().toString(),HttpRequestUtil.getUserId(),
-					HttpRequestUtil.getCurrencyId(),getReqParameter(joinPoint));
+			String token = request.getHeader(SystemConstants.TOKEN);
+			if(StringUtils.isNotEmpty(token)){
+				log.info("@请求url:{},userId:{},currencyId:{},请求参数:{}",request.getRequestURL().toString(),HttpRequestUtil.getUserId(),
+						HttpRequestUtil.getCurrencyId(),getReqParameter(joinPoint));
+			}
 		}
-
     }
     
 /*    @AfterThrowing(pointcut = "webLog()", throwing = "ex")
