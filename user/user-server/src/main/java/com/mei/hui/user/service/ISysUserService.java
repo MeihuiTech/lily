@@ -5,9 +5,7 @@ import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.user.model.LoginBody;
-import com.mei.hui.user.model.SelectUserListInput;
-import com.mei.hui.user.model.SysUserBO;
+import com.mei.hui.user.model.*;
 import com.mei.hui.util.Result;
 
 import java.util.List;
@@ -73,4 +71,6 @@ public interface ISysUserService {
     * @version v1.0.0
     */
     public Result<Long> findUserIdByApiKey(java.lang.String apiKey);
+
+    Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO);
 }

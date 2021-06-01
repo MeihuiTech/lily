@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.SystemConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -27,16 +29,24 @@ public class JwtUtil {
     public void setRuoYiConfig(RuoYiConfig ruoYiConfig) {
         this.staticRuoYiConfig = ruoYiConfig;
     }
+
     /**
      * 加密
-     * @param claims
+     * @param userId
+     * @param currencyId
+     * @param platform
      * @return
      * @throws JWTCreationException
      */
-    public static String createToken(Map<String, Object> claims) throws JWTCreationException {
-        String token = Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(new Date())
+    public static String createToken(Long userId,Long currencyId,String  platform) throws JWTCreationException {
+        if(userId == null || currencyId == null || StringUtils.isEmpty(platform)){
+            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"jwt加密参数不能为空");
+        }
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(SystemConstants.USERID,userId);
+        claims.put(SystemConstants.CURRENCYID,currencyId);
+        claims.put(SystemConstants.PLATFORM,platform);
+        String token = Jwts.builder().setClaims(claims).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
         return token;
     }

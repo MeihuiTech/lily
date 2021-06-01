@@ -59,5 +59,10 @@ public interface Constants extends SystemConstants {
     */
     String OfflineUser="offline:%s";
 
+    /**
+     * fil 币的币种id
+     */
+    Long fileCurrencyId = 1L;
+
 
 }

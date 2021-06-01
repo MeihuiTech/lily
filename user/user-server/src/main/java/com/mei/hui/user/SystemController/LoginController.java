@@ -8,12 +8,15 @@ import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
+import com.mei.hui.user.model.ChangeCurrencyBO;
+import com.mei.hui.user.model.ChangeCurrencyVO;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.service.LoginService;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -68,10 +72,14 @@ public class LoginController {
         if(StringUtils.isEmpty(loginBody.getCode())){
             throw new MyException(ErrorCode.MYB_111111.getMsg(),"请输入验证码");
         }
-
         return sysUserService.getSysUserByNameAndPass(loginBody);
     }
 
+    @ApiOperation(value = "切换币种")
+    @PostMapping("/changeCurrency")
+    public Result<ChangeCurrencyVO> changeCurrency(@RequestBody ChangeCurrencyBO changeCurrencyBO){
+        return sysUserService.changeCurrency(changeCurrencyBO);
+    }
     /**
      * 生成验证码
      */

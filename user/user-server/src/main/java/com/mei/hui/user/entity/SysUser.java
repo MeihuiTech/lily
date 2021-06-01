@@ -62,8 +62,6 @@ public class SysUser {
 
     private String remark;
 
-    private Long currencyId;
-
     public boolean isAdmin()
     {
         return isAdmin(this.userId);
