@@ -32,7 +32,6 @@ public class CurrencyController {
     /**
     * @description不分页排序查询币种列表
     * @param
-    * @return com.mei.hui.util.Result
     */
     @ApiOperation(value = "不分页排序查询币种列表")
     @GetMapping("/list")
