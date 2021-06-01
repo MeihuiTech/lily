@@ -35,7 +35,7 @@ public class CurrencyController {
     */
     @ApiOperation(value = "不分页排序查询币种列表")
     @GetMapping("/list")
-    public Result<List<ListCurrencyBO>> listCurrency(){
+    public Result<ListCurrencyBO> listCurrency(){
         List<SysCurrencyVO> sysCurrencyVOList = sysCurrencyService.listCurrency();
         ListCurrencyBO listCurrencyBO = new ListCurrencyBO();
         listCurrencyBO.setList(sysCurrencyVOList);
