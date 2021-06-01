@@ -73,17 +73,7 @@ public class UserTest {
         log.info("sms url:"+smsConfig.getUrl());
     }
 
-    /**
-     * jwt 测试
-     */
-    @Test
-    public void jwtEncodeTest(){
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId",33);
-        claims.put("name","鲍红建");
-        String token = JwtUtil.createToken(claims);
-        log.info("token:{}",token);
-    }
+
 
     @Test
     public void jwtDecodeTest(){
@@ -111,14 +101,5 @@ public class UserTest {
         return false;
     }
 
-    @Test
-    public void testToken() {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(SystemConstants.USERID,5);
-        claims.put(SystemConstants.CURRENCYID,2L);
-        claims.put(SystemConstants.PLATFORM,Constants.WEB);
-        //生成token
-        String token = JwtUtil.createToken(claims);
-        System.out.print(token);
-    }
+
 }

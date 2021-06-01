@@ -1,5 +1,7 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.model.ListCurrencyBO;
 import com.mei.hui.miner.model.SysCurrencyVO;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.util.Result;
@@ -28,7 +30,6 @@ public class CurrencyController {
     @Autowired
     private ISysCurrencyService sysCurrencyService;
     /**
-    *
     * @description不分页排序查询币种列表
     * @param
     * @return com.mei.hui.util.Result
@@ -38,8 +39,10 @@ public class CurrencyController {
     @GetMapping("/list")
     public Result<List<SysCurrencyVO>> listCurrency(){
         List<SysCurrencyVO> sysCurrencyVOList = sysCurrencyService.listCurrency();
+        ListCurrencyBO listCurrencyBO = new ListCurrencyBO();
+        listCurrencyBO.setList(sysCurrencyVOList);
+        listCurrencyBO.setCurrencyId(HttpRequestUtil.getCurrencyId());
         return Result.success(sysCurrencyVOList);
     }
-
 
 }

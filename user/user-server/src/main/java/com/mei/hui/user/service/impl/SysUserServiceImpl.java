@@ -28,9 +28,7 @@ import com.mei.hui.user.mapper.SysLogininforMapper;
 import com.mei.hui.user.mapper.SysRoleMapper;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.mapper.SysUserRoleMapper;
-import com.mei.hui.user.model.LoginBody;
-import com.mei.hui.user.model.SelectUserListInput;
-import com.mei.hui.user.model.SysUserBO;
+import com.mei.hui.user.model.*;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -101,14 +99,12 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("code",ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(SystemConstants.USERID,sysUser.getUserId());
-        claims.put(SystemConstants.CURRENCYID,sysUser.getCurrencyId());
-        claims.put(SystemConstants.PLATFORM,Constants.WEB);
+        //默认当前币种时fil币
+        Long currencyId = Constants.fileCurrencyId;
         //生成token
-        String token = JwtUtil.createToken(claims);
-        result.put(SystemConstants.TOKEN,JwtUtil.createToken(claims));
-        redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
+        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,Constants.WEB);
+        result.put(SystemConstants.TOKEN,token);
+        redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         insertLoginInfo(sysUser);
         return result;
     }
@@ -468,26 +464,33 @@ public class SysUserServiceImpl implements ISysUserService {
         /**
          * 生成token
          */
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(SystemConstants.USERID,sysUser.getUserId());
-        claims.put(SystemConstants.CURRENCYID,sysUser.getCurrencyId());
-        claims.put(SystemConstants.PLATFORM,Constants.WEB);
-        String token = JwtUtil.createToken(claims);
+        //默认当前币种时fil币
+        Long currencyId = Constants.fileCurrencyId;
+        //生成token
+        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,Constants.WEB);
         /**
          * 组装响应数据
          */
         Map<String,Object> result = new HashMap<>();
         result.put("code",ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
-        //生成token
         result.put(SystemConstants.TOKEN,token);
-        redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
+        redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         return result;
+    }
+
+    public Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO){
+        Long currencyId = changeCurrencyBO.getCurrencyId();
+        //生成token
+        String token = JwtUtil.createToken(HttpRequestUtil.getUserId(),currencyId,Constants.WEB);
+        redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
+        ChangeCurrencyVO changeCurrencyVO = new ChangeCurrencyVO();
+        changeCurrencyVO.setToken(token);
+        return Result.success(changeCurrencyVO);
     }
 
     /**
      * 修改用户基本信息
-     *
      * @param user 用户信息
      * @return 结果
      */
@@ -497,7 +500,7 @@ public class SysUserServiceImpl implements ISysUserService {
 
     /**
      * 修改用户信息
-     * @param user
+     * @param sysUserBO
      * @return
      */
     @Override
