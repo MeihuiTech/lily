@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  **/
 @Data
 @ApiModel("管理员首页-旷工统计数据出参")
-public class AdminFirstCollectFilVO {
+public class AdminFirstCollectVO {
 
     @ApiModelProperty(value = "平台总资产")
     private BigDecimal allBalanceMinerAccount;

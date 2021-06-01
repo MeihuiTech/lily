@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         }
         XchMinerDetailBO xchMinerDetailBO = new XchMinerDetailBO();
         xchMinerDetailBO.setBalanceMinerAccount(BigDecimalUtil.formatFour(xchMiner.getBalanceMinerAccount()));
-        xchMinerDetailBO.setBlocksAmount(xchMiner.getBlocksAmount());
+        xchMinerDetailBO.setTotalBlocks(xchMiner.getTotalBlocks());
         xchMinerDetailBO.setPowerAvailable(xchMiner.getPowerAvailable());
         xchMinerDetailBO.setTotalBlockAward(BigDecimalUtil.formatFour(xchMiner.getTotalBlockAward()));
 
@@ -409,4 +410,27 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         PageResult<SysAggAccountDaily> pageResult = new PageResult(list.size(), list);
         return pageResult;
     }
+
+
+    @Override
+    public Long selectFilAllBlocksPerDay() {
+        return sysMinerInfoMapper.selectAllBlocksPerDay();
+    }
+
+    @Override
+    public BigDecimal selectFilAllBalanceMinerAccount() {
+        return sysMinerInfoMapper.selectAllBalanceMinerAccount();
+    }
+
+    @Override
+    public BigDecimal selectFilAllPowerAvailable() {
+        return sysMinerInfoMapper.selectAllPowerAvailable();
+    }
+
+    @Override
+    public Long selectFilAllMinerIdCount() {
+        return sysMinerInfoMapper.selectAllMinerIdCount();
+    }
+
+
 }
