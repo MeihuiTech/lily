@@ -2,6 +2,7 @@ package com.mei.hui.miner.common.task;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Configuration
@@ -59,8 +62,12 @@ public class AggregationTask {
         log.info("======================AggregationTask-end===================");
     }
 
+    /**
+     * 算力按天聚合表
+     * @param info
+     */
     private void insertPower(SysMinerInfo info){
-        log.info("算力聚合表");
+        log.info("算力按天聚合表");
         String date = DateUtils.getDate();
         //当前日期转换成YYYY-mm-dd 格式
         String dateStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.parseDate(date));
@@ -82,6 +89,12 @@ public class AggregationTask {
                 sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable());
             }
             sysAggPowerDaily.setTotalBlockAward(info.getTotalBlockAward());
+            if (yesterday != null) {
+                sysAggPowerDaily.setBlockAwardIncrease(info.getTotalBlockAward().subtract(yesterday.getTotalBlockAward()));
+            } else {
+                sysAggPowerDaily.setBlockAwardIncrease(info.getTotalBlockAward());
+            }
+            sysAggPowerDaily.setType(CurrencyEnum.FIL.name());
             log.info("算力聚合表插入数据,入参:{}",JSON.toJSONString(sysAggPowerDaily));
             int result = sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);
             log.info("算力聚合表插入数据,返回值:{}",result);
@@ -89,11 +102,11 @@ public class AggregationTask {
     }
 
     /**
-     *
+     * 账户按天聚合表
      * @param info
      */
     private void insertAccount(SysMinerInfo info) {
-        log.info("账户聚合表");
+        log.info("账户按天聚合表");
         String date = DateUtils.getDate();
         log.info("查询账户聚合表,入参:minerId = {},date={}",info.getMinerId(),date);
         SysAggAccountDaily data = sysAggAccountDailyService.selectSysAggAccountDailyByMinerIdAndDate(info.getMinerId(),date);
