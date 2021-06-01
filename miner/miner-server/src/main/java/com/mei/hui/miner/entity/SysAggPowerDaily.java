@@ -40,6 +40,19 @@ public class SysAggPowerDaily{
      */
     private BigDecimal totalBlockAward;
 
+    /**
+     * 当日新增出块奖励,单位FIL
+     */
+    private BigDecimal blockAwardIncrease;
+
+    /**
+     * 累计出块份数,起亚币使用
+     */
+    private Long totalBlocks;
+
+    /**
+     * 货比种类,FIL,CHIA
+     */
     private String type;
 
     /** 创建时间 */
@@ -52,9 +65,5 @@ public class SysAggPowerDaily{
     private String createBy;
 
     private String updateBy;
-
-    private Long totalBlocks;
-
-    private BigDecimal blockAwardIncrease;
 
 }
