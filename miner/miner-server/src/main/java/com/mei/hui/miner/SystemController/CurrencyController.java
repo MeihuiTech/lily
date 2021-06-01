@@ -40,7 +40,7 @@ public class CurrencyController {
         ListCurrencyBO listCurrencyBO = new ListCurrencyBO();
         listCurrencyBO.setList(sysCurrencyVOList);
         listCurrencyBO.setCurrencyId(HttpRequestUtil.getCurrencyId());
-        return Result.success(sysCurrencyVOList);
+        return Result.success(listCurrencyBO);
     }
 
 }
