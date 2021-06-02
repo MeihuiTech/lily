@@ -6,7 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@ApiModel
+@ApiModel(value = "chia币矿工详情出参")
 public class XchMinerDetailBO {
 
     @ApiModelProperty("有效算力, 单位B")

@@ -12,8 +12,7 @@ import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,7 +71,13 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     /**
      * 获取矿工信息详细信息
      */
-    @ApiOperation(value = "矿工详情")
+    @ApiOperation(value = "矿工详情",notes = "chia币矿工详情出参：\n" +
+            "\n" +
+            "powerAvailable：有效算力, 单位B\n" +
+            "totalBlockAward：累计出块奖励,单位XCH\n" +
+            "balanceMinerAccount：总资产, 单位XCH\n" +
+            "totalBlocks：累计出块份数\n" +
+            "powerIncrease：算力增长,单位B")
     @GetMapping(value = "/{id}")
     public Result getInfo(@PathVariable("id") Long id){
         Long currencyId = HttpRequestUtil.getCurrencyId();
