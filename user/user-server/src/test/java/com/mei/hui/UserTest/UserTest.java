@@ -101,5 +101,15 @@ public class UserTest {
         return false;
     }
 
+    @Test
+    public void testToken() {
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put(SystemConstants.USERID,5);
+//        claims.put(SystemConstants.CURRENCYID,2L);
+//        claims.put(SystemConstants.PLATFORM,Constants.WEB);
+        //生成token
+        String token = JwtUtil.createToken(5L,1L,Constants.WEB);
+        System.out.print(token);
+    }
 
 }
