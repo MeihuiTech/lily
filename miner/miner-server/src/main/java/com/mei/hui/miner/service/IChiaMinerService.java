@@ -1,8 +1,10 @@
 package com.mei.hui.miner.service;
 
+import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,4 +64,39 @@ public interface IChiaMinerService {
      */
     public Long selectFilAllBlocksPerDay(String yesterDayDate);
 
+    /**
+    * 根据用户id、旷工id查询起亚币旷工信息表中是否有数据
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/1 17:26
+    * @param [userId, minerId]
+    * @return com.mei.hui.miner.entity.ChiaMiner
+    * @version v1.0.0
+    */
+    public List<ChiaMiner> selectChiaMinerByUserIdAndMinerId(Long userId, String minerId);
+
+    /**
+    * 新增起亚币旷工信息表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/1 17:32
+    * @param [chiaMiner]
+    * @return int
+    * @version v1.0.0
+    */
+    public int insertChiaMiner(ChiaMiner chiaMiner);
+
+    /**
+    * 修改起亚币旷工信息表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/1 17:33
+    * @param [chiaMiner]
+    * @return int
+    * @version v1.0.0
+    */
+    public int updateChiaMiner(ChiaMiner chiaMiner);
 }

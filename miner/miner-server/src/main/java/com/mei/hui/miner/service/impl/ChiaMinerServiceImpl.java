@@ -1,6 +1,7 @@
 package com.mei.hui.miner.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
@@ -10,11 +11,13 @@ import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.util.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.nio.NHttpMessageWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -97,5 +100,30 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
         return chiaMinerMapper.selectAllBlocksPerDay(yesterDayDate);
     }
 
+    /**
+     * 根据用户id、旷工id查询起亚币旷工信息表中是否有数据
+     * @param userId
+     * @param minerId
+     * @return
+     */
+    @Override
+    public List<ChiaMiner> selectChiaMinerByUserIdAndMinerId(Long userId, String minerId) {
+        ChiaMiner chiaMiner = new ChiaMiner();
+        chiaMiner.setUserId(userId);
+        chiaMiner.setMinerId(minerId);
+        QueryWrapper<ChiaMiner> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(chiaMiner);
+        List<ChiaMiner> chiaMinerList = chiaMinerMapper.selectList(queryWrapper);
+        return chiaMinerList;
+    }
 
+    @Override
+    public int insertChiaMiner(ChiaMiner chiaMiner) {
+        return chiaMinerMapper.insert(chiaMiner);
+    }
+
+    @Override
+    public int updateChiaMiner(ChiaMiner chiaMiner) {
+        return chiaMinerMapper.updateById(chiaMiner);
+    }
 }
