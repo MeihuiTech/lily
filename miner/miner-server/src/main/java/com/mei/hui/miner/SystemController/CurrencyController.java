@@ -1,5 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.model.ListCurrencyBO;
 import com.mei.hui.miner.model.SysCurrencyVO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * 币种表
@@ -41,6 +43,14 @@ public class CurrencyController {
         listCurrencyBO.setList(sysCurrencyVOList);
         listCurrencyBO.setCurrencyId(HttpRequestUtil.getCurrencyId());
         return Result.success(listCurrencyBO);
+    }
+
+    @ApiOperation(value = "获取当前使用的时区")
+    @GetMapping("/getDefault")
+    public Result getDefault(){
+        TimeZone timeZone = TimeZone.getDefault();
+        log.info("jvm 时区:{}", JSON.toJSONString(timeZone));
+        return Result.success(timeZone);
     }
 
 }
