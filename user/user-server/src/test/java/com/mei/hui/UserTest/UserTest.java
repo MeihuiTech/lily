@@ -102,6 +102,17 @@ public class UserTest {
     }
 
     @Test
+    public void createToken() {
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put(SystemConstants.USERID,5);
+//        claims.put(SystemConstants.CURRENCYID,2L);
+//        claims.put(SystemConstants.PLATFORM,Constants.WEB);
+        //生成token
+        String token = JwtUtil.createToken(5L,2L,Constants.WEB);
+        System.out.print(token);
+    }
+
+    @Test
     public void testToken() {
         String token = "eyJhbGciOiJIUzI1NiJ9.eyJkZWxfZmxhZyI6IjAiLCJ1c2VySWQiOjUsImlhdCI6MTYyMjYxNTk5MSwicGxhdGZvcm0iOiJ3ZWIiLCJzdGF0dXMiOiIwIn0.vwrfVfYueImrm55SMAmHOXhV7Z94uDfM2qLWWd8UhQM";
         Claims claims = JwtUtil.parseToken(token);
@@ -114,5 +125,6 @@ public class UserTest {
         }
         log.info("陈宫");
     }
+
 
 }

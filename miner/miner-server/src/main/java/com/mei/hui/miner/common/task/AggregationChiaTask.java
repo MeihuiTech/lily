@@ -94,15 +94,13 @@ public class AggregationChiaTask {
             sysAggPowerDaily.setPowerAvailable(chiaMiner.getPowerAvailable());
             if (yesterday != null) {
                 sysAggPowerDaily.setPowerIncrease(chiaMiner.getPowerAvailable().subtract(yesterday.getPowerAvailable()));
+                sysAggPowerDaily.setBlockAwardIncrease(chiaMiner.getTotalBlockAward().subtract(yesterday.getTotalBlockAward()));
+                sysAggPowerDaily.setTotalBlocks(chiaMiner.getTotalBlocks() - yesterday.getTotalBlocks());
             } else {
                 sysAggPowerDaily.setPowerIncrease(chiaMiner.getPowerAvailable());
-            }
-            sysAggPowerDaily.setTotalBlockAward(chiaMiner.getTotalBlockAward());
-            if (yesterday != null) {
-                sysAggPowerDaily.setBlockAwardIncrease(chiaMiner.getTotalBlockAward().subtract(yesterday.getTotalBlockAward()));
-            } else {
                 sysAggPowerDaily.setBlockAwardIncrease(chiaMiner.getTotalBlockAward());
             }
+            sysAggPowerDaily.setTotalBlockAward(chiaMiner.getTotalBlockAward());
             sysAggPowerDaily.setType(CurrencyEnum.CHIA.name());
             log.info("算力聚合表插入数据,入参:{}",JSON.toJSONString(sysAggPowerDaily));
             int result = sysAggPowerDailyService.insertSysAggPowerDaily(sysAggPowerDaily);

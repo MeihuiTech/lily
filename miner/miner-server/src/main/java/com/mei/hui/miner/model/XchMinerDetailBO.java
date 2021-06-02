@@ -21,7 +21,10 @@ public class XchMinerDetailBO {
     @ApiModelProperty("累计出块份数")
     private Long totalBlocks;
 
-    @ApiModelProperty("算力增长,单位B")
-    private BigDecimal powerIncrease;
+    @ApiModelProperty("当天出块份数")
+    private Long blocksPerDay;
+
+    @ApiModelProperty("算力增速, 单位B")
+    private BigDecimal powerIncreasePerDay;
 
 }

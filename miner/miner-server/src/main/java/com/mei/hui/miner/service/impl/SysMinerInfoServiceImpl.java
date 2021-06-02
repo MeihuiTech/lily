@@ -88,7 +88,8 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         List<SysAggPowerDaily> aggPowers = sysAggPowerDailyMapper.selectList(query);
         if (aggPowers.size() > 0){
             SysAggPowerDaily agg = aggPowers.get(0);
-            xchMinerDetailBO.setPowerIncrease(agg.getPowerIncrease());
+            xchMinerDetailBO.setPowerIncreasePerDay(agg.getPowerIncrease());
+            xchMinerDetailBO.setBlocksPerDay(xchMiner.getTotalBlocks() - agg.getTotalBlocks());
         }
         return xchMinerDetailBO;
     }
