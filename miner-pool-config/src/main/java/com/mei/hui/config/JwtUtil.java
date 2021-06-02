@@ -39,8 +39,11 @@ public class JwtUtil {
      * @throws JWTCreationException
      */
     public static String createToken(Long userId,Long currencyId,String  platform) throws JWTCreationException {
-        if(userId == null || currencyId == null || StringUtils.isEmpty(platform)){
-            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"jwt加密参数不能为空");
+        if(currencyId == null){
+            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"币种id 不能为空");
+        }
+        if(StringUtils.isEmpty(platform)){
+            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"platform 登陆平台参数不能为空");
         }
         Map<String, Object> claims = new HashMap<>();
         claims.put(SystemConstants.USERID,userId);

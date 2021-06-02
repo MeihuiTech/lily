@@ -171,6 +171,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             miner.setUserId(userId);
             miner.setBalanceMinerAccount(v.getBalanceMinerAccount());
             miner.setMinerId(v.getMinerId());
+            miner.setId(v.getId());
             return miner;
         }).collect(Collectors.toList());
         return miners;
