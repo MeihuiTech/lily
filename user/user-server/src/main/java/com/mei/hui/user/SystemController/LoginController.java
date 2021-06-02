@@ -135,10 +135,14 @@ public class LoginController {
 
     @RequestMapping("/logout")
     public Result logout(){
-        HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
-        String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
-        if(StringUtils.isNotEmpty(token)){
-            redisCache.delete(token);
+        try {
+            HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
+            String token = httpServletRequest.getHeader(SystemConstants.TOKEN);
+            if(StringUtils.isNotEmpty(token)){
+                redisCache.delete(token);
+            }
+        } catch (Exception e) {
+            log.error("退出异常:",e);
         }
         return Result.OK;
     }
