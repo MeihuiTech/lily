@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.entity.ChiaMiner;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.service.IChiaMinerService;
@@ -125,5 +126,12 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     @Override
     public int updateChiaMiner(ChiaMiner chiaMiner) {
         return chiaMinerMapper.updateById(chiaMiner);
+    }
+
+    @Override
+    public List<ChiaMiner> findChiaMinerList(ChiaMiner chiaMiner) {
+        QueryWrapper<ChiaMiner> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(chiaMiner);
+        return chiaMinerMapper.selectList(queryWrapper);
     }
 }

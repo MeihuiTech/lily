@@ -1,6 +1,7 @@
 package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.ChiaMiner;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 
 import java.math.BigDecimal;
@@ -99,4 +100,16 @@ public interface IChiaMinerService {
     * @version v1.0.0
     */
     public int updateChiaMiner(ChiaMiner chiaMiner);
+
+    /**
+    * 不分页根据条件查询起亚币旷工信息表列表
+    * 
+    * @description 
+    * @author shangbin
+    * @date 2021/6/2 15:03
+    * @param [chiaMiner] 
+    * @return java.util.List<com.mei.hui.miner.entity.SysMinerInfo> 
+    * @version v1.0.0
+    */
+    public List<ChiaMiner> findChiaMinerList(ChiaMiner chiaMiner);
 }

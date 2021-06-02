@@ -29,9 +29,7 @@ public class AdminFirstController {
     @ApiOperation("管理员首页-旷工统计数据")
     @GetMapping("/allCount")
     public Result adminFirstAllCount(){
-        // TODO 自己测试使用，一会修改回来
         Long currencyId = HttpRequestUtil.getCurrencyId();
-//        Long currencyId = 2L;
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             adminFirstCollectVO = adminFirstService.filAdminFirstAllCount();
@@ -47,9 +45,7 @@ public class AdminFirstController {
     @ApiOperation("管理员首页-平台有效算力排行榜")
     @GetMapping("/powerAvailablePage")
      public Map<String,Object> powerAvailablePage(BasePage basePage){
-        // TODO 自己测试使用，一会修改回来
         Long currencyId = HttpRequestUtil.getCurrencyId();
-//        Long currencyId = 2L;
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             return adminFirstService.filPowerAvailablePage(yesterDayDate,basePage);
