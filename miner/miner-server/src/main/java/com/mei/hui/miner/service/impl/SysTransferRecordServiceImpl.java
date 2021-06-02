@@ -2,6 +2,7 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
@@ -9,17 +10,12 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
-import com.mei.hui.miner.entity.ChiaMiner;
-import com.mei.hui.miner.entity.MrAggWithdraw;
-import com.mei.hui.miner.entity.SysMinerInfo;
-import com.mei.hui.miner.entity.SysTransferRecord;
-import com.mei.hui.miner.mapper.ChiaMinerMapper;
-import com.mei.hui.miner.mapper.MrAggWithdrawMapper;
-import com.mei.hui.miner.mapper.SysMinerInfoMapper;
-import com.mei.hui.miner.mapper.SysTransferRecordMapper;
+import com.mei.hui.miner.entity.*;
+import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.EarningVo;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
+import com.mei.hui.miner.service.ISysReceiveAddressService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
@@ -58,6 +54,10 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     private MrAggWithdrawMapper mrAggWithdrawMapper;
     @Autowired
     private ChiaMinerMapper chiaMinerMapper;
+    @Autowired
+    private SysReceiveAddressMapper sysReceiveAddressMapper;
+
+
     /**
      * 查询系统划转记录
      * @param id 系统划转记录ID
@@ -311,6 +311,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         }
 
         Long userId = HttpRequestUtil.getUserId();
+        Long currencyId = HttpRequestUtil.getCurrencyId();
 
         /**
          * 一：提取金额 < 可提现金额 - 提币中 金额
@@ -353,6 +354,21 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         SysUserOut user = userResult.getData();
         BigDecimal fee = user.getFeeRate().multiply(sysTransferRecordWrap.getAmount()).divide(new BigDecimal(100));
         sysTransferRecordWrap.setFee(fee);
+
+        // 通过用户ID、货币ID查询用户货币地址表中的地址
+        QueryWrapper<SysReceiveAddress> sysReceiveAddressQueryWrapper = new QueryWrapper<>();
+        SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
+        sysReceiveAddress.setUserId(userId);
+        sysReceiveAddress.setCurrencyId(currencyId);
+        sysReceiveAddressQueryWrapper.setEntity(sysReceiveAddress);
+        List<SysReceiveAddress> sysReceiveAddressList = sysReceiveAddressMapper.selectList(sysReceiveAddressQueryWrapper);
+        if (sysReceiveAddressList == null || sysReceiveAddressList.size() < 1) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址不存在");
+        }
+        String address = sysReceiveAddressList.get(0).getAddress();
+        if (!sysTransferRecordWrap.getToAddress().equals(address)){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址错误");
+        }
 
         //记录提币申请
         SysTransferRecord sysTransferRecord = new SysTransferRecord();

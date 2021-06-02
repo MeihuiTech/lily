@@ -35,7 +35,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     {
         LambdaQueryWrapper<ChiaMiner> query = new LambdaQueryWrapper();
         query.eq(ChiaMiner::getUserId, HttpRequestUtil.getUserId());
-        query.eq(ChiaMiner::getMinerId,sysMinerInfoBO.getMinerId());
+//        query.eq(ChiaMiner::getMinerId,sysMinerInfoBO.getMinerId());
         if("powerAvailable".equals(sysMinerInfoBO.getCloumName())){
             if(sysMinerInfoBO.isAsc()){
                 query.orderByAsc(ChiaMiner::getPowerAvailable);
