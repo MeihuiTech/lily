@@ -25,8 +25,12 @@ public class HttpRequestUtil {
      */
     public static Long getCurrencyId(){
         Claims claims = parseToken();
-        Integer currencyId = (Integer) claims.get(SystemConstants.CURRENCYID);
-        return Long.valueOf(currencyId);
+        Object currency = claims.get(SystemConstants.CURRENCYID);
+        if(currency != null){
+            Long currencyId = (Long) currency;
+            return Long.valueOf(currencyId);
+        }
+        return null;
     }
 
     /**

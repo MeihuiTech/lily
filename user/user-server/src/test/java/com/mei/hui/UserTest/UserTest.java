@@ -103,13 +103,16 @@ public class UserTest {
 
     @Test
     public void testToken() {
-//        Map<String, Object> claims = new HashMap<>();
-//        claims.put(SystemConstants.USERID,5);
-//        claims.put(SystemConstants.CURRENCYID,2L);
-//        claims.put(SystemConstants.PLATFORM,Constants.WEB);
-        //生成token
-        String token = JwtUtil.createToken(5L,1L,Constants.WEB);
-        System.out.print(token);
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJkZWxfZmxhZyI6IjAiLCJ1c2VySWQiOjUsImlhdCI6MTYyMjYxNTk5MSwicGxhdGZvcm0iOiJ3ZWIiLCJzdGF0dXMiOiIwIn0.vwrfVfYueImrm55SMAmHOXhV7Z94uDfM2qLWWd8UhQM";
+        Claims claims = JwtUtil.parseToken(token);
+
+        Long userId = (Long) claims.get(SystemConstants.USERID);
+        Object currency = claims.get(SystemConstants.CURRENCYID);
+        Long currencyId = null;
+        if(currency != null){
+            currencyId = (Long) currency;
+        }
+        log.info("陈宫");
     }
 
 }
