@@ -67,6 +67,9 @@ public class SysTransferRecord
 
     private String remark;
 
+    /**
+     * 货比种类,FIL,CHIA
+     */
     private String type;
 
     @TableField(exist = false)
