@@ -51,7 +51,7 @@ public class SysAggPowerDaily{
     private Long totalBlocks;
 
     /**
-     * 货比种类,FIL,CHIA
+     * 货币种类,FIL,CHIA
      */
     private String type;
 

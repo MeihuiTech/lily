@@ -12,6 +12,7 @@ import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.mapper.*;
+import com.mei.hui.miner.model.EarningChiaVo;
 import com.mei.hui.miner.model.EarningVo;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
@@ -385,6 +386,12 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 
+    /**
+     * 查询用户收益fil
+     * @param input
+     * @return
+     */
+    @Override
     public Result getUserEarning(GetUserEarningInput input){
         Long userId = HttpRequestUtil.getUserId();
         String minerId = input.getMinerId();
@@ -412,6 +419,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         lambdaQueryWrapper.eq(SysTransferRecord::getStatus,1);//提币成功
         lambdaQueryWrapper.eq(SysTransferRecord::getUserId,userId);
         lambdaQueryWrapper.eq(SysTransferRecord::getMinerId,minerId);
+        lambdaQueryWrapper.eq(SysTransferRecord::getType,CurrencyEnum.FIL.name());
         log.info("查询提币完成的记录");
         List<SysTransferRecord> transfers = sysTransferRecordMapper.selectList(lambdaQueryWrapper);
         log.info("提币完成的记录查询结果:{}",JSON.toJSONString(transfers));
@@ -432,6 +440,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         drawingWrapper.eq(SysTransferRecord::getStatus,0);//提币中
         drawingWrapper.eq(SysTransferRecord::getUserId,userId);
         drawingWrapper.eq(SysTransferRecord::getMinerId,minerId);
+        lambdaQueryWrapper.eq(SysTransferRecord::getType,CurrencyEnum.FIL.name());
         log.info("查询提币中的记录");
         List<SysTransferRecord> transferRecords = sysTransferRecordMapper.selectList(drawingWrapper);
         log.info("提币中的记录查询结果:{}",JSON.toJSONString(transfers));
@@ -443,17 +452,18 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         return Result.success(earningVo);
     }
     /**
-     * 获取起亚币收益详情
+     * 查询用户收益chia
      * @param input
      * @return
      */
+    @Override
     public Result getUserChiaEarning(GetUserEarningInput input){
         Long userId = HttpRequestUtil.getUserId();
         String minerId = input.getMinerId();
         if(StringUtils.isEmpty(minerId)){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId 为空");
         }
-        EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
+        EarningChiaVo earningVo = new EarningChiaVo(0.0, 0.0);
         /**
          *获取旷工信息
          */
@@ -467,7 +477,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             return Result.success(earningVo);
         }
         ChiaMiner miner = miners.get(0);
-        earningVo.setTotalEarning(BigDecimalUtil.formatFour(miner.getBalanceMinerAccount()).doubleValue());
+        earningVo.setAvailableEarning(BigDecimalUtil.formatFour(miner.getBalanceMinerAccount()).doubleValue());
         /**
          * 获取已提取收益
          */

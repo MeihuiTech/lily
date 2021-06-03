@@ -11,6 +11,8 @@ import com.mei.hui.miner.model.SysTransferRecordWrap;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2021-03-08
  */
+@Api(tags = "系统划转记录")
 @RestController
 @RequestMapping("/system/transfer")
 public class SysTransferRecordController
@@ -36,6 +39,7 @@ public class SysTransferRecordController
     /**
      * 查询系统划转记录列表,普通用户
      */
+    @ApiOperation(value = "查询系统划转记录列表,普通用户")
     @GetMapping("/list")
     public Map<String,Object> list(SysTransferRecord sysTransferRecord){
         return sysTransferRecordService.findTransferRecords(sysTransferRecord);
@@ -44,6 +48,7 @@ public class SysTransferRecordController
     /**
      * 查询系统划转记录列表，管理员用户
      */
+    @ApiOperation(value = "查询系统划转记录列表，管理员用户")
     @GetMapping("/listForAdmin")
     public Map<String,Object> listForAdmin(SysTransferRecord sysTransferRecord)
     {
@@ -53,6 +58,7 @@ public class SysTransferRecordController
     /**
      * 获取系统划转记录详细信息
      */
+    @ApiOperation(value = "获取系统划转记录详细信息")
     @GetMapping(value = "/{id}")
     public Result getInfo(@PathVariable("id") Long id)
     {
@@ -63,6 +69,7 @@ public class SysTransferRecordController
      * 修改系统划转记录
      */
     @PutMapping
+    @ApiOperation(value = "修改系统划转记录")
     public Result edit(@RequestBody SysTransferRecord sysTransferRecord)
     {
         if(sysTransferRecord.getId() == null) {
@@ -80,6 +87,7 @@ public class SysTransferRecordController
     /**
      * 删除系统划转记录
      */
+    @ApiOperation(value = "删除系统划转记录")
 	@DeleteMapping("/{ids}")
     public Result remove(@PathVariable Long[] ids)
     {
@@ -90,6 +98,13 @@ public class SysTransferRecordController
     /**
      * 查询用户收益
      */
+    @ApiOperation(value = "查询用户收益",notes = "查询用户收益出参：\n" +
+            "\n" +
+            "totalEarning总收益\n" +
+            "totalLockAward总锁仓收益\n" +
+            "totalWithdraw用户总共已提取\n" +
+            "availableEarning用户可提取金额\n" +
+            "drawingEarning正在提币中的")
     @GetMapping("/getUserEarning")
     public Result getUserEarning(GetUserEarningInput input){
         Long currencyId = HttpRequestUtil.getCurrencyId();
@@ -117,6 +132,7 @@ public class SysTransferRecordController
      * 用户提币：
      * 1、先校验现有余额是否 大于 将要提取的fil, 余额 - 带提币中的fil > 即将提取的fil
      */
+    @ApiOperation(value = "用户提币")
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {

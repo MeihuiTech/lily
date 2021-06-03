@@ -1,22 +1,26 @@
 package com.mei.hui.miner.model;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
+@ApiModel("fil查询用户收益出参")
 public class EarningVo {
-    /** 总收益 */
+
+    @ApiModelProperty(value = "总收益")
     private double totalEarning;
 
-    /** 总锁仓收益 */
+    @ApiModelProperty(value = "总锁仓收益")
     private double totalLockAward;
 
-    /** 用户总共已提取 */
+    @ApiModelProperty(value = "用户总共已提取")
     private double totalWithdraw;
 
-    /** 用户可提取金额 */
+    @ApiModelProperty(value = "用户可提取金额")
     private double availableEarning;
 
-    /** 正在提币中的fil*/
+    @ApiModelProperty(value = "正在提币中的")
     private double drawingEarning;
 
     public EarningVo() {
