@@ -26,7 +26,12 @@ public class AdminFirstController {
     @Autowired
     private IAdminFirstService adminFirstService;
 
-    @ApiOperation("管理员首页-旷工统计数据")
+    @ApiOperation(value = "管理员首页-旷工统计数据",notes = "管理员首页-旷工统计数据出参：\n" +
+            "\n" +
+            "allBalanceMinerAccount平台总资产\n" +
+            "allPowerAvailable平台有效算力\n" +
+            "allMinerCount活跃旷工\n" +
+            "allBlocksPerDay当天出块份数")
     @GetMapping("/allCount")
     public Result adminFirstAllCount(){
         Long currencyId = HttpRequestUtil.getCurrencyId();
@@ -41,8 +46,14 @@ public class AdminFirstController {
         return Result.OK;
     }
 
-
-    @ApiOperation("管理员首页-平台有效算力排行榜")
+    @ApiOperation(value = "管理员首页-平台有效算力排行榜",notes = "管理员首页-平台有效算力排行榜出参：\n" +
+            "\n" +
+            "userId用户ID\n" +
+            "powerAvailable有效算力, 单位B\n" +
+            "powerAvailablePercent有效算力所占百分比\n" +
+            "totalBlockAward累计出块奖励,单位FIL\n" +
+            "miningEfficiency挖矿效率\n" +
+            "powerIncrease算力增速")
     @GetMapping("/powerAvailablePage")
      public Map<String,Object> powerAvailablePage(BasePage basePage){
         Long currencyId = HttpRequestUtil.getCurrencyId();
