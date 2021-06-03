@@ -30,4 +30,7 @@ public class AggWithdrawVO {
 
     @ApiModelProperty("提现次数")
     private Integer tatalCount;
+
+    @ApiModelProperty("货币种类,FIL,CHIA")
+    private String type;
 }

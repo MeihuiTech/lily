@@ -104,6 +104,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateSysTransferRecord(SysTransferRecord sysTransferRecord){
+        Long currencyId = HttpRequestUtil.getCurrencyId();
         Long userId = sysTransferRecord.getUserId();
         SysTransferRecord transferRecord = sysTransferRecordMapper.selectById(sysTransferRecord.getId());
         if(transferRecord == null){
@@ -134,7 +135,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             if(aggWithdraws.size() == 0){
                 log.info("新增提现汇总信息");
                 MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(transferRecord.getAmount())
-                        .tatalCount(1).totalFee(transferRecord.getFee()).build();
+                        .type(CurrencyEnum.getCurrency(currencyId).name()).tatalCount(1).totalFee(transferRecord.getFee()).build();
                 mrAggWithdrawMapper.insert(insertAggWithdraw);
             }else{
                 log.info("更新提现汇总信息");

@@ -66,7 +66,7 @@ public class SysTransferRecordController
     }
 
     /**
-     * 修改系统划转记录
+     * 修改系统划转记录-管理员审核通过不通过
      */
     @PutMapping
     @ApiOperation(value = "修改系统划转记录")

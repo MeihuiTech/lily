@@ -3,8 +3,7 @@ package com.mei.hui.miner.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -13,6 +12,9 @@ import java.math.BigDecimal;
  */
 @Data
 @Builder
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName("mr_agg_withdraw")
 public class MrAggWithdraw {
 
