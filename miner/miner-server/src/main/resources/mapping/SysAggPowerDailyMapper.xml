@@ -114,5 +114,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSysAggPowerDailyByMinerId" resultMap="SysAggPowerDailyResult">
         <include refid="selectSysAggPowerDailyVo"/>
         where miner_id = #{minerId} and date &gt;=  #{begin} and date &lt;= #{end}
+        <if test="type != null and type != ''">
+            and type = #{type}
+        </if>
     </select>
 </mapper>

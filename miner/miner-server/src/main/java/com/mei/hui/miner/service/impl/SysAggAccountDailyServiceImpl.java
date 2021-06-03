@@ -39,8 +39,8 @@ public class SysAggAccountDailyServiceImpl implements ISysAggAccountDailyService
     }
 
     @Override
-    public List<SysAggAccountDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end) {
-        return sysAggAccountDailyMapper.selectSysAggAccountDailyByMinerId(minerId, begin, end);
+    public List<SysAggAccountDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end,String type) {
+        return sysAggAccountDailyMapper.selectSysAggAccountDailyByMinerId(minerId, begin, end, type);
     }
 
     /**

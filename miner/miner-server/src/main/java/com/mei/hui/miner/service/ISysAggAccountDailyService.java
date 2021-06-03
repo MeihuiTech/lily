@@ -23,7 +23,7 @@ public interface ISysAggAccountDailyService
 
     public SysAggAccountDaily selectSysAggAccountDailyByMinerIdAndDate(String minerId, String date);
 
-    public List<SysAggAccountDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end);
+    public List<SysAggAccountDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end,String type);
 
     /**
      * 查询账户按天聚合列表

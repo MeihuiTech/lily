@@ -65,5 +65,5 @@ public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
 
     public SysAggPowerDaily selectSysAggPowerDailyByMinerIdAndDate(@Param("minerId") String minerId, @Param("date") String date);
 
-    List<SysAggPowerDaily> selectSysAggPowerDailyByMinerId(@Param("minerId") String minerId, @Param("begin") String begin, @Param("end") String end);
+    List<SysAggPowerDaily> selectSysAggPowerDailyByMinerId(@Param("minerId") String minerId, @Param("begin") String begin, @Param("end") String end,@Param("type") String type);
 }

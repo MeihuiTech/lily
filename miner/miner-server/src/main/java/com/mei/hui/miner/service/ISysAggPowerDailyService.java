@@ -61,5 +61,5 @@ public interface ISysAggPowerDailyService
 
     public SysAggPowerDaily selectSysAggPowerDailyByMinerIdAndDate(String minerId, String date);
 
-    List<SysAggPowerDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end);
+    List<SysAggPowerDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end,String type);
 }

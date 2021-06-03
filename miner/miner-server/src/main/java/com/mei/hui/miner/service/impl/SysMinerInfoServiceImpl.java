@@ -314,7 +314,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         }
         Date end = DateUtils.getNowDate();
         Date begin = DateUtils.addDays(end,-29);
-        List<SysAggPowerDaily> list = sysAggPowerDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
+        List<SysAggPowerDaily> list = sysAggPowerDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end),CurrencyEnum.FIL.name());
         list.stream().forEach(v->{
             // v.setPowerAvailable(v.getPowerIncrease());
             v.setPowerIncrease(v.getPowerAvailable());
@@ -366,6 +366,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
      * @param id
      * @return
      */
+    @Override
     public PageResult dailyAccount(Long id) {
         Long userId = HttpRequestUtil.getUserId();
         SysMinerInfo miner = selectSysMinerInfoById(id);
@@ -377,7 +378,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         }
         Date end = DateUtils.getNowDate();
         Date begin = DateUtils.addDays(end,-29);
-        List<SysAggAccountDaily> list = sysAggAccountDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
+        List<SysAggAccountDaily> list = sysAggAccountDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end),CurrencyEnum.FIL.name());
 
         list.stream().forEach(v->{
             v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));
@@ -390,6 +391,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
      * @param id
      * @return
      */
+    @Override
     public PageResult chiaDailyAccount(Long id) {
         Long userId = HttpRequestUtil.getUserId();
         log.info("获取起亚币,入参:minerId = {}",id);

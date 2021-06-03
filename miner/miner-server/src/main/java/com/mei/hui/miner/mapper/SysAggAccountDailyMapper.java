@@ -66,5 +66,5 @@ public interface SysAggAccountDailyMapper extends BaseMapper<SysAggAccountDaily>
 
     SysAggAccountDaily selectSysAggAccountDailyByMinerIdAndDate(@Param("minerId") String minerId, @Param("date") String date);
 
-    List<SysAggAccountDaily> selectSysAggAccountDailyByMinerId(@Param("minerId") String minerId, @Param("begin") String begin, @Param("end") String end);
+    List<SysAggAccountDaily> selectSysAggAccountDailyByMinerId(@Param("minerId") String minerId, @Param("begin") String begin, @Param("end") String end, @Param("type") String type);
 }

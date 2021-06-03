@@ -100,7 +100,7 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
     }
 
     @Override
-    public List<SysAggPowerDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end) {
-        return sysAggPowerDailyMapper.selectSysAggPowerDailyByMinerId(minerId, begin, end);
+    public List<SysAggPowerDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end,String type) {
+        return sysAggPowerDailyMapper.selectSysAggPowerDailyByMinerId(minerId, begin, end,type);
     }
 }

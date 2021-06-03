@@ -39,7 +39,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     @Autowired
     private IChiaMinerService chiaMinerService;
 
-    @ApiOperation(value = "账户按天聚合信息")
+    @ApiOperation(value = "根据旷工id查询账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
     public PageResult dailyAccount(@PathVariable("id") Long id) {
         Long currencyId = HttpRequestUtil.getCurrencyId();
@@ -97,7 +97,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         return Result.fail(MinerError.MYB_222222.getCode(),"用户当前币种异常");
     }
 
-    @ApiOperation(value = "算力按天聚合信息")
+    @ApiOperation(value = "根据旷工id查询算力按天聚合信息")
     @GetMapping(value = "/{id}/dailyPower")
     public Map<String,Object> dailyPower(@PathVariable("id") Long id) {
         Long currencyId = HttpRequestUtil.getCurrencyId();
