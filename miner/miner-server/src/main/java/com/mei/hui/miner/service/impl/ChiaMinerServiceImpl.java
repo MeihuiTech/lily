@@ -63,12 +63,14 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
         IPage<ChiaMiner> page = chiaMinerMapper.selectPage(new Page<>(sysMinerInfoBO.getPageNum(), sysMinerInfoBO.getPageSize()), query);
         List<ChiaMiner> chiaMinerList = page.getRecords();
         List<ChiaMinerVO> chiaMinerVOList = new ArrayList<>();
-        for (ChiaMiner chiaMiner: chiaMinerList) {
-            ChiaMinerVO chiaMinerVO = new ChiaMinerVO();
-            BeanUtils.copyProperties(chiaMiner,chiaMinerVO);
-            chiaMinerVO.setTotalBlockAward(BigDecimalUtil.formatFour(chiaMinerVO.getTotalBlockAward()));
-            chiaMinerVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(chiaMinerVO.getBalanceMinerAccount()));
-            chiaMinerVOList.add(chiaMinerVO);
+        if (chiaMinerList != null && chiaMinerList.size() > 0) {
+            for (ChiaMiner chiaMiner: chiaMinerList) {
+                ChiaMinerVO chiaMinerVO = new ChiaMinerVO();
+                BeanUtils.copyProperties(chiaMiner,chiaMinerVO);
+                chiaMinerVO.setTotalBlockAward(BigDecimalUtil.formatFour(chiaMinerVO.getTotalBlockAward()));
+                chiaMinerVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(chiaMinerVO.getBalanceMinerAccount()));
+                chiaMinerVOList.add(chiaMinerVO);
+            }
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());

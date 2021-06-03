@@ -112,7 +112,23 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     /**
      * 查询矿工信息列表
      */
-    @ApiOperation(value = "矿工列表")
+    @ApiOperation(value = "矿工列表",notes = "fil矿工列表出参：\n" +
+            "\n" +
+            "minerId旷工id\n" +
+            "balanceMinerAccount挖矿账户余额, 单位FIL\n" +
+            "balanceMinerAvailable矿工可用余额,单位FIL\n" +
+            "sectorPledge扇区质押, 单位FIL\n" +
+            "totalBlockAward累计出块奖励,单位FIL\n" +
+            "powerAvailable有效算力, 单位B\n" +
+            "machineCount矿机数量\n" +
+            "\n" +
+            "chia查询矿工信息列表出参：\n" +
+            "\n" +
+            "minerId旷工id\n" +
+            "powerAvailable有效算力, 单位B\n" +
+            "totalBlockAward累计出块奖励,单位XCH\n" +
+            "balanceMinerAccount总资产, 单位XCH\n" +
+            "totalBlocks累计出块份数")
     @GetMapping("/list")
     public Map<String,Object> list(SysMinerInfoBO sysMinerInfoBO){
         Long currencyId = HttpRequestUtil.getCurrencyId();
