@@ -8,15 +8,19 @@ import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
+import com.mei.hui.miner.model.ChiaMinerVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.service.IChiaMinerService;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.nio.NHttpMessageWriter;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +61,19 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
             }
         }
         IPage<ChiaMiner> page = chiaMinerMapper.selectPage(new Page<>(sysMinerInfoBO.getPageNum(), sysMinerInfoBO.getPageSize()), query);
+        List<ChiaMiner> chiaMinerList = page.getRecords();
+        List<ChiaMinerVO> chiaMinerVOList = new ArrayList<>();
+        for (ChiaMiner chiaMiner: chiaMinerList) {
+            ChiaMinerVO chiaMinerVO = new ChiaMinerVO();
+            BeanUtils.copyProperties(chiaMiner,chiaMinerVO);
+            chiaMinerVO.setTotalBlockAward(BigDecimalUtil.formatFour(chiaMinerVO.getTotalBlockAward()));
+            chiaMinerVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(chiaMinerVO.getBalanceMinerAccount()));
+            chiaMinerVOList.add(chiaMinerVO);
+        }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
-        map.put("rows",page.getRecords());
+        map.put("rows",chiaMinerVOList);
         map.put("total",page.getTotal());
         return map;
     }
