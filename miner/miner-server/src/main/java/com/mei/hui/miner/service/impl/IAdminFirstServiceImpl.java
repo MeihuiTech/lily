@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
@@ -9,9 +10,9 @@ import com.mei.hui.miner.model.PowerAvailableFilVO;
 import com.mei.hui.miner.service.IAdminFirstService;
 import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
-import com.mei.hui.util.BasePage;
-import com.mei.hui.util.DateUtils;
-import com.mei.hui.util.ErrorCode;
+import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,9 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
 
     @Autowired
     private ChiaMinerMapper chiaMinerMapper;
+
+    @Autowired
+    private UserFeignClient userFeignClient;
 
     /**
      * fil管理员首页-旷工统计数据
@@ -93,6 +97,19 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
         BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
         IPage<PowerAvailableFilVO> result = sysMinerInfoMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate,allPowerAvailable);
+        for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
+            SysUserOut sysUserOut = new SysUserOut();
+            sysUserOut.setUserId(powerAvailableFilVO.getUserId());
+            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
+            }
+            powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent()));
+            powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
+            powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(powerAvailableFilVO.getMiningEfficiency()));
+        }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
@@ -114,6 +131,19 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
         BigDecimal allPowerAvailable = chiaMinerService.selectFilAllPowerAvailable();
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
         IPage<PowerAvailableFilVO> result = chiaMinerMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate,allPowerAvailable);
+        for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
+            SysUserOut sysUserOut = new SysUserOut();
+            sysUserOut.setUserId(powerAvailableFilVO.getUserId());
+            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
+            }
+            powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent()));
+            powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
+            powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(powerAvailableFilVO.getMiningEfficiency()));
+        }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());

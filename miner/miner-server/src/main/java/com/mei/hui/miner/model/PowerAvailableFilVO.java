@@ -17,11 +17,11 @@ import java.math.BigDecimal;
 @ApiModel("管理员首页-平台有效算力排行榜出参")
 public class PowerAvailableFilVO {
 
-//    @ApiModelProperty(value = "排行")
-//    private Long no;
-
     @ApiModelProperty(value = "用户ID")
     private Long userId;
+
+    @ApiModelProperty(value = "用户姓名")
+    private String userName;
 
     @ApiModelProperty(value = "有效算力, 单位B")
     private BigDecimal powerAvailable;
