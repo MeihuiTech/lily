@@ -10,13 +10,13 @@ public enum CurrencyEnum {
 
     private Long currencyId;
     private String des;
-    /*币种代币名称*/
-    private String name;
+    /*币种代币单位名称*/
+    private String unit;
 
-    CurrencyEnum(Long currencyId,String des,String name){
+    CurrencyEnum(Long currencyId,String des,String unit){
         this.currencyId = currencyId;
         this.des = des;
-        this.name = name;
+        this.unit = unit;
     }
 
     /**
@@ -34,27 +34,27 @@ public enum CurrencyEnum {
     }
 
     /**
-     * 根据币种区块链项目名称type返回币种代币名称name
+     * 根据币种区块链项目名称type返回币种代币单位名称
      * @param type 别的表里的type：货币种类,FIL,CHIA
      * @return
      */
     public static String getCurrencyNameByProjectName(String type){
         for(CurrencyEnum currency : CurrencyEnum.values()){
             if(currency.name().equals(type)){
-                return currency.getName().toString();
+                return currency.getUnit().toString();
             }
         }
         return null;
     }
 
     /**
-     * 根据币种代币名称name查出来币种区块链项目名称type
+     * 根据币种代币单位名称查出来币种区块链项目名称type
      * @param projectName
      * @return
      */
-    public static String getProjectNameByCurrencyName(String currencyName){
+    public static String getProjectNameByCurrencyName(String currencyUnit){
         for(CurrencyEnum currency : CurrencyEnum.values()){
-            if(currency.getName().equals(currencyName)){
+            if(currency.getUnit().equals(currencyUnit)){
                 return currency.name().toString();
             }
         }
@@ -77,11 +77,11 @@ public enum CurrencyEnum {
         this.des = des;
     }
 
-    public String getName() {
-        return name;
+    public String getUnit() {
+        return unit;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }
