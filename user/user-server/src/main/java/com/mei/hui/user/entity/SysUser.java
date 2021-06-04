@@ -106,4 +106,8 @@ public class SysUser {
     @ApiModelProperty(value = "业务名称,输入字符串")
     private String serviceName;
 
+    @TableField(exist = false)
+    @ApiModelProperty(value = "fil币费率")
+    private String filRate;
+
 }

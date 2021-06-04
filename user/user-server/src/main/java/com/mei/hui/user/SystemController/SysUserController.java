@@ -63,6 +63,9 @@ public class SysUserController{
             throw MyException.fail(UserError.MYB_333333.getCode(),"请输入用户id");
         }
         SysUser sysUser = userService.getUserById(sysUserOut.getUserId());
+        if(sysUser == null){
+            throw MyException.fail(UserError.MYB_333333.getCode(),"用户不存在");
+        }
         SysUserOut out = new SysUserOut();
         BeanUtils.copyProperties(sysUser,out);
         return Result.success(out);
@@ -156,13 +159,6 @@ public class SysUserController{
      */
     @PostMapping
     public Result add(@Validated @RequestBody SysUser user){
-        /*String email = user.getEmail();
-        if (StringUtils.isEmpty(email)){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱不能为空");
-        }
-        if (!CommonUtil.isEmail(email)){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱格式不正确");
-        }*/
         String phonenumber = user.getPhonenumber();
         if (StringUtils.isEmpty(phonenumber)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号不能为空");
@@ -176,10 +172,7 @@ public class SysUserController{
         }else if (StringUtils.isNotEmpty(user.getPhonenumber())
                 && "1".equals(userService.checkPhoneUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
-        }/*else if (StringUtils.isNotEmpty(user.getEmail())
-                && "1".equals(userService.checkEmailUnique(user))){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱账号已存在");
-        }*/
+        }
         /**
          * 校验是否包含中文，6到20个字符
          */

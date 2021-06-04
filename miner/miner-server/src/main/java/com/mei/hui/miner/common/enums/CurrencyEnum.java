@@ -49,7 +49,7 @@ public enum CurrencyEnum {
 
     /**
      * 根据币种代币单位名称查出来币种区块链项目名称type
-     * @param projectName
+     * @param currencyUnit
      * @return
      */
     public static String getCurrencyTypeByUnit(String currencyUnit){
