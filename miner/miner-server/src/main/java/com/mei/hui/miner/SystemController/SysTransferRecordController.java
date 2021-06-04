@@ -126,7 +126,8 @@ public class SysTransferRecordController
         return null;
     }
 
-    @ApiOperation(value = "管理员-矿池收益-根据币种分别显示“总手续费”和“今日手续费”")
+    @ApiOperation(value = "管理员-矿池收益-根据币种分别显示“总手续费”和“今日手续费”",notes = "fee平台收取手续费\n" +
+            "name货比种类,FIL,CHIA")
     @GetMapping("/getPoolEarning")
     public Result getPoolEarning() {
         List<TransferRecordFeeVO> allTransferRecordFeeVOList = sysTransferRecordService.selectTotalEarning();
