@@ -1,6 +1,5 @@
 package com.mei.hui.user.SystemController;
 
-import com.alibaba.nacos.api.config.filter.IFilterConfig;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
@@ -13,6 +12,7 @@ import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.user.model.AddSysUserBO;
 import com.mei.hui.user.model.SelectUserListInput;
 import com.mei.hui.user.model.SmsSendBO;
 import com.mei.hui.user.service.ISysRoleService;
@@ -158,7 +158,10 @@ public class SysUserController{
      * 新增用户
      */
     @PostMapping
-    public Result add(@Validated @RequestBody SysUser user){
+    public Result add(@Validated @RequestBody AddSysUserBO addSysUserBO){
+        SysUser user = new SysUser();
+        BeanUtils.copyProperties(addSysUserBO,user);
+        user.setRats(addSysUserBO.getRats());
         String phonenumber = user.getPhonenumber();
         if (StringUtils.isEmpty(phonenumber)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号不能为空");
@@ -200,10 +203,6 @@ public class SysUserController{
                 && "1".equals(userService.checkPhoneUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
         }
-        /*else if (StringUtils.isNotEmpty(user.getEmail())
-                && "1".equals(userService.checkEmailUnique(user))){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"邮箱账号已存在");
-        }*/
         SysUser userOut = userService.getLoginUser();
         user.setUpdateBy(userOut.getUserName());
         int rows = userService.updateUser(user);

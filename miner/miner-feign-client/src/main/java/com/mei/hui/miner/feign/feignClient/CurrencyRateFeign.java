@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "miner-server",path = "/rate",fallbackFactory = MinerFeignFallbackFactory.class )
-public interface CurrencyRateFeignClient {
+public interface CurrencyRateFeign {
 
     @PostMapping("/saveOrUpdateFeeRate")
     Result saveOrUpdateFeeRate(@RequestBody SaveFeeRateBO saveFeeRateBO);
