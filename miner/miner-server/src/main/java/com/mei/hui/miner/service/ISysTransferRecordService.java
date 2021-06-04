@@ -4,6 +4,7 @@ import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.entity.SysTransferRecordUserName;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
+import com.mei.hui.miner.model.TransferRecordFeeVO;
 import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
@@ -74,9 +75,29 @@ public interface ISysTransferRecordService
      */
     Double selectTotalWithdrawByUserId(Long userId);
 
-    BigDecimal selectTotalEarning();
+    /**
+    * 总手续费收益
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/3 17:34
+    * @param []
+    * @return java.math.BigDecimal
+    * @version v1.0.0
+    */
+    List<TransferRecordFeeVO> selectTotalEarning();
 
-    BigDecimal selectTodayEarning();
+    /**
+    * 今日手续费收益
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/3 17:35
+    * @param []
+    * @return java.math.BigDecimal
+    * @version v1.0.0
+    */
+    List<TransferRecordFeeVO> selectTodayEarning();
 
     /**
      * 查询系统划转记录列表,加UserName

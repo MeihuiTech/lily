@@ -49,7 +49,7 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
         // 管理员首页-旷工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
         BigDecimal allBalanceMinerAccount = sysMinerInfoService.selectFilAllBalanceMinerAccount();
-        adminFirstCollectVO.setAllBalanceMinerAccount(allBalanceMinerAccount);
+        adminFirstCollectVO.setAllBalanceMinerAccount(BigDecimalUtil.formatFour(allBalanceMinerAccount));
         // 管理员首页-旷工统计数据-平台有效算力
         BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
         adminFirstCollectVO.setAllPowerAvailable(allPowerAvailable);
@@ -71,7 +71,7 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
         // 管理员首页-旷工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
         BigDecimal allBalanceMinerAccount = chiaMinerService.selectFilAllBalanceMinerAccount();
-        adminFirstCollectVO.setAllBalanceMinerAccount(allBalanceMinerAccount);
+        adminFirstCollectVO.setAllBalanceMinerAccount(BigDecimalUtil.formatFour(allBalanceMinerAccount));
         // 管理员首页-旷工统计数据-平台有效算力
         BigDecimal allPowerAvailable = chiaMinerService.selectFilAllPowerAvailable();
         adminFirstCollectVO.setAllPowerAvailable(allPowerAvailable);

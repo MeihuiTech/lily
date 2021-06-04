@@ -1,5 +1,8 @@
 package com.mei.hui.miner.common.enums;
 
+/**
+ * 币种枚举类
+ */
 public enum CurrencyEnum {
 
     FIL(1L,"fil币"),
@@ -13,14 +16,20 @@ public enum CurrencyEnum {
         this.des = des;
     }
 
+    /**
+     * 根据币种id查询币种枚举类实体
+     * @param currencyId
+     * @return
+     */
     public static CurrencyEnum getCurrency(Long currencyId){
         for(CurrencyEnum currency : CurrencyEnum.values()){
-            if(currency.getCurrencyId() == currencyId){
+            if(currency.getCurrencyId().equals(currencyId)){
                 return currency;
             }
         }
         return null;
     }
+
 
     public Long getCurrencyId() {
         return currencyId;

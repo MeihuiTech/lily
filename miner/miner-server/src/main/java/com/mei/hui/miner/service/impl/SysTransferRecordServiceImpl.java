@@ -12,10 +12,7 @@ import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.mapper.*;
-import com.mei.hui.miner.model.EarningChiaVo;
-import com.mei.hui.miner.model.EarningVo;
-import com.mei.hui.miner.model.GetUserEarningInput;
-import com.mei.hui.miner.model.SysTransferRecordWrap;
+import com.mei.hui.miner.model.*;
 import com.mei.hui.miner.service.ISysReceiveAddressService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
@@ -185,13 +182,21 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         return sysTransferRecordMapper.selectTotalWithdrawByUserId(userId);
     }
 
+    /**
+     * 总手续费收益
+     * @return
+     */
     @Override
-    public BigDecimal selectTotalEarning() {
+    public List<TransferRecordFeeVO> selectTotalEarning() {
         return sysTransferRecordMapper.selectTotalEarning();
     }
 
+    /**
+     * 今日手续费收益
+     * @return
+     */
     @Override
-    public BigDecimal selectTodayEarning() {
+    public List<TransferRecordFeeVO> selectTodayEarning() {
         return sysTransferRecordMapper.selectTodayEarning();
     }
 

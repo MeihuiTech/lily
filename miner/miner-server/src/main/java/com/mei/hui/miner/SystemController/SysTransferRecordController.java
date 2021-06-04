@@ -1,23 +1,30 @@
 package com.mei.hui.miner.SystemController;
 
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.CurrencyEnum;
+import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.PoolEarningVo;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
+import com.mei.hui.miner.model.TransferRecordFeeVO;
+import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +34,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2021-03-08
  */
+@Slf4j
 @Api(tags = "系统划转记录")
 @RestController
 @RequestMapping("/system/transfer")
@@ -35,6 +43,8 @@ public class SysTransferRecordController
     @Autowired
     private ISysTransferRecordService sysTransferRecordService;
 
+    @Autowired
+    private ISysCurrencyService sysCurrencyService;
 
     /**
      * 查询系统划转记录列表,普通用户
@@ -116,16 +126,50 @@ public class SysTransferRecordController
         return null;
     }
 
+    @ApiOperation(value = "管理员-矿池收益-根据币种分别显示“总手续费”和“今日手续费”")
     @GetMapping("/getPoolEarning")
     public Result getPoolEarning() {
-        BigDecimal totalEarning = sysTransferRecordService.selectTotalEarning();
-        BigDecimal todayEarning = sysTransferRecordService.selectTodayEarning();
-        totalEarning = totalEarning==null? BigDecimal.valueOf(0):totalEarning;
-        todayEarning = todayEarning==null? BigDecimal.valueOf(0):todayEarning;
-        PoolEarningVo e = new PoolEarningVo();
-        e.setTodayEarning(todayEarning);
-        e.setTotalEarning(totalEarning);
-        return Result.success(e);
+        List<TransferRecordFeeVO> allTransferRecordFeeVOList = sysTransferRecordService.selectTotalEarning();
+        log.info("总手续费收益：【{}】",JSON.toJSON(allTransferRecordFeeVOList));
+        List<TransferRecordFeeVO> todayTransferRecordFeeVOList = sysTransferRecordService.selectTodayEarning();
+        log.info("今日手续费收益：【{}】",JSON.toJSON(todayTransferRecordFeeVOList));
+        List<TransferRecordFeeVO> resultAllTransferRecordFeeVOList = new ArrayList<>();
+        List<TransferRecordFeeVO> resultTodayTransferRecordFeeVOList = new ArrayList<>();
+        List<Currency> currencyList = sysCurrencyService.allCurrencyList();
+        log.info("币种表列表：【{}】",JSON.toJSON(currencyList));
+
+        for (Currency currency:currencyList){
+            TransferRecordFeeVO resultAllTransferRecordFeeVO = new TransferRecordFeeVO();
+            resultAllTransferRecordFeeVO.setName(currency.getName());
+            resultAllTransferRecordFeeVO.setFee(BigDecimal.ZERO);
+            if (allTransferRecordFeeVOList != null && allTransferRecordFeeVOList.size() > 0) {
+                for (TransferRecordFeeVO transferRecordFeeVO:allTransferRecordFeeVOList){
+                    if (currency.getType().equals(transferRecordFeeVO.getName())){
+                        resultAllTransferRecordFeeVO.setFee(BigDecimalUtil.formatFour(transferRecordFeeVO.getFee()==null? BigDecimal.ZERO:transferRecordFeeVO.getFee()));
+                        break;
+                    }
+                }
+            }
+            resultAllTransferRecordFeeVOList.add(resultAllTransferRecordFeeVO);
+
+            TransferRecordFeeVO resultTodayTransferRecordFeeVO = new TransferRecordFeeVO();
+            resultTodayTransferRecordFeeVO.setName(currency.getName());
+            resultTodayTransferRecordFeeVO.setFee(BigDecimal.ZERO);
+            if (todayTransferRecordFeeVOList != null && todayTransferRecordFeeVOList.size() > 0) {
+                for (TransferRecordFeeVO transferRecordFeeVO:todayTransferRecordFeeVOList) {
+                    if (currency.getType().equals(transferRecordFeeVO.getName())){
+                        resultTodayTransferRecordFeeVO.setFee(BigDecimalUtil.formatFour(transferRecordFeeVO.getFee()==null? BigDecimal.valueOf(0):transferRecordFeeVO.getFee()));
+                        break;
+                    }
+                }
+            }
+            resultTodayTransferRecordFeeVOList.add(resultTodayTransferRecordFeeVO);
+        }
+
+        PoolEarningVo poolEarningVo = new PoolEarningVo();
+        poolEarningVo.setAllTransferRecordFeeVOList(resultAllTransferRecordFeeVOList);
+        poolEarningVo.setTodayTransferRecordFeeVOList(resultTodayTransferRecordFeeVOList);
+        return Result.success(poolEarningVo);
     }
 
     /**

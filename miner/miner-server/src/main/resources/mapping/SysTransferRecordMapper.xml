@@ -133,11 +133,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
-    <select id="selectTotalEarning" resultType="BigDecimal">
-        select sum(fee) from sys_transfer_record where status = 1
+    <select id="selectTotalEarning" resultType="com.mei.hui.miner.model.TransferRecordFeeVO">
+        SELECT
+            sum(fee) fee,type name
+        FROM
+            sys_transfer_record
+        WHERE
+            STATUS = 1
+        GROUP BY type
     </select>
 
-    <select id="selectTodayEarning" resultType="BigDecimal">
-        select sum(fee) from sys_transfer_record where create_time >= curdate() and status = 1
+    <select id="selectTodayEarning" resultType="com.mei.hui.miner.model.TransferRecordFeeVO">
+        SELECT
+            sum(fee) fee,type name
+        FROM
+            sys_transfer_record
+        WHERE
+            create_time >= curdate()
+        AND STATUS = 1
+        GROUP BY type
     </select>
 </mapper>

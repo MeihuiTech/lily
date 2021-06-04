@@ -3,6 +3,7 @@ package com.mei.hui.miner.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.entity.SysTransferRecordUserName;
+import com.mei.hui.miner.model.TransferRecordFeeVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -74,9 +75,9 @@ public interface SysTransferRecordMapper extends BaseMapper<SysTransferRecord>
      */
     Double selectTotalWithdrawByUserId(@Param("userId") Long userId);
 
-    BigDecimal selectTodayEarning();
+    List<TransferRecordFeeVO> selectTodayEarning();
 
-    BigDecimal selectTotalEarning();
+    List<TransferRecordFeeVO> selectTotalEarning();
 
     /**
      * 查询系统划转记录列表,加UserName

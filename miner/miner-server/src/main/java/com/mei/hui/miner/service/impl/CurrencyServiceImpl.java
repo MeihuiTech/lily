@@ -1,6 +1,7 @@
 package com.mei.hui.miner.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.common.enums.EnumCurrencyStatus;
 import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.mapper.SysCurrencyMapper;
@@ -41,5 +42,18 @@ public class CurrencyServiceImpl implements ISysCurrencyService {
             vo.setType(v.getType());
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 不分页查询币种表里的所有可用的币种
+     * @return
+     */
+    @Override
+    public List<Currency> allCurrencyList() {
+        Currency currency = new Currency();
+        currency.setStatus(1);
+        QueryWrapper<Currency> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(currency);
+        return sysCurrencyMapper.selectList(queryWrapper);
     }
 }
