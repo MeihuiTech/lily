@@ -38,7 +38,7 @@ public enum CurrencyEnum {
      * @param type 别的表里的type：货币种类,FIL,CHIA
      * @return
      */
-    public static String getCurrencyNameByProjectName(String type){
+    public static String getCurrencyUnitByType(String type){
         for(CurrencyEnum currency : CurrencyEnum.values()){
             if(currency.name().equals(type)){
                 return currency.getUnit();
@@ -52,7 +52,7 @@ public enum CurrencyEnum {
      * @param projectName
      * @return
      */
-    public static String getProjectNameByCurrencyName(String currencyUnit){
+    public static String getCurrencyTypeByUnit(String currencyUnit){
         for(CurrencyEnum currency : CurrencyEnum.values()){
             if(currency.getUnit().equals(currencyUnit)){
                 return currency.name();
