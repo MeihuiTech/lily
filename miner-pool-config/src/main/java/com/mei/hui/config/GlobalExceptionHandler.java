@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 public class GlobalExceptionHandler {
     @Value("${spring.application.name}")
     private String  projectName;
+    @Value("${spring.profiles.active}")
+    private String env;
 
     @ResponseBody
     @ExceptionHandler
@@ -32,11 +34,25 @@ public class GlobalExceptionHandler {
         if (e instanceof MyException) {
             MyException myException = (MyException) e;
             rs = new Result(myException.getCode(), myException.getMsg());
+        }else{
+            if("test".equals(env) || "dev".equals(env)){
+                String exMsg = getExceptionAllinformation(e);
+                rs.setMsg(exMsg);
+            }
         }
         log.error("全局异常统一处理:", e);
         log.info("@响应参数:{}",JSON.toJSONString(rs));
         log.error("@========================end-{}========================",projectName);
         return rs;
+    }
+
+    public static String getExceptionAllinformation(Exception ex){
+        String sOut = "";        sOut += ex.getMessage() + "\r\n";
+        StackTraceElement[] trace = ex.getStackTrace();
+        for (StackTraceElement s : trace) {
+            sOut += "\tat " + s + "\r\n";
+        }
+        return sOut;
     }
 
 }
