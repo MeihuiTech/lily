@@ -319,28 +319,47 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
 
         Long userId = HttpRequestUtil.getUserId();
         Long currencyId = HttpRequestUtil.getCurrencyId();
+        String currencyType = CurrencyEnum.getCurrency(currencyId).name();
+        String minerId = sysTransferRecordWrap.getMinerId();
 
         /**
          * 一：提取金额 < 可提现金额 - 提币中 金额
          */
         //获取可提现金额
-        LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper();
-        wrapper.eq(SysMinerInfo::getMinerId,sysTransferRecordWrap.getMinerId());
-        wrapper.eq(SysMinerInfo::getUserId,HttpRequestUtil.getUserId());
-        log.info("查询旷工信息,入参:{}",wrapper.toString());
-        List<SysMinerInfo> miners = sysMinerInfoMapper.selectList(wrapper);
-        log.info("查询旷工信息,出参:{}",JSON.toJSONString(miners));
-        if(miners.size() == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
+        BigDecimal balanceMinerAvailable = BigDecimal.ZERO;
+        if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
+            LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper();
+            wrapper.eq(SysMinerInfo::getMinerId,minerId);
+            wrapper.eq(SysMinerInfo::getUserId,userId);
+            log.info("查询fil旷工信息,入参:{}",wrapper.toString());
+            List<SysMinerInfo> miners = sysMinerInfoMapper.selectList(wrapper);
+            log.info("查询fil旷工信息,出参:{}",JSON.toJSONString(miners));
+            if(miners.size() == 0){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
+            }
+            SysMinerInfo sysMinerInfo = miners.get(0);
+            balanceMinerAvailable = sysMinerInfo.getBalanceMinerAvailable();
+        }else if(CurrencyEnum.CHIA.getCurrencyId().equals(currencyId)){//起亚币
+            ChiaMiner chiaMiner = new ChiaMiner();
+            chiaMiner.setUserId(userId);
+            chiaMiner.setMinerId(minerId);
+            QueryWrapper<ChiaMiner> queryWrapper = new QueryWrapper<>();
+            queryWrapper.setEntity(chiaMiner);
+            log.info("查询chia旷工信息,入参:{}",JSON.toJSON(chiaMiner));
+            List<ChiaMiner> chiaMinerList = chiaMinerMapper.selectList(queryWrapper);
+            log.info("查询chia旷工信息,出参:{}",JSON.toJSON(chiaMinerList));
+            if(chiaMinerList.size() == 0){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
+            }
+            balanceMinerAvailable =chiaMinerList.get(0).getBalanceMinerAccount();
         }
-        SysMinerInfo sysMinerInfo = miners.get(0);
-        BigDecimal balanceMinerAvailable = sysMinerInfo.getBalanceMinerAvailable();
 
         //获取提币中的金额
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SysTransferRecord::getUserId, HttpRequestUtil.getUserId());
+        queryWrapper.eq(SysTransferRecord::getUserId, userId);
         queryWrapper.eq(SysTransferRecord::getStatus,0);
-        queryWrapper.eq(SysTransferRecord::getMinerId, sysTransferRecordWrap.getMinerId());
+        queryWrapper.eq(SysTransferRecord::getMinerId, minerId);
+        queryWrapper.eq(SysTransferRecord::getType, currencyType);
         log.info("获取提币中的金额,入参:{}",queryWrapper.toString());
         List<SysTransferRecord> transferRecord = sysTransferRecordMapper.selectList(queryWrapper);
         log.info("获取提币中的金额,出参:{}",JSON.toJSONString(transferRecord));
@@ -386,6 +405,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         sysTransferRecord.setStatus(0);
         sysTransferRecord.setMinerId(sysTransferRecordWrap.getMinerId());
         sysTransferRecord.setCreateTime(LocalDateTime.now());
+        sysTransferRecord.setType(currencyType);
         log.info("记录提币申请：【{}】", JSON.toJSON(sysTransferRecord));
         int rows = sysTransferRecordMapper.insert(sysTransferRecord);
 
