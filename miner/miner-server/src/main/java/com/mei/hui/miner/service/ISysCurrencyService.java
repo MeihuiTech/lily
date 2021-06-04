@@ -37,4 +37,16 @@ public interface ISysCurrencyService {
     * @version v1.0.0
     */
     public List<Currency> allCurrencyList();
+
+    /**
+    * 根据币种type查询并返回name
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/4 14:40
+    * @param [type]
+    * @return java.lang.String
+    * @version v1.0.0
+    */
+    public String getCurrencyNameByType(String type);
 }

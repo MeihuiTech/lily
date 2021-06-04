@@ -6,19 +6,21 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
-import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.*;
-import com.mei.hui.miner.service.ISysReceiveAddressService;
+import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.util.*;
+import com.mei.hui.util.BigDecimalUtil;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -265,6 +267,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(sysTransferRecord.getPageNum(), sysTransferRecord.getPageSize()), queryWrapper);
         List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
+        page.getRecords().stream().filter(v-> page.getRecords() != null && page.getRecords().size() > 0).forEach(v->{
+            v.setType(CurrencyEnum.getCurrencyUnitByType(v.getType()));
+        });
         /**
          * 查询用户
          */
@@ -281,6 +286,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(map.size() > 0){
             page.getRecords().stream().forEach(v->v.setUserName(map.get(v.getUserId()).getUserName()));
         }
+
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());
         result.put("msg", ErrorCode.MYB_000000.getMsg());

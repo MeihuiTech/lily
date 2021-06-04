@@ -56,4 +56,22 @@ public class CurrencyServiceImpl implements ISysCurrencyService {
         queryWrapper.setEntity(currency);
         return sysCurrencyMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 根据币种type查询并返回name
+     * @param type
+     * @return
+     */
+    @Override
+    public String getCurrencyNameByType(String type){
+        Currency currency = new Currency();
+        currency.setType(type);
+        QueryWrapper<Currency> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(currency);
+        List<Currency> currencyList = sysCurrencyMapper.selectList(queryWrapper);
+        if (currencyList != null && currencyList.size() > 0) {
+            return currencyList.get(0).getName();
+        }
+        return null;
+    }
 }

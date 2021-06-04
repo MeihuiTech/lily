@@ -4,10 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.MrAggWithdraw;
 import com.mei.hui.miner.mapper.MrAggWithdrawMapper;
 import com.mei.hui.miner.model.AggWithdrawBO;
 import com.mei.hui.miner.model.AggWithdrawVO;
+import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.MrAggWithdrawService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
@@ -15,6 +18,7 @@ import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,25 +39,20 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
     @Autowired
     private MrAggWithdrawMapper mrAggWithdrawMapper;
 
+
+    /**
+    * 用户收益提现汇总分页查询
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/4 16:50
+    * @param [input]
+    * @return com.mei.hui.util.PageResult<com.mei.hui.miner.model.AggWithdrawVO>
+    * @version v1.0.0
+    */
+    @Override
     public PageResult<AggWithdrawVO> pageList(AggWithdrawBO input){
-        /**
-         * 去用于模块模糊查询，获取用户id
-         */
-        FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
-        bo.setName(input.getUserName());
-        log.info("模糊查询用户id集合");
-        Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
-        log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
-        List<Long> ids = new ArrayList<>();
-        if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
-            ids = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
-        }
-        if(StringUtils.isNotEmpty(input.getUserName()) && ids.size() == 0){
-            return new PageResult();
-        }
-        /**
-         * 查询用户收益提现分页列表
-         */
+        //查询用户收益提现分页列表
         LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
         //排序
         if("totalFee".equals(input.getCloumName())){
@@ -67,8 +63,7 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
                 //降序
                 queryWrapper.orderByDesc(MrAggWithdraw::getTotalFee);
             }
-        }
-        if("tatalCount".equals(input.getCloumName())){
+        } else if("tatalCount".equals(input.getCloumName())){
             if(input.isAsc()){
                 //true升序
                 queryWrapper.orderByAsc(MrAggWithdraw::getTatalCount);
@@ -76,8 +71,7 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
                 //降序
                 queryWrapper.orderByDesc(MrAggWithdraw::getTatalCount);
             }
-        }
-        if("takeTotalMony".equals(input.getCloumName())){
+        } else if("takeTotalMony".equals(input.getCloumName())){
             if(input.isAsc()){
                 //true升序
                 queryWrapper.orderByAsc(MrAggWithdraw::getTakeTotalMony);
@@ -85,10 +79,38 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
                 //降序
                 queryWrapper.orderByDesc(MrAggWithdraw::getTakeTotalMony);
             }
+        } else {
+            queryWrapper.orderByDesc(MrAggWithdraw::getTakeTotalMony);
         }
-        if(ids.size() > 0){
-            queryWrapper.in(MrAggWithdraw::getSysUserId,ids);
+
+        //用于入参模块模糊查询，获取用户id
+        String userName = input.getUserName();
+        if (StringUtils.isNotEmpty(userName)) {
+            FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
+            bo.setName(input.getUserName());
+            log.info("模糊查询用户id集合");
+            Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
+            log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
+            List<Long> idList = new ArrayList<>();
+            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
+                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+                // id去重
+                Set<Long> idsSet = new HashSet<>(idList);
+                queryWrapper.in(MrAggWithdraw::getSysUserId,new ArrayList<Long>(idsSet));
+            }
         }
+
+        // 查询条件币种
+        Long currencyId = input.getCurrencyId();
+        if (currencyId != null) {
+            CurrencyEnum currencyEnum = CurrencyEnum.getCurrency(currencyId);
+            if (currencyEnum == null) {
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"入参币种不存在");
+            }
+            String currencyType = currencyEnum.name();
+            queryWrapper.eq(MrAggWithdraw::getType,currencyType);
+        }
+
         IPage<MrAggWithdraw> page = mrAggWithdrawMapper
                 .selectPage(new Page<>(input.getPageNum(), input.getPageSize()), queryWrapper);
         /**
@@ -108,6 +130,7 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
             AggWithdrawVO vo = new AggWithdrawVO();
             BeanUtils.copyProperties(v, vo);
             vo.setUserName(maps.get(v.getSysUserId()));
+            vo.setType(CurrencyEnum.getCurrencyUnitByType(vo.getType()));
             return vo;
         }).collect(Collectors.toList());
         PageResult pageResult = new PageResult(page.getTotal(),lt);
