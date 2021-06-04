@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Api(tags = "用户提币汇总表")
 @RequestMapping("/aggWithdraw")
-public class MrAggWithdrawApi {
+public class MrAggWithdrawController {
 
     @Autowired
     private MrAggWithdrawService mrAggWithdrawService;
