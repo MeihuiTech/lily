@@ -41,7 +41,7 @@ public enum CurrencyEnum {
     public static String getCurrencyNameByProjectName(String type){
         for(CurrencyEnum currency : CurrencyEnum.values()){
             if(currency.name().equals(type)){
-                return currency.getUnit().toString();
+                return currency.getUnit();
             }
         }
         return null;
@@ -55,7 +55,7 @@ public enum CurrencyEnum {
     public static String getProjectNameByCurrencyName(String currencyUnit){
         for(CurrencyEnum currency : CurrencyEnum.values()){
             if(currency.getUnit().equals(currencyUnit)){
-                return currency.name().toString();
+                return currency.name();
             }
         }
         return null;
