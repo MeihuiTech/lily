@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,6 +85,23 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
             return findUserRateVO;
         }).collect(Collectors.toList());
         return Result.success(lt);
+    }
+
+    /**
+     * 获取 fil,rate
+     * @param userId
+     * @return
+     */
+    public Map<String,BigDecimal> getUserRateMap(Long userId){
+        //获取用户币种费率
+        LambdaQueryWrapper<CurrencyRate> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(CurrencyRate::getUserId,userId);
+        List<CurrencyRate> list = currencyRateMapper.selectList(queryWrapper);
+        Map<String,BigDecimal> map = new HashMap<>();
+        list.stream().forEach(v->{
+            map.put(v.getType(),v.getFeeRate());
+        });
+        return map;
     }
 
 

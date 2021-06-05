@@ -43,8 +43,6 @@ public class SysUserOut {
 
     private String delFlag;
 
-    private BigDecimal feeRate;
-
     private String loginIp;
 
     private LocalDateTime loginDate;

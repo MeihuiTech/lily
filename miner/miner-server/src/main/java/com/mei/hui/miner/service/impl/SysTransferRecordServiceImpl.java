@@ -10,8 +10,10 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
 import com.mei.hui.miner.entity.*;
+import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.*;
+import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
@@ -56,6 +58,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     private ChiaMinerMapper chiaMinerMapper;
     @Autowired
     private SysReceiveAddressMapper sysReceiveAddressMapper;
+    @Autowired
+    private CurrencyRateService currencyRateService;
 
 
     /**
@@ -257,8 +261,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
 
     /**
      * 查询系统划转记录列表,加UserName
-     *
-     * @param sysTransferRecord 系统划转记录
+     *系统划转记录
      * @return 系统划转记录集合
      */
     @Override
@@ -374,15 +377,19 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(sysTransferRecordWrap.getMinerId() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择旷工");
         }
-
         Long userId = HttpRequestUtil.getUserId();
         Long currencyId = HttpRequestUtil.getCurrencyId();
         String currencyType = CurrencyEnum.getCurrency(currencyId).name();
         String minerId = sysTransferRecordWrap.getMinerId();
+        /**
+         * 获取费率
+         */
+        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(userId);
 
         /**
          * 一：提取金额 < 可提现金额 - 提币中 金额
          */
+        BigDecimal feeRate = new BigDecimal(5);
         //获取可提现金额
         BigDecimal balanceMinerAvailable = BigDecimal.ZERO;
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
@@ -397,6 +404,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             }
             SysMinerInfo sysMinerInfo = miners.get(0);
             balanceMinerAvailable = sysMinerInfo.getBalanceMinerAvailable();
+            //费率
+            feeRate = rateMap.get(CurrencyEnum.FIL.name());
+
         }else if(CurrencyEnum.XCH.getCurrencyId().equals(currencyId)){//起亚币
             ChiaMiner chiaMiner = new ChiaMiner();
             chiaMiner.setUserId(userId);
@@ -410,6 +420,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
                 throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
             }
             balanceMinerAvailable =chiaMinerList.get(0).getBalanceMinerAccount();
+            //费率
+            feeRate = rateMap.get(CurrencyEnum.XCH.name());
         }
 
         //获取提币中的金额
@@ -435,8 +447,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
         }
-        SysUserOut user = userResult.getData();
-        BigDecimal fee = user.getFeeRate().multiply(sysTransferRecordWrap.getAmount()).divide(new BigDecimal(100));
+        BigDecimal fee = feeRate.multiply(sysTransferRecordWrap.getAmount()).divide(new BigDecimal(100));
         sysTransferRecordWrap.setFee(fee);
 
         // 通过用户ID、货币ID查询用户货币地址表中的地址

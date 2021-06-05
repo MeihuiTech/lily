@@ -68,7 +68,7 @@ public class CurrencyServiceImpl implements ISysCurrencyService {
         List<Currency> list = allCurrencyList();
         Map<String,BigDecimal> map = new HashMap<>();
         list.stream().forEach(v->{
-            map.put(v.getType(),v.getRate());
+            map.put(v.getName(),v.getRate());
         });
         return map;
     }

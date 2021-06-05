@@ -5,7 +5,9 @@ import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.miner.model.SaveFeeRateBO;
 import com.mei.hui.util.Result;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface CurrencyRateService {
 
@@ -22,4 +24,11 @@ public interface CurrencyRateService {
      * @return
      */
     Result<List<FindUserRateVO>> findUserRate(FindUserRateBO findUserRateBO);
+
+    /**
+     * 获取用户的费率 map
+     * @param userId
+     * @return
+     */
+    Map<String, BigDecimal> getUserRateMap(Long userId);
 }
