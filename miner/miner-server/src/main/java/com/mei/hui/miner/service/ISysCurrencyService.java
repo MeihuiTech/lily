@@ -3,7 +3,9 @@ package com.mei.hui.miner.service;
 import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.model.SysCurrencyVO;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 币种表
@@ -49,4 +51,6 @@ public interface ISysCurrencyService {
     * @version v1.0.0
     */
     public String getCurrencyNameByType(String type);
+
+    Map<String, BigDecimal> getDefaultRate();
 }

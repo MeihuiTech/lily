@@ -11,7 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +60,17 @@ public class CurrencyServiceImpl implements ISysCurrencyService {
         QueryWrapper<Currency> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(currency);
         return sysCurrencyMapper.selectList(queryWrapper);
+    }
+
+
+    @Override
+    public Map<String,BigDecimal> getDefaultRate(){
+        List<Currency> list = allCurrencyList();
+        Map<String,BigDecimal> map = new HashMap<>();
+        list.stream().forEach(v->{
+            map.put(v.getType(),v.getRate());
+        });
+        return map;
     }
 
     /**

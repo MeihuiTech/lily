@@ -16,6 +16,7 @@ import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
 import com.mei.hui.miner.feign.feignClient.CurrencyRateFeign;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.feign.vo.CurrencyRateBO;
+import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.miner.feign.vo.SaveFeeRateBO;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
@@ -27,6 +28,7 @@ import com.mei.hui.user.feign.vo.FindSysUserListInput;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.user.manager.FeeRateManager;
 import com.mei.hui.user.mapper.SysLogininforMapper;
 import com.mei.hui.user.mapper.SysRoleMapper;
 import com.mei.hui.user.mapper.SysUserMapper;
@@ -71,7 +73,7 @@ public class SysUserServiceImpl implements ISysUserService {
     @Autowired
     private SysLogininforMapper sysLogininforMapper;
     @Autowired
-    private CurrencyRateFeign currencyRateFeign;
+    private FeeRateManager feeRateManager;
 
     public Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody){
 
@@ -289,7 +291,17 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 用户对象信息
      */
     public SysUser selectUserById(Long userId){
-        return sysUserMapper.selectById(userId);
+        SysUser user = sysUserMapper.selectById(userId);
+
+        List<FindUserRateVO> list = feeRateManager.findUserRate(userId);
+        List<CurrencyRateBO> lt = list.stream().map(v -> {
+            CurrencyRateBO currencyRateBO = new CurrencyRateBO();
+            currencyRateBO.setFeeRate(v.getFeeRate().doubleValue());
+            currencyRateBO.setType(v.getType());
+            return currencyRateBO;
+        }).collect(Collectors.toList());
+        user.setRats(lt);
+        return user;
     }
 
     /**
@@ -350,13 +362,7 @@ public class SysUserServiceImpl implements ISysUserService {
         /**
          * 保存费率信息
          */
-        SaveFeeRateBO saveFeeRateBO = new SaveFeeRateBO();
-        saveFeeRateBO.setUserId(user.getUserId());
-        saveFeeRateBO.setRats(user.getRats());
-        Result result = currencyRateFeign.saveOrUpdateFeeRate(saveFeeRateBO);
-        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
-            throw MyException.fail(result.getCode(),result.getMsg());
-        }
+        feeRateManager.saveOrUpdateFeeRate(user.getUserId(),user.getRats());
         return rows;
     }
 
@@ -396,13 +402,7 @@ public class SysUserServiceImpl implements ISysUserService {
         /**
          * 修改币种费率
          */
-        SaveFeeRateBO saveFeeRateBO = new SaveFeeRateBO();
-        saveFeeRateBO.setUserId(userId);
-        saveFeeRateBO.setRats(user.getRats());
-        Result result = currencyRateFeign.saveOrUpdateFeeRate(saveFeeRateBO);
-        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
-            throw MyException.fail(result.getCode(),result.getMsg());
-        }
+        feeRateManager.saveOrUpdateFeeRate(user.getUserId(),user.getRats());
         // 删除用户与角色关联
         userRoleMapper.deleteUserRoleByUserId(userId);
         // 新增用户与角色管理
