@@ -39,7 +39,7 @@ public class AdminFirstController {
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             adminFirstCollectVO = adminFirstService.filAdminFirstAllCount();
             return Result.success(adminFirstCollectVO);
-        }else if(CurrencyEnum.CHIA.getCurrencyId().equals(currencyId)){//起亚币
+        }else if(CurrencyEnum.XCH.getCurrencyId().equals(currencyId)){//起亚币
             adminFirstCollectVO = adminFirstService.chiaAdminFirstAllCount();
             return Result.success(adminFirstCollectVO);
         }
@@ -60,7 +60,7 @@ public class AdminFirstController {
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             return adminFirstService.filPowerAvailablePage(yesterDayDate,basePage);
-        }else if(CurrencyEnum.CHIA.getCurrencyId().equals(currencyId)){//起亚币
+        }else if(CurrencyEnum.XCH.getCurrencyId().equals(currencyId)){//起亚币
             return adminFirstService.chiaPowerAvailablePage(yesterDayDate,basePage);
         }
         return null;

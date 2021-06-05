@@ -35,7 +35,7 @@ public class PoolInfoController{
         PoolInfo poolInfo = null;
         if(CurrencyEnum.FIL.getCurrencyId() == currencyId){
             poolInfo = poolInfoService.selectPoolInfoByUserId(currencyId);
-        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){
             poolInfo = poolInfoService.getXchMinerAmount(currencyId);
         }
         Result result = new Result(ErrorCode.MYB_000000.getCode(),ErrorCode.MYB_000000.getMsg());

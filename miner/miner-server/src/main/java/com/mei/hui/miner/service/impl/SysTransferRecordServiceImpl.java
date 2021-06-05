@@ -320,7 +320,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(aggWithdrawBO.getPageNum(), aggWithdrawBO.getPageSize()), queryWrapper);
         List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
         page.getRecords().stream().filter(v-> page.getRecords() != null && page.getRecords().size() > 0).forEach(v->{
-            v.setType(CurrencyEnum.getCurrencyUnitByType(v.getType()));
+            v.setType(v.getType());
         });
         /**
          * 查询用户
@@ -397,7 +397,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             }
             SysMinerInfo sysMinerInfo = miners.get(0);
             balanceMinerAvailable = sysMinerInfo.getBalanceMinerAvailable();
-        }else if(CurrencyEnum.CHIA.getCurrencyId().equals(currencyId)){//起亚币
+        }else if(CurrencyEnum.XCH.getCurrencyId().equals(currencyId)){//起亚币
             ChiaMiner chiaMiner = new ChiaMiner();
             chiaMiner.setUserId(userId);
             chiaMiner.setMinerId(minerId);
@@ -569,7 +569,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         lambdaQueryWrapper.ne(SysTransferRecord::getStatus,2);//提币成功
         lambdaQueryWrapper.eq(SysTransferRecord::getUserId,userId);
         lambdaQueryWrapper.eq(SysTransferRecord::getMinerId,minerId);
-        lambdaQueryWrapper.eq(SysTransferRecord::getType, CurrencyEnum.CHIA.name());
+        lambdaQueryWrapper.eq(SysTransferRecord::getType, CurrencyEnum.XCH.name());
         log.info("查询提币完成的记录");
         List<SysTransferRecord> transfers = sysTransferRecordMapper.selectList(lambdaQueryWrapper);
         log.info("提币完成的记录查询结果:{}",JSON.toJSONString(transfers));

@@ -130,7 +130,7 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
             AggWithdrawVO vo = new AggWithdrawVO();
             BeanUtils.copyProperties(v, vo);
             vo.setUserName(maps.get(v.getSysUserId()));
-            vo.setType(CurrencyEnum.getCurrencyUnitByType(vo.getType()));
+            vo.setType(vo.getType());
             return vo;
         }).collect(Collectors.toList());
         PageResult pageResult = new PageResult(page.getTotal(),lt);

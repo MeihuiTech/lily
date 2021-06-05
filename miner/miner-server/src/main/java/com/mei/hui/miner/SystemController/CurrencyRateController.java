@@ -38,7 +38,7 @@ public class CurrencyRateController {
         }
         List<String> list = new ArrayList<>();
         rats.stream().forEach(v->{
-            if(CurrencyEnum.getCurrencyUnitByType(v.getType()) == null){
+            if(v.getType() == null){
                 throw MyException.fail(MinerError.MYB_222222.getCode(),"币种"+v.getType()+"不存在");
             }
             if(list.contains(v.getType())){

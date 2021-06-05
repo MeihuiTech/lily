@@ -45,7 +45,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         Long currencyId = HttpRequestUtil.getCurrencyId();
         if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
             return sysMinerInfoService.dailyAccount(id);
-        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){//起亚币
             return sysMinerInfoService.chiaDailyAccount(id);
         }
         return null;
@@ -61,7 +61,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         List<SysMinerInfo> list = null;
         if(CurrencyEnum.FIL.getCurrencyId() == currencyId){
             list = sysMinerInfoService.selectSysMinerInfoList(sysMinerInfo);
-        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){
             list = sysMinerInfoService.findXchMinerList();
         }
         return new PageResult(list.size(),list);
@@ -87,7 +87,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
                 throw  MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
             }
             return Result.success(miner);
-        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){//起亚币
             XchMinerDetailBO xchMinerDetailBO = sysMinerInfoService.getXchMinerById(id);
             if (xchMinerDetailBO == null) {
                 throw  MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
@@ -103,7 +103,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         Long currencyId = HttpRequestUtil.getCurrencyId();
         if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
             return sysMinerInfoService.dailyPower(id);
-        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){//起亚币
             return sysMinerInfoService.chiaDailyPower(id);
         }
         return null;
@@ -134,7 +134,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         Long currencyId = HttpRequestUtil.getCurrencyId();
         if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
             return sysMinerInfoService.findPage(sysMinerInfoBO);
-        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){//起亚币
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){//起亚币
             return chiaMinerService.findChiaMinerPage(sysMinerInfoBO);
         }
         return null;

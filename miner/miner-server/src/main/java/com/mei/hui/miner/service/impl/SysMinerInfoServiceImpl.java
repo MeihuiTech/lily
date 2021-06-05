@@ -83,7 +83,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
 
         LambdaQueryWrapper<SysAggPowerDaily> query = new LambdaQueryWrapper<>();
         query.eq(SysAggPowerDaily::getMinerId,xchMiner.getMinerId());
-        query.eq(SysAggPowerDaily::getType, CurrencyEnum.CHIA.name());
+        query.eq(SysAggPowerDaily::getType, CurrencyEnum.XCH.name());
         query.eq(SysAggPowerDaily::getDate,yesterDateStr);
         List<SysAggPowerDaily> aggPowers = sysAggPowerDailyMapper.selectList(query);
         if (aggPowers.size() > 0){
@@ -348,7 +348,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         query.eq(SysAggPowerDaily::getMinerId,xchMiner.getMinerId());
         query.gt(SysAggPowerDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin));
         query.lt(SysAggPowerDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
-        query.eq(SysAggPowerDaily::getType,CurrencyEnum.CHIA.name());
+        query.eq(SysAggPowerDaily::getType,CurrencyEnum.XCH.name());
         List<SysAggPowerDaily> list =  sysAggPowerDailyMapper.selectList(query);
         list.stream().forEach(v->{
             // v.setPowerAvailable(v.getPowerIncrease());
@@ -409,7 +409,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         query.eq(SysAggAccountDaily::getMinerId,xchMiner.getMinerId());
         query.gt(SysAggAccountDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin));
         query.lt(SysAggAccountDaily::getDate,DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end));
-        query.eq(SysAggAccountDaily::getType,CurrencyEnum.CHIA.name());
+        query.eq(SysAggAccountDaily::getType,CurrencyEnum.XCH.name());
         List<SysAggAccountDaily> list = sysAggAccountDailyMapper.selectList(query);
         list.stream().forEach(v->{
             v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));

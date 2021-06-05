@@ -119,7 +119,7 @@ public class SysTransferRecordController
         Long currencyId = HttpRequestUtil.getCurrencyId();
         if(CurrencyEnum.FIL.getCurrencyId() == currencyId){
             return sysTransferRecordService.getUserEarning(input);
-        }else if(CurrencyEnum.CHIA.getCurrencyId() == currencyId){
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){
             return sysTransferRecordService.getUserChiaEarning(input);
         }
         return null;
