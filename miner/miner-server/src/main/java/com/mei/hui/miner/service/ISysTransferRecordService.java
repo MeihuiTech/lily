@@ -2,6 +2,7 @@ package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.entity.SysTransferRecordUserName;
+import com.mei.hui.miner.model.AggWithdrawBO;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
 import com.mei.hui.miner.model.TransferRecordFeeVO;
@@ -105,7 +106,7 @@ public interface ISysTransferRecordService
      * @param sysTransferRecord 系统划转记录
      * @return 系统划转记录集合
      */
-    Map<String,Object> selectSysTransferRecordListUserName(SysTransferRecord sysTransferRecord);
+    Map<String,Object> selectSysTransferRecordListUserName(AggWithdrawBO aggWithdrawBO);
 
     /**
      * 用户提币
