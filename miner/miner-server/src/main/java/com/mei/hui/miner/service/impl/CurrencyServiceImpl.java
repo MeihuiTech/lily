@@ -40,6 +40,7 @@ public class CurrencyServiceImpl implements ISysCurrencyService {
             vo.setId(v.getId());
             vo.setName(v.getName());
             vo.setType(v.getType());
+            vo.setRate(v.getRate());
             return vo;
         }).collect(Collectors.toList());
     }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -20,6 +21,8 @@ public class Currency {
     private String name;
 
     private String type;
+
+    private BigDecimal rate;
 
     private Integer sort;
 

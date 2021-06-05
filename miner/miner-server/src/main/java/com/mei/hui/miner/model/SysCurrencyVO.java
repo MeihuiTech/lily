@@ -4,6 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 不分页排序查询币种列表出参
  * @author shangbin
@@ -22,5 +24,8 @@ public class SysCurrencyVO {
 
     @ApiModelProperty(value = "代币的简称：fil")
     private String type;
+
+    @ApiModelProperty(value = "默认费率")
+    private BigDecimal rate;
 
 }

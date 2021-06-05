@@ -10,7 +10,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@ApiModel
+@ApiModel("用户提币汇总分页出参")
 public class AggWithdrawVO {
 
     @ApiModelProperty("主键")
