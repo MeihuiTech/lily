@@ -7,10 +7,7 @@ import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTransferRecord;
-import com.mei.hui.miner.model.GetUserEarningInput;
-import com.mei.hui.miner.model.PoolEarningVo;
-import com.mei.hui.miner.model.SysTransferRecordWrap;
-import com.mei.hui.miner.model.TransferRecordFeeVO;
+import com.mei.hui.miner.model.*;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.util.BigDecimalUtil;
@@ -60,9 +57,9 @@ public class SysTransferRecordController
      */
     @ApiOperation(value = "查询系统划转记录列表，管理员用户")
     @GetMapping("/listForAdmin")
-    public Map<String,Object> listForAdmin(SysTransferRecord sysTransferRecord)
+    public Map<String,Object> listForAdmin(AggWithdrawBO aggWithdrawBO)
     {
-        return sysTransferRecordService.selectSysTransferRecordListUserName(sysTransferRecord);
+        return sysTransferRecordService.selectSysTransferRecordListUserName(aggWithdrawBO);
     }
 
     /**

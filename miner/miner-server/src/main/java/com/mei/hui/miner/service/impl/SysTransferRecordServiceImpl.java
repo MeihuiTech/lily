@@ -16,6 +16,8 @@ import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
@@ -30,9 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -262,10 +262,63 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
      * @return 系统划转记录集合
      */
     @Override
-    public Map<String,Object> selectSysTransferRecordListUserName(SysTransferRecord sysTransferRecord){
+    @Transactional
+    public Map<String,Object> selectSysTransferRecordListUserName(AggWithdrawBO aggWithdrawBO){
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
+        if("amount".equals(aggWithdrawBO.getCloumName())){
+            if(aggWithdrawBO.isAsc()){
+                //true升序
+                queryWrapper.orderByAsc(SysTransferRecord::getAmount);
+            }else {
+                //降序
+                queryWrapper.orderByDesc(SysTransferRecord::getAmount);
+            }
+        } else if("fee".equals(aggWithdrawBO.getCloumName())){
+            if(aggWithdrawBO.isAsc()){
+                //true升序
+                queryWrapper.orderByAsc(SysTransferRecord::getFee);
+            }else {
+                //降序
+                queryWrapper.orderByDesc(SysTransferRecord::getFee);
+            }
+        } else {
+            queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
+        }
+
+        //用于入参模块模糊查询，获取用户id
+        String userName = aggWithdrawBO.getUserName();
+        if (StringUtils.isNotEmpty(userName)) {
+            FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
+            bo.setName(aggWithdrawBO.getUserName());
+            log.info("模糊查询用户id集合");
+            Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
+            log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
+            List<Long> idList = new ArrayList<>();
+            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
+                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+                // id去重
+                Set<Long> idsSet = new HashSet<>(idList);
+                queryWrapper.in(SysTransferRecord::getUserId,new ArrayList<Long>(idsSet));
+            }
+        }
+
+        // 查询条件币种
+        Long currencyId = aggWithdrawBO.getCurrencyId();
+        if (currencyId != null) {
+            CurrencyEnum currencyEnum = CurrencyEnum.getCurrency(currencyId);
+            if (currencyEnum == null) {
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"入参币种不存在");
+            }
+            String currencyType = currencyEnum.name();
+            queryWrapper.eq(SysTransferRecord::getType,currencyType);
+        }
+
+        if (aggWithdrawBO.getStatus() != null){
+            queryWrapper.eq(SysTransferRecord::getStatus,aggWithdrawBO.getStatus());
+        }
+
         queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
-        IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(sysTransferRecord.getPageNum(), sysTransferRecord.getPageSize()), queryWrapper);
+        IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(aggWithdrawBO.getPageNum(), aggWithdrawBO.getPageSize()), queryWrapper);
         List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
         page.getRecords().stream().filter(v-> page.getRecords() != null && page.getRecords().size() > 0).forEach(v->{
             v.setType(CurrencyEnum.getCurrencyUnitByType(v.getType()));
