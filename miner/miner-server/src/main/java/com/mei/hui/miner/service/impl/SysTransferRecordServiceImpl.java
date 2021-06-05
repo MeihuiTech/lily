@@ -317,7 +317,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             queryWrapper.eq(SysTransferRecord::getStatus,aggWithdrawBO.getStatus());
         }
 
-        queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(aggWithdrawBO.getPageNum(), aggWithdrawBO.getPageSize()), queryWrapper);
         List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
         page.getRecords().stream().filter(v-> page.getRecords() != null && page.getRecords().size() > 0).forEach(v->{

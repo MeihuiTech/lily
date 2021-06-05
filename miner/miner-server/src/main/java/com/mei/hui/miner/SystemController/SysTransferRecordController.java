@@ -53,9 +53,11 @@ public class SysTransferRecordController
     }
 
     /**
-     * 查询系统划转记录列表，管理员用户
+     * 查询系统划转记录列表，管理员用户，管理员-矿池收益-用户提取记录分页
      */
-    @ApiOperation(value = "查询系统划转记录列表，管理员用户")
+    @ApiOperation(value = "查询系统划转记录列表，管理员用户",notes = "入参cloumName排序字段名称:\n" +
+            "amount提取金额\n" +
+            "fee平台收取手续费")
     @GetMapping("/listForAdmin")
     public Map<String,Object> listForAdmin(AggWithdrawBO aggWithdrawBO)
     {

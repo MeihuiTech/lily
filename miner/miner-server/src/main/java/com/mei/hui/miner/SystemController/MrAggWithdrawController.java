@@ -22,7 +22,10 @@ public class MrAggWithdrawController {
     /**
      * 查询矿工信息列表
      */
-    @ApiOperation(value = "用户提币汇总分页【鲍红建】")
+    @ApiOperation(value = "用户提币汇总分页【鲍红建】",notes = "入参cloumName排序字段名称:\n" +
+            "totalFee手续费总额\n" +
+            "tatalCount提取次数\n" +
+            "takeTotalMony用户提现总额")
     @GetMapping("/pageList")
     public PageResult<AggWithdrawVO> pageList(AggWithdrawBO aggWithdrawBO){
         return mrAggWithdrawService.pageList(aggWithdrawBO);
