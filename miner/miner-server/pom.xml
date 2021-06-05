@@ -112,6 +112,12 @@
         </dependency>
 
         <dependency>
+            <groupId>cc.block.data</groupId>
+            <artifactId>blockcc-api-client</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.mei.hui</groupId>
             <artifactId>miner-pool-config</artifactId>
             <version>1.2-SNAPSHOT</version>

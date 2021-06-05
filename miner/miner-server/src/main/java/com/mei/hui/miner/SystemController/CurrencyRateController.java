@@ -2,7 +2,9 @@ package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.CurrencyEnum;
+import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.miner.model.CurrencyRateBO;
+import com.mei.hui.miner.feign.vo.FindUserRateBO;
 import com.mei.hui.miner.model.SaveFeeRateBO;
 import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.util.MyException;
@@ -49,5 +51,16 @@ public class CurrencyRateController {
         return currencyRateService.saveFeeRate(saveFeeRateBO);
     }
 
+    @ApiOperation("获取用户币种费率【鲍红建】")
+    @PostMapping("/findUserRate")
+    public Result<List<FindUserRateVO>> findUserRate(@RequestBody FindUserRateBO findUserRateBO){
+        /**
+         * 校验
+         */
+        if(findUserRateBO.getUserId() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"userId 不能为空");
+        }
+        return currencyRateService.findUserRate(findUserRateBO);
+    }
 
 }

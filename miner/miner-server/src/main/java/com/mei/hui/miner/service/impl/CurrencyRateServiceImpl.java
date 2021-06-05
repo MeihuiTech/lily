@@ -2,26 +2,23 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.exceptions.MybatisPlusException;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.CurrencyRate;
+import com.mei.hui.miner.feign.vo.FindUserRateBO;
+import com.mei.hui.miner.feign.vo.FindUserRateVO;
+import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.mapper.CurrencyRateMapper;
 import com.mei.hui.miner.model.SaveFeeRateBO;
 import com.mei.hui.miner.service.CurrencyRateService;
-import com.mei.hui.user.feign.feignClient.UserFeignClient;
-import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
+import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,24 +28,22 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
     @Autowired
     private CurrencyRateMapper currencyRateMapper;
     @Autowired
-    private UserFeignClient userFeignClient;
+    private UserManager userManager;
+    @Autowired
+    private ISysCurrencyService iSysCurrencyService;
 
     @Transactional(rollbackFor = Exception.class)
     public Result saveFeeRate(SaveFeeRateBO saveFeeRateBO){
-        SysUserOut sysUserOut = new SysUserOut();
-        sysUserOut.setUserId(saveFeeRateBO.getUserId());
-        log.info("查询用户信息,入参：{}", JSON.toJSONString(sysUserOut));
-        Result<SysUserOut> userResult = userFeignClient.getUserById(sysUserOut);
-        log.info("查询用户信息,出参：{}", JSON.toJSONString(userResult));
-        if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
-            throw MyException.fail(userResult.getCode(),userResult.getMsg());
-        }
-        if(StringUtils.checkValNull(userResult.getData())){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"查询用户为空");
-        }
-
+        //校验用户是否存在
+        userManager.checkUserIsExist(saveFeeRateBO.getUserId());
+        //查询币种默认值
+        Map<String, BigDecimal> rateMap = iSysCurrencyService.getDefaultRate();
+        log.info("查询币种费率，结果:{}",JSON.toJSONString(rateMap));
         List<CurrencyRate> currencyRates = saveFeeRateBO.getRats().stream().map(v -> {
             CurrencyRate currencyRate = new CurrencyRate();
+            if(v.getFeeRate() <= 0){
+                currencyRate.setFeeRate(rateMap.get(v.getType()));
+            }
             currencyRate.setUserId(saveFeeRateBO.getUserId());
             currencyRate.setType(v.getType());
             currencyRate.setFeeRate(new BigDecimal(v.getFeeRate()));
@@ -72,6 +67,23 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
             }
         });
         return Result.OK;
+    }
+
+    public Result<List<FindUserRateVO>> findUserRate(FindUserRateBO findUserRateBO){
+        //校验用户是否存在
+        userManager.checkUserIsExist(findUserRateBO.getUserId());
+        //获取用户币种费率
+        LambdaQueryWrapper<CurrencyRate> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(CurrencyRate::getUserId,findUserRateBO.getUserId());
+        List<CurrencyRate> list = currencyRateMapper.selectList(queryWrapper);
+        List<FindUserRateVO> lt = list.stream().map(v -> {
+            FindUserRateVO findUserRateVO = new FindUserRateVO();
+            findUserRateVO.setUserId(v.getUserId());
+            findUserRateVO.setType(v.getType());
+            findUserRateVO.setFeeRate(v.getFeeRate());
+            return findUserRateVO;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
     }
 
 
