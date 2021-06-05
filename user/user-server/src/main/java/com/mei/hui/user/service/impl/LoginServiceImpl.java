@@ -37,6 +37,7 @@ public class LoginServiceImpl implements LoginService{
     public Map<String,Object> getInfo(){
         Long userId = HttpRequestUtil.getUserId();
         SysUser user = sysUserMapper.selectById(userId);
+        user.setPassword(null);
         // 角色集合
         Set<String> roles = permissionService.getRolePermission(user);
         // 权限集合
