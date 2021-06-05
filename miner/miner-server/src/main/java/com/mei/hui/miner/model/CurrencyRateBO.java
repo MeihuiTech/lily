@@ -8,7 +8,7 @@ import lombok.Data;
 @ApiModel
 public class CurrencyRateBO {
 
-    @ApiModelProperty(value = "货比种类,fil币-FIL,起亚币-CHIA",required = true)
+    @ApiModelProperty(value = "货比种类,fil币-FIL,起亚币-XCH",required = true)
     private String type;
 
     @ApiModelProperty(value = "费率",required = true)

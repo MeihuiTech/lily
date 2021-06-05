@@ -40,7 +40,7 @@ public class CurrencyRateController {
         }
         List<String> list = new ArrayList<>();
         rats.stream().forEach(v->{
-            if(v.getType() == null){
+            if(CurrencyEnum.isNotExist(v.getType())){
                 throw MyException.fail(MinerError.MYB_222222.getCode(),"币种"+v.getType()+"不存在");
             }
             if(list.contains(v.getType())){
