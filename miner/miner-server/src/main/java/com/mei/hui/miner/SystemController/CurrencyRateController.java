@@ -10,23 +10,22 @@ import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @Api(tags = "费率相关")
+@RequestMapping("/rate")
 public class CurrencyRateController {
 
     @Autowired
     private CurrencyRateService currencyRateService;
 
     @ApiOperation("保存币种费率，支持新增、更新【鲍红建】")
-    @PostMapping
-    public Result saveFeeRate(@RequestBody SaveFeeRateBO saveFeeRateBO){
+    @PostMapping("/saveOrUpdateFeeRate")
+    public Result saveOrUpdateFeeRate(@RequestBody SaveFeeRateBO saveFeeRateBO){
         /**
          * 校验
          */

@@ -5,19 +5,19 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mei.hui.miner.feign.vo.CurrencyRateBO;
 import com.mei.hui.util.BasePage;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @TableName("sys_user")
+@ApiModel
 public class SysUser {
 
     @TableId(type= IdType.AUTO)
@@ -72,11 +72,6 @@ public class SysUser {
         return userId != null && 1L == userId;
     }
 
-    /** 岗位组 */
-
-    @TableField(exist = false)
-    private Long[] postIds;
-
     /** 角色组 */
 
     @TableField(exist = false)
@@ -107,7 +102,6 @@ public class SysUser {
     private String serviceName;
 
     @TableField(exist = false)
-    @ApiModelProperty(value = "fil币费率")
-    private String filRate;
-
+    @ApiModelProperty(value = "币种费率集合",required = true)
+    List<CurrencyRateBO> rats = new ArrayList<>();
 }

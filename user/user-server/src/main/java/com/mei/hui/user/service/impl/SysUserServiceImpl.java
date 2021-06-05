@@ -13,7 +13,10 @@ import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
+import com.mei.hui.miner.feign.feignClient.CurrencyRateFeign;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.CurrencyRateBO;
+import com.mei.hui.miner.feign.vo.SaveFeeRateBO;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysLogininfor;
@@ -37,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,6 +70,8 @@ public class SysUserServiceImpl implements ISysUserService {
     private SysUserRoleMapper userRoleMapper;
     @Autowired
     private SysLogininforMapper sysLogininforMapper;
+    @Autowired
+    private CurrencyRateFeign currencyRateFeign;
 
     public Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody){
 
@@ -341,6 +347,16 @@ public class SysUserServiceImpl implements ISysUserService {
         int rows = sysUserMapper.insert(user);
         // 新增用户与角色管理
         insertUserRole(user);
+        /**
+         * 保存费率信息
+         */
+        SaveFeeRateBO saveFeeRateBO = new SaveFeeRateBO();
+        saveFeeRateBO.setUserId(user.getUserId());
+        saveFeeRateBO.setRats(user.getRats());
+        Result result = currencyRateFeign.saveOrUpdateFeeRate(saveFeeRateBO);
+        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+            throw MyException.fail(result.getCode(),result.getMsg());
+        }
         return rows;
     }
 
@@ -373,10 +389,20 @@ public class SysUserServiceImpl implements ISysUserService {
      * @param user 用户信息
      * @return 结果
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateUser(SysUser user)
     {
         Long userId = user.getUserId();
+        /**
+         * 修改币种费率
+         */
+        SaveFeeRateBO saveFeeRateBO = new SaveFeeRateBO();
+        saveFeeRateBO.setUserId(userId);
+        saveFeeRateBO.setRats(user.getRats());
+        Result result = currencyRateFeign.saveOrUpdateFeeRate(saveFeeRateBO);
+        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+            throw MyException.fail(result.getCode(),result.getMsg());
+        }
         // 删除用户与角色关联
         userRoleMapper.deleteUserRoleByUserId(userId);
         // 新增用户与角色管理
