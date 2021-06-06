@@ -1,6 +1,7 @@
 package com.mei.hui.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -189,19 +190,19 @@ public class HttpUtil {
 				}
 			}
 			httpPost.setConfig(requestConfig);  
-			if(json != null && !"".equals(json)){
-				StringEntity stringEntity = new StringEntity(json.toString(),"UTF-8");//解决中文乱码问题  
+			if(StringUtils.isNotEmpty(json)){
+				StringEntity stringEntity = new StringEntity(json,"UTF-8");//解决中文乱码问题
 				stringEntity.setContentEncoding("UTF-8");  
 				stringEntity.setContentType("application/json");  
 				httpPost.setEntity(stringEntity);
 			}
 			response = httpClient.execute(httpPost);  
 			int statusCode = response.getStatusLine().getStatusCode();
-			log.info("@响应状态码：statusCode = " + statusCode);
+			log.info("@响应状态码：statusCode = {}",statusCode);
 			if(statusCode == 200){
 				HttpEntity entity = response.getEntity();  
 				httpStr = EntityUtils.toString(entity, "UTF-8");
-				log.info("@响应包体：" + httpStr);
+				log.info("@响应包体：{}",httpStr);
 			}
 		} catch (Exception e) {
 			log.error("请求失败", e);

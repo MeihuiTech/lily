@@ -2,6 +2,11 @@ package com.mei.hui.miner.service;
 
 
 import com.mei.hui.miner.entity.SysAggAccountDaily;
+import com.mei.hui.miner.feign.vo.GetAssetRateBO;
+import com.mei.hui.miner.feign.vo.GetMonyRateVO;
+import com.mei.hui.util.Result;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -64,4 +69,11 @@ public interface ISysAggAccountDailyService
      * @return 结果
      */
     public int deleteSysAggAccountDailyById(Long id);
+
+    /**
+     * 计算每个币种的资产占比
+     * @param getAssetRateBO
+     * @return
+     */
+    Result<List<GetMonyRateVO>> getAssetRate(@RequestBody GetAssetRateBO getAssetRateBO);
 }

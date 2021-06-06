@@ -19,6 +19,9 @@ public class UserManager {
     private UserFeignClient userFeignClient;
 
     public void checkUserIsExist(Long userId){
+        if(userId == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"userId 不能为空");
+        }
         SysUserOut sysUserOut = new SysUserOut();
         sysUserOut.setUserId(userId);
         log.info("查询用户信息,入参：{}", JSON.toJSONString(sysUserOut));
