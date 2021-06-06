@@ -14,6 +14,7 @@ import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
     @Autowired
     private ISysCurrencyService iSysCurrencyService;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Result saveFeeRate(SaveFeeRateBO saveFeeRateBO){
         //校验用户是否存在
         userManager.checkUserIsExist(saveFeeRateBO.getUserId());

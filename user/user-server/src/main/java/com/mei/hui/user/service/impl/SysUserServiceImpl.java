@@ -156,7 +156,7 @@ public class SysUserServiceImpl implements ISysUserService {
         }
         return idsStr.toString();
     }
-
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public SysUser getUserById(Long userId){
         SysUser sysUser = sysUserMapper.selectById(userId);
         return sysUser;
@@ -352,6 +352,7 @@ public class SysUserServiceImpl implements ISysUserService {
         return "SysPermissionService";
     }
 
+    @Transactional
     public int insertUser(SysUser user)
     {
         // 新增用户信息
