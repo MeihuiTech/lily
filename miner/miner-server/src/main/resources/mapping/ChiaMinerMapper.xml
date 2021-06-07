@@ -77,13 +77,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             m.user_id AS userId
         FROM
             chia_miner m
-        GROUP BY
-            m.user_id
-        HAVING
-            m.user_id IN
-        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
-            #{userId}
-        </foreach>
+        <where>
+            m.user_id in
+            <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
+        </where>
+        GROUP BY m.user_id
         <choose>
             <when test="cloumName != null and cloumName != ''">
                 <if test="'powerAvailable' == cloumName">

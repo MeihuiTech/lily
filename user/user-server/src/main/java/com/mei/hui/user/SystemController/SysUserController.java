@@ -133,7 +133,11 @@ public class SysUserController{
     /**
      * 获取用户列表
      */
-    @ApiOperation(value = "用户列表")
+    @ApiOperation(value = "用户列表",notes = "出参：\n" +
+            "powerAvailable总算力\n" +
+            "totalBlockAward总收益\n" +
+            "userId用户id\n" +
+            "feeRate费率")
     @GetMapping("/list")
     public Map<String,Object> list(SelectUserListInput user){
         Long currencyId = HttpRequestUtil.getCurrencyId();

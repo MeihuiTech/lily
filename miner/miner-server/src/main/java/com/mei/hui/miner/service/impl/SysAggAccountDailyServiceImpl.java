@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
