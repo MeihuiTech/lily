@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
@@ -15,8 +17,10 @@ import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.mapper.SysAggAccountDailyMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
+import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.util.CurrencyEnum;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -192,20 +196,20 @@ public class SysAggAccountDailyServiceImpl implements ISysAggAccountDailyService
         BigDecimal filRate = new BigDecimal(0);
         BigDecimal chiaRate = new BigDecimal(0);
         if(totalAsset.compareTo(new BigDecimal(0)) > 0){
-             filRate = filUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP);
-             chiaRate = chiaUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP);
+             filRate = filUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
+             chiaRate = chiaUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));;
         }
         log.info("fil币资产占比：{}",filRate.doubleValue());
         log.info("chia币资产占比：{}",chiaRate.doubleValue());
         List<GetMonyRateVO> list = new ArrayList<>();
         //fil
         GetMonyRateVO fil = new GetMonyRateVO();
-        fil.setRate(filRate);
+        fil.setRate(BigDecimalUtil.formatTwo(filRate));
         fil.setType(CurrencyEnum.FIL.name());
         list.add(fil);
         //chia
         GetMonyRateVO chia = new GetMonyRateVO();
-        chia.setRate(chiaRate);
+        chia.setRate(BigDecimalUtil.formatTwo(chiaRate));
         chia.setType(CurrencyEnum.XCH.name());
         list.add(chia);
 
@@ -218,23 +222,32 @@ public class SysAggAccountDailyServiceImpl implements ISysAggAccountDailyService
      * @return
      */
     public BigDecimal getUdst(String symbol){
-        String url = "https://api.huobi.pro/market/history/kline?period=1min&size=1&symbol="+symbol;
-        String result = HttpUtil.doPost(url,"");
-        log.info("请求响应值:{}",result);
-        JSONObject json = JSONObject.parseObject(result);
-        if(!"ok".equals(json.getString("status"))){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"获取报价失败");
+        try {
+            String url = "https://api.huobi.pro/market/history/kline?period=1min&size=1&symbol="+symbol;
+            String result = HttpUtil.doPost(url,"");
+            log.info("请求响应值:{}",result);
+            JSONObject json = JSONObject.parseObject(result);
+            if(!"ok".equals(json.getString("status"))){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"获取报价失败");
+            }
+            JSONArray jsonArray = json.getJSONArray("data");
+            JSONObject data = jsonArray.getJSONObject(0);
+            BigDecimal high = data.getBigDecimal("high");
+            BigDecimal low = data.getBigDecimal("low");
+            BigDecimal open = data.getBigDecimal("open");
+            BigDecimal close = data.getBigDecimal("close");
+            BigDecimal price = high.add(low).add(open).add(close).divide(new BigDecimal(4));
+            log.info("fil今日价格:{}",price);
+            return price;
+        }catch (Exception e){
+            log.error("获取报价失败:",e);
+            //return price;
+            if("filusdt".equals(symbol)){
+                return new BigDecimal(89.22);
+            }else{
+                return new BigDecimal(658.9);
+            }
         }
-        JSONArray jsonArray = json.getJSONArray("data");
-        JSONObject data = jsonArray.getJSONObject(0);
-        BigDecimal high = data.getBigDecimal("high");
-        BigDecimal low = data.getBigDecimal("low");
-        BigDecimal open = data.getBigDecimal("open");
-        BigDecimal close = data.getBigDecimal("close");
-        BigDecimal price = high.add(low).add(open).add(close).divide(new BigDecimal(4));
-        log.info("fil今日价格:{}",price);
-        return price;
-
     }
     }
 

@@ -3,6 +3,7 @@ package com.mei.hui.miner.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.entity.CurrencyRate;
 import com.mei.hui.miner.feign.vo.FindUserRateBO;
 import com.mei.hui.miner.feign.vo.FindUserRateVO;
@@ -15,6 +16,7 @@ import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class CurrencyRateServiceImpl implements CurrencyRateService {
+public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,CurrencyRate> implements CurrencyRateService {
 
     @Autowired
     private CurrencyRateMapper currencyRateMapper;
@@ -34,7 +36,7 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
     @Autowired
     private ISysCurrencyService iSysCurrencyService;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Result saveFeeRate(SaveFeeRateBO saveFeeRateBO){
         //校验用户是否存在
         userManager.checkUserIsExist(saveFeeRateBO.getUserId());

@@ -156,7 +156,7 @@ public class SysUserServiceImpl implements ISysUserService {
         }
         return idsStr.toString();
     }
-
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public SysUser getUserById(Long userId){
         SysUser sysUser = sysUserMapper.selectById(userId);
         return sysUser;
@@ -177,6 +177,19 @@ public class SysUserServiceImpl implements ISysUserService {
             throw MyException.fail(UserError.MYB_333333.getCode(),"id集合为空");
         }
         List<SysUser> list = sysUserMapper.selectBatchIds(req.getUserIds());
+        List<SysUserOut> users = list.stream().map(v -> {
+            SysUserOut sysUserOut = new SysUserOut();
+            BeanUtils.copyProperties(v, sysUserOut);
+            return sysUserOut;
+        }).collect(Collectors.toList());
+        return Result.success(users);
+    }
+
+    public Result<List<SysUserOut>> findAllUser(){
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUser::getDelFlag,0);
+        queryWrapper.eq(SysUser::getStatus,0);
+        List<SysUser> list = sysUserMapper.selectList(queryWrapper);
         List<SysUserOut> users = list.stream().map(v -> {
             SysUserOut sysUserOut = new SysUserOut();
             BeanUtils.copyProperties(v, sysUserOut);
@@ -428,6 +441,7 @@ public class SysUserServiceImpl implements ISysUserService {
         return "SysPermissionService";
     }
 
+    @Transactional
     public int insertUser(SysUser user)
     {
         // 新增用户信息

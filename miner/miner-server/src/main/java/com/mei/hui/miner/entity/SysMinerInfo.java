@@ -59,6 +59,11 @@ public class SysMinerInfo
     private BigDecimal balanceMinerAccount;
 
     /**
+     * worker 账户榆木
+     */
+    private BigDecimal balanceWorkerAccount;
+
+    /**
      * 当天出块份数
      */
     private Long blocksPerDay;

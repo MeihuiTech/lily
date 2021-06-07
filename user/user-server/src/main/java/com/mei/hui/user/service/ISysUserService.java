@@ -85,4 +85,6 @@ public interface ISysUserService {
     public Result<Long> findUserIdByApiKey(java.lang.String apiKey);
 
     Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO);
+
+    Result<List<SysUserOut>> findAllUser();
 }

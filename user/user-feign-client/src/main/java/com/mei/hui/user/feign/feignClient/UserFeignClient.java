@@ -34,6 +34,13 @@ public interface UserFeignClient {
     Result<List<SysUserOut>> findSysUserList(@RequestBody  FindSysUserListInput req);
 
     /**
+     * 获取所有有效用户
+     * @return
+     */
+    @RequestMapping(value = "/findAllUser",method = RequestMethod.POST)
+    Result<List<SysUserOut>> findAllUser();
+
+    /**
      * 获取当前登陆用户
      * @return
      */

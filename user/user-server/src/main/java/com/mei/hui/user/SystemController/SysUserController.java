@@ -93,6 +93,14 @@ public class SysUserController{
     public Result<List<SysUserOut>> findSysUserList(@RequestBody FindSysUserListInput req){
         return userService.findSysUserList(req);
     }
+    /**
+     * 获取所有有效用户
+     * @return
+     */
+    @RequestMapping(value = "/findAllUser",method = RequestMethod.POST)
+    public Result<List<SysUserOut>> findAllUser(){
+        return userService.findAllUser();
+    }
 
     /**
      * 模糊查询
