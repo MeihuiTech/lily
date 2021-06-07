@@ -121,6 +121,11 @@ public class SysMinerInfoController<ISysMachineInfoService> {
             "totalBlockAward累计出块奖励,单位FIL\n" +
             "powerAvailable有效算力, 单位B\n" +
             "machineCount矿机数量\n" +
+            "powerIncreasePerDay算力增速, 单位B\n" +
+            "blocksPerDay当天出块份数\n" +
+            "balanceWorkerAccount：worker账户余额\n" +
+            "sectorAvailable有效状态扇区数量\n" +
+            "sectorError错误状态扇区数量\n" +
             "\n" +
             "chia查询矿工信息列表出参：\n" +
             "\n" +

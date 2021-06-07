@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.ChiaMiner;
+import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
@@ -77,6 +78,10 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
                 BeanUtils.copyProperties(chiaMiner,chiaMinerVO);
                 chiaMinerVO.setTotalBlockAward(BigDecimalUtil.formatFour(chiaMinerVO.getTotalBlockAward()));
                 chiaMinerVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(chiaMinerVO.getBalanceMinerAccount()));
+
+
+
+
                 chiaMinerVOList.add(chiaMinerVO);
             }
         }
