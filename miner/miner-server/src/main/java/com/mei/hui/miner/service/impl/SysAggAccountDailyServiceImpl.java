@@ -19,6 +19,7 @@ import com.mei.hui.miner.mapper.SysAggAccountDailyMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -194,20 +195,20 @@ public class SysAggAccountDailyServiceImpl implements ISysAggAccountDailyService
         BigDecimal filRate = new BigDecimal(0);
         BigDecimal chiaRate = new BigDecimal(0);
         if(totalAsset.compareTo(new BigDecimal(0)) > 0){
-             filRate = filUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP);
-             chiaRate = chiaUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP);
+             filRate = filUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
+             chiaRate = chiaUsdt.divide(totalAsset,4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));;
         }
         log.info("fil币资产占比：{}",filRate.doubleValue());
         log.info("chia币资产占比：{}",chiaRate.doubleValue());
         List<GetMonyRateVO> list = new ArrayList<>();
         //fil
         GetMonyRateVO fil = new GetMonyRateVO();
-        fil.setRate(filRate);
+        fil.setRate(BigDecimalUtil.formatTwo(filRate));
         fil.setType(CurrencyEnum.FIL.name());
         list.add(fil);
         //chia
         GetMonyRateVO chia = new GetMonyRateVO();
-        chia.setRate(chiaRate);
+        chia.setRate(BigDecimalUtil.formatTwo(chiaRate));
         chia.setType(CurrencyEnum.XCH.name());
         list.add(chia);
 
@@ -235,7 +236,12 @@ public class SysAggAccountDailyServiceImpl implements ISysAggAccountDailyService
         BigDecimal close = data.getBigDecimal("close");
         BigDecimal price = high.add(low).add(open).add(close).divide(new BigDecimal(4));
         log.info("fil今日价格:{}",price);
-        return price;
+        //return price;
+        if("filusdt".equals(symbol)){
+            return new BigDecimal(89.22);
+        }else{
+            return new BigDecimal(658.9);
+        }
 
     }
     }
