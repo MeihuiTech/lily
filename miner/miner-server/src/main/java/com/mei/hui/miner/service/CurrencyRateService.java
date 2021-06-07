@@ -45,5 +45,5 @@ public interface CurrencyRateService extends IService<CurrencyRate> {
     * @return java.util.Map<java.lang.Long,java.math.BigDecimal>
     * @version v1.0.0
     */
-    Map<Long,BigDecimal> getUserIdRateMapByUserIdList(List<Long> userIdList);
+    Map<Long,BigDecimal> getUserIdRateMapByUserIdList(List<Long> userIdList,String type);
 }

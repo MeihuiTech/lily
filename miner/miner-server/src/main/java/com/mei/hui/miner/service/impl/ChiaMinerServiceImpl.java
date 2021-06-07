@@ -170,13 +170,10 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"用户集合不能为空");
         }
         List<AggMinerVO> list = chiaMinerMapper.findBatchChiaMinerByUserId(userMinerBO);
-        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIds);
-        List<AggMinerVO> lt = list.stream().map(v -> {
-            AggMinerVO aggMinerVO = new AggMinerVO();
-            BeanUtils.copyProperties(v,aggMinerVO);
-            aggMinerVO.setFeeRate(rateMap.get(aggMinerVO.getUserId()));
-            return aggMinerVO;
-        }).collect(Collectors.toList());
-        return Result.success(lt);
+        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIds,"XCH");
+        list.stream().forEach(v -> {
+            v.setFeeRate(rateMap.get(v.getUserId()));
+        });
+        return Result.success(list);
     }
 }

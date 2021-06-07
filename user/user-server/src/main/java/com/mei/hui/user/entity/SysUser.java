@@ -102,4 +102,8 @@ public class SysUser {
     @TableField(exist = false)
     @ApiModelProperty(value = "币种费率集合",required = true)
     List<CurrencyRateBO> rats = new ArrayList<>();
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "费率")
+    private BigDecimal feeRate;
 }
