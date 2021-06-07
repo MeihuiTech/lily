@@ -7,7 +7,9 @@ import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -24,6 +26,11 @@ public class CurrencyRateFeignFallbackFactory implements FallbackFactory<Currenc
 
             @Override
             public Result<List<FindUserRateVO>> findUserRate(FindUserRateBO findUserRateBO) {
+                return null;
+            }
+
+            @Override
+            public Result<Map<Long, BigDecimal>> getUserIdRateMapByUserIdList(List<Long> userIdList, String type) {
                 return null;
             }
         };

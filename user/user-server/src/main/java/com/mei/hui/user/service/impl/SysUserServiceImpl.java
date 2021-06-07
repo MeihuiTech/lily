@@ -75,6 +75,9 @@ public class SysUserServiceImpl implements ISysUserService {
     @Autowired
     private FeeRateManager feeRateManager;
 
+    @Autowired
+    private CurrencyRateFeign currencyRateFeign;
+
     public Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody){
 
         /**
@@ -285,12 +288,22 @@ public class SysUserServiceImpl implements ISysUserService {
                 Map<Long,AggMinerVO> maps = new HashMap<>();
                 aggMiners.stream().forEach(v->maps.put(v.getUserId(),v));
 
+                // 根据userIdList查询所有userId和费率的map
+                Long currencyId = HttpRequestUtil.getCurrencyId();
+                String type = CurrencyEnum.getCurrency(currencyId).name();
+                log.info("根据userIdList查询userId和费率的map入参userIds：【{}】,type:【{}】",userIds,type);
+                Result<Map<Long,BigDecimal>> result = currencyRateFeign.getUserIdRateMapByUserIdList(userIds,type);
+                log.info("根据userIdList查询userId和费率的map出参",JSON.toJSON(result));
+                if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+                    throw MyException.fail(UserError.MYB_333333.getCode(),"根据userIdList查询userId和费率的map失败");
+                }
+
                 //将总算力和总收益加入到 SysUser 对象中
                 list.stream().forEach(v->{
                     AggMinerVO vo = maps.get(v.getUserId());
                     v.setPowerAvailable(vo != null ? vo.getPowerAvailable() : new BigDecimal(0));
                     v.setTotalBlockAward(vo != null ? BigDecimalUtil.formatFour(vo.getTotalBlockAward()) : new BigDecimal(0));
-                    v.setFeeRate(vo != null ? vo.getFeeRate() : new BigDecimal(0));
+                    v.setFeeRate(vo != null ? vo.getFeeRate() : result.getData().get(v.getUserId()));
                     v.setPassword(null);
                 });
             }
@@ -357,12 +370,22 @@ public class SysUserServiceImpl implements ISysUserService {
                 Map<Long,AggMinerVO> maps = new HashMap<>();
                 aggMiners.stream().forEach(v->maps.put(v.getUserId(),v));
 
+                // 根据userIdList查询所有userId和费率的map
+                Long currencyId = HttpRequestUtil.getCurrencyId();
+                String type = CurrencyEnum.getCurrency(currencyId).name();
+                log.info("根据userIdList查询userId和费率的map入参userIds：【{}】,type:【{}】",userIds,type);
+                Result<Map<Long,BigDecimal>> result = currencyRateFeign.getUserIdRateMapByUserIdList(userIds,type);
+                log.info("根据userIdList查询userId和费率的map出参",JSON.toJSON(result));
+                if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+                    throw MyException.fail(UserError.MYB_333333.getCode(),"根据userIdList查询userId和费率的map失败");
+                }
+
                 //将总算力和总收益加入到 SysUser 对象中
                 list.stream().forEach(v->{
                     AggMinerVO vo = maps.get(v.getUserId());
                     v.setPowerAvailable(vo != null ? vo.getPowerAvailable() : new BigDecimal(0));
                     v.setTotalBlockAward(vo != null ? BigDecimalUtil.formatFour(vo.getTotalBlockAward()) : new BigDecimal(0));
-                    v.setFeeRate(vo != null ? vo.getFeeRate() : new BigDecimal(0));
+                    v.setFeeRate(vo != null ? vo.getFeeRate() : result.getData().get(v.getUserId()));
                     v.setPassword(null);
                 });
             }

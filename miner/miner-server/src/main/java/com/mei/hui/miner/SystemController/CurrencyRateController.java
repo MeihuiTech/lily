@@ -1,6 +1,7 @@
 package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.feign.feignClient.CurrencyRateFeign;
 import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.miner.model.CurrencyRateBO;
 import com.mei.hui.miner.feign.vo.FindUserRateBO;
@@ -14,8 +15,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Api(tags = "费率相关")
@@ -24,6 +27,8 @@ public class CurrencyRateController {
 
     @Autowired
     private CurrencyRateService currencyRateService;
+
+
 
     @ApiOperation("保存币种费率，支持新增、更新【鲍红建】")
     @PostMapping("/saveOrUpdateFeeRate")
@@ -61,6 +66,12 @@ public class CurrencyRateController {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"userId 不能为空");
         }
         return currencyRateService.findUserRate(findUserRateBO);
+    }
+
+    @ApiOperation("根据userIdList 查询userId和费率的map")
+    @PostMapping("/getUserIdRateMapByUserIdList")
+    public Result<Map<Long,BigDecimal>> getUserIdRateMapByUserIdList(@RequestParam("userIdList") List<Long> userIdList, @RequestParam("type") String type) {
+        return Result.success(currencyRateService.getUserIdRateMapByUserIdList(userIdList,type));
     }
 
 }
