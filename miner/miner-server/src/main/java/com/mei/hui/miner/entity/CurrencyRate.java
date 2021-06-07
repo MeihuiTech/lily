@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("currency_rate")
+@TableName("user_currency_rate")
 public class CurrencyRate {
 
     @TableId(type = IdType.AUTO)

@@ -33,6 +33,11 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
             }
 
             @Override
+            public Result<List<SysUserOut>> findAllUser() {
+                return null;
+            }
+
+            @Override
             public Result<SysUserOut> getLoginUser() {
                 return null;
             }

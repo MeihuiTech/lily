@@ -185,6 +185,19 @@ public class SysUserServiceImpl implements ISysUserService {
         return Result.success(users);
     }
 
+    public Result<List<SysUserOut>> findAllUser(){
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUser::getDelFlag,0);
+        queryWrapper.eq(SysUser::getStatus,0);
+        List<SysUser> list = sysUserMapper.selectList(queryWrapper);
+        List<SysUserOut> users = list.stream().map(v -> {
+            SysUserOut sysUserOut = new SysUserOut();
+            BeanUtils.copyProperties(v, sysUserOut);
+            return sysUserOut;
+        }).collect(Collectors.toList());
+        return Result.success(users);
+    }
+
     /**
      * 用户模糊查询
      * @param req

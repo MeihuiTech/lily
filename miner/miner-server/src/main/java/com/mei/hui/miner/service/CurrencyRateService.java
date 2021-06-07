@@ -1,5 +1,7 @@
 package com.mei.hui.miner.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mei.hui.miner.entity.CurrencyRate;
 import com.mei.hui.miner.feign.vo.FindUserRateBO;
 import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.miner.model.SaveFeeRateBO;
@@ -9,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-public interface CurrencyRateService {
+public interface CurrencyRateService extends IService<CurrencyRate> {
 
     /**
      * 保存币种费率

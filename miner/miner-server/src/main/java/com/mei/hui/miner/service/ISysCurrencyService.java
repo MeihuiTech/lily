@@ -1,7 +1,10 @@
 package com.mei.hui.miner.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.Currency;
+import com.mei.hui.miner.feign.vo.AddCurrencyBO;
 import com.mei.hui.miner.model.SysCurrencyVO;
+import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,7 +16,7 @@ import java.util.Map;
  * @version v1.0.0
  * @date 2021/5/14 14:46
  **/
-public interface ISysCurrencyService {
+public interface ISysCurrencyService extends IService<Currency> {
 
 
     /**
@@ -53,4 +56,6 @@ public interface ISysCurrencyService {
     public String getCurrencyNameByType(String type);
 
     Map<String, BigDecimal> getDefaultRate();
+
+    Result addCurrency(AddCurrencyBO addCurrencyBO);
 }

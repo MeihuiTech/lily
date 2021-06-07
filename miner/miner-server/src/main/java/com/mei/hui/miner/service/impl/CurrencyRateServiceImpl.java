@@ -2,6 +2,7 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.entity.CurrencyRate;
 import com.mei.hui.miner.feign.vo.FindUserRateBO;
 import com.mei.hui.miner.feign.vo.FindUserRateVO;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class CurrencyRateServiceImpl implements CurrencyRateService {
+public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,CurrencyRate> implements CurrencyRateService {
 
     @Autowired
     private CurrencyRateMapper currencyRateMapper;
