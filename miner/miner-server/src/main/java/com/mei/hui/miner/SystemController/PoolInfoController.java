@@ -1,9 +1,9 @@
 package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.config.HttpRequestUtil;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.PoolInfo;
 import com.mei.hui.miner.service.IPoolInfoService;
+import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;

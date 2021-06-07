@@ -2,6 +2,7 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.entity.CurrencyRate;
 import com.mei.hui.miner.feign.vo.FindUserRateBO;
 import com.mei.hui.miner.feign.vo.FindUserRateVO;
@@ -104,5 +105,22 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
         return map;
     }
 
-
+    /**
+     * 根据userIdList 查询userId和费率d的map
+     * @param userIdList
+     * @return
+     */
+    @Override
+    public Map<Long, BigDecimal> getUserIdRateMapByUserIdList(List<Long> userIdList) {
+        QueryWrapper<CurrencyRate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("userId",userIdList);
+        List<CurrencyRate> currencyRateList = currencyRateMapper.selectList(queryWrapper);
+        Map<Long,BigDecimal> map = new HashMap<>();
+        if (currencyRateList != null && currencyRateList.size() > 0) {
+            currencyRateList.stream().forEach(v->{
+                map.put(v.getUserId(),v.getFeeRate());
+            });
+        }
+        return map;
+    }
 }

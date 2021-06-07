@@ -3,6 +3,7 @@ package com.mei.hui.miner.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.AggMiner;
 import com.mei.hui.miner.entity.SysMachineInfo;
+import com.mei.hui.miner.feign.vo.UserMinerBO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -83,5 +84,5 @@ public interface SysMachineInfoMapper  extends BaseMapper<SysMachineInfo>
      * @param userIds
      * @return
      */
-    List<AggMiner> findBatchMinerByUserId(List<Long> userIds);
+    List<AggMiner> findBatchMinerByUserId(UserMinerBO userMinerBO);
 }

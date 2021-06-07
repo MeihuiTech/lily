@@ -1,4 +1,4 @@
-package com.mei.hui.miner.common.enums;
+package com.mei.hui.util;
 
 /**
  * 币种枚举类
@@ -11,7 +11,7 @@ public enum CurrencyEnum {
     private Long currencyId;
     private String des;
 
-    CurrencyEnum(Long currencyId,String des){
+    CurrencyEnum(Long currencyId, String des){
         this.currencyId = currencyId;
         this.des = des;
     }

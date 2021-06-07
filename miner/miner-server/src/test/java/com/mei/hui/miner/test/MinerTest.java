@@ -1,10 +1,5 @@
 package com.mei.hui.miner.test;
 
-import cc.block.data.api.BlockccApiClientFactory;
-import cc.block.data.api.BlockccApiRestClient;
-import cc.block.data.api.domain.BlockccResponse;
-import cc.block.data.api.domain.market.Price;
-import cc.block.data.api.domain.market.request.PriceParam;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -12,8 +7,6 @@ import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
-import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
@@ -30,8 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MinerApplication .class)

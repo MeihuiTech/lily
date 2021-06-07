@@ -6,24 +6,22 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.SysMinerInfoVO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
+import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.*;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -56,6 +54,9 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     private ISysAggAccountDailyService sysAggAccountDailyService;
     @Autowired
     private SysAggAccountDailyMapper sysAggAccountDailyMapper;
+    @Autowired
+    private CurrencyRateService currencyRateService;
+
     /**
      * 查询矿工信息
      * @param id 主键
@@ -283,21 +284,27 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         map.put("total",page.getTotal());
         return map;
     }
+
     /**
-     * 通过userid 集合批量获取旷工
+     * 通过userid集合批量获取旷工总算力、总收益、费率
      */
-    public Result<List<AggMinerVO>> findBatchMinerByUserId(List<Long> userIds) {
+    @Override
+    public Result<List<AggMinerVO>> findBatchMinerByUserId(UserMinerBO userMinerBO) {
+        List<Long> userIds = userMinerBO.getUserIds();
         if(userIds == null || userIds.size() == 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"用户集合不能为空");
         }
-        List<AggMiner> list = sysMachineInfoMapper.findBatchMinerByUserId(userIds);
+        List<AggMiner> list = sysMachineInfoMapper.findBatchMinerByUserId(userMinerBO);
+        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIds);
         List<AggMinerVO> lt = list.stream().map(v -> {
             AggMinerVO aggMinerVO = new AggMinerVO();
             BeanUtils.copyProperties(v,aggMinerVO);
+            aggMinerVO.setFeeRate(rateMap.get(aggMinerVO.getUserId()));
             return aggMinerVO;
         }).collect(Collectors.toList());
         return Result.success(lt);
     }
+
     /**
      * 获取fil币聚合信息
      * @param id

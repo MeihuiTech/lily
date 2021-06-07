@@ -18,6 +18,18 @@ public interface ISysUserService {
 
     Map<String,Object> selectUserList(SelectUserListInput user);
 
+    /**
+    * 起亚币用户列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/7 11:19
+    * @param [user]
+    * @return java.util.Map<java.lang.String,java.lang.Object>
+    * @version v1.0.0
+    */
+    Map<String,Object> selectChiaUserList(SelectUserListInput user);
+
     SysUser selectUserById(Long userId);
 
     String checkUserNameUnique(String userName);

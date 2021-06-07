@@ -2,15 +2,13 @@ package com.mei.hui.miner.common.task;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
-import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
-import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

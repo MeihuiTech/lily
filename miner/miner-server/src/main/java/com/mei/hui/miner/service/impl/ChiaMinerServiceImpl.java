@@ -5,16 +5,20 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.ChiaMiner;
-import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.model.ChiaMinerVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.nio.NHttpMessageWriter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,12 +28,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class ChiaMinerServiceImpl implements IChiaMinerService {
     @Autowired
     private ChiaMinerMapper chiaMinerMapper;
+    @Autowired
+    private CurrencyRateService currencyRateService;
+
     /**
      * 获取 起亚币 旷工列表
      * @param sysMinerInfoBO
@@ -148,5 +156,27 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
         QueryWrapper<ChiaMiner> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(chiaMiner);
         return chiaMinerMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 通过userid集合批量获取旷工总算力、总收益、费率
+     * @param userIds
+     * @return
+     */
+    @Override
+    public Result<List<AggMinerVO>> findBatchChiaMinerByUserId(UserMinerBO userMinerBO) {
+        List<Long> userIds = userMinerBO.getUserIds();
+        if(userIds == null || userIds.size() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"用户集合不能为空");
+        }
+        List<AggMinerVO> list = chiaMinerMapper.findBatchChiaMinerByUserId(userMinerBO);
+        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIds);
+        List<AggMinerVO> lt = list.stream().map(v -> {
+            AggMinerVO aggMinerVO = new AggMinerVO();
+            BeanUtils.copyProperties(v,aggMinerVO);
+            aggMinerVO.setFeeRate(rateMap.get(aggMinerVO.getUserId()));
+            return aggMinerVO;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
     }
 }

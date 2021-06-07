@@ -31,4 +31,17 @@ public interface CurrencyRateService {
      * @return
      */
     Map<String, BigDecimal> getUserRateMap(Long userId);
+
+
+    /**
+    * 根据userIdList 查询userId和费率的map
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/7 11:35
+    * @param [userIdList]
+    * @return java.util.Map<java.lang.Long,java.math.BigDecimal>
+    * @version v1.0.0
+    */
+    Map<Long,BigDecimal> getUserIdRateMapByUserIdList(List<Long> userIdList);
 }

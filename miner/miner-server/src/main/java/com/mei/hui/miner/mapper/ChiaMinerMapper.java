@@ -4,11 +4,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.ChiaMiner;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.model.PowerAvailableFilVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
@@ -74,5 +77,15 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
      */
     public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("yesterDayDate") String yesterDayDate, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
 
-
+    /**
+    * 通过userid集合批量获取旷工总算力、总收益、费率
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/7 14:55
+    * @param [userChiaMinerBO]
+    * @return java.util.List<com.mei.hui.miner.feign.vo.AggMinerVO>
+    * @version v1.0.0
+    */
+    public List<AggMinerVO> findBatchChiaMinerByUserId(UserMinerBO userMinerBO);
 }

@@ -12,12 +12,10 @@ import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.miner.feign.feignClient.AggChiaMinerFeign;
 import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
 import com.mei.hui.miner.feign.feignClient.CurrencyRateFeign;
-import com.mei.hui.miner.feign.vo.AggMinerVO;
-import com.mei.hui.miner.feign.vo.CurrencyRateBO;
-import com.mei.hui.miner.feign.vo.FindUserRateVO;
-import com.mei.hui.miner.feign.vo.SaveFeeRateBO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysLogininfor;
@@ -68,6 +66,8 @@ public class SysUserServiceImpl implements ISysUserService {
     private RedisUtil redisUtils;
     @Autowired
     private AggMinerFeignClient aggMinerFeignClient;
+    @Autowired
+    private AggChiaMinerFeign aggChiaMinerFeign;
     @Autowired
     private SysUserRoleMapper userRoleMapper;
     @Autowired
@@ -224,6 +224,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @param user 用户信息
      * @return 用户信息集合信息
      */
+    @Override
     public Map<String,Object> selectUserList(SelectUserListInput user)
     {
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
@@ -259,8 +260,83 @@ public class SysUserServiceImpl implements ISysUserService {
          */
         if(list.size() > 0){
             List<Long> userIds = list.stream().map(v -> v.getUserId()).collect(Collectors.toList());
-            log.info("查询总算力和总收益,入参：{}",JSON.toJSONString(userIds));
-            Result<List<AggMinerVO>> aggMinerResult = aggMinerFeignClient.findBatchMinerByUserId(userIds);
+            UserMinerBO userMinerBO = new UserMinerBO();
+            userMinerBO.setUserIds(userIds);
+            userMinerBO.setAsc(user.isAsc());
+            userMinerBO.setCloumName(user.getCloumName());
+            log.info("查询总算力和总收益,入参：{}",JSON.toJSONString(userMinerBO));
+            Result<List<AggMinerVO>> aggMinerResult = aggMinerFeignClient.findBatchMinerByUserId(userMinerBO);
+            log.info("查询总算力和总收益,出参：{}",JSON.toJSONString(aggMinerResult));
+            if(ErrorCode.MYB_000000.getCode().equals(aggMinerResult.getCode())){
+                List<AggMinerVO> aggMiners = aggMinerResult.getData();
+                Map<Long,AggMinerVO> maps = new HashMap<>();
+                aggMiners.stream().forEach(v->maps.put(v.getUserId(),v));
+
+                //将总算力和总收益加入到 SysUser 对象中
+                list.stream().forEach(v->{
+                    AggMinerVO vo = maps.get(v.getUserId());
+                    v.setPowerAvailable(vo != null ? vo.getPowerAvailable() : new BigDecimal(0));
+                    v.setTotalBlockAward(vo != null ? BigDecimalUtil.formatFour(vo.getTotalBlockAward()) : new BigDecimal(0));
+                    v.setPassword(null);
+                });
+            }
+        }
+        //组装返回值
+        Map<String,Object> map = new HashMap<>();
+        map.put("code", ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("total",page.getTotal());
+        map.put("rows",list);
+        return map;
+    }
+
+    /**
+     * 根据条件分页查询用户列表-起亚币
+     * @param user 用户信息
+     * @return 用户信息集合信息
+     */
+    @Override
+    public Map<String,Object> selectChiaUserList(SelectUserListInput user)
+    {
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        if(StringUtils.isNotEmpty(user.getUserName())){
+            queryWrapper.like(SysUser::getUserName,user.getUserName());
+        }
+        if(StringUtils.isNotEmpty(user.getPhonenumber())){
+            queryWrapper.like(SysUser::getPhonenumber,user.getPhonenumber());
+        }
+        if(StringUtils.isNotEmpty(user.getStatus())){
+            queryWrapper.eq(SysUser::getStatus,user.getStatus());
+        }
+        if(user.getParams() != null){
+            String beginTime = (String) user.getParams().get("beginTime");
+            String endTime = (String) user.getParams().get("endTime");
+            if(StringUtils.isNotEmpty(beginTime)){
+                queryWrapper.ge(SysUser::getCreateTime,beginTime);
+            }
+            if(StringUtils.isNotEmpty(endTime)){
+                queryWrapper.le(SysUser::getCreateTime,endTime);
+            }
+        }
+        /**
+         * 查询用户信息
+         */
+        queryWrapper.eq(SysUser::getDelFlag,0);
+        log.info("查询用户,入参:{}",queryWrapper.toString());
+        IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(user.getPageNum(), user.getPageSize()), queryWrapper);
+        log.info("查询用户,出参:{}",page.toString());
+        List<SysUser> list = page.getRecords().stream().filter(v -> v.getUserId() != null && 1L != v.getUserId()).collect(Collectors.toList());
+        /**
+         * 获取用户的总算力和总收益
+         */
+        if(list.size() > 0){
+            List<Long> userIds = list.stream().map(v -> v.getUserId()).collect(Collectors.toList());
+            UserMinerBO userMinerBO = new UserMinerBO();
+            userMinerBO.setUserIds(userIds);
+            userMinerBO.setAsc(user.isAsc());
+            userMinerBO.setCloumName(user.getCloumName());
+            log.info("查询总算力和总收益,入参：{}",JSON.toJSONString(userMinerBO));
+            Result<List<AggMinerVO>> aggMinerResult = aggChiaMinerFeign.findBatchChiaMinerByUserId(userMinerBO);
             log.info("查询总算力和总收益,出参：{}",JSON.toJSONString(aggMinerResult));
             if(ErrorCode.MYB_000000.getCode().equals(aggMinerResult.getCode())){
                 List<AggMinerVO> aggMiners = aggMinerResult.getData();

@@ -1,10 +1,10 @@
 package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.config.HttpRequestUtil;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.model.AdminFirstCollectVO;
 import com.mei.hui.miner.service.IAdminFirstService;
 import com.mei.hui.util.BasePage;
+import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;

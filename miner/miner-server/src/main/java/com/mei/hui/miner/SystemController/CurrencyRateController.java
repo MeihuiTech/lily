@@ -1,12 +1,12 @@
 package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.miner.model.CurrencyRateBO;
 import com.mei.hui.miner.feign.vo.FindUserRateBO;
 import com.mei.hui.miner.model.SaveFeeRateBO;
 import com.mei.hui.miner.service.CurrencyRateService;
+import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;

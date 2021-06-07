@@ -3,6 +3,7 @@ package com.mei.hui.miner.service;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.util.PageResult;
@@ -86,9 +87,9 @@ public interface ISysMinerInfoService
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo);
 
     /**
-     * 通过userid 集合批量获取旷工
+     * 通过userid集合批量获取旷工总算力、总收益、费率
      */
-    Result<List<AggMinerVO>> findBatchMinerByUserId(List<Long> userIds);
+    Result<List<AggMinerVO>> findBatchMinerByUserId(UserMinerBO userMinerBO);
 
     /**
      * 获取起亚币旷工列表

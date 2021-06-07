@@ -2,6 +2,7 @@ package com.mei.hui.user.SystemController;
 
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.CommonUtil;
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Constants;
@@ -127,7 +128,13 @@ public class SysUserController{
     @ApiOperation(value = "用户列表")
     @GetMapping("/list")
     public Map<String,Object> list(SelectUserListInput user){
-        return userService.selectUserList(user);
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){
+            return userService.selectUserList(user);
+        }else if(CurrencyEnum.XCH.getCurrencyId().equals(currencyId)){
+            return userService.selectChiaUserList(user);
+        }
+        return null;
     }
 
     /**

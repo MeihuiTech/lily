@@ -69,4 +69,49 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SUM(i.power_available)
     </select>
 
+    <!--通过userid集合批量获取旷工总算力、总收益、费率-->
+    <select id="findBatchChiaMinerByUserId" parameterType="com.mei.hui.miner.feign.vo.UserMinerBO" resultType="com.mei.hui.miner.feign.vo.AggMinerVO">
+        SELECT
+            SUM(m.power_available) AS powerAvailable,
+            SUM(m.total_block_award) AS totalBlockAward,
+            m.user_id AS userId
+        FROM
+            chia_miner m
+        GROUP BY
+            m.user_id
+        HAVING
+            m.user_id IN
+        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+        <choose>
+            <when test="cloumName != null and cloumName != ''">
+                <if test="'powerAvailable' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY SUM(m.power_available)
+                        </when>
+                        <otherwise>
+                            ORDER BY SUM(m.power_available) desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'totalBlockAward' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY SUM(m.total_block_award)
+                        </when>
+                        <otherwise>
+                            ORDER BY SUM(m.total_block_award) desc
+                        </otherwise>
+                    </choose>
+                </if>
+            </when>
+            <otherwise>
+                ORDER BY SUM(m.power_available) desc
+            </otherwise>
+        </choose>
+    </select>
+
+
 </mapper>

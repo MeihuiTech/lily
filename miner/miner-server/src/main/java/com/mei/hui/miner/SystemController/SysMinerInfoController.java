@@ -2,9 +2,9 @@ package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.common.enums.CurrencyEnum;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.miner.service.IChiaMinerService;
@@ -150,12 +150,16 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     }
 
     /**
-     * 通过userid 集合批量获取旷工
+     * 通过userid集合批量获取旷工总算力、总收益、费率
      */
-    @ApiOperation(value = "通过userid 集合批量获取旷工")
-    @GetMapping(value = "/findBatchMinerByUserId")
-    public Result<List<AggMinerVO>> findBatchMinerByUserId(@RequestParam("userIds") List<Long> userIds) {
-        return sysMinerInfoService.findBatchMinerByUserId(userIds);
+    @ApiOperation(value = "通过userid集合批量获取旷工总算力、总收益、费率",notes = "出参：\n" +
+            "powerAvailable总算力\n" +
+            "totalBlockAward总收益\n" +
+            "userId用户id\n" +
+            "feeRate费率")
+    @PostMapping(value = "/findBatchMinerByUserId")
+    public Result<List<AggMinerVO>> findBatchMinerByUserId(@RequestBody UserMinerBO userMinerBO) {
+        return sysMinerInfoService.findBatchMinerByUserId(userMinerBO);
     }
 
 }

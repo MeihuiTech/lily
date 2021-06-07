@@ -1,8 +1,10 @@
 package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.ChiaMiner;
-import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -112,4 +114,16 @@ public interface IChiaMinerService {
     * @version v1.0.0
     */
     public List<ChiaMiner> findChiaMinerList(ChiaMiner chiaMiner);
+
+    /**
+    * 通过userid集合批量获取旷工总算力、总收益、费率
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/7 14:26
+    * @param [userIds]
+    * @return com.mei.hui.util.Result<java.util.List<com.mei.hui.miner.feign.vo.AggMinerVO>>
+    * @version v1.0.0
+    */
+    public Result<List<AggMinerVO>> findBatchChiaMinerByUserId(UserMinerBO userMinerBO);
 }

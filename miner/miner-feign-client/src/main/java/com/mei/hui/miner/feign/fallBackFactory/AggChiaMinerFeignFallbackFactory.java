@@ -1,7 +1,7 @@
 package com.mei.hui.miner.feign.fallBackFactory;
 
+import com.mei.hui.miner.feign.feignClient.AggChiaMinerFeign;
 import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
-import com.mei.hui.miner.feign.feignClient.MinerFeignClient;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.util.Result;
@@ -13,17 +13,16 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class AggMinerFeignFallbackFactory implements FallbackFactory<AggMinerFeignClient> {
+public class AggChiaMinerFeignFallbackFactory implements FallbackFactory<AggChiaMinerFeign> {
     @Override
-    public AggMinerFeignClient create(Throwable throwable) {
+    public AggChiaMinerFeign create(Throwable throwable) {
         log.error("远程接口异常:",throwable);
-        AggMinerFeignClient aggMinerFeignClient = new AggMinerFeignClient(){
+        AggChiaMinerFeign aggChiaMinerFeign = new AggChiaMinerFeign(){
             @Override
-            public Result<List<AggMinerVO>> findBatchMinerByUserId(UserMinerBO userMinerBO) {
+            public Result<List<AggMinerVO>> findBatchChiaMinerByUserId(UserMinerBO userMinerBO) {
                 return null;
             }
-
         };
-        return aggMinerFeignClient;
+        return aggChiaMinerFeign;
     }
 }
