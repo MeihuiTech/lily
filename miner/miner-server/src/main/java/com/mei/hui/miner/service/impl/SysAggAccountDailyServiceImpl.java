@@ -221,32 +221,22 @@ public class SysAggAccountDailyServiceImpl implements ISysAggAccountDailyService
      * @return
      */
     public BigDecimal getUdst(String symbol){
-        try {
-            String url = "https://api.huobi.pro/market/history/kline?period=1min&size=1&symbol="+symbol;
-            String result = HttpUtil.doPost(url,"");
-            log.info("请求响应值:{}",result);
-            JSONObject json = JSONObject.parseObject(result);
-            if(!"ok".equals(json.getString("status"))){
-                throw MyException.fail(MinerError.MYB_222222.getCode(),"获取报价失败");
-            }
-            JSONArray jsonArray = json.getJSONArray("data");
-            JSONObject data = jsonArray.getJSONObject(0);
-            BigDecimal high = data.getBigDecimal("high");
-            BigDecimal low = data.getBigDecimal("low");
-            BigDecimal open = data.getBigDecimal("open");
-            BigDecimal close = data.getBigDecimal("close");
-            BigDecimal price = high.add(low).add(open).add(close).divide(new BigDecimal(4));
-            log.info("fil今日价格:{}",price);
-            return price;
-        }catch (Exception e){
-            log.error("获取报价失败:",e);
-            //return price;
-            if("filusdt".equals(symbol)){
-                return new BigDecimal(89.22);
-            }else{
-                return new BigDecimal(658.9);
-            }
+        String url = "https://api.huobi.pro/market/history/kline?period=1min&size=1&symbol="+symbol;
+        String result = HttpUtil.doPost(url,"");
+        log.info("请求响应值:{}",result);
+        JSONObject json = JSONObject.parseObject(result);
+        if(!"ok".equals(json.getString("status"))){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"获取报价失败");
         }
+        JSONArray jsonArray = json.getJSONArray("data");
+        JSONObject data = jsonArray.getJSONObject(0);
+        BigDecimal high = data.getBigDecimal("high");
+        BigDecimal low = data.getBigDecimal("low");
+        BigDecimal open = data.getBigDecimal("open");
+        BigDecimal close = data.getBigDecimal("close");
+        BigDecimal price = high.add(low).add(open).add(close).divide(new BigDecimal(4));
+        log.info("fil今日价格:{}",price);
+        return price;
     }
-    }
+}
 
