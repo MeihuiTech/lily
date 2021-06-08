@@ -137,6 +137,7 @@ public class SysTransferRecordController
         List<Currency> currencyList = sysCurrencyService.allCurrencyList();
         log.info("币种表列表：【{}】",JSON.toJSON(currencyList));
 
+        // 1.先把币种表里的所有币种都生成数据，收益赋值0。       2.用真实数据替换步骤一的0
         for (Currency currency:currencyList){
             TransferRecordFeeVO resultAllTransferRecordFeeVO = new TransferRecordFeeVO();
             resultAllTransferRecordFeeVO.setName(currency.getName());
@@ -149,6 +150,7 @@ public class SysTransferRecordController
                     }
                 }
             }
+            log.info("总手续费收益赋值：【{}】",JSON.toJSON(resultAllTransferRecordFeeVO));
             resultAllTransferRecordFeeVOList.add(resultAllTransferRecordFeeVO);
 
             TransferRecordFeeVO resultTodayTransferRecordFeeVO = new TransferRecordFeeVO();
@@ -162,6 +164,7 @@ public class SysTransferRecordController
                     }
                 }
             }
+            log.info("今日手续费收益赋值：【{}】",JSON.toJSON(resultTodayTransferRecordFeeVO));
             resultTodayTransferRecordFeeVOList.add(resultTodayTransferRecordFeeVO);
         }
 
