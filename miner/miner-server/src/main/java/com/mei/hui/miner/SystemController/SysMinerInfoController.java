@@ -69,7 +69,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
 
 
     /**
-     * 获取矿工信息详细信息
+     * 普通用户-首页-获取矿工信息详细信息
      */
     @ApiOperation(value = "矿工详情",notes = "FIL币矿工详情出参：\n" +
             "balanceWorkerAccount：\n" +
