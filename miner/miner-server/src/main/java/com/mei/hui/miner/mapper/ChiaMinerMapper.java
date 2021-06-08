@@ -75,7 +75,7 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.model.PowerAvailableFilVO>
      * @version v1.0.0
      */
-    public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("yesterDayDate") String yesterDayDate, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
+    public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
 
     /**
     * 通过userid集合批量获取旷工总算力、总收益、费率
@@ -88,4 +88,6 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
     * @version v1.0.0
     */
     public List<AggMinerVO> findBatchChiaMinerByUserId(UserMinerBO userMinerBO);
+
+
 }

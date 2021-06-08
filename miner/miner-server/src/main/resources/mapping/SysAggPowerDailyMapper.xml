@@ -118,4 +118,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and type = #{type}
         </if>
     </select>
+
+    <!--管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速-->
+    <select id="selectPowerAvailableByDateAndUserIdList" resultType="com.mei.hui.miner.model.PowerAvailableFilVO">
+        SELECT
+            SUM(d.block_award_increase) / SUM(
+                d.power_available / 1024 / 1024 / 1024 / 1024
+            ) miningEfficiency,
+            SUM(d.power_increase) powerIncrease
+        FROM
+            sys_agg_power_daily d
+        WHERE
+        <if test="type != null and type != ''">
+            d.type = #{type}
+        </if>
+        <if test="yesterDayDate != null and yesterDayDate != ''">
+            AND d.date = #{yesterDayDate}
+        </if>
+        <if test="minerIdList != null">
+        AND d.miner_id IN
+          <foreach item="minerId" collection="minerIdList" open="(" close=")" separator=",">
+              #{minerId}
+          </foreach>
+        </if>
+    </select>
+
 </mapper>

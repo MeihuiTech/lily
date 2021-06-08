@@ -3,6 +3,7 @@ package com.mei.hui.miner.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.mapper.SysAggPowerDailyMapper;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
+import com.mei.hui.miner.model.PowerAvailableFilVO;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,5 +116,20 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
         QueryWrapper<SysAggPowerDaily> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(sysAggPowerDaily);
         return sysAggPowerDailyMapper.selectList(queryWrapper);
+    }
+
+    /**
+    * 管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/8 15:30
+    * @param [yesterDayDate, minerIdList]
+    * @return com.mei.hui.miner.model.PowerAvailableFilVO
+    * @version v1.0.0
+    */
+    @Override
+    public PowerAvailableFilVO selectPowerAvailableByDateAndUserIdList(String yesterDayDate,List<String> minerIdList,String type){
+        return sysAggPowerDailyMapper.selectPowerAvailableByDateAndUserIdList(yesterDayDate,minerIdList,type);
     }
 }

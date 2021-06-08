@@ -2,6 +2,7 @@ package com.mei.hui.miner.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
+import com.mei.hui.miner.model.PowerAvailableFilVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -66,4 +67,16 @@ public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
     public SysAggPowerDaily selectSysAggPowerDailyByMinerIdAndDate(@Param("minerId") String minerId, @Param("date") String date);
 
     List<SysAggPowerDaily> selectSysAggPowerDailyByMinerId(@Param("minerId") String minerId, @Param("begin") String begin, @Param("end") String end,@Param("type") String type);
+
+    /**
+    * 管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/8 15:33
+    * @param [yesterDayDate, minerIdList]
+    * @return com.mei.hui.miner.model.PowerAvailableFilVO
+    * @version v1.0.0
+    */
+    public PowerAvailableFilVO selectPowerAvailableByDateAndUserIdList(@Param("yesterDayDate") String yesterDayDate, @Param("minerIdList") List<String> minerIdList, @Param("type") String type);
 }

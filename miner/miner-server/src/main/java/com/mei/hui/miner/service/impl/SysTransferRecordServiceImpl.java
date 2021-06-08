@@ -457,6 +457,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址不存在");
         }
         String address = sysReceiveAddressList.get(0).getAddress();
+        log.info("sysTransferRecordWrap.getToAddress():【{}】,address:【{}】",sysTransferRecordWrap.getToAddress(),address);
         if (!sysTransferRecordWrap.getToAddress().equals(address)){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址错误");
         }

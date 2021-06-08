@@ -1,6 +1,7 @@
 package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysAggPowerDaily;
+import com.mei.hui.miner.model.PowerAvailableFilVO;
 
 import java.util.List;
 
@@ -74,5 +75,17 @@ public interface ISysAggPowerDailyService
     * @version v1.0.0
     */
     public List<SysAggPowerDaily> selectSysAggPowerDailyListBySysAggPowerDaily(SysAggPowerDaily sysAggPowerDaily);
+
+    /**
+    * 管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/8 15:32
+    * @param [yesterDayDate, minerIdList]
+    * @return com.mei.hui.miner.model.PowerAvailableFilVO
+    * @version v1.0.0
+    */
+    public PowerAvailableFilVO selectPowerAvailableByDateAndUserIdList(String yesterDayDate, List<String> minerIdList,String type);
     
 }

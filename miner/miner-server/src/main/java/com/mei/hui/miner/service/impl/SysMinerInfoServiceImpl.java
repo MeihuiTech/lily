@@ -2,6 +2,7 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
@@ -445,5 +446,21 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return sysMinerInfoMapper.selectAllMinerIdCount();
     }
 
-
+    /**
+     * 根据userId查询fil币旷工信息表里的该用户所有的矿工ID
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<String> findMinerIdByUserId(Long userId) {
+        SysMinerInfo sysMinerInfo = new SysMinerInfo();
+        sysMinerInfo.setUserId(userId);
+        QueryWrapper<SysMinerInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(sysMinerInfo);
+        List<SysMinerInfo> chiaMinerList = sysMinerInfoMapper.selectList(queryWrapper);
+        List<String> minerIdList = chiaMinerList.stream().map(v -> {
+            return v.getMinerId();
+        }).collect(Collectors.toList());
+        return minerIdList;
+    }
 }

@@ -173,4 +173,15 @@ public interface ISysMinerInfoService
      */
     public Long selectFilAllMinerIdCount();
 
+    /**
+    * 根据userId查询fil币旷工信息表里的该用户所有的矿工ID
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/8 16:38
+    * @param [userId]
+    * @return java.util.List<java.lang.String>
+    * @version v1.0.0
+    */
+    public List<String> findMinerIdByUserId(Long userId);
 }

@@ -187,4 +187,30 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
         });
         return Result.success(list);
     }
+
+    /**
+    * 根据userId查询起亚币旷工信息表里的该用户所有的矿工ID
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/8 15:05
+    * @param [userId]
+    * @return java.util.List<java.lang.String>
+    * @version v1.0.0
+    */
+    @Override
+    public List<String> findMinerIdByUserId(Long userId){
+        ChiaMiner chiaMiner = new ChiaMiner();
+        chiaMiner.setUserId(userId);
+        QueryWrapper<ChiaMiner> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(chiaMiner);
+        List<ChiaMiner> chiaMinerList = chiaMinerMapper.selectList(queryWrapper);
+        List<String> minerIdList = chiaMinerList.stream().map(v -> {
+            return v.getMinerId();
+        }).collect(Collectors.toList());
+        return minerIdList;
+    }
+
+
+
 }

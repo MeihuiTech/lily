@@ -9,6 +9,7 @@ import com.mei.hui.miner.model.AdminFirstCollectVO;
 import com.mei.hui.miner.model.PowerAvailableFilVO;
 import com.mei.hui.miner.service.IAdminFirstService;
 import com.mei.hui.miner.service.IChiaMinerService;
+import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -39,6 +41,9 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
 
     @Autowired
     private UserFeignClient userFeignClient;
+
+    @Autowired
+    private ISysAggPowerDailyService sysAggPowerDailyService;
 
     /**
      * fil管理员首页-旷工统计数据
@@ -95,9 +100,22 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
     public Map<String,Object> filPowerAvailablePage(String yesterDayDate,BasePage basePage) {
         // 管理员首页-旷工统计数据-平台有效算力
         BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
+        log.info("fil管理员首页-旷工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
         IPage<PowerAvailableFilVO> result = sysMinerInfoMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate,allPowerAvailable);
+        log.info("fil币管理员首页-平台有效算力排行榜:【{}】",JSON.toJSON(result));
         for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
+            log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
+            List<String> minerIdList = sysMinerInfoService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
+            log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
+            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
+            PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.FIL.name());
+            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));
+            if (dbPowerAvailableFilVO != null) {
+                powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
+                powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
+            }
+
             SysUserOut sysUserOut = new SysUserOut();
             sysUserOut.setUserId(powerAvailableFilVO.getUserId());
             log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
@@ -108,7 +126,6 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
             }
             powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent().multiply(new BigDecimal(100))));
             powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
-            powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(powerAvailableFilVO.getMiningEfficiency()));
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
@@ -129,9 +146,22 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
     public Map<String,Object> chiaPowerAvailablePage(String yesterDayDate,BasePage basePage) {
         // 管理员首页-旷工统计数据-平台有效算力
         BigDecimal allPowerAvailable = chiaMinerService.selectFilAllPowerAvailable();
+        log.info("chia管理员首页-旷工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
-        IPage<PowerAvailableFilVO> result = chiaMinerMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate,allPowerAvailable);
+        IPage<PowerAvailableFilVO> result = chiaMinerMapper.powerAvailablePage(powerAvailableFilVOPage,allPowerAvailable);
+        log.info("chia币管理员首页-平台有效算力排行榜:【{}】",JSON.toJSON(result));
         for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
+            log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
+            List<String> minerIdList = chiaMinerService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
+            log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
+            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
+            PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.XCH.name());
+            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));
+            if (dbPowerAvailableFilVO != null) {
+                powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
+                powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
+            }
+
             SysUserOut sysUserOut = new SysUserOut();
             sysUserOut.setUserId(powerAvailableFilVO.getUserId());
             log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
@@ -142,7 +172,6 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
             }
             powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent()));
             powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
-            powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(powerAvailableFilVO.getMiningEfficiency()));
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
