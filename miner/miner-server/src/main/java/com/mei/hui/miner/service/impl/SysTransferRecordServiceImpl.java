@@ -539,7 +539,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         log.info("提币中的记录查询结果:{}",JSON.toJSONString(transfers));
         BigDecimal drawing = BigDecimal.ZERO;
         for(SysTransferRecord record : transferRecords ) {
-            drawing = drawing.add(record.getAmount());
+            drawing = drawing.add(record.getAmount()).add(record.getFee());
         }
         earningVo.setDrawingEarning(BigDecimalUtil.formatFour(drawing).doubleValue());
         return Result.success(earningVo);
@@ -588,7 +588,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             if(record.getStatus() == TransferRecordStatusEnum.FINISH.getStatus()){
                 totalWithdraw = totalWithdraw.add(record.getAmount());
             }else if(record.getStatus() == TransferRecordStatusEnum.DRAWING.getStatus()){
-                drawing = drawing.add(record.getAmount());
+                drawing = drawing.add(record.getAmount()).add(record.getFee());
             }
         }
         earningVo.setTotalWithdraw(BigDecimalUtil.formatFour(totalWithdraw).doubleValue());
