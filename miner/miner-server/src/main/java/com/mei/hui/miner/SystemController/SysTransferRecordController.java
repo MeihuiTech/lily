@@ -143,7 +143,7 @@ public class SysTransferRecordController
             resultAllTransferRecordFeeVO.setFee(BigDecimal.ZERO);
             if (allTransferRecordFeeVOList != null && allTransferRecordFeeVOList.size() > 0) {
                 for (TransferRecordFeeVO transferRecordFeeVO:allTransferRecordFeeVOList){
-                    if (currency.getType().equals(transferRecordFeeVO.getName())){
+                    if (currency.getName().equals(transferRecordFeeVO.getName())){
                         resultAllTransferRecordFeeVO.setFee(BigDecimalUtil.formatFour(transferRecordFeeVO.getFee()==null? BigDecimal.ZERO:transferRecordFeeVO.getFee()));
                         break;
                     }
@@ -156,7 +156,7 @@ public class SysTransferRecordController
             resultTodayTransferRecordFeeVO.setFee(BigDecimal.ZERO);
             if (todayTransferRecordFeeVOList != null && todayTransferRecordFeeVOList.size() > 0) {
                 for (TransferRecordFeeVO transferRecordFeeVO:todayTransferRecordFeeVOList) {
-                    if (currency.getType().equals(transferRecordFeeVO.getName())){
+                    if (currency.getName().equals(transferRecordFeeVO.getName())){
                         resultTodayTransferRecordFeeVO.setFee(BigDecimalUtil.formatFour(transferRecordFeeVO.getFee()==null? BigDecimal.valueOf(0):transferRecordFeeVO.getFee()));
                         break;
                     }
