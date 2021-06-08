@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class BigDecimalUtil {
 
     /**
-     * 保留小数点后4位
+     * 保留小数点后4位,直接截取
      * @param n
      * @return
      */
@@ -13,11 +13,11 @@ public class BigDecimalUtil {
         if(n == null){
             return null;
         }
-        return n.setScale(4,BigDecimal.ROUND_HALF_UP);
+        return n.setScale(4,BigDecimal.ROUND_DOWN);
     }
 
     /**
-     * 保留两位小数
+     * 保留两位小数，四舍五入
      * @param n
      * @return
      */
