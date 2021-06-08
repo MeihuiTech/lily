@@ -1,16 +1,22 @@
 package com.mei.hui.user.SystemController;
 
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
+import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.common.file.FileUploadUtils;
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.manager.FeeRateManager;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.model.SysUserBO;
 import com.mei.hui.user.service.ISysUserService;
+import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.NotAop;
 import com.mei.hui.util.Result;
+import com.netflix.ribbon.proxy.annotation.Http;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,6 +32,7 @@ import java.util.Map;
  * 
  * @author ruoyi
  */
+@Slf4j
 @RestController
 @RequestMapping("/system/user/profile")
 public class SysProfileController{
@@ -34,14 +42,25 @@ public class SysProfileController{
     private SysUserMapper sysUserMapper;
     @Value("${server.port}")
     private String serverPort;
+    @Autowired
+    private FeeRateManager feeRateManager;
     /**
      * 查询当前登录人的个人详细信息
      */
     @GetMapping
     public Map<String,Object> profile(){
         Long userId = HttpRequestUtil.getUserId();
+        /**
+         * 获取当前登录用户，在当前币种下的费率
+         */
+        CurrencyEnum currencyEnum = CurrencyEnum.getCurrency(HttpRequestUtil.getCurrencyId());
+        log.info("查询用户费率,入参:userId ={},type={}",userId,currencyEnum.name());
+        List<FindUserRateVO> list = feeRateManager.findUserRate(userId, currencyEnum.name());
+        log.info("查询用户费率,出参:{}", JSON.toJSONString(list));
+
         SysUser user = sysUserMapper.selectById(userId);
         user.setPassword(null);
+        user.setFeeRate(list.size() > 0 ? list.get(0).getFeeRate(): null);
         user.setAvatar("/user-server"+user.getAvatar());
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());

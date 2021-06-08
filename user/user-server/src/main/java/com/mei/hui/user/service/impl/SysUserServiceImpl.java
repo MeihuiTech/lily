@@ -408,7 +408,7 @@ public class SysUserServiceImpl implements ISysUserService {
     public SysUser selectUserById(Long userId){
         SysUser user = sysUserMapper.selectById(userId);
 
-        List<FindUserRateVO> list = feeRateManager.findUserRate(userId);
+        List<FindUserRateVO> list = feeRateManager.findUserRate(userId,null);
         List<CurrencyRateBO> lt = list.stream().map(v -> {
             CurrencyRateBO currencyRateBO = new CurrencyRateBO();
             currencyRateBO.setFeeRate(v.getFeeRate().doubleValue());

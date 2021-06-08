@@ -14,6 +14,7 @@ import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -79,6 +80,9 @@ public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,Curr
         //获取用户币种费率
         LambdaQueryWrapper<CurrencyRate> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(CurrencyRate::getUserId,findUserRateBO.getUserId());
+        if(StringUtils.isNotEmpty(findUserRateBO.getType())){
+            queryWrapper.eq(CurrencyRate::getType,findUserRateBO.getType());
+        }
         List<CurrencyRate> list = currencyRateMapper.selectList(queryWrapper);
         List<FindUserRateVO> lt = list.stream().map(v -> {
             FindUserRateVO findUserRateVO = new FindUserRateVO();
