@@ -39,4 +39,19 @@ public class SysMinerInfoVO {
     @ApiModelProperty(value = "矿机数量")
     private Long machineCount;
 
+    @ApiModelProperty(value = "算力增速, 单位B")
+    private BigDecimal powerIncreasePerDay;
+
+    @ApiModelProperty(value = "当天出块份数")
+    private Long blocksPerDay;
+
+    @ApiModelProperty(value = "worker账户余额")
+    private BigDecimal balanceWorkerAccount;
+
+    @ApiModelProperty(value = "有效状态扇区数量")
+    private Integer sectorAvailable;
+
+    @ApiModelProperty(value = "错误状态扇区数量")
+    private Integer sectorError;
+
 }

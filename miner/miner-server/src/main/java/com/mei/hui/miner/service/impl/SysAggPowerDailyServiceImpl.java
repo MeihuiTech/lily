@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.mapper.SysAggPowerDailyMapper;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
@@ -102,5 +103,17 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
     @Override
     public List<SysAggPowerDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end,String type) {
         return sysAggPowerDailyMapper.selectSysAggPowerDailyByMinerId(minerId, begin, end,type);
+    }
+
+    /**
+     * 根据算力按天聚合表实体查询出算力按天聚合表实体的list
+     * @param sysAggPowerDaily
+     * @return
+     */
+    @Override
+    public List<SysAggPowerDaily> selectSysAggPowerDailyListBySysAggPowerDaily(SysAggPowerDaily sysAggPowerDaily) {
+        QueryWrapper<SysAggPowerDaily> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(sysAggPowerDaily);
+        return sysAggPowerDailyMapper.selectList(queryWrapper);
     }
 }

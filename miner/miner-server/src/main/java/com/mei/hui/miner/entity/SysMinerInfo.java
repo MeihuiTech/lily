@@ -59,7 +59,7 @@ public class SysMinerInfo
     private BigDecimal balanceMinerAccount;
 
     /**
-     * worker 账户榆木
+     * worker账户余额
      */
     private BigDecimal balanceWorkerAccount;
 
@@ -94,4 +94,6 @@ public class SysMinerInfo
 
     @TableField(exist = false)
     private long pageSize = 10;
+
+
 }

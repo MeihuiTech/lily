@@ -198,7 +198,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             mi.sector_pledge sectorPledge,
             mi.total_block_award totalBlockAward,
             mi.power_available powerAvailable,
-            smi.count machineCount
+            smi.count machineCount,
+            mi.power_increase_per_day powerIncreasePerDay,
+            mi.blocks_per_day blocksPerDay,
+            mi.balance_worker_account balanceWorkerAccount,
+            mi.sector_available sectorAvailable,
+            mi.sector_error sectorError
         FROM
             sys_miner_info mi,
             (
@@ -277,6 +282,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         </when>
                         <otherwise>
                             ORDER BY smi.count desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'balanceWorkerAccount' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY mi.balance_worker_account
+                        </when>
+                        <otherwise>
+                            ORDER BY mi.balance_worker_account desc
                         </otherwise>
                     </choose>
                 </if>
