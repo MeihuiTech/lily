@@ -45,6 +45,7 @@ public class SysAggPowerDaily{
      */
     private BigDecimal blockAwardIncrease;
 
+    //TODO   需要删除
     /**
      * 累计出块份数,起亚币使用
      */
