@@ -1,5 +1,6 @@
 package com.mei.hui.user.service.impl;
 
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.entity.SysMenu;
 import com.mei.hui.user.entity.SysRole;
@@ -11,6 +12,7 @@ import com.mei.hui.user.model.MetaVo;
 import com.mei.hui.user.model.RouterVo;
 import com.mei.hui.user.model.TreeSelect;
 import com.mei.hui.user.service.ISysMenuService;
+import com.mei.hui.util.CurrencyEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -163,6 +165,9 @@ public class SysMenuServiceImpl implements ISysMenuService{
                 children.setMeta(new MetaVo(menu.getMenuName(), menu.getIcon(), StringUtils.equals("1", menu.getIsCache())));
                 childrenList.add(children);
                 router.setChildren(childrenList);
+            }
+            if("Sectors".equalsIgnoreCase(router.getName()) && CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
+                continue;
             }
             routers.add(router);
         }
