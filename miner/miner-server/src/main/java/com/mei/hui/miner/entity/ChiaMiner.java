@@ -28,7 +28,7 @@ public class ChiaMiner {
     //总资产, 单位XCH
     private BigDecimal balanceMinerAccount;
 
-    //累计出块份数
+    //TODO   需要删除 累计出块份数
     private Long totalBlocks;
 
     private LocalDateTime createTime;
