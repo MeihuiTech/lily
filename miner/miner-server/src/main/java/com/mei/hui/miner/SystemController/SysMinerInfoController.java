@@ -71,7 +71,10 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     /**
      * 获取矿工信息详细信息
      */
-    @ApiOperation(value = "矿工详情",notes = "chia币矿工详情出参：\n" +
+    @ApiOperation(value = "矿工详情",notes = "FIL币矿工详情出参：\n" +
+            "balanceWorkerAccount：\n" +
+            "\n" +
+            "chia币矿工详情出参：\n" +
             "\n" +
             "powerAvailable：有效算力, 单位B\n" +
             "totalBlockAward：累计出块奖励,单位XCH\n" +

@@ -31,6 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="provingPeriodStart"    column="proving_period_start"    />
         <result property="provingPeriodEpoch"    column="proving_period_epoch"    />
         <result property="currentEpoch"    column="current_epoch"    />
+        <result property="balanceWorkerAccount"    column="balance_worker_account"    />
     </resultMap>
 
     <resultMap id="SysTotalEarningResult" type="com.mei.hui.miner.entity.SysTotalEarning">
@@ -39,7 +40,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysMinerInfoVo">
-        select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available, sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account, blocks_per_day, total_blocks, power_increase_per_day, create_by, create_time, update_by, update_time from sys_miner_info
+        select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available,
+        sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account,
+        blocks_per_day, total_blocks, power_increase_per_day, create_by, create_time, update_by, update_time ,
+        deadline_index,deadline_sectors,proving_period_start,proving_period_epoch,current_epoch,balance_worker_account
+        from sys_miner_info
     </sql>
 
     <select id="selectSysMinerInfoList" parameterType="com.mei.hui.miner.entity.SysMinerInfo" resultMap="SysMinerInfoResult">
@@ -57,6 +62,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="totalBlockAward != null "> and total_block_award = #{totalBlockAward}</if>
             <if test="balanceMinerAvailable != null "> and balance_miner_available = #{balanceMinerAvailable}</if>
             <if test="balanceMinerAccount != null "> and balance_miner_account = #{balanceMinerAccount}</if>
+            <if test="blocksPerDay != null "> and blocks_per_day = #{blocksPerDay}</if>
+            <if test="totalBlocks != null "> and total_blocks = #{totalBlocks}</if>
+            <if test="powerIncreasePerDay != null "> and power_increase_per_day = #{powerIncreasePerDay}</if>
+            <if test="deadlineIndex != null "> and deadline_index = #{deadlineIndex}</if>
+            <if test="deadlineSectors != null "> and deadline_sectors = #{deadlineSectors}</if>
+            <if test="provingPeriodStart != null "> and proving_period_start = #{provingPeriodStart}</if>
+            <if test="provingPeriodEpoch != null "> and proving_period_epoch = #{provingPeriodEpoch}</if>
+            <if test="currentEpoch != null "> and current_epoch = #{currentEpoch}</if>
+            <if test="balanceWorkerAccount != null "> and balance_worker_account = #{balanceWorkerAccount}</if>
         </where>
     </select>
     
@@ -64,7 +78,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available,
         sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account, blocks_per_day,
         total_blocks, power_increase_per_day, create_by, create_time, update_by, update_time,deadline_index,
-        deadline_sectors,proving_period_start,proving_period_epoch,current_epoch from sys_miner_info
+        deadline_sectors,proving_period_start,proving_period_epoch,current_epoch ,balance_worker_account
+        from sys_miner_info
         where id = #{id}
     </select>
 
@@ -114,6 +129,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="provingPeriodStart != null">proving_period_start,</if>
             <if test="provingPeriodEpoch != null">proving_period_epoch,</if>
             <if test="currentEpoch != null">current_epoch,</if>
+            <if test="balanceWorkerAccount != null">balance_worker_account,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -140,6 +156,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="provingPeriodStart != null">#{provingPeriodStart},</if>
             <if test="provingPeriodEpoch != null">#{provingPeriodEpoch},</if>
             <if test="currentEpoch != null">#{currentEpoch},</if>
+            <if test="balanceWorkerAccount != null">#{balanceWorkerAccount},</if>
          </trim>
     </insert>
 
@@ -170,6 +187,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="provingPeriodStart != null">proving_period_start = #{provingPeriodStart},</if>
             <if test="provingPeriodEpoch != null">proving_period_epoch = #{provingPeriodEpoch},</if>
             <if test="currentEpoch != null">current_epoch = #{currentEpoch},</if>
+            <if test="balanceWorkerAccount != null">balance_worker_account = #{balanceWorkerAccount},</if>
         </trim>
         where id = #{id}
     </update>

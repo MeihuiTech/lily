@@ -120,6 +120,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         miner.setBalanceMinerAvailable(BigDecimalUtil.formatFour(miner.getBalanceMinerAvailable()));
         miner.setBalanceMinerAccount(BigDecimalUtil.formatFour(miner.getBalanceMinerAccount()));
         miner.setPowerAvailable(BigDecimalUtil.formatTwo(miner.getPowerAvailable()));
+        miner.setBalanceWorkerAccount(BigDecimalUtil.formatFour(miner.getBalanceWorkerAccount()));
         return miner;
     }
 
@@ -207,6 +208,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             sysMinerInfoVO.setSectorPledge(BigDecimalUtil.formatFour(sysMinerInfoVO.getSectorPledge()));
             sysMinerInfoVO.setTotalBlockAward(BigDecimalUtil.formatFour(sysMinerInfoVO.getTotalBlockAward()));
             sysMinerInfoVO.setPowerAvailable(BigDecimalUtil.formatTwo(sysMinerInfoVO.getPowerAvailable()));
+            sysMinerInfoVO.setBalanceWorkerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceWorkerAccount()));
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
