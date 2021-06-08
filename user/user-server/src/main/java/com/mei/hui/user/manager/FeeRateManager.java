@@ -11,6 +11,7 @@ import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,9 +28,12 @@ public class FeeRateManager {
      * @param userId
      * @return
      */
-    public List<FindUserRateVO> findUserRate(Long userId){
+    public List<FindUserRateVO> findUserRate(Long userId,String type){
         FindUserRateBO findUserRateBO = new FindUserRateBO();
         findUserRateBO.setUserId(userId);
+        if(StringUtils.isNotEmpty(type)){
+            findUserRateBO.setType(type);
+        }
         log.info("查询币种费率，入参:{}", JSON.toJSONString(findUserRateBO));
         Result<List<FindUserRateVO>> result = currencyRateFeign.findUserRate(findUserRateBO);
         log.info("查询币种费率，出参:{}", JSON.toJSONString(result));
