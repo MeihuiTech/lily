@@ -62,4 +62,17 @@ public interface ISysAggPowerDailyService
     public SysAggPowerDaily selectSysAggPowerDailyByMinerIdAndDate(String minerId, String date);
 
     List<SysAggPowerDaily> selectSysAggAccountDailyByMinerId(String minerId, String begin, String end,String type);
+    
+    /**
+    * 根据算力按天聚合表实体查询出算力按天聚合表实体的list
+    * 
+    * @description 
+    * @author shangbin
+    * @date 2021/6/8 10:40
+    * @param [sysAggPowerDaily] 
+    * @return java.util.List<com.mei.hui.miner.entity.SysAggPowerDaily> 
+    * @version v1.0.0
+    */
+    public List<SysAggPowerDaily> selectSysAggPowerDailyListBySysAggPowerDaily(SysAggPowerDaily sysAggPowerDaily);
+    
 }

@@ -31,4 +31,10 @@ public class ChiaMinerVO {
     @ApiModelProperty(value = "累计出块份数")
     private Long totalBlocks;
 
+    @ApiModelProperty(value = "算力增速, 单位B")
+    private BigDecimal powerIncreasePerDay;
+
+    @ApiModelProperty(value = "当天出块份数")
+    private Long blocksPerDay;
+
 }

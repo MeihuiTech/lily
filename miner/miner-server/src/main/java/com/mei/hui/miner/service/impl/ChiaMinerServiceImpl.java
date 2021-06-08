@@ -15,10 +15,8 @@ import com.mei.hui.miner.model.ChiaMinerVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.IChiaMinerService;
-import com.mei.hui.util.BigDecimalUtil;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.miner.service.ISysAggPowerDailyService;
+import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,8 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     private ChiaMinerMapper chiaMinerMapper;
     @Autowired
     private CurrencyRateService currencyRateService;
+    @Autowired
+    private ISysAggPowerDailyService sysAggPowerDailyService;
 
     /**
      * 获取 起亚币 旷工列表
@@ -79,9 +79,15 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
                 chiaMinerVO.setTotalBlockAward(BigDecimalUtil.formatFour(chiaMinerVO.getTotalBlockAward()));
                 chiaMinerVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(chiaMinerVO.getBalanceMinerAccount()));
 
-
-
-
+                SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
+                sysAggPowerDaily.setMinerId(chiaMiner.getMinerId());
+                sysAggPowerDaily.setDate(DateUtils.getYesterDayDateYmd());
+                sysAggPowerDaily.setType(CurrencyEnum.XCH.name());
+                List<SysAggPowerDaily> sysAggPowerDailyList = sysAggPowerDailyService.selectSysAggPowerDailyListBySysAggPowerDaily(sysAggPowerDaily);
+                if (sysAggPowerDailyList != null && sysAggPowerDailyList.size() > 0) {
+                    chiaMinerVO.setPowerIncreasePerDay(chiaMiner.getPowerAvailable().subtract(sysAggPowerDailyList.get(0).getPowerAvailable()));
+                    chiaMinerVO.setBlocksPerDay(chiaMiner.getTotalBlocks() - sysAggPowerDailyList.get(0).getTotalBlocks());
+                }
                 chiaMinerVOList.add(chiaMinerVO);
             }
         }
