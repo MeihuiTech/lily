@@ -101,8 +101,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateSysTransferRecord(SysTransferRecord sysTransferRecord){
-        Long currencyId = HttpRequestUtil.getCurrencyId();
-        Long userId = sysTransferRecord.getUserId();
         SysTransferRecord transferRecord = sysTransferRecordMapper.selectById(sysTransferRecord.getId());
         if(transferRecord == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"提交记录不存在");
@@ -123,16 +121,19 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         /**
          * 如果是提现成功，则修改提现汇总表
          */
+        Long userId = transferRecord.getUserId();
+        String type = transferRecord.getType();
         if(sysTransferRecord.getStatus() == 1){
             LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(MrAggWithdraw::getSysUserId,userId);
+            queryWrapper.eq(MrAggWithdraw::getType,type);
             log.info("查询提现汇总表记录,userId={}",userId);
             List<MrAggWithdraw> aggWithdraws = mrAggWithdrawMapper.selectList(queryWrapper);
             log.info("查询提现汇总表记录,结果:{}",JSON.toJSONString(aggWithdraws));
             if(aggWithdraws.size() == 0){
                 log.info("新增提现汇总信息");
                 MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(transferRecord.getAmount())
-                        .type(CurrencyEnum.getCurrency(currencyId).name()).tatalCount(1).totalFee(transferRecord.getFee()).build();
+                        .type(type).tatalCount(1).totalFee(transferRecord.getFee()).build();
                 mrAggWithdrawMapper.insert(insertAggWithdraw);
             }else{
                 log.info("更新提现汇总信息");
@@ -437,13 +438,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(account.compareTo(new BigDecimal(0)) < 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"金额不够");
         }
-        Result<SysUserOut> userResult = userFeignClient.getLoginUser();
+       /* Result<SysUserOut> userResult = userFeignClient.getLoginUser();
         if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
             throw MyException.fail(userResult.getCode(),userResult.getMsg());
-        }
+        }*/
         BigDecimal fee = feeRate.multiply(sysTransferRecordWrap.getAmount()).divide(new BigDecimal(100));
         sysTransferRecordWrap.setFee(fee);
-
+        //实际到账金额 = 提币金额 - 平台佣金
+        sysTransferRecordWrap.setAmount(sysTransferRecordWrap.getAmount().subtract(fee));
         // 通过用户ID、货币ID查询用户货币地址表中的地址
         QueryWrapper<SysReceiveAddress> sysReceiveAddressQueryWrapper = new QueryWrapper<>();
         SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
