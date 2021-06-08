@@ -92,6 +92,8 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
                 // id去重
                 Set<Long> idsSet = new HashSet<>(idList);
                 queryWrapper.in(MrAggWithdraw::getSysUserId,new ArrayList<Long>(idsSet));
+            } else {
+                return new PageResult(0,new ArrayList());
             }
         }
 

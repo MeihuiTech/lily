@@ -287,8 +287,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         String userName = aggWithdrawBO.getUserName();
         if (StringUtils.isNotEmpty(userName)) {
             FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
-            bo.setName(aggWithdrawBO.getUserName());
-            log.info("模糊查询用户id集合");
+            bo.setName(userName);
+            log.info("模糊查询用户id集合：【{}】",JSON.toJSON(bo));
             Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
             log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
             List<Long> idList = new ArrayList<>();
@@ -297,6 +297,13 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
                 // id去重
                 Set<Long> idsSet = new HashSet<>(idList);
                 queryWrapper.in(SysTransferRecord::getUserId,new ArrayList<Long>(idsSet));
+            } else {
+                Map<String,Object> result = new HashMap<>();
+                result.put("code", ErrorCode.MYB_000000.getCode());
+                result.put("msg", ErrorCode.MYB_000000.getMsg());
+                result.put("rows", new ArrayList());
+                result.put("total", 0);
+                return result;
             }
         }
 
@@ -315,6 +322,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             queryWrapper.eq(SysTransferRecord::getStatus,aggWithdrawBO.getStatus());
         }
 
+        log.info("根据 entity 条件，查询全部记录（并翻页）入参：【{}】",JSON.toJSON(queryWrapper));
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(aggWithdrawBO.getPageNum(), aggWithdrawBO.getPageSize()), queryWrapper);
         List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
         page.getRecords().stream().filter(v-> page.getRecords() != null && page.getRecords().size() > 0).forEach(v->{
@@ -327,7 +335,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(ids.size() > 0){
             FindSysUserListInput findSysUserListInput = new FindSysUserListInput();
             findSysUserListInput.setUserIds(ids);
+            log.info("批量获取用户入参：【{}】",JSON.toJSON(findSysUserListInput));
             Result<List<SysUserOut>> users = userFeignClient.findSysUserList(findSysUserListInput);
+            log.info("批量获取用户出参：【{}】",JSON.toJSON(users));
             users.getData().stream().forEach(v->map.put(v.getUserId(),v));
         }
         /**

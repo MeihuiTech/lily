@@ -206,6 +206,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @param req
      * @return
      */
+    @Override
     public Result<List<FindSysUsersByNameVO>> findSysUsersByName(FindSysUsersByNameBO req){
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysUser::getStatus,0);
