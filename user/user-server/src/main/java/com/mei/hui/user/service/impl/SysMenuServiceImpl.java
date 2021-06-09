@@ -137,11 +137,12 @@ public class SysMenuServiceImpl implements ISysMenuService{
      * @return 路由列表
      */
     @Override
-    public List<RouterVo> buildMenus(List<SysMenu> menus)
-    {
+    public List<RouterVo> buildMenus(List<SysMenu> menus){
         List<RouterVo> routers = new LinkedList<RouterVo>();
-        for (SysMenu menu : menus)
-        {
+        for (SysMenu menu : menus){
+            if(menu.getMenuId() == 2003 && CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
+                continue;
+            }
             RouterVo router = new RouterVo();
             router.setHidden("1".equals(menu.getVisible()));
             router.setName(getRouteName(menu));
@@ -165,9 +166,6 @@ public class SysMenuServiceImpl implements ISysMenuService{
                 children.setMeta(new MetaVo(menu.getMenuName(), menu.getIcon(), StringUtils.equals("1", menu.getIsCache())));
                 childrenList.add(children);
                 router.setChildren(childrenList);
-            }
-            if("Sectors".equalsIgnoreCase(router.getName()) && CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
-                continue;
             }
             routers.add(router);
         }
