@@ -88,7 +88,7 @@ public class AggregationChiaTask {
             log.info("查询昨天算力聚合表,出参:{}",JSON.toJSONString(yesterDateStr));
             SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
             sysAggPowerDaily.setMinerId(chiaMiner.getMinerId());
-            sysAggPowerDaily.setDate(date);
+            sysAggPowerDaily.setDate(yesterDateStr);
             sysAggPowerDaily.setPowerAvailable(chiaMiner.getPowerAvailable());
             if (yesterday != null) {
                 sysAggPowerDaily.setPowerIncrease(chiaMiner.getPowerAvailable().subtract(yesterday.getPowerAvailable()));
@@ -119,7 +119,7 @@ public class AggregationChiaTask {
         if (data == null) {
             SysAggAccountDaily sysAggAccountDaily = new SysAggAccountDaily();
             sysAggAccountDaily.setMinerId(chiaMiner.getMinerId());
-            sysAggAccountDaily.setDate(date);
+            sysAggAccountDaily.setDate(DateUtils.getYesterDayDateYmd());
             sysAggAccountDaily.setBalanceAccount(chiaMiner.getBalanceMinerAccount());
             sysAggAccountDaily.setType(CurrencyEnum.XCH.name());
             log.info("账户聚合表新增数据,入参:{}",JSON.toJSONString(sysAggAccountDaily));
