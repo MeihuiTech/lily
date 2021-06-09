@@ -140,7 +140,7 @@ public class SysMenuServiceImpl implements ISysMenuService{
     public List<RouterVo> buildMenus(List<SysMenu> menus){
         List<RouterVo> routers = new LinkedList<RouterVo>();
         for (SysMenu menu : menus){
-            if(menu.getMenuId() == 2003 && CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
+            if("sectors".equalsIgnoreCase(menu.getPath()) && CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
                 continue;
             }
             RouterVo router = new RouterVo();
