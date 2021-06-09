@@ -103,7 +103,7 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
         log.info("fil管理员首页-旷工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
         IPage<PowerAvailableFilVO> result = sysMinerInfoMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate,allPowerAvailable);
-        log.info("fil币管理员首页-平台有效算力排行榜:【{}】",JSON.toJSON(result));
+        log.info("fil币管理员首页-平台有效算力排行榜出参:【{}】",JSON.toJSON(result));
         for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
             log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
             List<String> minerIdList = sysMinerInfoService.findMinerIdByUserId(powerAvailableFilVO.getUserId());

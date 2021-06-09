@@ -202,7 +202,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(getBeginOfDayDate());
+        System.out.println(getYesterDayDateYmd());
     }
 
 }
