@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -75,7 +76,7 @@ public interface SysTransferRecordMapper extends BaseMapper<SysTransferRecord>
      */
     Double selectTotalWithdrawByUserId(@Param("userId") Long userId);
 
-    List<TransferRecordFeeVO> selectTodayEarning();
+    List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate);
 
     List<TransferRecordFeeVO> selectTotalEarning();
 

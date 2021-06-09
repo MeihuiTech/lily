@@ -197,8 +197,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
      * @return
      */
     @Override
-    public List<TransferRecordFeeVO> selectTodayEarning() {
-        return sysTransferRecordMapper.selectTodayEarning();
+    public List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate) {
+        return sysTransferRecordMapper.selectTodayEarning(todayBeginDate);
     }
 
     @Override

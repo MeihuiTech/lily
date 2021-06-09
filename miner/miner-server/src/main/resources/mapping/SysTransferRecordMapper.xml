@@ -149,8 +149,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
             sys_transfer_record
         WHERE
-            create_time >= curdate()
-        AND STATUS = 1
+        STATUS = 1
+        <if test="todayBeginDate != null">
+            and update_time >= #{todayBeginDate}
+        </if>
         GROUP BY type
     </select>
 </mapper>

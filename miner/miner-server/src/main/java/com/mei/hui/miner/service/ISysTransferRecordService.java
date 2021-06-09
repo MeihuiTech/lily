@@ -9,6 +9,7 @@ import com.mei.hui.miner.model.TransferRecordFeeVO;
 import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +99,7 @@ public interface ISysTransferRecordService
     * @return java.math.BigDecimal
     * @version v1.0.0
     */
-    List<TransferRecordFeeVO> selectTodayEarning();
+    List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate);
 
     /**
      * 查询系统划转记录列表,加UserName

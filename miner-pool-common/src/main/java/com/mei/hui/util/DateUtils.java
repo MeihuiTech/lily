@@ -3,6 +3,7 @@ package com.mei.hui.util;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.lang.management.ManagementFactory;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -145,6 +146,40 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+    * 获取当天的开始时间
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/9 11:22
+    * @param []
+    * @return java.util.Date
+    * @version v1.0.0
+    */
+    public static Date getBeginOfDayDate() {
+        return getDayStartTime(new Date());
+    }
+
+    /**
+    * 获取某个日期的开始时间
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/9 11:21
+    * @param [d]
+    * @return java.sql.Timestamp
+    * @version v1.0.0
+    */
+    public static Timestamp getDayStartTime(Date d) {
+        Calendar calendar = Calendar.getInstance();
+        if (null != d) {
+            calendar.setTime(d);
+        }
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),    calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
      * 计算两个时间差
      */
     public static String getDatePoor(Date endDate, Date nowDate)
@@ -165,4 +200,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         // long sec = diff % nd % nh % nm / ns;
         return day + "天" + hour + "小时" + min + "分钟";
     }
+
+    public static void main(String[] args) {
+        System.out.println(getBeginOfDayDate());
+    }
+
 }

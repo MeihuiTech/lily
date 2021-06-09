@@ -8,10 +8,7 @@ import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.model.*;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
-import com.mei.hui.util.BigDecimalUtil;
-import com.mei.hui.util.CurrencyEnum;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -129,9 +127,10 @@ public class SysTransferRecordController
     @GetMapping("/getPoolEarning")
     public Result getPoolEarning() {
         List<TransferRecordFeeVO> allTransferRecordFeeVOList = sysTransferRecordService.selectTotalEarning();
-        log.info("总手续费收益：【{}】",JSON.toJSON(allTransferRecordFeeVOList));
-        List<TransferRecordFeeVO> todayTransferRecordFeeVOList = sysTransferRecordService.selectTodayEarning();
-        log.info("今日手续费收益：【{}】",JSON.toJSON(todayTransferRecordFeeVOList));
+        log.info("总手续费收益出参：【{}】",JSON.toJSON(allTransferRecordFeeVOList));
+        Date todayBeginDate = DateUtils.getBeginOfDayDate();
+        List<TransferRecordFeeVO> todayTransferRecordFeeVOList = sysTransferRecordService.selectTodayEarning(todayBeginDate);
+        log.info("今日手续费收益出参：【{}】",JSON.toJSON(todayTransferRecordFeeVOList));
         List<TransferRecordFeeVO> resultAllTransferRecordFeeVOList = new ArrayList<>();
         List<TransferRecordFeeVO> resultTodayTransferRecordFeeVOList = new ArrayList<>();
         List<Currency> currencyList = sysCurrencyService.allCurrencyList();
