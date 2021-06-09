@@ -530,7 +530,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         //已提取收益
         BigDecimal totalWithdraw = BigDecimal.ZERO;
         for(SysTransferRecord record : transfers ) {
-            totalWithdraw = totalWithdraw.add(record.getAmount());
+            totalWithdraw = totalWithdraw.add(record.getAmount()).add(record.getFee());
         }
         earningVo.setTotalWithdraw(BigDecimalUtil.formatFour(totalWithdraw).doubleValue());
         /**
@@ -597,7 +597,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         BigDecimal drawing = BigDecimal.ZERO;//提取中的收益
         for(SysTransferRecord record : transfers ) {
             if(record.getStatus() == TransferRecordStatusEnum.FINISH.getStatus()){
-                totalWithdraw = totalWithdraw.add(record.getAmount());
+                totalWithdraw = totalWithdraw.add(record.getAmount()).add(record.getFee());
             }else if(record.getStatus() == TransferRecordStatusEnum.DRAWING.getStatus()){
                 drawing = drawing.add(record.getAmount()).add(record.getFee());
             }
