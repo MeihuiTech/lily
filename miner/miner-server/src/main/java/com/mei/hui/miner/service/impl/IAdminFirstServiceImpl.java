@@ -170,7 +170,7 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
             if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
                 powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
             }
-            powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent()));
+            powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent().multiply(new BigDecimal(100))));
             powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
         }
         Map<String,Object> map = new HashMap<>();
