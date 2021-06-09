@@ -164,7 +164,7 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         Long userId = HttpRequestUtil.getUserId();
         SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
         sysReceiveAddress.setUserId(userId);
-        sysReceiveAddress.setCurrencyId(currencyId);
+        sysReceiveAddress.setCurrencyId(HttpRequestUtil.getCurrencyId());
         QueryWrapper<SysReceiveAddress> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(sysReceiveAddress);
         List<SysReceiveAddress> sysReceiveAddressList = sysReceiveAddressMapper.selectList(queryWrapper);
