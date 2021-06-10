@@ -93,7 +93,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             xchMinerDetailBO.setPowerIncreasePerDay(xchMiner.getPowerAvailable().subtract(agg.getPowerAvailable()));
             xchMinerDetailBO.setBlocksPerDay(xchMiner.getTotalBlocks() - agg.getTotalBlocks());
         } else {
-            xchMinerDetailBO.setPowerIncreasePerDay(BigDecimal.ZERO);
+            xchMinerDetailBO.setPowerIncreasePerDay(xchMiner.getPowerAvailable());
             xchMinerDetailBO.setBlocksPerDay(0L);
         }
         return xchMinerDetailBO;
