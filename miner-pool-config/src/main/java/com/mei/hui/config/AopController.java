@@ -53,10 +53,14 @@ public class AopController {
 			ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 			HttpServletRequest request = attributes.getRequest();
 			String token = request.getHeader(SystemConstants.TOKEN);
+			Long userId = null;
+			Long currencyId = null;
 			if(StringUtils.isNotEmpty(token)){
-				log.info("@请求url:{},userId:{},currencyId:{},请求参数:{}",request.getRequestURL().toString(),HttpRequestUtil.getUserId(),
-						HttpRequestUtil.getCurrencyId(),getReqParameter(joinPoint));
+				userId = HttpRequestUtil.getUserId();
+				currencyId = HttpRequestUtil.getCurrencyId();
 			}
+			log.info("@请求url:{},userId:{},currencyId:{},请求参数:{}",request.getRequestURL().toString(),userId,
+					currencyId,getReqParameter(joinPoint));
 		}
     }
     
