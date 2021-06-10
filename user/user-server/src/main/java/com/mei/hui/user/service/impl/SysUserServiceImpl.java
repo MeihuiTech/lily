@@ -268,10 +268,11 @@ public class SysUserServiceImpl implements ISysUserService {
          * 查询用户信息
          */
         queryWrapper.eq(SysUser::getDelFlag,0);
+        queryWrapper.ne(SysUser::getUserId,1L);
         log.info("查询用户,入参:{}",queryWrapper.toString());
         IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(user.getPageNum(), user.getPageSize()), queryWrapper);
         log.info("查询用户,出参:{}",page.toString());
-        List<SysUser> list = page.getRecords().stream().filter(v -> v.getUserId() != null && 1L != v.getUserId()).collect(Collectors.toList());
+        List<SysUser> list = page.getRecords();
         /**
          * 获取用户的总算力和总收益
          */
@@ -350,10 +351,11 @@ public class SysUserServiceImpl implements ISysUserService {
          * 查询用户信息
          */
         queryWrapper.eq(SysUser::getDelFlag,0);
+        queryWrapper.ne(SysUser::getUserId,1L);
         log.info("查询用户,入参:{}",queryWrapper.toString());
         IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(user.getPageNum(), user.getPageSize()), queryWrapper);
         log.info("查询用户,出参:{}",page.toString());
-        List<SysUser> list = page.getRecords().stream().filter(v -> v.getUserId() != null && 1L != v.getUserId()).collect(Collectors.toList());
+        List<SysUser> list = page.getRecords();
         /**
          * 获取用户的总算力和总收益
          */

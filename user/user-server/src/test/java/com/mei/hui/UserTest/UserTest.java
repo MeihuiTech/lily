@@ -1,14 +1,21 @@
 package com.mei.hui.UserTest;
 
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsConfig;
 import com.mei.hui.user.UserApplication;
 import com.mei.hui.user.common.Constants;
+import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.util.SystemConstants;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,19 +118,17 @@ public class UserTest {
         String token = JwtUtil.createToken(5L,2L,Constants.WEB);
         System.out.print(token);
     }
-
+    @Autowired
+    protected SysUserMapper sysUserMapper;
     @Test
     public void testToken() {
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJkZWxfZmxhZyI6IjAiLCJ1c2VySWQiOjUsImlhdCI6MTYyMjYxNTk5MSwicGxhdGZvcm0iOiJ3ZWIiLCJzdGF0dXMiOiIwIn0.vwrfVfYueImrm55SMAmHOXhV7Z94uDfM2qLWWd8UhQM";
-        Claims claims = JwtUtil.parseToken(token);
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
 
-        Long userId = (Long) claims.get(SystemConstants.USERID);
-        Object currency = claims.get(SystemConstants.CURRENCYID);
-        Long currencyId = null;
-        if(currency != null){
-            currencyId = (Long) currency;
-        }
-        log.info("陈宫");
+        queryWrapper.eq(SysUser::getDelFlag,0);
+        queryWrapper.ne(SysUser::getUserId,1L);
+        log.info("查询用户,入参:{}",queryWrapper.toString());
+        IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(1, 10), queryWrapper);
+        log.info("结果：{}", JSON.toJSONString(page.getRecords()));
     }
 
 
