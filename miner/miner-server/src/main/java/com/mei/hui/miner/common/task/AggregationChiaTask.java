@@ -39,10 +39,9 @@ public class AggregationChiaTask {
 
 
     /**
-     * chia币账户按天聚合
+     * chia币账户按天聚合，每天晚上23点59分55秒执行
      */
-    //或直接指定时间间隔，例如：5秒
-    @Scheduled(cron = "0 0 0 */1 * ?")
+    @Scheduled(cron = "55 59 23 */1 * ?")
     public void chiaDailyAccount() {
         log.info("======================chia币AggregationTask-start===================");
         ChiaMiner chiaMiner = new ChiaMiner();
@@ -88,7 +87,7 @@ public class AggregationChiaTask {
             log.info("查询昨天算力聚合表,出参:{}",JSON.toJSONString(yesterDateStr));
             SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
             sysAggPowerDaily.setMinerId(chiaMiner.getMinerId());
-            sysAggPowerDaily.setDate(yesterDateStr);
+            sysAggPowerDaily.setDate(date);
             sysAggPowerDaily.setPowerAvailable(chiaMiner.getPowerAvailable());
             if (yesterday != null) {
                 sysAggPowerDaily.setPowerIncrease(chiaMiner.getPowerAvailable().subtract(yesterday.getPowerAvailable()));
@@ -119,7 +118,7 @@ public class AggregationChiaTask {
         if (data == null) {
             SysAggAccountDaily sysAggAccountDaily = new SysAggAccountDaily();
             sysAggAccountDaily.setMinerId(chiaMiner.getMinerId());
-            sysAggAccountDaily.setDate(DateUtils.getYesterDayDateYmd());
+            sysAggAccountDaily.setDate(date);
             sysAggAccountDaily.setBalanceAccount(chiaMiner.getBalanceMinerAccount());
             sysAggAccountDaily.setType(CurrencyEnum.XCH.name());
             log.info("账户聚合表新增数据,入参:{}",JSON.toJSONString(sysAggAccountDaily));

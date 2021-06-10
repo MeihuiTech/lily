@@ -39,10 +39,9 @@ public class AggregationFilTask {
 
 
     /**
-     * fil币账户按天聚合
+     * fil币账户按天聚合，每天晚上23点59分55秒执行
      */
-    //或直接指定时间间隔，例如：5秒
-    @Scheduled(cron = "0 0 0 */1 * ?")
+    @Scheduled(cron = "55 59 23 */1 * ?")
     public void dailyAccount() {
         log.info("======================fil币AggregationTask-start===================");
         SysMinerInfo sysMinerInfo = new SysMinerInfo();
@@ -86,7 +85,7 @@ public class AggregationFilTask {
             log.info("查询昨天算力聚合表,出参:{}",JSON.toJSONString(yesterDateStr));
             SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
             sysAggPowerDaily.setMinerId(info.getMinerId());
-            sysAggPowerDaily.setDate(yesterDateStr);
+            sysAggPowerDaily.setDate(date);
             sysAggPowerDaily.setPowerAvailable(info.getPowerAvailable());
             if (yesterday != null) {
                 sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable().subtract(yesterday.getPowerAvailable()));
@@ -119,7 +118,7 @@ public class AggregationFilTask {
         if (data == null) {
             SysAggAccountDaily sysAggAccountDaily = new SysAggAccountDaily();
             sysAggAccountDaily.setMinerId(info.getMinerId());
-            sysAggAccountDaily.setDate(DateUtils.getYesterDayDateYmd());
+            sysAggAccountDaily.setDate(date);
             sysAggAccountDaily.setBalanceAccount(info.getBalanceMinerAccount());
             sysAggAccountDaily.setBalanceAvailable(info.getBalanceMinerAvailable());
             sysAggAccountDaily.setSectorPledge(info.getSectorPledge());
