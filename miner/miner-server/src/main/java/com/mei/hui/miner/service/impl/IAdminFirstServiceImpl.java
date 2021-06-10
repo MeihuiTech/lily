@@ -114,6 +114,9 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
             if (dbPowerAvailableFilVO != null) {
                 powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
                 powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
+            } else {
+                powerAvailableFilVO.setMiningEfficiency(BigDecimal.ZERO);
+                powerAvailableFilVO.setPowerIncrease(BigDecimal.ZERO);
             }
 
             SysUserOut sysUserOut = new SysUserOut();
@@ -160,6 +163,9 @@ public class IAdminFirstServiceImpl implements IAdminFirstService {
             if (dbPowerAvailableFilVO != null) {
                 powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
                 powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
+            } else {
+                powerAvailableFilVO.setMiningEfficiency(BigDecimal.ZERO);
+                powerAvailableFilVO.setPowerIncrease(BigDecimal.ZERO);
             }
 
             SysUserOut sysUserOut = new SysUserOut();
