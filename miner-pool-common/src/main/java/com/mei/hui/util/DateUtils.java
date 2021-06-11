@@ -6,8 +6,10 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * 时间工具类
@@ -202,7 +204,17 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(getYesterDayDateYmd());
+//        System.out.println(getYesterDayDateYmd());
+
+        //获取系统当前时间Date类型，需要将字符串类型转成时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //设置为东八区
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        Date date = new Date();
+        String dateStr = sdf.format(date);
+        System.out.println(dateStr);
+        System.out.println(new Date());
+        System.out.println(LocalDateTime.now());
     }
 
 }
