@@ -107,6 +107,9 @@ public class MinerTest {
 
     }
 
-
+    @Test
+    public void testNullJson(){
+        System.out.print(JSON.toJSON(null));
+    }
 
 }

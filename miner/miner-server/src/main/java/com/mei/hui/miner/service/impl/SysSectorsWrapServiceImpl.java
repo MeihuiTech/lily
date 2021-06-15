@@ -165,7 +165,6 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int addSector(RequestSectorInfo sysSectorInfo) {
-        //1. 查询sys_sectors_wrap 中是否已有该扇区, 没有则插入, 有则获取数据做聚合
         SysSectorsWrap sysSectorsWrapParam = new SysSectorsWrap();
         sysSectorsWrapParam.setMinerId(sysSectorInfo.getMinerId()+"");
         sysSectorsWrapParam.setSectorNo(sysSectorInfo.getSectorNo());
@@ -180,6 +179,9 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
         sysSectorsWrapParam.setCreateTime(LocalDateTime.now());
         sysSectorsWrapParam.setUpdateTime(LocalDateTime.now());
 
+        SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
+
+        // 1.查询该 扇区聚合信息表sys_sectors_wrap 是否已有该扇区, 没有则插入, 有则获取数据做聚合
         SysSectorsWrap sysSectorsWrap = selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrapParam);
         if (sysSectorsWrap == null) {
             try {
@@ -187,18 +189,20 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
                 insertSysSectorsWrap(sysSectorsWrapParam);
             }catch (DataIntegrityViolationException exception) {
                 if (sysSectorInfo != null && sysSectorsWrap != null && sysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()) {
-                    log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表:[{}]" , JSON.toJSONString(sysSectorsWrap));
-                    updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo);
+                    log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表sysSectorsWrap:【{}】,sysSectorInfo:【{}】,sectorInfo:【{}】" ,
+                            JSON.toJSONString(sysSectorsWrap),JSON.toJSON(sysSectorInfo),JSON.toJSON(sectorInfo));
+                    updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo, sectorInfo);
                 }
                 log.info("新增扇区信息聚合表抛出异常");
             }
-        } else if (sysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()) {
-            log.info("修改扇区信息聚合表:[{}]" , JSON.toJSONString(sysSectorsWrap));
-            updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo);
+        } else {
+            // 状态不是按照顺序来的，可能先来2，再来1
+            log.info("修改扇区信息聚合表sysSectorsWrap:【{}】,sysSectorInfo:【{}】,sectorInfo:【{}】" ,
+                    JSON.toJSONString(sysSectorsWrap),JSON.toJSON(sysSectorInfo),JSON.toJSON(sectorInfo));
+            updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo, sectorInfo);
         }
 
-        //2. 查询 sys_sector_info 中是否已存在该记录, 如果已存在则更新
-        SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
+        //2. 查询 扇区封装记录表sys_sector_info 中是否已存在该记录, 不存在插入，如果已存在则更新
         int rows = 0;
         if (sectorInfo == null) {
             try {
@@ -227,8 +231,16 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
     * @return int
     * @version v1.0.0
     */
-    public int updateSysSectorsWrapAddSector(SysSectorsWrap sysSectorsWrap,RequestSectorInfo sysSectorInfo) {
-        sysSectorsWrap.setSectorDuration(sysSectorsWrap.getSectorDuration() + sysSectorInfo.getSectorDuration());
+    public int updateSysSectorsWrapAddSector(SysSectorsWrap sysSectorsWrap,RequestSectorInfo sysSectorInfo,SysSectorInfo sectorInfo) {
+        if(sectorInfo == null) {
+            log.info("updateSysSectorsWrapAddSector修改扇区信息聚合表sysSectorsWrap.getSectorDuration():【{}】,sysSectorInfo.getSectorDuration():【{}】",
+                    sysSectorsWrap.getSectorDuration(),sysSectorInfo.getSectorDuration());
+            sysSectorsWrap.setSectorDuration(sysSectorsWrap.getSectorDuration() + sysSectorInfo.getSectorDuration());
+        } else {
+            log.info("updateSysSectorsWrapAddSector修改扇区信息聚合表sysSectorsWrap.getSectorDuration():【{}】,sectorInfo.getSectorDuration():【{}】,sysSectorInfo.getSectorDuration():【{}】",
+                    sysSectorsWrap.getSectorDuration(),sectorInfo.getSectorDuration(),sysSectorInfo.getSectorDuration());
+            sysSectorsWrap.setSectorDuration(sysSectorsWrap.getSectorDuration() - sectorInfo.getSectorDuration() + sysSectorInfo.getSectorDuration());
+        }
         sysSectorsWrap.setSectorStatus(sysSectorInfo.getSectorStatus());
         return updateSysSectorsWrap(sysSectorsWrap);
     }

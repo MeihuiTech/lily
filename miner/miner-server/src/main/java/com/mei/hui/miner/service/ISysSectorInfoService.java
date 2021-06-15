@@ -62,7 +62,7 @@ public interface ISysSectorInfoService
     public int deleteSysSectorInfoById(Long id);
 
     /**
-     * 查询扇区信息是否已存在
+     * 查询扇区封装记录表 sys_sector_info里的扇区信息是否已存在
      *
      * @param sysSectorInfo 扇区信息
      * @return 结果

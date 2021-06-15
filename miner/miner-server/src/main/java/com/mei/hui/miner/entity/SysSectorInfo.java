@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * 扇区信息对象 sys_sector_info
+ * 扇区封装记录表 sys_sector_info
  * 
  * @author ruoyi
  * @date 2021-03-04
