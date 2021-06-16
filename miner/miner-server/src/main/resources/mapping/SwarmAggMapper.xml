@@ -3,7 +3,7 @@
 <mapper namespace="com.mei.hui.miner.mapper.SwarmAggMapper">
 
 
-    <select id="getPerTicketInfo" parameterType="Map" resultMap="Map">
+    <select id="getPerTicketInfo" parameterType="Map" resultType="Map">
         SELECT
             SUM(agg.per_ticket) totalPerTicket,agg.wallet_address walletAddress FROM swarm_agg agg
         <where>
@@ -11,7 +11,7 @@
                 <![CDATA[agg.date >= #{startDate} ]]>
             </if>
             <if test="endDate != null">
-                <![CDATA[and agg.date <= #{endDate}]]>
+                <![CDATA[and agg.date < #{endDate}]]>
             </if>
             <if test="addresses != null">
             and agg.wallet_address in

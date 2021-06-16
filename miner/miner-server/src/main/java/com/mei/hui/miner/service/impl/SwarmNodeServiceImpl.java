@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -53,6 +54,20 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         if(bo.getState() != null){
             query.eq(SwarmNode::getState,bo.getState());
         }
+        if("ticketValid".equalsIgnoreCase(bo.getCloumName())){
+            if(bo.isAsc()){
+                query.orderByAsc(SwarmNode::getTicketAvail);
+            }else{
+                query.orderByDesc(SwarmNode::getTicketAvail);
+            }
+        }
+        if("linkNum".equalsIgnoreCase(bo.getCloumName())){
+            if(bo.isAsc()){
+                query.orderByAsc(SwarmNode::getLinkNum);
+            }else{
+                query.orderByDesc(SwarmNode::getLinkNum);
+            }
+        }
         query.orderByDesc(SwarmNode::getCreateTime);
         IPage<SwarmNode> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), query);
         List<NodePageListVO> list = page.getRecords().stream().map(v -> {
@@ -62,6 +77,7 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         }).collect(Collectors.toList());
 
         log.info("获取节点的每日出票信息");
+        putYestodayTicketValid(list);
 
         return new PageResult(page.getTotal(),list);
     }
@@ -74,10 +90,11 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         List<String> addresses = list.stream().map(v ->v.getWalletAddress()).collect(Collectors.toList());
         Map<String,Object> param = new HashMap<>();
         param.put("list",addresses);
-       // LocalDate.now().
-        param.put("startDate","");
-        param.put("endDate","");
+        param.put("startDate",LocalDate.now().minusDays(1));
+        param.put("endDate",LocalDate.now());
+        log.info("查询节点每天的出票数，入参:{}", JSON.toJSONString(param));
         List<Map<String, Object>> perTicketInfos = swarmAggMapper.getPerTicketInfo(param);
+        log.info("查询节点每天的出票数，出参:{}", JSON.toJSONString(perTicketInfos));
         if(perTicketInfos.size() > 0){
             Map<String, Long> perTickets = new HashMap<>();
             perTicketInfos.stream().forEach(v->{
