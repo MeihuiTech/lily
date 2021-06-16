@@ -6,7 +6,8 @@ package com.mei.hui.util;
 public enum CurrencyEnum {
 
     FIL(1L,"fil币"),
-    XCH(2L,"起亚币");
+    XCH(2L,"起亚币"),
+    BZZ(3L,"swarm币");;
 
     private Long currencyId;
     private String des;
