@@ -2,6 +2,9 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.SwarmNode;
+import com.mei.hui.miner.feign.vo.NodePageListBO;
+import com.mei.hui.miner.feign.vo.NodePageListVO;
+import com.mei.hui.util.PageResult;
 
 /**
  * @author shangbin
@@ -9,4 +12,11 @@ import com.mei.hui.miner.entity.SwarmNode;
  * @date 2021/6/16 14:15
  **/
 public interface ISwarmNodeService extends IService<SwarmNode> {
+
+    /**
+     * 节点分页列表
+     * @param bo
+     * @return
+     */
+    PageResult<NodePageListVO> nodePageList(NodePageListBO bo);
 }
