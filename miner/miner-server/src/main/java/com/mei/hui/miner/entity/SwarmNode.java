@@ -6,6 +6,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * swarm节点信息
+ */
 @Data
 @TableName("swarm_node")
 public class SwarmNode {

@@ -6,6 +6,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * 聚合统计表
+ */
 @Data
 @TableName("swarm_agg")
 public class SwarmAgg {

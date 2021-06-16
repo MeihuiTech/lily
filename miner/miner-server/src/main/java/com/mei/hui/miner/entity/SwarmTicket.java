@@ -6,6 +6,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * 节点出票信息
+ */
 @Data
 @TableName("swarm_ticket")
 public class SwarmTicket {
