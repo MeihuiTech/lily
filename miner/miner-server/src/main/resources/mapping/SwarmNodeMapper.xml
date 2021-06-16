@@ -2,4 +2,55 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mei.hui.miner.mapper.SwarmNodeMapper">
 
+    <!--管理员首页-平台概览-总有效出票数，用的字段：有效出票数-->
+    <select id="selectTicketValid" resultType="long">
+        select
+        SUM(ticket_valid) ticketValid
+        FROM
+        swarm_node
+    </select>
+
+    <!--管理员首页-平台概览-昨日有效出票份数-->
+    <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
+        SELECT
+        SUM(ticket_valid) ticketValid
+        from
+        swarm_agg
+        <where>
+            date >= #{beginYesterdayDate} AND  #{endYesterdayDate} >= date
+        </where>
+    </select>
+
+    <!--管理员首页-平台概览-有效节点-->
+    <select id="selectNodeValid" resultType="long">
+        select
+        count(1) nodeValid
+        FROM
+        swarm_node
+        WHERE
+        state = 1
+    </select>
+
+    <!--管理员首页-平台概览-平台总连接数-->
+    <select id="selectLinkNum" resultType="long">
+        select
+        SUM(link_num) linkNum
+        FROM
+        swarm_node
+    </select>
+
+    <!--管理员首页-平台有效出票数排行榜-->
+    <select id="ticketValidPage" resultType="com.mei.hui.miner.feign.vo.SwarmTicketValidVO">
+        SELECT
+        n.userId,SUM(n.ticket_valid) ticketValid,
+        <if test="ticketValid != null">
+            SUM(n.ticket_valid)/#{ticketValid} ticketValidPercent,
+        </if>
+        COUNT(n.id) nodeValid,SUM(link_num) linkNum
+        FROM
+        swarm_node n
+        GROUP BY n.userId
+    </select>
+
+
 </mapper>

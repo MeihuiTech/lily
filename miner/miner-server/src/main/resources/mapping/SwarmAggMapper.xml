@@ -2,4 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mei.hui.miner.mapper.SwarmAggMapper">
 
+
+    <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
+        SELECT
+        SUM(a.ticket_valid) ticketValid
+        from
+        swarm_agg a
+        LEFT JOIN swarm_node n on a.wallet_address = n.wallet_address
+        <where>
+            <if test="userId != null">
+                n.userId = #{userId}
+            </if>
+            <if test="beginYesterdayDate != null and endYesterdayDate != null">
+                and a.date >= #{beginYesterdayDate} AND #{endYesterdayDate} >= a.date
+            </if>
+        </where>
+    </select>
+
+
 </mapper>
