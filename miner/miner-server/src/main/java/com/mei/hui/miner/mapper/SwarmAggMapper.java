@@ -7,8 +7,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 
+import java.util.List;
+import java.util.Map;
+
 @Repository
 public interface SwarmAggMapper extends BaseMapper<SwarmAgg> {
+
+    List<Map<String,Object>> getPerTicketInfo(Map<String,Object> map);
 
     /**
      * 根据userId、昨天开始时间、昨天结束时间 在聚合统计表里获取昨天的总有效出票数

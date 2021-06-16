@@ -6,12 +6,25 @@ import com.mei.hui.miner.feign.vo.SwarmTicketValidVO;
 
 import java.util.Date;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mei.hui.miner.entity.SwarmNode;
+import com.mei.hui.miner.feign.vo.NodePageListBO;
+import com.mei.hui.miner.feign.vo.NodePageListVO;
+import com.mei.hui.util.PageResult;
+
 /**
  * @author shangbin
  * @version v1.0.0
  * @date 2021/6/16 14:15
  **/
-public interface ISwarmNodeService {
+public interface ISwarmNodeService extends IService<SwarmNode> {
+
+    /**
+     * 节点分页列表
+     * @param bo
+     * @return
+     */
+    PageResult<NodePageListVO> nodePageList(NodePageListBO bo);
 
     /**
     * 管理员首页-平台概览-总有效出票数，用的字段：有效出票数

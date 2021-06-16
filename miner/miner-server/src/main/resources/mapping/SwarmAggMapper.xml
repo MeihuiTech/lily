@@ -3,6 +3,27 @@
 <mapper namespace="com.mei.hui.miner.mapper.SwarmAggMapper">
 
 
+    <select id="getPerTicketInfo" parameterType="Map" resultType="Map">
+        SELECT
+            SUM(agg.per_ticket) totalPerTicket,agg.wallet_address walletAddress FROM swarm_agg agg
+        <where>
+            <if test="startDate != null">
+                <![CDATA[agg.date >= #{startDate} ]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[and agg.date < #{endDate}]]>
+            </if>
+            <if test="addresses != null">
+            and agg.wallet_address in
+               <foreach collection="addresses" item="item" open="(" close=")" separator=",">
+               #{item}
+               </foreach>
+            </if>
+        </where>
+        GROUP BY agg.wallet_address
+    </select>
+
+
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
         SUM(a.ticket_valid) ticketValid
