@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.SwarmNode;
 import com.mei.hui.miner.feign.vo.SwarmTicketValidVO;
+import com.mei.hui.miner.feign.vo.SwarmUserMoneyBO;
+import com.mei.hui.miner.feign.vo.SwarmUserMoneyVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface SwarmNodeMapper extends BaseMapper<SwarmNode> {
@@ -72,5 +75,18 @@ public interface SwarmNodeMapper extends BaseMapper<SwarmNode> {
     * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.SwarmTicketValidVO>
     * @version v1.0.0
     */
-    public IPage<SwarmTicketValidVO> ticketValidPage(Page<com.mei.hui.miner.feign.vo.SwarmTicketValidVO> swarmTicketValidVOPage, @Param("ticketValid") Long ticketValid);
+    public IPage<SwarmTicketValidVO> ticketValidPage(Page<SwarmTicketValidVO> swarmTicketValidVOPage, @Param("ticketValid") Long ticketValid);
+
+    /**
+    * 管理员-用户收益-多条件分页查询用户列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/17 14:22
+    * @param [page, userId, userIdList]
+    * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.SwarmUserMoneyVO>
+    * @version v1.0.0
+    */
+    IPage<SwarmUserMoneyVO> selectUserMoneyList(Page<SwarmUserMoneyVO> page,@Param("userId") Long userId,@Param("cloumName") String cloumName,
+                                                @Param("isAsc") boolean isAsc, @Param("userIdList") List<Long> userIdList);
 }

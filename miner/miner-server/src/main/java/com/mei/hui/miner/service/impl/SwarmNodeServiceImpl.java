@@ -1,9 +1,5 @@
 package com.mei.hui.miner.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mei.hui.miner.feign.vo.SwarmTicketValidVO;
-import com.mei.hui.miner.mapper.SwarmNodeMapper;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -12,30 +8,23 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SwarmNode;
-import com.mei.hui.miner.feign.vo.NodePageListBO;
-import com.mei.hui.miner.feign.vo.NodePageListVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.SwarmAggMapper;
 import com.mei.hui.miner.mapper.SwarmNodeMapper;
-import com.mei.hui.miner.service.ISwarmAggService;
 import com.mei.hui.miner.service.ISwarmNodeService;
-import com.mei.hui.util.CurrencyEnum;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.PageResult;
+import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
+import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,9 +39,11 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
     @Autowired
     private SwarmAggMapper swarmAggMapper;
 
-
     @Autowired
     private SwarmNodeMapper swarmNodeMapper;
+
+    @Autowired
+    private UserFeignClient userFeignClient;
 
 
     public PageResult<NodePageListVO> nodePageList(NodePageListBO bo){
@@ -158,17 +149,68 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
     }
 
     /**
-    * 管理员首页-平台有效出票数排行榜
-    *
-    * @description
-    * @author shangbin
-    * @date 2021/6/16 17:57
-    * @param [swarmTicketValidVOPage, ticketValid]
-    * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.SwarmTicketValidVO>
-    * @version v1.0.0
-    */
+     * 管理员首页-平台有效出票数排行榜
+     * @param swarmTicketValidVOPage
+     * @param ticketValid
+     * @return
+     */
     @Override
     public IPage<SwarmTicketValidVO> ticketValidPage(Page<SwarmTicketValidVO> swarmTicketValidVOPage, Long ticketValid) {
         return swarmNodeMapper.ticketValidPage(swarmTicketValidVOPage, ticketValid);
     }
+
+    /**
+     * 管理员-用户收益-多条件分页查询用户列表
+     * @param swarmUserMoneyBO
+     * @return
+     */
+    @Override
+    public PageResult<SwarmUserMoneyVO> selectUserMoneyList(SwarmUserMoneyBO swarmUserMoneyBO) {
+        //用于入参模块模糊查询，获取用户id的list
+        String userName = swarmUserMoneyBO.getUserName();
+        List<Long> userIdList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(userName)) {
+            FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
+            bo.setName(userName);
+            log.info("模糊查询用户id集合");
+            Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
+            log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
+            List<Long> idList = new ArrayList<>();
+            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
+                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+                // id去重
+                Set<Long> idsSet = new HashSet<>(idList);
+                userIdList = new ArrayList<Long>(idsSet);
+            } else {
+                return new PageResult(0,new ArrayList());
+            }
+        }
+
+        Page<SwarmUserMoneyVO> page = new Page<SwarmUserMoneyVO>(swarmUserMoneyBO.getPageNum(),swarmUserMoneyBO.getPageSize());
+        log.info("多条件分页查询用户列表入参page：【{}】,swarmUserMoneyBO：【{}】,userIdList：【{}】",JSON.toJSON(page),JSON.toJSON(swarmUserMoneyBO),userIdList);
+        IPage<SwarmUserMoneyVO> result = swarmNodeMapper.selectUserMoneyList(page,swarmUserMoneyBO.getUserId(),swarmUserMoneyBO.getCloumName(),swarmUserMoneyBO.isAsc(),userIdList);
+        log.info("多条件分页查询用户列表出参：【{}】",JSON.toJSON(result));
+        if (result == null){
+            return new PageResult(0,new ArrayList());
+        }
+        result.getRecords().stream().forEach(v -> {
+            v.setMoney(BigDecimalUtil.formatEight(v.getMoney()));
+
+            SysUserOut sysUserOut = new SysUserOut();
+            sysUserOut.setUserId(v.getUserId());
+            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                v.setUserName(sysUserOutResult.getData().getUserName());
+            }
+        });
+        PageResult pageResult = new PageResult(result.getTotal(),result.getRecords());
+        return pageResult;
+    }
+
+
+
+
+
 }

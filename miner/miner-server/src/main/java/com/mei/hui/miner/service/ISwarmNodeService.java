@@ -2,15 +2,12 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mei.hui.miner.feign.vo.SwarmTicketValidVO;
-
-import java.util.Date;
-
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.SwarmNode;
-import com.mei.hui.miner.feign.vo.NodePageListBO;
-import com.mei.hui.miner.feign.vo.NodePageListVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.PageResult;
+
+import java.util.Date;
 
 /**
  * @author shangbin
@@ -85,4 +82,16 @@ public interface ISwarmNodeService extends IService<SwarmNode> {
     * @version v1.0.0
     */
     public IPage<SwarmTicketValidVO> ticketValidPage(Page<com.mei.hui.miner.feign.vo.SwarmTicketValidVO> swarmTicketValidVOPage, Long ticketValid);
+
+    /**
+    * 管理员-用户收益-多条件分页查询用户列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/17 14:02
+    * @param [swarmUserMoneyBO]
+    * @return com.mei.hui.util.Result<java.util.List<com.mei.hui.miner.feign.vo.SwarmUserMoneyVO>>
+    * @version v1.0.0
+    */
+    public PageResult<SwarmUserMoneyVO> selectUserMoneyList(SwarmUserMoneyBO swarmUserMoneyBO);
 }

@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel
+@ApiModel(value = "分页基础类")
 public class BasePage {
 
     @ApiModelProperty(value = "当前页码",required = true)

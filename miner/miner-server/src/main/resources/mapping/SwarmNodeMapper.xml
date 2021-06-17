@@ -52,5 +52,56 @@
         GROUP BY n.userId
     </select>
 
+    <!--管理员-用户收益-多条件分页查询用户列表-->
+    <select id="selectUserMoneyList" resultType="com.mei.hui.miner.feign.vo.SwarmUserMoneyVO">
+        SELECT
+            n.userId,
+            SUM(n.ticket_valid) ticketValid,
+            SUM(n.money) money
+        FROM
+            swarm_node n
+        <where>
+            1 = 1
+            <if test="userId != null">
+                and n.userId = #{userId}
+            </if>
+            <if test="userIdList != null and userIdList.size() > 0">
+                and n.userId in
+                <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+            n.userId
+        <choose>
+            <when test="cloumName != null and cloumName != ''">
+                <if test="'ticketValid' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY SUM(n.ticket_valid)
+                        </when>
+                        <otherwise>
+                            ORDER BY SUM(n.ticket_valid) desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'money' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY SUM(n.money)
+                        </when>
+                        <otherwise>
+                            ORDER BY SUM(n.money) desc
+                        </otherwise>
+                    </choose>
+                </if>
+            </when>
+            <otherwise>
+                ORDER BY SUM(n.ticket_valid) desc
+            </otherwise>
+        </choose>
+    </select>
+
 
 </mapper>
