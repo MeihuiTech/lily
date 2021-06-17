@@ -10,7 +10,7 @@ import java.util.Date;
  * 聚合统计表
  */
 @Data
-@TableName("swarm_agg")
+@TableName("swarm_one_hour_agg")
 public class SwarmAgg {
     private Long id;
 

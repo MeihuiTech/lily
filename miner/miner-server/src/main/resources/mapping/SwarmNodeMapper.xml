@@ -15,7 +15,7 @@
         SELECT
         SUM(ticket_valid) ticketValid
         from
-        swarm_agg
+        swarm_one_hour_agg
         <where>
             date >= #{beginYesterdayDate} AND  #{endYesterdayDate} >= date
         </where>
