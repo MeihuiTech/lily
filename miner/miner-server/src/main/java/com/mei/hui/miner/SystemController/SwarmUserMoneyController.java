@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/swarm/admin/userMoney")
-@Api(value = "管理员-用户收益-用户列表",tags = "管理员-用户收益-用户列表")
+@Api(value = "swarm管理员-用户收益-用户列表",tags = "管理员-用户收益-用户列表")
 public class SwarmUserMoneyController {
 
     @Autowired
