@@ -140,8 +140,16 @@ public class SysMenuServiceImpl implements ISysMenuService{
     public List<RouterVo> buildMenus(List<SysMenu> menus){
         List<RouterVo> routers = new LinkedList<RouterVo>();
         for (SysMenu menu : menus){
+            //chia 需要过来的菜单
             if("sectors".equalsIgnoreCase(menu.getPath()) && CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
                 continue;
+            }
+            if(CurrencyEnum.BZZ.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
+                if("sectors".equalsIgnoreCase(menu.getPath())
+                  || "Miners".equalsIgnoreCase(menu.getPath())
+                  || "Earn".equalsIgnoreCase(menu.getPath())){
+                    continue;
+                }
             }
             RouterVo router = new RouterVo();
             router.setHidden("1".equals(menu.getVisible()));
