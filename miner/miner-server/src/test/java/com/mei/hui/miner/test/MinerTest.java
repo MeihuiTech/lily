@@ -112,4 +112,13 @@ public class MinerTest {
         System.out.print(JSON.toJSON(null));
     }
 
+    @Test
+    public void testFeign(){
+        SysUserOut sysUserOut = new SysUserOut();
+        sysUserOut.setUserId(5L);
+        log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+        Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+        log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+    }
+
 }

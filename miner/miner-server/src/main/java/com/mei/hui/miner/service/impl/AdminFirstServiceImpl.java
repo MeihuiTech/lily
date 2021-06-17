@@ -25,7 +25,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class IAdminFirstServiceImpl implements IAdminFirstService {
+public class AdminFirstServiceImpl implements IAdminFirstService {
 
     @Autowired
     private SysMinerInfoMapper sysMinerInfoMapper;

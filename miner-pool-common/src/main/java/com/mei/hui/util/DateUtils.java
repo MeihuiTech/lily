@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
@@ -162,6 +163,20 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+    * 获取当天的结束时间
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/16 15:51
+    * @param []
+    * @return java.util.Date
+    * @version v1.0.0
+    */
+    public static Date getEndOfDayDate() {
+        return getDayEndTime(new Date());
+    }
+
+    /**
     * 获取某个日期的开始时间
     *
     * @description
@@ -178,6 +193,26 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         }
         calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),    calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+    * 获取某个日期的结束时间
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/16 15:52
+    * @param [d]
+    * @return java.sql.Timestamp
+    * @version v1.0.0
+    */
+    public static Timestamp getDayEndTime(Date d) {
+        Calendar calendar = Calendar.getInstance();
+        if (null != d) {
+            calendar.setTime(d);
+        }
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),    calendar.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
         return new Timestamp(calendar.getTimeInMillis());
     }
 
@@ -203,18 +238,56 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return day + "天" + hour + "小时" + min + "分钟";
     }
 
+    /**
+    * 获取昨天的开始时间
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/16 15:50
+    * @param []
+    * @return java.util.Date
+    * @version v1.0.0
+    */
+    public static Date getBeginYesterdayDate() {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(getBeginOfDayDate());
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        return cal.getTime();
+    }
+
+    /**
+    * 获取昨天的结束时间
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/16 15:50
+    * @param []
+    * @return java.util.Date
+    * @version v1.0.0
+    */
+    public static Date getEndYesterdayDate() {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(getEndOfDayDate());
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        return cal.getTime();
+    }
+
     public static void main(String[] args) {
 //        System.out.println(getYesterDayDateYmd());
 
         //获取系统当前时间Date类型，需要将字符串类型转成时间
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //设置为东八区
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
         Date date = new Date();
         String dateStr = sdf.format(date);
         System.out.println(dateStr);
         System.out.println(new Date());
-        System.out.println(LocalDateTime.now());
+        System.out.println(LocalDateTime.now());*/
+
+        System.out.println(getBeginYesterdayDate());
+        System.out.println(getEndYesterdayDate());
+
     }
 
 }

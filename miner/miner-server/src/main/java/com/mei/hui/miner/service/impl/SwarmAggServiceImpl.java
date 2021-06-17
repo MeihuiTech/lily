@@ -1,5 +1,7 @@
 package com.mei.hui.miner.service.impl;
 
+import com.mei.hui.miner.entity.SwarmAgg;
+import com.mei.hui.miner.mapper.SwarmAggMapper;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -18,9 +20,12 @@ import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.assertj.core.util.diff.myers.MyersDiff;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,6 +44,9 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     private ISwarmNodeService swarmNodeService;
     @Autowired
     private ISwarmAggService swarmAggService;
+
+    @Autowired
+    private SwarmAggMapper swarmAggMapper;
 
     public Result<SwarmHomePageVO> homePage(){
         if(CurrencyEnum.BZZ.getCurrencyId() != HttpRequestUtil.getCurrencyId()){
@@ -146,5 +154,18 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     public void putYesterdayTicketNum(SwarmHomePageVO swarmHomePageVO){
         Long userId = HttpRequestUtil.getUserId();
 
+    }
+
+
+    /**
+     * 根据userId、昨天开始时间、昨天结束时间 在聚合统计表里获取昨天的总有效出票数
+     * @param userId
+     * @param beginYesterdayDate
+     * @param endYesterdayDate
+     * @return
+     */
+    @Override
+    public Long selectYesterdayTicketValid(Long userId, Date beginYesterdayDate, Date endYesterdayDate) {
+        return swarmAggMapper.selectYesterdayTicketValid(userId, beginYesterdayDate, endYesterdayDate);
     }
 }
