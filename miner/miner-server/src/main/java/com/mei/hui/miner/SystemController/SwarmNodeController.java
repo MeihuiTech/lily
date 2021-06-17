@@ -1,5 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.miner.feign.vo.FindNodeListVO;
 import com.mei.hui.miner.feign.vo.NodePageListBO;
 import com.mei.hui.miner.feign.vo.NodePageListVO;
 import com.mei.hui.miner.service.ISwarmNodeService;
@@ -34,5 +35,11 @@ public class SwarmNodeController {
     @PostMapping("/nodePageList")
     public PageResult<NodePageListVO> nodePageList(@RequestBody NodePageListBO bo){
         return swarmNodeService.nodePageList(bo);
+    }
+
+    @ApiOperation("获取节点ip列表【鲍红建】")
+    @PostMapping("/findNodeList")
+    public Result<List<FindNodeListVO>> findNodeList(){
+        return swarmNodeService.findNodeList();
     }
 }

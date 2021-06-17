@@ -240,6 +240,20 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         return pageResult;
     }
 
+    /**
+     * 获取节点ip列表
+     * @return
+     */
+    public Result<List<FindNodeListVO>> findNodeList(){
+        List<SwarmNode> list = this.list();
+        List<FindNodeListVO> lt = list.stream().map(v -> {
+            FindNodeListVO vo = new FindNodeListVO();
+            BeanUtils.copyProperties(v, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
+    }
+
 
 
 

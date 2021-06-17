@@ -18,9 +18,9 @@ public class SwarmTicket {
 
     private Integer nodePort;
 
-    private Byte type;
+    private Integer type;
 
-    private Byte state;
+    private Integer state;
 
     private BigDecimal parValue;
 

@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.SwarmNode;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.PageResult;
+import com.mei.hui.util.Result;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author shangbin
@@ -94,4 +96,10 @@ public interface ISwarmNodeService extends IService<SwarmNode> {
     * @version v1.0.0
     */
     public PageResult<SwarmUserMoneyVO> selectUserMoneyList(SwarmUserMoneyBO swarmUserMoneyBO);
+
+    /**
+     * 获取节点ip列表
+     * @return
+     */
+    Result<List<FindNodeListVO>> findNodeList();
 }
