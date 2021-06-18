@@ -118,6 +118,9 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
      * @param list
      */
     public void putYestodayTicketValid(List<NodePageListVO> list){
+        if(list.size() ==0){
+            return;
+        }
         List<String> peerIds = list.stream().map(v ->v.getPeerId()).collect(Collectors.toList());
         Map<String,Object> param = new HashMap<>();
         param.put("peerIds",peerIds);
