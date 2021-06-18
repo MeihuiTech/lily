@@ -131,9 +131,9 @@ public class SysUserController{
     }
 
     /**
-     * 获取用户列表
+     * 获取用户收益列表
      */
-    @ApiOperation(value = "用户列表",notes = "出参：\n" +
+    @ApiOperation(value = "获取用户收益列表",notes = "出参：\n" +
             "powerAvailable总算力\n" +
             "totalBlockAward总收益\n" +
             "userId用户id\n" +
@@ -147,6 +147,15 @@ public class SysUserController{
             return userService.selectChiaUserList(user);
         }
         return null;
+    }
+
+    /**
+     * 多条件分页查询用户列表
+     */
+    @ApiOperation(value = "多条件分页查询用户列表")
+    @GetMapping("/userPage")
+    public Map<String,Object> userPage(SelectUserListInput user){
+        return userService.selectUserPage(user);
     }
 
     /**

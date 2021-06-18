@@ -87,4 +87,16 @@ public interface ISysUserService {
     Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO);
 
     Result<List<SysUserOut>> findAllUser();
+
+    /**
+    * 多条件分页查询用户列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/18 11:15
+    * @param [user]
+    * @return java.util.Map<java.lang.String,java.lang.Object>
+    * @version v1.0.0
+    */
+    public Map<String,Object> selectUserPage(SelectUserListInput user);
 }

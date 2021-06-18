@@ -403,6 +403,52 @@ public class SysUserServiceImpl implements ISysUserService {
     }
 
     /**
+     * 多条件分页查询用户列表
+     * @param user
+     * @return
+     */
+    @Override
+    public Map<String,Object> selectUserPage(SelectUserListInput user)
+    {
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        if(StringUtils.isNotEmpty(user.getUserName())){
+            queryWrapper.like(SysUser::getUserName,user.getUserName());
+        }
+        if(StringUtils.isNotEmpty(user.getPhonenumber())){
+            queryWrapper.like(SysUser::getPhonenumber,user.getPhonenumber());
+        }
+        if(StringUtils.isNotEmpty(user.getStatus())){
+            queryWrapper.eq(SysUser::getStatus,user.getStatus());
+        }
+        if(user.getParams() != null){
+            String beginTime = (String) user.getParams().get("beginTime");
+            String endTime = (String) user.getParams().get("endTime");
+            if(StringUtils.isNotEmpty(beginTime)){
+                queryWrapper.ge(SysUser::getCreateTime,beginTime);
+            }
+            if(StringUtils.isNotEmpty(endTime)){
+                queryWrapper.le(SysUser::getCreateTime,endTime);
+            }
+        }
+        /**
+         * 查询用户信息
+         */
+        queryWrapper.eq(SysUser::getDelFlag,0);
+        queryWrapper.ne(SysUser::getUserId,1L);
+        log.info("查询用户,入参:{}",queryWrapper.toString());
+        IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(user.getPageNum(), user.getPageSize()), queryWrapper);
+        log.info("查询用户,出参:{}",page.toString());
+
+        //组装返回值
+        Map<String,Object> map = new HashMap<>();
+        map.put("code", ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("total",page.getTotal());
+        map.put("rows",page.getRecords());
+        return map;
+    }
+
+    /**
      * 通过用户ID查询用户
      * @param userId 用户ID
      * @return 用户对象信息
