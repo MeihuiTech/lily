@@ -10,9 +10,11 @@ import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.PerTicket;
 import com.mei.hui.miner.entity.SwarmNode;
+import com.mei.hui.miner.entity.SwarmOneDayAgg;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.SwarmAggMapper;
 import com.mei.hui.miner.mapper.SwarmNodeMapper;
+import com.mei.hui.miner.mapper.SwarmOneDayAggMapper;
 import com.mei.hui.miner.service.ISwarmNodeService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
@@ -21,7 +23,6 @@ import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,8 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
 
     @Autowired
     private UserFeignClient userFeignClient;
+    @Autowired
+    private SwarmOneDayAggMapper swarmOneDayAggMapper;
 
 
     public PageResult<NodePageListVO> nodePageList(NodePageListBO bo){
@@ -105,8 +108,14 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
      * @return
      */
     public List<String> perTicketPageList(NodePageListBO bo){
-        log.info("按昨日出票进行排序,入参:isAsc={}",bo.isAsc());
-        IPage<PerTicket> page = swarmAggMapper.perTicketPageList(new Page<>(bo.getPageNum(), bo.getPageSize()), bo.isAsc());
+        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SwarmOneDayAgg::getDate,LocalDate.now().minusDays(1));
+        if(bo.isAsc()){
+            queryWrapper.orderByAsc(SwarmOneDayAgg::getPerTicketValid);
+        }else{
+            queryWrapper.orderByDesc(SwarmOneDayAgg::getPerTicketValid);
+        }
+        IPage<SwarmOneDayAgg> page = swarmOneDayAggMapper.selectPage(new Page<>(bo.getPageNum(), bo.getPageSize()), queryWrapper);
         log.info("按昨日出票进行排序,出参:{}",JSON.toJSONString(page.getRecords()));
         List<String> list = page.getRecords().stream().map(v -> v.getPeerId()).collect(Collectors.toList());
         log.info("按昨日出票数排序列表:{}",JSON.toJSONString(list));
@@ -122,26 +131,24 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
             return;
         }
         List<String> peerIds = list.stream().map(v ->v.getPeerId()).collect(Collectors.toList());
-        Map<String,Object> param = new HashMap<>();
-        param.put("peerIds",peerIds);
-        param.put("startDate",LocalDate.now().minusDays(1));
-        param.put("endDate",LocalDate.now());
-        log.info("查询节点每天的出票数，入参:{}", JSON.toJSONString(param));
-        List<PerTicket> perTicketInfos = swarmAggMapper.getPerTicketInfo(param);
-        log.info("查询节点每天的出票数，出参:{}", JSON.toJSONString(perTicketInfos));
-        if(perTicketInfos == null || perTicketInfos.size() == 0){
+        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SwarmOneDayAgg::getPeerId,peerIds);
+        queryWrapper.eq(SwarmOneDayAgg::getDate,LocalDate.now().minusDays(1));
+        List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggMapper.selectList(queryWrapper);
+        log.info("查询节点昨天的出票数，出参:{}", JSON.toJSONString(swarmOneDayAggList));
+        if(swarmOneDayAggList == null || swarmOneDayAggList.size() == 0){
             return;
         }
-        Map<String, PerTicket> perTickets = new HashMap<>();
-        perTicketInfos.stream().forEach(v->{
+        Map<String, SwarmOneDayAgg> perTickets = new HashMap<>();
+        swarmOneDayAggList.stream().forEach(v->{
             String key = v.getPeerId();
             perTickets.put(key,v);
         });
         list.stream().forEach(v->{
-            PerTicket perTicket = perTickets.get(v.getPeerId());
+            SwarmOneDayAgg perTicket = perTickets.get(v.getPeerId());
             if(perTicket != null){
-                v.setYestodayTicketValid(perTicket.getTotalPerTicketValid());
-                v.setYestodayTicketAvail(perTicket.getTotalPerTicketAvail());
+                v.setYestodayTicketValid(perTicket.getPerTicketValid());
+                v.setYestodayTicketAvail(perTicket.getPerTicketAvail());
             }
         });
     }

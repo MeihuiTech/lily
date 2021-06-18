@@ -1,7 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
-import com.mei.hui.miner.entity.PerTicket;
-import com.mei.hui.miner.entity.SwarmAgg;
+import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.SwarmAggMapper;
 import com.alibaba.fastjson.JSON;
@@ -10,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SwarmAgg;
-import com.mei.hui.miner.entity.SwarmNode;
 import com.mei.hui.miner.mapper.SwarmAggMapper;
+import com.mei.hui.miner.mapper.SwarmOneDayAggMapper;
 import com.mei.hui.miner.service.ISwarmAggService;
 import com.mei.hui.miner.service.ISwarmNodeService;
 import com.mei.hui.util.CurrencyEnum;
@@ -43,7 +42,7 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     @Autowired
     private ISwarmNodeService swarmNodeService;
     @Autowired
-    private ISwarmAggService swarmAggService;
+    private SwarmOneDayAggMapper swarmOneDayAggMapper;
 
     @Autowired
     private SwarmAggMapper swarmAggMapper;
@@ -152,21 +151,20 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
      */
     public void putYesterdayTicketAvailAndValid(SwarmHomePageVO swarmHomePageVO,List<SwarmNode> nodes){
         List<String> peerIds = nodes.stream().map(v -> v.getPeerId()).collect(Collectors.toList());
-        Map<String,Object> param = new HashMap<>();
-        param.put("peerIds",peerIds);
-        param.put("startDate", LocalDate.now().minusDays(1));
-        param.put("endDate",LocalDate.now());
-        log.info("查询节点每天的出票数，入参:{}", JSON.toJSONString(param));
-        List<PerTicket> perTicketInfos = swarmAggMapper.getPerTicketInfo(param);
-        log.info("查询节点每天的出票数，出参:{}", JSON.toJSONString(perTicketInfos));
-        if(perTicketInfos == null || perTicketInfos.size() == 0){
+        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SwarmOneDayAgg::getPeerId,peerIds);
+        queryWrapper.eq(SwarmOneDayAgg::getDate,LocalDate.now().minusDays(1));
+        List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggMapper.selectList(queryWrapper);
+
+        log.info("查询节点每天的出票数，出参:{}", JSON.toJSONString(swarmOneDayAggList));
+        if(swarmOneDayAggList == null || swarmOneDayAggList.size() == 0){
             return;
         }
         long yesterdayTicketAvail = 0;
         long yesterdayTicketValid = 0;
-        for(PerTicket perTicket :perTicketInfos ){
-            yesterdayTicketAvail +=perTicket.getTotalPerTicketAvail();
-            yesterdayTicketValid += perTicket.getTotalPerTicketValid();
+        for(SwarmOneDayAgg perTicket :swarmOneDayAggList ){
+            yesterdayTicketAvail +=perTicket.getPerTicketAvail();
+            yesterdayTicketValid += perTicket.getPerTicketValid();
         }
         log.info("昨日的有效出票数:{},昨天无效出票数:{}",yesterdayTicketValid,yesterdayTicketAvail);
         swarmHomePageVO.setYesterdayTicketAvail(yesterdayTicketAvail);
