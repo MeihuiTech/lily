@@ -7,10 +7,10 @@
             SUM(agg.per_ticket_avail) totalPerTicketAvail,SUM(agg.per_ticket_valid) totalPerTicketValid,agg.peer_id peerId FROM swarm_one_hour_agg agg
         <where>
             <if test="startDate != null">
-                <![CDATA[agg.date >= #{startDate} ]]>
+                <![CDATA[agg.date > #{startDate} ]]>
             </if>
             <if test="endDate != null">
-                <![CDATA[and agg.date < #{endDate}]]>
+                <![CDATA[and agg.date <= #{endDate}]]>
             </if>
             <if test="peerIds != null">
             and agg.peer_id in
@@ -28,10 +28,10 @@
         SUM(agg.link_num) totallinkNum,SUM(agg.ticket_valid) totalTicketValid,SUM(agg.convert_bzz) totalConvertBzz,agg.date FROM swarm_one_hour_agg agg
         <where>
             <if test="startDate != null">
-                <![CDATA[agg.date >= #{startDate} ]]>
+                <![CDATA[agg.date > #{startDate} ]]>
             </if>
             <if test="endDate != null">
-                <![CDATA[and agg.date < #{endDate}]]>
+                <![CDATA[and agg.date <= #{endDate}]]>
             </if>
             <if test="peerIds != null">
                 and agg.peer_id in
