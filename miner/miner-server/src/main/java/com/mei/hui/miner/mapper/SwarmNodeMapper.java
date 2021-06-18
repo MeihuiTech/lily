@@ -39,7 +39,7 @@ public interface SwarmNodeMapper extends BaseMapper<SwarmNode> {
      * @return java.lang.Long
      * @version v1.0.0
      */
-    public Long selectYesterdayTicketValid(@Param("beginYesterdayDate") Date beginYesterdayDate, @Param("beginTodayDate") Date beginTodayDate);
+    public Long selectYesterdayTicketValid(@Param("yesterDayDateYmd") String yesterDayDateYmd);
 
     /**
     * 管理员首页-平台概览-有效节点

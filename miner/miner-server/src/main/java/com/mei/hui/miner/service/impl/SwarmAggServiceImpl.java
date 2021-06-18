@@ -174,14 +174,14 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     }
 
     /**
-     * 根据userId、昨天开始时间、昨天结束时间 在聚合统计表里获取昨天的总有效出票数
+     * 根据userId、昨天时间 在聚合统计表里获取昨天的总有效出票数
      * @param userId
      * @param beginYesterdayDate
      * @param endYesterdayDate
      * @return
      */
     @Override
-    public Long selectYesterdayTicketValid(Long userId, Date beginYesterdayDate, Date endYesterdayDate) {
-        return swarmAggMapper.selectYesterdayTicketValid(userId, beginYesterdayDate, endYesterdayDate);
+    public Long selectYesterdayTicketValid(Long userId, String yesterDayDateYmd) {
+        return swarmAggMapper.selectYesterdayTicketValid(userId, yesterDayDateYmd);
     }
 }

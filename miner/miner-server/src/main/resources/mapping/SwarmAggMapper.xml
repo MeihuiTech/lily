@@ -60,19 +60,19 @@
             </if>
     </select>
 
-
+    <!--根据userId、昨天时间 在聚合统计表里获取昨天的总有效出票数-->
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
-        SUM(a.per_ticket_valid) perTicketValid
-        from
-        swarm_one_hour_agg a
-        LEFT JOIN swarm_node n on a.peer_id = n.peer_id
+        SUM(a.ticket_valid) ticketValid
+        FROM
+        swarm_one_day_agg a
+        LEFT JOIN swarm_node n ON a.peer_id = n.peer_id
         <where>
             <if test="userId != null">
                 n.userId = #{userId}
             </if>
-            <if test="beginYesterdayDate != null and endYesterdayDate != null">
-                and a.date >= #{beginYesterdayDate} AND #{endYesterdayDate} >= a.date
+            <if test="yesterDayDateYmd != null">
+                and a.date = #{yesterDayDateYmd}
             </if>
         </where>
     </select>

@@ -160,8 +160,8 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
      * @return
      */
     @Override
-    public Long selectYesterdayTicketValid(Date beginYesterdayDate, Date beginTodayDate) {
-        return swarmNodeMapper.selectYesterdayTicketValid(beginYesterdayDate, beginTodayDate);
+    public Long selectYesterdayTicketValid(String yesterDayDateYmd) {
+        return swarmNodeMapper.selectYesterdayTicketValid( yesterDayDateYmd);
     }
 
     /**
