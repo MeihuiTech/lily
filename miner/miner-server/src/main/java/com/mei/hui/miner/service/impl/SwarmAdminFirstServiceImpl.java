@@ -45,9 +45,11 @@ public class SwarmAdminFirstServiceImpl implements ISwarmAdminFirstService {
         Long ticketValid = swarmNodeService.selectTicketValid();
         swarmAdminFirstCollectVO.setTicketValid(ticketValid);
         // 管理员首页-平台概览-今日有效出票份数
+        // 获取昨天的开始时间
         Date beginYesterdayDate = DateUtils.getBeginYesterdayDate();
-        Date endYesterdayDate = DateUtils.getEndYesterdayDate();
-        Long yesterdayTicketValid = swarmNodeService.selectYesterdayTicketValid(beginYesterdayDate,endYesterdayDate);
+        // 获取今天的开始时间
+        Date beginTodayDate = DateUtils.getBeginOfDayDate();
+        Long yesterdayTicketValid = swarmNodeService.selectYesterdayTicketValid(beginYesterdayDate,beginTodayDate);
         if (yesterdayTicketValid != null){
             swarmAdminFirstCollectVO.setTodayTicketValid(ticketValid - yesterdayTicketValid);
         } else {

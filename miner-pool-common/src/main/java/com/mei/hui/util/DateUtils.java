@@ -286,7 +286,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         System.out.println(LocalDateTime.now());*/
 
         System.out.println(getBeginYesterdayDate());
-        System.out.println(getEndYesterdayDate());
+        System.out.println(getBeginOfDayDate());
 
     }
 
