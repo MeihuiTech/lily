@@ -1,0 +1,80 @@
+package com.mei.hui.miner.common.task;
+
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mei.hui.miner.entity.SwarmNode;
+import com.mei.hui.miner.entity.SwarmOneDayAgg;
+import com.mei.hui.miner.mapper.SwarmNodeMapper;
+import com.mei.hui.miner.mapper.SwarmOneDayAggMapper;
+import com.mei.hui.miner.service.SwarmOneDayAggService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+/**
+ * swarm币定时任务，每天执行一次
+ */
+@Configuration
+@EnableScheduling
+@Slf4j
+public class SwarmOneDayAggTask {
+    @Autowired
+    private SwarmNodeMapper swarmNodeMapper;
+    @Autowired
+    private SwarmOneDayAggService swarmOneDayAggService;
+
+    @Scheduled(cron = "55 59 23 */1 * ?")
+    public void run() {
+        log.info("======================SwarmOneHourAggTask-start===================");
+        /**
+         * 查询所有节点
+         */
+        LambdaQueryWrapper<SwarmNode> query = new LambdaQueryWrapper<>();
+        List<SwarmNode> nodes = swarmNodeMapper.selectList(query);
+        log.info("查询所有节点:{}",JSON.toJSON(nodes));
+
+        /**
+         * 查询节点昨日数据
+         */
+        List<String> peerIds = nodes.stream().map(v -> v.getPeerId()).collect(Collectors.toList());
+        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SwarmOneDayAgg::getPeerId,peerIds);
+        queryWrapper.eq(SwarmOneDayAgg::getDate, LocalDate.now().minusDays(1));
+        List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggService.list(queryWrapper);
+        log.info("查询节点昨日数据:{}",JSON.toJSONString(swarmOneDayAggList));
+        Map<String,SwarmOneDayAgg> map = new HashMap<>();
+        swarmOneDayAggList.stream().forEach(v->{
+            map.put(v.getPeerId(),v);
+        });
+
+        List<SwarmOneDayAgg> batch = new ArrayList<>();
+        for(SwarmNode node : nodes){
+            SwarmOneDayAgg swarmOneDayAgg = map.get(node.getPeerId());
+            SwarmOneDayAgg oneDayAgg = new SwarmOneDayAgg();
+            oneDayAgg.setPeerId(node.getPeerId());
+            oneDayAgg.setPerTicketAvail(node.getTicketAvail() - oneDayAgg.getTicketAvail());
+            oneDayAgg.setPerTicketValid(node.getTicketValid() - oneDayAgg.getTicketValid());
+            oneDayAgg.setTicketAvail(node.getTicketAvail());
+            oneDayAgg.setTicketValid(node.getTicketValid());
+            oneDayAgg.setDate(LocalDate.now());
+            oneDayAgg.setCreateTime(LocalDateTime.now());
+            batch.add(oneDayAgg);
+        }
+        if(batch.size() == 0){
+            return;
+        }
+        swarmOneDayAggService.saveBatch(batch);
+        log.info("======================SwarmOneHourAggTask-end===================");
+    }
+}

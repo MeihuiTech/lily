@@ -50,8 +50,4 @@ public class SwarmAgg {
     private LocalDateTime date;
 
     private LocalDateTime createTime;
-
-    private Long perTicketAvail;
-
-    private Long perTicketValid;
 }
