@@ -2,26 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mei.hui.miner.mapper.SwarmAggMapper">
 
-    <select id="getPerTicketInfo" parameterType="Map" resultType="com.mei.hui.miner.entity.PerTicket">
-        SELECT
-            SUM(agg.per_ticket_avail) totalPerTicketAvail,SUM(agg.per_ticket_valid) totalPerTicketValid,agg.peer_id peerId FROM swarm_one_hour_agg agg
-        <where>
-            <if test="startDate != null">
-                <![CDATA[agg.date > #{startDate} ]]>
-            </if>
-            <if test="endDate != null">
-                <![CDATA[and agg.date <= #{endDate}]]>
-            </if>
-            <if test="peerIds != null">
-            and agg.peer_id in
-               <foreach collection="peerIds" item="item" open="(" close=")" separator=",">
-               #{item}
-               </foreach>
-            </if>
-        </where>
-        GROUP BY agg.peer_id
-    </select>
-
 
     <select id="findChart" parameterType="Map" resultType="com.mei.hui.miner.feign.vo.FindChart">
         SELECT
@@ -43,24 +23,6 @@
         GROUP BY agg.date
     </select>
 
-    <select id="perTicketPageList" resultType="com.mei.hui.miner.entity.PerTicket">
-        SELECT
-            SUM(agg.per_ticket_avail) totalPerTicketAvail,
-            SUM(agg.per_ticket_valid) totalPerTicketValid,
-            agg.peer_id peerId
-        FROM
-        swarm_one_hour_agg agg
-        GROUP BY
-            agg.peer_id
-            <if test="isAsc == false">
-                ORDER BY totalPerTicketValid DESC
-            </if>
-            <if test="isAsc == true">
-                ORDER BY totalPerTicketValid asc
-            </if>
-    </select>
-
-    <!--根据userId、昨天时间 在聚合统计表里获取昨天的总有效出票数-->
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
         SUM(a.ticket_valid) ticketValid
