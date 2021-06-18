@@ -20,8 +20,6 @@ public class SwarmTicket {
 
     private Integer type;
 
-    private Integer state;
-
     private BigDecimal parValue;
 
     private String peer;

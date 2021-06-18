@@ -21,9 +21,6 @@ public class TicketPageListVO {
     @ApiModelProperty("类型:0-无效;1-有效")
     private Integer type;
 
-    @ApiModelProperty("类型:0-无效;1-有效")
-    private Integer state;
-
     @ApiModelProperty("面值")
     private BigDecimal parValue;
 
