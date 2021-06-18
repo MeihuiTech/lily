@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * swarm币定时任务，没一小时执行一次
+ * swarm币定时任务，每小时执行一次
  */
 @Configuration
 @EnableScheduling
@@ -46,22 +46,7 @@ public class SwarmOneHourAggTask {
             agg.setConvertBzz(node.getMoney().subtract(node.getChanged()));
             agg.setDate(LocalDateTime.now().withMinute(0).withSecond(0));
             agg.setCreateTime(LocalDateTime.now());
-
-            //获取上次的累计有效票数和累计无效票数
-            LambdaQueryWrapper<SwarmAgg> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(SwarmAgg::getPeerId,node.getPeerId())
-                    .gt(SwarmAgg::getDate,LocalDateTime.now().minusHours(3))
-                    .lt(SwarmAgg::getDate,LocalDateTime.now().withMinute(0).withSecond(0))
-            .orderByDesc(SwarmAgg::getDate);
-            log.info("查询上一次统计的累计票数:{}",queryWrapper.getCustomSqlSegment());
-            List<SwarmAgg> swarmAggList = swarmAggService.list(queryWrapper);
-            log.info("查询上一次统计的累计票数出参:{}",JSON.toJSONString(swarmAggList));
-            if(swarmAggList.size() > 0){
-                SwarmAgg swarmAgg = swarmAggList.get(0);
-                log.info("上次统计票数信息:{}",JSON.toJSONString(swarmAgg));
-                agg.setPerTicketAvail(node.getTicketAvail()-swarmAgg.getTicketAvail());
-                agg.setPerTicketValid(node.getTicketValid()-swarmAgg.getTicketValid());
-            }
+            aggs.add(agg);
         }
         if(aggs.size() ==0){
             return;
