@@ -129,16 +129,16 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         if(perTicketInfos == null || perTicketInfos.size() == 0){
             return;
         }
-        Map<String, Long> perTickets = new HashMap<>();
+        Map<String, PerTicket> perTickets = new HashMap<>();
         perTicketInfos.stream().forEach(v->{
             String key = v.getWalletAddress();
-            Long value = v.getTotalPerTicket();
-            perTickets.put(key,value);
+            perTickets.put(key,v);
         });
         list.stream().forEach(v->{
-            Long totalPerTicket = perTickets.get(v.getWalletAddress());
-            if(totalPerTicket != null){
-                v.setYestodayTicketValid(totalPerTicket);
+            PerTicket perTicket = perTickets.get(v.getWalletAddress());
+            if(perTicket != null){
+                v.setYestodayTicketValid(perTicket.getTotalPerTicketValid());
+                v.setYestodayTicketAvail(perTicket.getTotalPerTicketAvail());
             }
         });
     }

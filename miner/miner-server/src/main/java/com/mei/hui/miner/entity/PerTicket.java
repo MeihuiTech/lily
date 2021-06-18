@@ -5,7 +5,9 @@ import lombok.Data;
 @Data
 public class PerTicket {
 
-    private Long totalPerTicket;
+    private Long totalPerTicketAvail;
+
+    private Long totalPerTicketValid;
 
     private String walletAddress;
 }

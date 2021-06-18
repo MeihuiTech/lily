@@ -46,4 +46,7 @@ public class SwarmAgg {
 
     private Date createTime;
 
+    private Long perTicketAvail;
+
+    private Long perTicketValid;
 }

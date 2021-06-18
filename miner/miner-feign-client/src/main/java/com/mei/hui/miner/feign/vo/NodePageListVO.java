@@ -49,5 +49,8 @@ public class NodePageListVO {
     @ApiModelProperty(value = "昨日有效出票数")
     private long yestodayTicketValid;
 
+    @ApiModelProperty(value = "昨日无效出票数")
+    private long yestodayTicketAvail;
+
 
 }

@@ -55,13 +55,13 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
         SwarmHomePageVO swarmHomePageVO = new SwarmHomePageVO();
         //总出票资产、有效出票数、无效出票数
         putTotalMoneyAndTicketNum(swarmHomePageVO);
-        log.info("近30天连接数图表数据");
+        log.info("连接数");
         putLinks(swarmHomePageVO);
 
-        log.info("近30天有效票数图表数据");
+        log.info("有效票数");
         putTicketValids(swarmHomePageVO);
 
-        log.info("可兑换BZZ 图表数据");
+        log.info("可兑换BZZ");
         putConvertBzz(swarmHomePageVO);
         return Result.success(swarmHomePageVO);
     }

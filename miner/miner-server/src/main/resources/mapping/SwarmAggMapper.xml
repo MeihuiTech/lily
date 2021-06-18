@@ -4,7 +4,7 @@
 
     <select id="getPerTicketInfo" parameterType="Map" resultType="com.mei.hui.miner.entity.PerTicket">
         SELECT
-            SUM(agg.per_ticket) totalPerTicket,agg.wallet_address walletAddress FROM swarm_one_hour_agg agg
+            SUM(agg.per_ticket_avail) totalPerTicketAvail,SUM(agg.per_ticket_valid) totalPerTicketValid,agg.wallet_address walletAddress FROM swarm_one_hour_agg agg
         <where>
             <if test="startDate != null">
                 <![CDATA[agg.date >= #{startDate} ]]>
@@ -24,18 +24,19 @@
 
     <select id="perTicketPageList" resultType="com.mei.hui.miner.entity.PerTicket">
         SELECT
-            SUM(agg.per_ticket) totalPerTicket,
+            SUM(agg.per_ticket_avail) totalPerTicketAvail,
+            SUM(agg.per_ticket_valid) totalPerTicketValid,
             agg.wallet_address walletAddress
         FROM
         swarm_one_hour_agg agg
         GROUP BY
             agg.wallet_address
             <if test="isAsc == false">
-                ORDER BY totalPerTicket DESC
+                ORDER BY totalPerTicketVail DESC
             </if>
-        <if test="isAsc == true">
-            ORDER BY totalPerTicket asc
-        </if>
+            <if test="isAsc == true">
+                ORDER BY totalPerTicketVail asc
+            </if>
     </select>
 
 
