@@ -67,6 +67,17 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     }
 
     /**
+     * 昨日有效出票数、昨日无效出票数
+     * @param swarmHomePageVO
+     */
+    public void putYesterdayTicketNum(SwarmHomePageVO swarmHomePageVO){
+        Long userId = HttpRequestUtil.getUserId();
+
+
+
+    }
+
+    /**
      * 近30天有效票数数图表数据
      * @param swarmHomePageVO
      */
@@ -146,17 +157,6 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
         swarmHomePageVO.setOfflineNodeNum(offlineNodeNum);
         swarmHomePageVO.setOnlineNodeNum(onlineNodeNum);
     }
-
-    /**
-     * 昨日有效出票数、昨日无效出票数
-     * @param swarmHomePageVO
-     */
-    public void putYesterdayTicketNum(SwarmHomePageVO swarmHomePageVO){
-        Long userId = HttpRequestUtil.getUserId();
-
-    }
-
-
     /**
      * 根据userId、昨天开始时间、昨天结束时间 在聚合统计表里获取昨天的总有效出票数
      * @param userId

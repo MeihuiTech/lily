@@ -78,9 +78,9 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         }
         //先在聚合表统计节点和昨日出票数，然后进行排序后返回
         if("yestodayTicketValid".equalsIgnoreCase(bo.getCloumName())){
-            List<String> adrresses = perTicketPageList(bo);
-            if(adrresses != null && adrresses.size() > 0){
-                query.in(SwarmNode::getWalletAddress,adrresses);
+            List<String> peerIds = perTicketPageList(bo);
+            if(peerIds != null && peerIds.size() > 0){
+                query.in(SwarmNode::getPeerId,peerIds);
             }
         }
         query.orderByDesc(SwarmNode::getCreateTime);
@@ -108,7 +108,7 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         log.info("按昨日出票进行排序,入参:isAsc={}",bo.isAsc());
         IPage<PerTicket> page = swarmAggMapper.perTicketPageList(new Page<>(bo.getPageNum(), bo.getPageSize()), bo.isAsc());
         log.info("按昨日出票进行排序,出参:{}",JSON.toJSONString(page.getRecords()));
-        List<String> list = page.getRecords().stream().map(v -> v.getWalletAddress()).collect(Collectors.toList());
+        List<String> list = page.getRecords().stream().map(v -> v.getPeerId()).collect(Collectors.toList());
         log.info("按昨日出票数排序列表:{}",JSON.toJSONString(list));
         return list;
     }
@@ -118,9 +118,9 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
      * @param list
      */
     public void putYestodayTicketValid(List<NodePageListVO> list){
-        List<String> addresses = list.stream().map(v ->v.getWalletAddress()).collect(Collectors.toList());
+        List<String> peerIds = list.stream().map(v ->v.getPeerId()).collect(Collectors.toList());
         Map<String,Object> param = new HashMap<>();
-        param.put("list",addresses);
+        param.put("peerIds",peerIds);
         param.put("startDate",LocalDate.now().minusDays(1));
         param.put("endDate",LocalDate.now());
         log.info("查询节点每天的出票数，入参:{}", JSON.toJSONString(param));
@@ -131,11 +131,11 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         }
         Map<String, PerTicket> perTickets = new HashMap<>();
         perTicketInfos.stream().forEach(v->{
-            String key = v.getWalletAddress();
+            String key = v.getPeerId();
             perTickets.put(key,v);
         });
         list.stream().forEach(v->{
-            PerTicket perTicket = perTickets.get(v.getWalletAddress());
+            PerTicket perTicket = perTickets.get(v.getPeerId());
             if(perTicket != null){
                 v.setYestodayTicketValid(perTicket.getTotalPerTicketValid());
                 v.setYestodayTicketAvail(perTicket.getTotalPerTicketAvail());

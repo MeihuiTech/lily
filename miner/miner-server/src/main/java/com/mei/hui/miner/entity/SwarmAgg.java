@@ -17,7 +17,7 @@ public class SwarmAgg {
     /**
      * 钱包地址，节点唯一标识
      */
-    private String walletAddress;
+    private String peerId;
 
     /**
      * 连接数量

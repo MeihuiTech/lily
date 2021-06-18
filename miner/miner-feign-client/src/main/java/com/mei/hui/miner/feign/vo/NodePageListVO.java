@@ -12,8 +12,11 @@ import java.util.Date;
 @Data
 public class NodePageListVO {
 
-    @ApiModelProperty(value = "钱包地址，节点唯一标识")
+    @ApiModelProperty(value = "钱包地址")
     private String walletAddress;
+
+    @ApiModelProperty(value = "节点唯一标识")
+    private String peerId;
 
     @ApiModelProperty(value = "节点ip")
     private String nodeIp;

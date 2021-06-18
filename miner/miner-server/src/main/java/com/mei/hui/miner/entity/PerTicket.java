@@ -9,5 +9,5 @@ public class PerTicket {
 
     private Long totalPerTicketValid;
 
-    private String walletAddress;
+    private String peerId;
 }
