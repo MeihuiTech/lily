@@ -112,7 +112,7 @@ public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,Curr
     }
 
     /**
-     * 根据userIdList 查询userId和费率d的map
+     * 根据userIdList 查询userId和费率的map
      * @param userIdList
      * @return
      */

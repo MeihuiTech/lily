@@ -131,7 +131,7 @@ public class SysUserController{
     }
 
     /**
-     * 获取用户收益列表
+     * 管理员-获取用户收益列表
      */
     @ApiOperation(value = "获取用户收益列表",notes = "出参：\n" +
             "powerAvailable总算力\n" +

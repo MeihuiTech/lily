@@ -245,6 +245,9 @@ public class SysUserServiceImpl implements ISysUserService {
     public Map<String,Object> selectUserList(SelectUserListInput user)
     {
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        if (user.getUserId() != null) {
+            queryWrapper.eq(SysUser::getUserId,user.getUserId());
+        }
         if(StringUtils.isNotEmpty(user.getUserName())){
             queryWrapper.like(SysUser::getUserName,user.getUserName());
         }
