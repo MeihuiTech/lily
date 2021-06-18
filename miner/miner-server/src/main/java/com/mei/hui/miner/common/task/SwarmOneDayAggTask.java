@@ -61,10 +61,16 @@ public class SwarmOneDayAggTask {
         List<SwarmOneDayAgg> batch = new ArrayList<>();
         for(SwarmNode node : nodes){
             SwarmOneDayAgg swarmOneDayAgg = map.get(node.getPeerId());
+            long perTicketAvail = node.getTicketAvail();
+            long perTicketValid = node.getTicketValid();
+            if(swarmOneDayAgg != null){
+                perTicketAvail = node.getTicketAvail() - swarmOneDayAgg.getTicketAvail();
+                perTicketValid = node.getTicketValid() - swarmOneDayAgg.getTicketValid();
+            }
             SwarmOneDayAgg oneDayAgg = new SwarmOneDayAgg();
             oneDayAgg.setPeerId(node.getPeerId());
-            oneDayAgg.setPerTicketAvail(node.getTicketAvail() - oneDayAgg.getTicketAvail());
-            oneDayAgg.setPerTicketValid(node.getTicketValid() - oneDayAgg.getTicketValid());
+            oneDayAgg.setPerTicketAvail(perTicketAvail);
+            oneDayAgg.setPerTicketValid(perTicketValid);
             oneDayAgg.setTicketAvail(node.getTicketAvail());
             oneDayAgg.setTicketValid(node.getTicketValid());
             oneDayAgg.setDate(LocalDate.now());

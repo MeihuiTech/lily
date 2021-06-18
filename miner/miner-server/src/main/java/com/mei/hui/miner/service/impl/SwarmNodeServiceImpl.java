@@ -86,6 +86,7 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
                 query.in(SwarmNode::getPeerId,peerIds);
             }
         }
+        query.eq(SwarmNode::getUserid,HttpRequestUtil.getUserId());
         query.orderByDesc(SwarmNode::getCreateTime);
         log.info("查询节点列表，入参:{}",query.getCustomSqlSegment());
         IPage<SwarmNode> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), query);
@@ -255,7 +256,9 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
      * @return
      */
     public Result<List<FindNodeListVO>> findNodeList(){
-        List<SwarmNode> list = this.list();
+        LambdaQueryWrapper<SwarmNode> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SwarmNode::getUserid,HttpRequestUtil.getUserId());
+        List<SwarmNode> list =this.list(queryWrapper);
         List<FindNodeListVO> lt = list.stream().map(v -> {
             FindNodeListVO vo = new FindNodeListVO();
             BeanUtils.copyProperties(v, vo);
