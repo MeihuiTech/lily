@@ -141,13 +141,23 @@ public class SysMenuServiceImpl implements ISysMenuService{
         List<RouterVo> routers = new LinkedList<RouterVo>();
         for (SysMenu menu : menus){
             //chia 需要过来的菜单
-            if("sectors".equalsIgnoreCase(menu.getPath()) && CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
-                continue;
+            if(CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
+                if("sectors".equalsIgnoreCase(menu.getPath())
+                   || "Node".equalsIgnoreCase(menu.getPath())
+                        || "Ticket".equalsIgnoreCase(menu.getPath())){
+                    continue;
+                }
             }
             if(CurrencyEnum.BZZ.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
                 if("sectors".equalsIgnoreCase(menu.getPath())
                   || "Miners".equalsIgnoreCase(menu.getPath())
                   || "Earn".equalsIgnoreCase(menu.getPath())){
+                    continue;
+                }
+            }
+            if(CurrencyEnum.FIL.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
+                if("Node".equalsIgnoreCase(menu.getPath())
+                        || "Ticket".equalsIgnoreCase(menu.getPath())){
                     continue;
                 }
             }
