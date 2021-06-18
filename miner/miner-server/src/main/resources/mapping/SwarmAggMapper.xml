@@ -53,10 +53,10 @@
         GROUP BY
             agg.peer_id
             <if test="isAsc == false">
-                ORDER BY totalPerTicketVail DESC
+                ORDER BY totalPerTicketValid DESC
             </if>
             <if test="isAsc == true">
-                ORDER BY totalPerTicketVail asc
+                ORDER BY totalPerTicketValid asc
             </if>
     </select>
 
