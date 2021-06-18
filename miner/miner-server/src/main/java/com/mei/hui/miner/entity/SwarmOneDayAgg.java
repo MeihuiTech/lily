@@ -7,14 +7,10 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 
-/**
- * 聚合统计表
- */
 @Data
-@TableName("swarm_one_hour_agg")
-public class SwarmAgg {
+@TableName("swarm_one_day_agg")
+public class SwarmOneDayAgg {
 
     @TableId(type = IdType.AUTO)
     private Long id;
@@ -23,26 +19,6 @@ public class SwarmAgg {
      * 节点唯一标识
      */
     private String peerId;
-
-    /**
-     * 连接数量
-     */
-    private Long linkNum;
-
-    /**
-     * 无效票数
-     */
-    private Long ticketAvail;
-
-    /**
-     * 有效票数
-     */
-    private Long ticketValid;
-
-    /**
-     * 可兑换BZZ
-     */
-    private BigDecimal convertBzz;
 
     /**
      * 日期
