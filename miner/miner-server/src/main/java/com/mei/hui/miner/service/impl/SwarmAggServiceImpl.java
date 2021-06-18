@@ -84,7 +84,7 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     public void putChart(SwarmHomePageVO swarmHomePageVO,List<SwarmNode> nodes){
         List<String> peerIds = nodes.stream().map(v -> v.getPeerId()).collect(Collectors.toList());
         log.info("查询近30的连接数");
-        List<FindChart> list = swarmAggMapper.findChart(LocalDate.now().minusDays(30), LocalDate.now(), peerIds);
+        List<FindChart> list = swarmAggMapper.findChart(LocalDate.now().minusDays(30), LocalDateTime.now(), peerIds);
         log.info("查询近30的连接数,出参:{}",JSON.toJSONString(list));
 
         //连接数图表数据

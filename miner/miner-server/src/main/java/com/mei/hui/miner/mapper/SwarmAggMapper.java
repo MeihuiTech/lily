@@ -6,6 +6,7 @@ import com.mei.hui.miner.feign.vo.FindChart;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -20,5 +21,5 @@ public interface SwarmAggMapper extends BaseMapper<SwarmAgg> {
      */
     public Long selectYesterdayTicketValid(@Param("userId") Long userId, @Param("yesterDayDateYmd") String yesterDayDateYmd);
 
-    List<FindChart> findChart(LocalDate startDate,LocalDate endDate, List<String> peerIds);
+    List<FindChart> findChart(LocalDate startDate, LocalDateTime endDate, List<String> peerIds);
 }
