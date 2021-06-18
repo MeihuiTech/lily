@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -42,9 +43,9 @@ public class SwarmAgg {
     /**
      * 日期
      */
-    private Date date;
+    private LocalDateTime date;
 
-    private Date createTime;
+    private LocalDateTime createTime;
 
     private Long perTicketAvail;
 
