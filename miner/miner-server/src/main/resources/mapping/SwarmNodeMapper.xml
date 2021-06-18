@@ -17,7 +17,7 @@
         from
         swarm_one_hour_agg
         <where>
-            date >= #{beginYesterdayDate} AND  #{endYesterdayDate} >= date
+            date > #{beginYesterdayDate} AND  #{beginTodayDate} >= date
         </where>
     </select>
 
