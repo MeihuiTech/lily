@@ -13,7 +13,7 @@
     <!--管理员首页-平台概览-昨日有效出票份数-->
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
-        SUM(ticket_valid) ticketValid
+        SUM(per_ticket_valid) perTicketValid
         from
         swarm_one_hour_agg
         <where>

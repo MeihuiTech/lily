@@ -42,7 +42,7 @@
 
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
-        SUM(a.ticket_valid) ticketValid
+        SUM(a.per_ticket_valid) perTicketValid
         from
         swarm_one_hour_agg a
         LEFT JOIN swarm_node n on a.peer_id = n.peer_id
