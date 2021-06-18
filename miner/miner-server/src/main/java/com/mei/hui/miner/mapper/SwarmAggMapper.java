@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.PerTicket;
 import com.mei.hui.miner.entity.SwarmAgg;
+import com.mei.hui.miner.feign.vo.FindChart;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Param;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.util.List;
@@ -29,4 +32,6 @@ public interface SwarmAggMapper extends BaseMapper<SwarmAgg> {
     List<PerTicket> getPerTicketInfo(Map<String,Object> map);
 
     IPage<PerTicket> perTicketPageList(Page page, boolean isAsc);
+
+    List<FindChart> findChart(LocalDate startDate,LocalDate endDate, List<String> peerIds);
 }
