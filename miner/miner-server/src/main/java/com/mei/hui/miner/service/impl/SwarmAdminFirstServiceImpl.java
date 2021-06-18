@@ -45,11 +45,9 @@ public class SwarmAdminFirstServiceImpl implements ISwarmAdminFirstService {
         Long ticketValid = swarmNodeService.selectTicketValid();
         swarmAdminFirstCollectVO.setTicketValid(ticketValid);
         // 管理员首页-平台概览-今日有效出票份数
-        // 获取昨天的开始时间
-        Date beginYesterdayDate = DateUtils.getBeginYesterdayDate();
-        // 获取今天的开始时间
-        Date beginTodayDate = DateUtils.getBeginOfDayDate();
-        Long yesterdayTicketValid = swarmNodeService.selectYesterdayTicketValid(beginYesterdayDate,beginTodayDate);
+        // 获取昨天的日期
+        String yesterDayDateYmd = DateUtils.getYesterDayDateYmd();
+        Long yesterdayTicketValid = swarmNodeService.selectYesterdayTicketValid(yesterDayDateYmd);
         if (yesterdayTicketValid != null){
             swarmAdminFirstCollectVO.setTodayTicketValid(ticketValid - yesterdayTicketValid);
         } else {
@@ -81,11 +79,11 @@ public class SwarmAdminFirstServiceImpl implements ISwarmAdminFirstService {
             for (SwarmTicketValidVO swarmTicketValidVO:result.getRecords()) {
                 log.info("swarmTicketValidVO修改值之前:【{}】",JSON.toJSON(swarmTicketValidVO));
                 Long userId = HttpRequestUtil.getUserId();
-                Date beginYesterdayDate = DateUtils.getBeginYesterdayDate();
-                Date endYesterdayDate = DateUtils.getEndYesterdayDate();
-                log.info("根据userId：【{}】,昨天开始时间beginYesterdayDate：【{}】,昨天结束时间：【{}】:endYesterdayDate:【{}】,在聚合统计表里获取昨天的总有效出票数入参",userId,beginYesterdayDate,endYesterdayDate);
-                Long yesterdayTicketValid = swarmAggService.selectYesterdayTicketValid(userId,beginYesterdayDate,endYesterdayDate);
-                log.info("根据userId、昨天开始时间、昨天结束时间 在聚合统计表里获取昨天的总有效出票数出参：【{}】",yesterdayTicketValid);
+                // 获取昨天的日期
+                String yesterDayDateYmd = DateUtils.getYesterDayDateYmd();
+                log.info("根据userId：【{}】,昨天日期：【{}】,在聚合统计表里获取昨天的总有效出票数入参",userId,yesterDayDateYmd);
+                Long yesterdayTicketValid = swarmAggService.selectYesterdayTicketValid(userId,yesterDayDateYmd);
+                log.info("根据userId、昨天日期 在聚合统计表里获取昨天的总有效出票数出参：【{}】",yesterdayTicketValid);
                 if (yesterdayTicketValid != null){
                     swarmTicketValidVO.setTodayTicketValid(swarmTicketValidVO.getTicketValid() - yesterdayTicketValid);
                 } else {

@@ -13,11 +13,13 @@
     <!--管理员首页-平台概览-昨日有效出票份数-->
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
-        SUM(per_ticket_valid) perTicketValid
-        from
-        swarm_one_hour_agg
+        SUM(ticket_valid) ticketValid
+        FROM
+        swarm_one_day_agg
         <where>
-            date > #{beginYesterdayDate} AND  #{beginTodayDate} >= date
+            <if test="yesterDayDateYmd != null and yesterDayDateYmd != ''">
+                date = #{yesterDayDateYmd}
+            </if>
         </where>
     </select>
 

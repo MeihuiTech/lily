@@ -12,13 +12,13 @@ import java.util.List;
 @Repository
 public interface SwarmAggMapper extends BaseMapper<SwarmAgg> {
     /**
-     * 根据userId、昨天开始时间、昨天结束时间 在聚合统计表里获取昨天的总有效出票数
+     * 根据userId、昨天时间 在聚合统计表里获取昨天的总有效出票数
      * @param userId
      * @param beginYesterdayDate
      * @param endYesterdayDate
      * @return
      */
-    public Long selectYesterdayTicketValid(@Param("userId") Long userId, @Param("beginYesterdayDate") Date beginYesterdayDate, @Param("endYesterdayDate") Date endYesterdayDate);
+    public Long selectYesterdayTicketValid(@Param("userId") Long userId, @Param("yesterDayDateYmd") String yesterDayDateYmd);
 
     List<FindChart> findChart(LocalDate startDate,LocalDate endDate, List<String> peerIds);
 }

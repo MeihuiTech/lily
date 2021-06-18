@@ -47,7 +47,7 @@ public interface ISwarmNodeService extends IService<SwarmNode> {
     * @return java.lang.Long
     * @version v1.0.0
     */
-    public Long selectYesterdayTicketValid(Date beginYesterdayDate,Date beginTodayDate);
+    public Long selectYesterdayTicketValid(String yesterDayDateYmd);
 
     /**
     * 管理员首页-平台概览-有效节点
