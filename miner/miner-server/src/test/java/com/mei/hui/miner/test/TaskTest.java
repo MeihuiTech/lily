@@ -9,14 +9,19 @@ import com.mei.hui.config.AESUtil;
 import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.common.task.SwarmOneDayAggTask;
 import com.mei.hui.miner.common.task.SwarmOneHourAggTask;
+import com.mei.hui.miner.feign.vo.FindNodeListVO;
 import com.mei.hui.miner.feign.vo.NodePageListVO;
 import com.mei.hui.miner.mapper.SwarmAggMapper;
+import com.mei.hui.miner.service.ISwarmNodeService;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MinerApplication.class)
@@ -38,15 +43,13 @@ public class TaskTest {
     public void swarmOneHourAggTaskTest(){
         swarmOneHourAggTask.run();
     }
-
+    @Autowired
+   private ISwarmNodeService swarmNodeService;
     @Test
     public void swarmAggMapperTest(){
 
-        QueryWrapper<NodePageListVO> queryWrapper = new QueryWrapper();
-
-        queryWrapper.orderByAsc("yestodayTicketAvail");
-        IPage<NodePageListVO> page = swarmAggMapper.findNodePageList(new Page<>(0, 2), queryWrapper);
-        log.info("结果:{}", JSON.toJSONString(page.getRecords()));
+        Result<List<FindNodeListVO>> list = swarmNodeService.findNodeList();
+        log.info("结果:{}", JSON.toJSONString(list.getData()));
     }
 
 }

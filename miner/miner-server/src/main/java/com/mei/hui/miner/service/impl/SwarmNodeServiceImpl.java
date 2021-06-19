@@ -197,8 +197,8 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
      * @return
      */
     public Result<List<FindNodeListVO>> findNodeList(){
-        LambdaQueryWrapper<SwarmNode> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SwarmNode::getUserid,HttpRequestUtil.getUserId());
+        QueryWrapper<SwarmNode> queryWrapper = new QueryWrapper();
+        queryWrapper.select("distinct node_ip").eq("userId",HttpRequestUtil.getUserId());
         List<SwarmNode> list =this.list(queryWrapper);
         List<FindNodeListVO> lt = list.stream().map(v -> {
             FindNodeListVO vo = new FindNodeListVO();
