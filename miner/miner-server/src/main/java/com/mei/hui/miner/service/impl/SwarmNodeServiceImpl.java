@@ -59,10 +59,9 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         if(CurrencyEnum.BZZ.getCurrencyId() != HttpRequestUtil.getCurrencyId()){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"当前选择币种不是swarm");
         }
-        List<NodePageListVO> list = new ArrayList<>();
-
-        QueryWrapper query = Wrappers.query();
-        query.eq("d.date",LocalDate.now().minusDays(1));
+        QueryWrapper<NodePageListVO> query = Wrappers.query();
+        query.and(Wrapper -> Wrapper.eq("d.date",LocalDate.now().minusDays(1)).or().isNull("d.date"));
+        query.eq("n.userId",HttpRequestUtil.getUserId());
         if(StringUtils.isNotEmpty(bo.getIp())){
             query.eq("n.node_ip",bo.getIp());
         }
@@ -90,7 +89,6 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
                 query.orderByDesc("d.per_ticket_valid");
             }
         }
-        query.eq("n.userId",HttpRequestUtil.getUserId());
         query.orderByDesc("n.create_time");
         log.info("查询节点列表，入参:{}",query.getCustomSqlSegment());
         IPage<NodePageListVO> page = swarmAggMapper.findNodePageList(new Page<>(bo.getPageNum(),bo.getPageSize()), query);
