@@ -78,7 +78,7 @@ public class SwarmAdminFirstServiceImpl implements ISwarmAdminFirstService {
         if (result.getTotal() > 0) {
             for (SwarmTicketValidVO swarmTicketValidVO:result.getRecords()) {
                 log.info("swarmTicketValidVO修改值之前:【{}】",JSON.toJSON(swarmTicketValidVO));
-                Long userId = HttpRequestUtil.getUserId();
+                Long userId = swarmTicketValidVO.getUserId();
                 // 获取昨天的日期
                 String yesterDayDateYmd = DateUtils.getYesterDayDateYmd();
                 log.info("根据userId：【{}】,昨天日期：【{}】,在聚合统计表里获取昨天的总有效出票数入参",userId,yesterDayDateYmd);
