@@ -10,6 +10,7 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsConfig;
 import com.mei.hui.user.UserApplication;
 import com.mei.hui.user.common.Constants;
+import com.mei.hui.user.entity.SysMenu;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.util.SystemConstants;
@@ -122,13 +123,8 @@ public class UserTest {
     protected SysUserMapper sysUserMapper;
     @Test
     public void testToken() {
-        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.eq(SysUser::getDelFlag,0);
-        queryWrapper.ne(SysUser::getUserId,1L);
-        log.info("查询用户,入参:{}",queryWrapper.toString());
-        IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(1, 10), queryWrapper);
-        log.info("结果：{}", JSON.toJSONString(page.getRecords()));
+        //SysMenu
     }
 
 

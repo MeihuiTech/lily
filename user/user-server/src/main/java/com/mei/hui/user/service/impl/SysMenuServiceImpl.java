@@ -101,21 +101,7 @@ public class SysMenuServiceImpl implements ISysMenuService{
      */
     @Override
     public List<SysMenu> selectMenuTreeByUserId(Long userId){
-        List<SysMenu> menus = null;
-        List<SysMenu> filteredMenus = null;
-        String[] filterPaths = {"sectors","miners","earn"};
-        Set<String> set = new HashSet<>(Arrays.asList(filterPaths));
-        if(userId != null && 1L == userId){
-            filteredMenus = new ArrayList<>();
-            menus = menuMapper.selectMenuTreeAll();
-            for( SysMenu m :menus){
-                if(m.getPath() == null || !set.contains(m.getPath())){
-                    filteredMenus.add(m);
-                }
-            }
-        }else{
-            filteredMenus = menuMapper.selectMenuTreeByUserId(userId);
-        }
+        List<SysMenu> filteredMenus = menuMapper.selectMenuTreeByUserId(userId);
         return getChildPerms(filteredMenus, 0);
     }
 

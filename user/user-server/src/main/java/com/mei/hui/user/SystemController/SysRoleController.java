@@ -69,7 +69,7 @@ public class SysRoleController
      */
     @PutMapping
     public Result edit(@Validated @RequestBody SysRole role){
-        roleService.checkRoleAllowed(role);
+        //roleService.checkRoleAllowed(role);
         if ("1".equals(roleService.checkRoleNameUnique(role))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"角色名称已存在");
         }else if ("1".equals(roleService.checkRoleKeyUnique(role))){
