@@ -62,35 +62,36 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         List<NodePageListVO> list = new ArrayList<>();
 
         QueryWrapper query = Wrappers.query();
+        query.eq("d.date",LocalDate.now().minusDays(1));
         if(StringUtils.isNotEmpty(bo.getIp())){
-            query.eq("nodeIp",bo.getIp());
+            query.eq("n.node_ip",bo.getIp());
         }
         if(bo.getState() != null){
-            query.eq("state",bo.getState());
+            query.eq("n.state",bo.getState());
         }
         if("ticketValid".equalsIgnoreCase(bo.getCloumName())){
             if(bo.isAsc()){
-                query.orderByAsc("ticketValid");
+                query.orderByAsc("n.ticket_valid");
             }else{
-                query.orderByDesc("ticketValid");
+                query.orderByDesc("n.ticket_valid");
             }
         }
         if("linkNum".equalsIgnoreCase(bo.getCloumName())){
             if(bo.isAsc()){
-                query.orderByAsc("linkNum");
+                query.orderByAsc("n.link_num");
             }else{
-                query.orderByDesc("linkNum");
+                query.orderByDesc("n.link_num");
             }
         }
         if("yestodayTicketValid".equalsIgnoreCase(bo.getCloumName())){
             if(bo.isAsc()){
-                query.orderByAsc("yestodayTicketValid");
+                query.orderByAsc("d.per_ticket_valid");
             }else{
-                query.orderByDesc("yestodayTicketValid");
+                query.orderByDesc("d.per_ticket_valid");
             }
         }
-        query.eq("userId",HttpRequestUtil.getUserId());
-        query.orderByDesc("createTime");
+        query.eq("n.userId",HttpRequestUtil.getUserId());
+        query.orderByDesc("n.create_time");
         log.info("查询节点列表，入参:{}",query.getCustomSqlSegment());
         IPage<NodePageListVO> page = swarmAggMapper.findNodePageList(new Page<>(bo.getPageNum(),bo.getPageSize()), query);
         log.info("查询节点列表，出参:{}",JSON.toJSONString(page.getRecords()));
