@@ -44,7 +44,7 @@ public class SwarmOneHourAggTask {
             agg.setTicketAvail(node.getTicketAvail());
             agg.setTicketValid(node.getTicketValid());
             agg.setConvertBzz(node.getMoney().subtract(node.getChanged()));
-            agg.setDate(LocalDateTime.now().withMinute(0).withSecond(0));
+            agg.setDate(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0));
             agg.setCreateTime(LocalDateTime.now());
             aggs.add(agg);
         }
