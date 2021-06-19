@@ -23,6 +23,30 @@
         GROUP BY agg.date
     </select>
 
+    <select id="findNodePageList" resultType="com.mei.hui.miner.feign.vo.NodePageListVO">
+        SELECT
+            n.userId,
+            n.peer_id peerId,
+            n.node_ip nodeIp,
+            n.node_port nodePort,
+            n.ticket_valid ticketValid,
+            n.link_num linkNum,
+            n.state,
+            n.contract_address contractAddress,
+            n.wallet_address walletAddress,
+            n.`changed`,
+            n.no_change noChange,
+            n.money,
+            n.create_time createTime,
+            d.per_ticket_valid yestodayTicketValid,
+            d.per_ticket_avail yestodayTicketAvail
+        FROM
+            swarm_node n
+        LEFT JOIN swarm_one_day_agg d ON n.peer_id = d.peer_id
+        ${ew.customSqlSegment}
+    </select>
+
+
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
         SUM(a.ticket_valid) ticketValid

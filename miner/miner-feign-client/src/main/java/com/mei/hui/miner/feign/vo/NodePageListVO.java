@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @ApiModel
@@ -40,11 +41,11 @@ public class NodePageListVO {
     private BigDecimal noChange;
 
     @ApiModelProperty(value = "状态:0-停用;1-挖矿中")
-    private Short state;
+    private Integer state;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     @ApiModelProperty(value = "累计有效出票数")
     private long ticketValid;
