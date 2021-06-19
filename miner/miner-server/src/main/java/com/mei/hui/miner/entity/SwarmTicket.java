@@ -18,7 +18,9 @@ public class SwarmTicket {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String peerId;
+    private Long userId;
+
+    private String nodePeerId;
 
     private String nodeIp;
 
