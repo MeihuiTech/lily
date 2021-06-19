@@ -1,5 +1,7 @@
 package com.mei.hui.miner.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -12,7 +14,11 @@ import java.util.Date;
 @Data
 @TableName("swarm_ticket")
 public class SwarmTicket {
+
+    @TableId(type = IdType.AUTO)
     private Long id;
+
+    private String peerId;
 
     private String nodeIp;
 

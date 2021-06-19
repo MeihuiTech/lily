@@ -56,7 +56,7 @@ public class SwarmTicketServiceImpl extends ServiceImpl<SwarmTicketMapper,SwarmT
         if(bo.getType() != null){
             query.eq(SwarmTicket::getType,bo.getType());
         }
-        query.in(SwarmTicket::getPeer,peerIds);
+        query.in(SwarmTicket::getPeerId,peerIds);
         IPage<SwarmTicket> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), query);
         List<TicketPageListVO> list = page.getRecords().stream().map(v -> {
             TicketPageListVO vo = new TicketPageListVO();
