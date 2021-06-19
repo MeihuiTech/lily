@@ -9,6 +9,7 @@ import com.mei.hui.miner.mapper.SwarmOneDayAggMapper;
 import com.mei.hui.miner.service.SwarmOneDayAggService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,9 +35,17 @@ public class SwarmOneDayAggTask {
     @Autowired
     private SwarmOneDayAggService swarmOneDayAggService;
 
+    @Value("${spring.profiles.active}")
+    private String env;
+
     @Scheduled(cron = "55 59 23 */1 * ?")
     public void run() {
         log.info("======================SwarmOneHourAggTask-start===================");
+        if("dev".equals(env)){
+            log.info("开发环境,不执行");
+            return;
+        }
+
         /**
          * 查询所有节点
          */
