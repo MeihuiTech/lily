@@ -140,33 +140,19 @@ public class SysMenuServiceImpl implements ISysMenuService{
     public List<RouterVo> buildMenus(List<SysMenu> menus){
         List<RouterVo> routers = new LinkedList<RouterVo>();
         for (SysMenu menu : menus){
-            if (HttpRequestUtil.getUserId() == 1){
-                if("Node".equalsIgnoreCase(menu.getPath())
-                        || "Ticket".equalsIgnoreCase(menu.getPath())){
-                    continue;
+            // 根据根目录过滤
+            if (menu.getParentId().equals(0L)) {
+                // 币种类型，哪些币种显示这个菜单
+                String currencyType = menu.getCurrencyType();
+                if (StringUtils.isNotEmpty(currencyType)) {
+                    List<String> currencyTypeList = Arrays.asList(currencyType.split(","));
+                    String currentCurrencyType = CurrencyEnum.getCurrencyType(HttpRequestUtil.getCurrencyId());
+                    if (!currencyTypeList.contains(currentCurrencyType)){
+                        continue;
+                    }
                 }
             }
-            //chia 需要过来的菜单
-            if(CurrencyEnum.XCH.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
-                if("sectors".equalsIgnoreCase(menu.getPath())
-                   || "Node".equalsIgnoreCase(menu.getPath())
-                        || "Ticket".equalsIgnoreCase(menu.getPath())){
-                    continue;
-                }
-            }
-            if(CurrencyEnum.BZZ.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
-                if("sectors".equalsIgnoreCase(menu.getPath())
-                  || "Miners".equalsIgnoreCase(menu.getPath())
-                  || "Earn".equalsIgnoreCase(menu.getPath())){
-                    continue;
-                }
-            }
-            if(CurrencyEnum.FIL.getCurrencyId() == HttpRequestUtil.getCurrencyId()){
-                if("Node".equalsIgnoreCase(menu.getPath())
-                        || "Ticket".equalsIgnoreCase(menu.getPath())){
-                    continue;
-                }
-            }
+
             RouterVo router = new RouterVo();
             router.setHidden("1".equals(menu.getVisible()));
             router.setName(getRouteName(menu));
