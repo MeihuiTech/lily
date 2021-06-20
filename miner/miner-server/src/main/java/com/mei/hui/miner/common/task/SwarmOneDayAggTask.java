@@ -50,6 +50,7 @@ public class SwarmOneDayAggTask {
          * 查询所有节点
          */
         LambdaQueryWrapper<SwarmNode> query = new LambdaQueryWrapper<>();
+        query.ne(SwarmNode::getPeerId,"unknown");
         List<SwarmNode> nodes = swarmNodeMapper.selectList(query);
         log.info("查询所有节点:{}",JSON.toJSON(nodes));
 

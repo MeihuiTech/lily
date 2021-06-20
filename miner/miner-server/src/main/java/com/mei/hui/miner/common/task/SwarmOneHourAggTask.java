@@ -40,8 +40,9 @@ public class SwarmOneHourAggTask {
             log.info("开发环境,不执行");
             return;
         }
-
-        List<SwarmNode> list = swarmNodeService.list();
+        LambdaQueryWrapper<SwarmNode> query = new LambdaQueryWrapper<>();
+        query.ne(SwarmNode::getPeerId,"unknown");
+        List<SwarmNode> list = swarmNodeService.list(query);
         log.info("获取节点:{}", JSON.toJSONString(list));
         List<SwarmAgg> aggs = new ArrayList<>();
         for(SwarmNode node : list){
