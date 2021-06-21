@@ -26,7 +26,7 @@
     <select id="findNodePageList" resultType="com.mei.hui.miner.feign.vo.NodePageListVO">
         SELECT
             n.userId,
-            n.node_id nodeId,
+            n.id nodeId,
             n.node_ip nodeIp,
             n.node_port nodePort,
             n.ticket_valid ticketValid,
