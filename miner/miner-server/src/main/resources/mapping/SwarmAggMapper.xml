@@ -13,9 +13,9 @@
             <if test="endDate != null">
                 <![CDATA[and agg.date <= #{endDate}]]>
             </if>
-            <if test="peerIds != null">
+            <if test="nodeIds != null">
                 and agg.node_id in
-                <foreach collection="peerIds" item="item" open="(" close=")" separator=",">
+                <foreach collection="nodeIds" item="item" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
             </if>

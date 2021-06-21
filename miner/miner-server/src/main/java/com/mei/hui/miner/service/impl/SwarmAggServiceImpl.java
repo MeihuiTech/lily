@@ -82,9 +82,9 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
      * @param swarmHomePageVO
      */
     public void putChart(SwarmHomePageVO swarmHomePageVO,List<SwarmNode> nodes){
-        List<String> peerIds = nodes.stream().map(v -> v.getPeerId()).collect(Collectors.toList());
+        List<Long> nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toList());
         log.info("查询近30的连接数");
-        List<FindChart> list = swarmAggMapper.findChart(LocalDate.now().minusDays(30), LocalDateTime.now(), peerIds);
+        List<FindChart> list = swarmAggMapper.findChart(LocalDate.now().minusDays(30), LocalDateTime.now(), nodeIds);
         log.info("查询近30的连接数,出参:{}",JSON.toJSONString(list));
 
         //连接数图表数据
@@ -115,7 +115,6 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
        /**
          * 资产数据,计算所有节点资产的总和
          */
-        List<String> peerIds = new ArrayList<>();
         //总出票资产
         BigDecimal totalMoney = new BigDecimal("0");
         //累计有效出票数
@@ -127,7 +126,6 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
         long onlineNodeNum = 0;//在线节点数
         long offlineNodeNum = 0;//离线节点数
         for(SwarmNode node : nodes){
-            peerIds.add(node.getPeerId());
             totalMoney = totalMoney.add(node.getMoney());
             totalTicketValid = totalTicketValid.add(new BigDecimal(node.getTicketValid()));
             totalTicketAvail = totalTicketAvail.add(new BigDecimal(node.getTicketAvail()));
@@ -162,9 +160,9 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
         }
         long yesterdayTicketAvail = 0;
         long yesterdayTicketValid = 0;
-        for(SwarmOneDayAgg perTicket :swarmOneDayAggList ){
-            yesterdayTicketAvail +=perTicket.getPerTicketAvail();
-            yesterdayTicketValid += perTicket.getPerTicketValid();
+        for(SwarmOneDayAgg swarmOneDayAgg :swarmOneDayAggList ){
+            yesterdayTicketAvail +=swarmOneDayAgg.getPerTicketAvail();
+            yesterdayTicketValid += swarmOneDayAgg.getPerTicketValid();
         }
         log.info("昨日的有效出票数:{},昨天无效出票数:{}",yesterdayTicketValid,yesterdayTicketAvail);
         swarmHomePageVO.setYesterdayTicketAvail(yesterdayTicketAvail);
@@ -174,8 +172,6 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     /**
      * 根据userId、昨天时间 在聚合统计表里获取昨天的总有效出票数
      * @param userId
-     * @param beginYesterdayDate
-     * @param endYesterdayDate
      * @return
      */
     @Override

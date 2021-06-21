@@ -50,7 +50,6 @@ public class SwarmOneDayAggTask {
          * 查询所有节点
          */
         LambdaQueryWrapper<SwarmNode> query = new LambdaQueryWrapper<>();
-        query.ne(SwarmNode::getPeerId,"unknown");
         List<SwarmNode> nodes = swarmNodeMapper.selectList(query);
         log.info("查询所有节点:{}",JSON.toJSON(nodes));
 
@@ -70,7 +69,7 @@ public class SwarmOneDayAggTask {
 
         List<SwarmOneDayAgg> batch = new ArrayList<>();
         for(SwarmNode node : nodes){
-            SwarmOneDayAgg swarmOneDayAgg = map.get(node.getPeerId());
+            SwarmOneDayAgg swarmOneDayAgg = map.get(node.getId());
             long perTicketAvail = node.getTicketAvail();
             long perTicketValid = node.getTicketValid();
             if(swarmOneDayAgg != null){

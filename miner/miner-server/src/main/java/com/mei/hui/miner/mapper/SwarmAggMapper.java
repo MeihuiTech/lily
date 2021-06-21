@@ -25,7 +25,7 @@ public interface SwarmAggMapper extends BaseMapper<SwarmAgg> {
      */
     public Long selectYesterdayTicketValid(@Param("userId") Long userId, @Param("yesterDayDateYmd") String yesterDayDateYmd);
 
-    List<FindChart> findChart(LocalDate startDate, LocalDateTime endDate, List<String> peerIds);
+    List<FindChart> findChart(LocalDate startDate, LocalDateTime endDate, List<Long> nodeIds);
 
     IPage<NodePageListVO> findNodePageList(Page<NodePageListVO> page, @Param(Constants.WRAPPER) Wrapper<NodePageListVO> wrapper);
 }
