@@ -302,7 +302,6 @@ public class SysUserServiceImpl implements ISysUserService {
                 if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
                     throw MyException.fail(UserError.MYB_333333.getCode(),"根据userIdList查询userId和费率的map失败");
                 }
-
                 //将总算力和总收益加入到 SysUser 对象中
                 list.stream().forEach(v->{
                     AggMinerVO vo = maps.get(v.getUserId());
