@@ -69,6 +69,9 @@ public class SysMenu{
     /** 子菜单 */
     private List<SysMenu> children = new ArrayList<SysMenu>();
 
+    /*币种类型，哪些币种显示这个菜单*/
+    private String currencyType;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

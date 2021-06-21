@@ -10,7 +10,10 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.config.smsConfig.SmsConfig;
 import com.mei.hui.user.UserApplication;
 import com.mei.hui.user.common.Constants;
+import com.mei.hui.user.entity.SysMenu;
+import com.mei.hui.user.entity.SysRoleMenu;
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.mapper.SysRoleMenuMapper;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.util.SystemConstants;
 import io.jsonwebtoken.Claims;
@@ -25,7 +28,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -120,15 +125,20 @@ public class UserTest {
     }
     @Autowired
     protected SysUserMapper sysUserMapper;
+    @Autowired
+    private SysRoleMenuMapper sysRoleMenuMapper;
     @Test
     public void testToken() {
-        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
-
-        queryWrapper.eq(SysUser::getDelFlag,0);
-        queryWrapper.ne(SysUser::getUserId,1L);
-        log.info("查询用户,入参:{}",queryWrapper.toString());
-        IPage<SysUser> page = sysUserMapper.selectPage(new Page<>(1, 10), queryWrapper);
-        log.info("结果：{}", JSON.toJSONString(page.getRecords()));
+        String meanIds = "1,2016,2007,2008,2009,100,1001,1002,1003,1004,1005,1006,1007,101,1008,1009,1010,1011,1012,102,1013,1014,1015,1016,108,500,1040,1041,1042,501,1043,1044,1045";
+        List<SysRoleMenu> roleMenuList = new ArrayList<>();
+        String[] array = meanIds.split(",");
+        for(int i=0;i<array.length;i++){
+            SysRoleMenu sysRoleMenu = new SysRoleMenu();
+            sysRoleMenu.setMenuId(Long.valueOf(array[i]));
+            sysRoleMenu.setRoleId(1L);
+            roleMenuList.add(sysRoleMenu);
+        }
+        sysRoleMenuMapper.batchRoleMenu(roleMenuList);
     }
 
 

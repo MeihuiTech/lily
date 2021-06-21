@@ -7,7 +7,8 @@ public enum CurrencyEnum {
 
     FIL(1L,"fil币"),
     XCH(2L,"起亚币"),
-    BZZ(3L,"swarm币");;
+    BZZ(3L,"swarm币");
+
 
     private Long currencyId;
     private String des;
@@ -49,6 +50,25 @@ public enum CurrencyEnum {
         for(CurrencyEnum currency : CurrencyEnum.values()){
             if(currency.getCurrencyId().equals(currencyId)){
                 return currency;
+            }
+        }
+        return null;
+    }
+
+    /**
+    * 根据币种id查询币种type
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/19 14:11
+    * @param [currencyId]
+    * @return String
+    * @version v1.0.0
+    */
+    public static String getCurrencyType(Long currencyId){
+        for(CurrencyEnum currency : CurrencyEnum.values()){
+            if(currency.getCurrencyId().equals(currencyId)){
+                return currency.name();
             }
         }
         return null;

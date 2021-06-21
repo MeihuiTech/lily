@@ -57,8 +57,7 @@ public class LoginServiceImpl implements LoginService{
      * @return 路由信息
      */
     public Result<List<RouterVo>> getRouters(){
-        SysUser user = sysUserMapper.selectById(HttpRequestUtil.getUserId());
-        List<SysMenu> menus = menuService.selectMenuTreeByUserId(user.getUserId());
+        List<SysMenu> menus = menuService.selectMenuTreeByUserId(HttpRequestUtil.getUserId());
         List<RouterVo> list = menuService.buildMenus(menus);
         return Result.success(list);
     }
