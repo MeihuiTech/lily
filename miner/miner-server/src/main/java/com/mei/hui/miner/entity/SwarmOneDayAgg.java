@@ -19,7 +19,7 @@ public class SwarmOneDayAgg {
     /**
      * 节点唯一标识
      */
-    private String nodeId;
+    private Long nodeId;
 
     /**
      * 日期

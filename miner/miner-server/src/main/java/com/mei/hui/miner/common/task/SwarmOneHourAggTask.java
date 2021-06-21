@@ -48,7 +48,7 @@ public class SwarmOneHourAggTask {
         for(SwarmNode node : list){
             log.info("当前处理节点:{}",JSON.toJSONString(node));
             SwarmAgg agg = new SwarmAgg();
-            agg.setPeerId(node.getPeerId());
+            agg.setNodeId(node.getId());
             agg.setLinkNum(node.getLinkNum());
             agg.setTicketAvail(node.getTicketAvail());
             agg.setTicketValid(node.getTicketValid());

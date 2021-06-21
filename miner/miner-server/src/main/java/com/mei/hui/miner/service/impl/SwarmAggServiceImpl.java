@@ -150,9 +150,9 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
      * 昨日有效出票数、昨日无效出票数
      */
     public void putYesterdayTicketAvailAndValid(SwarmHomePageVO swarmHomePageVO,List<SwarmNode> nodes){
-        List<String> peerIds = nodes.stream().map(v -> v.getPeerId()).collect(Collectors.toList());
+        List<Long> nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toList());
         LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(SwarmOneDayAgg::getPeerId,peerIds);
+        queryWrapper.in(SwarmOneDayAgg::getNodeId,nodeIds);
         queryWrapper.eq(SwarmOneDayAgg::getDate,LocalDate.now().minusDays(1));
         List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggMapper.selectList(queryWrapper);
 

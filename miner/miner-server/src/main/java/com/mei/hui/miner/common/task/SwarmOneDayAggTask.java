@@ -57,15 +57,15 @@ public class SwarmOneDayAggTask {
         /**
          * 查询节点昨日数据
          */
-        List<String> peerIds = nodes.stream().map(v -> v.getPeerId()).collect(Collectors.toList());
+        List<Long> nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toList());
         LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(SwarmOneDayAgg::getPeerId,peerIds);
+        queryWrapper.in(SwarmOneDayAgg::getNodeId,nodeIds);
         queryWrapper.eq(SwarmOneDayAgg::getDate, LocalDate.now().minusDays(1));
         List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggService.list(queryWrapper);
         log.info("查询节点昨日数据:{}",JSON.toJSONString(swarmOneDayAggList));
-        Map<String,SwarmOneDayAgg> map = new HashMap<>();
+        Map<Long,SwarmOneDayAgg> map = new HashMap<>();
         swarmOneDayAggList.stream().forEach(v->{
-            map.put(v.getPeerId(),v);
+            map.put(v.getNodeId(),v);
         });
 
         List<SwarmOneDayAgg> batch = new ArrayList<>();
@@ -78,7 +78,7 @@ public class SwarmOneDayAggTask {
                 perTicketValid = node.getTicketValid() - swarmOneDayAgg.getTicketValid();
             }
             SwarmOneDayAgg oneDayAgg = new SwarmOneDayAgg();
-            oneDayAgg.setPeerId(node.getPeerId());
+            oneDayAgg.setNodeId(node.getId());
             oneDayAgg.setPerTicketAvail(perTicketAvail);
             oneDayAgg.setPerTicketValid(perTicketValid);
             oneDayAgg.setTicketAvail(node.getTicketAvail());
