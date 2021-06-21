@@ -33,30 +33,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SwarmTicketServiceImpl extends ServiceImpl<SwarmTicketMapper,SwarmTicket> implements ISwarmTicketService {
 
-    @Autowired
-    private ISwarmNodeService swarmNodeService;
-
     public PageResult<TicketPageListVO> ticketPageList(TicketPageListBO bo){
-
-        log.info("查询当前用户的节点");
-        LambdaQueryWrapper<SwarmNode> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SwarmNode::getUserid, HttpRequestUtil.getUserId());
-        List<SwarmNode> nodes = swarmNodeService.list(queryWrapper);
-        log.info("查询当前用户的节点,结果:{}", JSON.toJSONString(nodes));
-        if(nodes.size() == 0){
-            return new PageResult<>();
-        }
-        List<String> peerIds = nodes.stream().map(v -> v.getPeerId()).collect(Collectors.toList());
 
         log.info("查询票信息");
         LambdaQueryWrapper<SwarmTicket> query = new LambdaQueryWrapper<>();
+        query.eq(SwarmTicket::getUserId,HttpRequestUtil.getUserId());
         if(StringUtils.isNotEmpty(bo.getNodeIp())){
             query.eq(SwarmTicket::getNodeIp,bo.getNodeIp());
         }
         if(bo.getType() != null){
             query.eq(SwarmTicket::getType,bo.getType());
         }
-        query.in(SwarmTicket::getPeer,peerIds);
         IPage<SwarmTicket> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), query);
         List<TicketPageListVO> list = page.getRecords().stream().map(v -> {
             TicketPageListVO vo = new TicketPageListVO();

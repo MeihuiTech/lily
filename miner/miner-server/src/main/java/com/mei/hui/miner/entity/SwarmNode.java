@@ -77,6 +77,5 @@ public class SwarmNode {
 
     private Date createTime;
 
-    private String peerId;
 
 }

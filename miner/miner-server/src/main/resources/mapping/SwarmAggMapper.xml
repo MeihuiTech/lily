@@ -13,9 +13,9 @@
             <if test="endDate != null">
                 <![CDATA[and agg.date <= #{endDate}]]>
             </if>
-            <if test="peerIds != null">
-                and agg.peer_id in
-                <foreach collection="peerIds" item="item" open="(" close=")" separator=",">
+            <if test="nodeIds != null">
+                and agg.node_id in
+                <foreach collection="nodeIds" item="item" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
             </if>
@@ -23,12 +23,36 @@
         GROUP BY agg.date
     </select>
 
+    <select id="findNodePageList" resultType="com.mei.hui.miner.feign.vo.NodePageListVO">
+        SELECT
+            n.userId,
+            n.id nodeId,
+            n.node_ip nodeIp,
+            n.node_port nodePort,
+            n.ticket_valid ticketValid,
+            n.link_num linkNum,
+            n.state,
+            n.contract_address contractAddress,
+            n.wallet_address walletAddress,
+            n.`changed`,
+            n.no_change noChange,
+            n.money,
+            n.create_time createTime,
+            d.per_ticket_valid yestodayTicketValid,
+            d.per_ticket_avail yestodayTicketAvail
+        FROM
+            swarm_node n
+        LEFT JOIN swarm_one_day_agg d ON n.id = d.node_id
+        ${ew.customSqlSegment}
+    </select>
+
+
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
         SUM(a.ticket_valid) ticketValid
         FROM
         swarm_one_day_agg a
-        LEFT JOIN swarm_node n ON a.peer_id = n.peer_id
+        LEFT JOIN swarm_node n ON a.node_id = n.id
         <where>
             <if test="userId != null">
                 n.userId = #{userId}

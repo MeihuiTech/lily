@@ -1,16 +1,14 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.PerTicket;
 import com.mei.hui.miner.entity.SwarmNode;
-import com.mei.hui.miner.entity.SwarmOneDayAgg;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.SwarmAggMapper;
 import com.mei.hui.miner.mapper.SwarmNodeMapper;
@@ -28,9 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -58,102 +54,42 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
         if(CurrencyEnum.BZZ.getCurrencyId() != HttpRequestUtil.getCurrencyId()){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"当前选择币种不是swarm");
         }
-        LambdaQueryWrapper<SwarmNode> query = new LambdaQueryWrapper();
+        QueryWrapper<NodePageListVO> query = Wrappers.query();
+        query.and(Wrapper -> Wrapper.eq("d.date",LocalDate.now().minusDays(1)).or().isNull("d.date"));
+        query.eq("n.userId",HttpRequestUtil.getUserId());
         if(StringUtils.isNotEmpty(bo.getIp())){
-            query.eq(SwarmNode::getNodeIp,bo.getIp());
+            query.eq("n.node_ip",bo.getIp());
         }
         if(bo.getState() != null){
-            query.eq(SwarmNode::getState,bo.getState());
+            query.eq("n.state",bo.getState());
         }
         if("ticketValid".equalsIgnoreCase(bo.getCloumName())){
             if(bo.isAsc()){
-                query.orderByAsc(SwarmNode::getTicketAvail);
+                query.orderByAsc("n.ticket_valid");
             }else{
-                query.orderByDesc(SwarmNode::getTicketAvail);
+                query.orderByDesc("n.ticket_valid");
             }
         }
         if("linkNum".equalsIgnoreCase(bo.getCloumName())){
             if(bo.isAsc()){
-                query.orderByAsc(SwarmNode::getLinkNum);
+                query.orderByAsc("n.link_num");
             }else{
-                query.orderByDesc(SwarmNode::getLinkNum);
+                query.orderByDesc("n.link_num");
             }
         }
-        //先在聚合表统计节点和昨日出票数，然后进行排序后返回
         if("yestodayTicketValid".equalsIgnoreCase(bo.getCloumName())){
-            List<String> peerIds = perTicketPageList(bo);
-            if(peerIds != null && peerIds.size() > 0){
-                query.in(SwarmNode::getPeerId,peerIds);
+            if(bo.isAsc()){
+                query.orderByAsc("d.per_ticket_valid");
+            }else{
+                query.orderByDesc("d.per_ticket_valid");
             }
         }
-        query.eq(SwarmNode::getUserid,HttpRequestUtil.getUserId());
-        query.orderByDesc(SwarmNode::getCreateTime);
+        query.orderByDesc("n.create_time");
         log.info("查询节点列表，入参:{}",query.getCustomSqlSegment());
-        IPage<SwarmNode> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), query);
+        IPage<NodePageListVO> page = swarmAggMapper.findNodePageList(new Page<>(bo.getPageNum(),bo.getPageSize()), query);
         log.info("查询节点列表，出参:{}",JSON.toJSONString(page.getRecords()));
-        List<NodePageListVO> list = page.getRecords().stream().map(v -> {
-            NodePageListVO vo = new NodePageListVO();
-            BeanUtils.copyProperties(v, vo);
-            return vo;
-        }).collect(Collectors.toList());
-
-        log.info("获取节点的每日出票信息");
-        putYestodayTicketValid(list);
-
-        return new PageResult(page.getTotal(),list);
+        return new PageResult(page.getTotal(),page.getRecords());
     }
-
-    /**
-     * 按昨日出票数排序后返回节点地址，即节点的唯一标识
-     * @param bo
-     * @return
-     */
-    public List<String> perTicketPageList(NodePageListBO bo){
-        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SwarmOneDayAgg::getDate,LocalDate.now().minusDays(1));
-        if(bo.isAsc()){
-            queryWrapper.orderByAsc(SwarmOneDayAgg::getPerTicketValid);
-        }else{
-            queryWrapper.orderByDesc(SwarmOneDayAgg::getPerTicketValid);
-        }
-        IPage<SwarmOneDayAgg> page = swarmOneDayAggMapper.selectPage(new Page<>(bo.getPageNum(), bo.getPageSize()), queryWrapper);
-        log.info("按昨日出票进行排序,出参:{}",JSON.toJSONString(page.getRecords()));
-        List<String> list = page.getRecords().stream().map(v -> v.getPeerId()).collect(Collectors.toList());
-        log.info("按昨日出票数排序列表:{}",JSON.toJSONString(list));
-        return list;
-    }
-
-    /**
-     * 组装昨日有效出票数
-     * @param list
-     */
-    public void putYestodayTicketValid(List<NodePageListVO> list){
-        if(list.size() ==0){
-            return;
-        }
-        List<String> peerIds = list.stream().map(v ->v.getPeerId()).collect(Collectors.toList());
-        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(SwarmOneDayAgg::getPeerId,peerIds);
-        queryWrapper.eq(SwarmOneDayAgg::getDate,LocalDate.now().minusDays(1));
-        List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggMapper.selectList(queryWrapper);
-        log.info("查询节点昨天的出票数，出参:{}", JSON.toJSONString(swarmOneDayAggList));
-        if(swarmOneDayAggList == null || swarmOneDayAggList.size() == 0){
-            return;
-        }
-        Map<String, SwarmOneDayAgg> perTickets = new HashMap<>();
-        swarmOneDayAggList.stream().forEach(v->{
-            String key = v.getPeerId();
-            perTickets.put(key,v);
-        });
-        list.stream().forEach(v->{
-            SwarmOneDayAgg perTicket = perTickets.get(v.getPeerId());
-            if(perTicket != null){
-                v.setYestodayTicketValid(perTicket.getPerTicketValid());
-                v.setYestodayTicketAvail(perTicket.getPerTicketAvail());
-            }
-        });
-    }
-
     /**
      * 管理员首页-平台概览-总有效出票数，用的字段：有效出票数
      * @return
@@ -256,8 +192,8 @@ public class SwarmNodeServiceImpl extends ServiceImpl<SwarmNodeMapper, SwarmNode
      * @return
      */
     public Result<List<FindNodeListVO>> findNodeList(){
-        LambdaQueryWrapper<SwarmNode> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SwarmNode::getUserid,HttpRequestUtil.getUserId());
+        QueryWrapper<SwarmNode> queryWrapper = new QueryWrapper();
+        queryWrapper.select("distinct node_ip").eq("userId",HttpRequestUtil.getUserId());
         List<SwarmNode> list =this.list(queryWrapper);
         List<FindNodeListVO> lt = list.stream().map(v -> {
             FindNodeListVO vo = new FindNodeListVO();

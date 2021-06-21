@@ -13,6 +13,7 @@ import com.mei.hui.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,7 +37,8 @@ public class AggregationFilTask {
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
 
-
+    @Value("${spring.profiles.active}")
+    private String env;
 
     /**
      * fil币账户按天聚合，每天晚上23点59分55秒执行
@@ -44,6 +46,11 @@ public class AggregationFilTask {
     @Scheduled(cron = "55 59 23 */1 * ?")
     public void dailyAccount() {
         log.info("======================fil币AggregationTask-start===================");
+        if("dev".equals(env)){
+            log.info("开发环境,不执行");
+            return;
+        }
+
         SysMinerInfo sysMinerInfo = new SysMinerInfo();
         int pageNum = 1;
         int pageSize = 100;

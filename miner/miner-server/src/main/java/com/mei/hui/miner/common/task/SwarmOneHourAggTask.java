@@ -8,6 +8,7 @@ import com.mei.hui.miner.service.ISwarmAggService;
 import com.mei.hui.miner.service.ISwarmNodeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,8 @@ import java.util.List;
 @EnableScheduling
 @Slf4j
 public class SwarmOneHourAggTask {
+    @Value("${spring.profiles.active}")
+    private String env;
 
     @Autowired
     private ISwarmAggService swarmAggService;
@@ -33,18 +36,25 @@ public class SwarmOneHourAggTask {
     @Scheduled(cron = "0 0 0/1 * * ?")
     public void run() {
         log.info("======================SwarmOneHourAggTask-start===================");
+        if("dev".equals(env)){
+            log.info("开发环境,不执行");
+            return;
+        }
         List<SwarmNode> list = swarmNodeService.list();
-        log.info("获取节点:{}", JSON.toJSONString(list));
+        log.info("节点:{}", JSON.toJSONString(list));
+        if(list.size() == 0){
+            return;
+        }
         List<SwarmAgg> aggs = new ArrayList<>();
         for(SwarmNode node : list){
             log.info("当前处理节点:{}",JSON.toJSONString(node));
             SwarmAgg agg = new SwarmAgg();
-            agg.setPeerId(node.getPeerId());
+            agg.setNodeId(node.getId());
             agg.setLinkNum(node.getLinkNum());
             agg.setTicketAvail(node.getTicketAvail());
             agg.setTicketValid(node.getTicketValid());
             agg.setConvertBzz(node.getMoney().subtract(node.getChanged()));
-            agg.setDate(LocalDateTime.now().withMinute(0).withSecond(0));
+            agg.setDate(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0));
             agg.setCreateTime(LocalDateTime.now());
             aggs.add(agg);
         }

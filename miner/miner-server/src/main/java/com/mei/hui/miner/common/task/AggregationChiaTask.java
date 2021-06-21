@@ -13,6 +13,7 @@ import com.mei.hui.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,7 +37,8 @@ public class AggregationChiaTask {
     @Autowired
     private IChiaMinerService chiaMinerService;
 
-
+    @Value("${spring.profiles.active}")
+    private String env;
 
     /**
      * chia币账户按天聚合，每天晚上23点59分55秒执行
@@ -44,6 +46,11 @@ public class AggregationChiaTask {
     @Scheduled(cron = "55 59 23 */1 * ?")
     public void chiaDailyAccount() {
         log.info("======================chia币AggregationTask-start===================");
+        if("dev".equals(env)){
+            log.info("开发环境,不执行");
+            return;
+        }
+
         ChiaMiner chiaMiner = new ChiaMiner();
         int pageNum = 1;
         int pageSize = 100;
