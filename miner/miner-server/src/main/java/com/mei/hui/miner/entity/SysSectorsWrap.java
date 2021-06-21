@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -68,6 +69,22 @@ public class SysSectorsWrap
     /** 请求参数 */
     @TableField(exist = false)
     private Map<String, Object> params;
+
+    /*开始时间*/
+    @TableField(exist = false)
+    private String beginTime;
+
+    /*结束时间*/
+    @TableField(exist = false)
+    private String endTime;
+
+    /*true 升序，false 降序*/
+    @TableField(exist = false)
+    private boolean isAsc;
+
+    /*排序字段名称*/
+    @TableField(exist = false)
+    private String cloumName;
 
     public Map<String, Object> getParams()
     {
