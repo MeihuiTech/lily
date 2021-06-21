@@ -6,6 +6,7 @@ import com.mei.hui.miner.entity.SwarmNode;
 import com.mei.hui.miner.entity.SwarmOneDayAgg;
 import com.mei.hui.miner.mapper.SwarmNodeMapper;
 import com.mei.hui.miner.mapper.SwarmOneDayAggMapper;
+import com.mei.hui.miner.service.ISwarmNodeService;
 import com.mei.hui.miner.service.SwarmOneDayAggService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class SwarmOneDayAggTask {
     @Autowired
-    private SwarmNodeMapper swarmNodeMapper;
+    private ISwarmNodeService swarmNodeService;
     @Autowired
     private SwarmOneDayAggService swarmOneDayAggService;
 
@@ -45,14 +46,14 @@ public class SwarmOneDayAggTask {
             log.info("开发环境,不执行");
             return;
         }
-
         /**
          * 查询所有节点
          */
-        LambdaQueryWrapper<SwarmNode> query = new LambdaQueryWrapper<>();
-        List<SwarmNode> nodes = swarmNodeMapper.selectList(query);
+        List<SwarmNode> nodes = swarmNodeService.list();
         log.info("查询所有节点:{}",JSON.toJSON(nodes));
-
+        if(nodes.size() ==0){
+            return;
+        }
         /**
          * 查询节点昨日数据
          */

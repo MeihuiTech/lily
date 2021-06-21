@@ -41,7 +41,10 @@ public class SwarmOneHourAggTask {
             return;
         }
         List<SwarmNode> list = swarmNodeService.list();
-        log.info("获取节点:{}", JSON.toJSONString(list));
+        log.info("节点:{}", JSON.toJSONString(list));
+        if(list.size() == 0){
+            return;
+        }
         List<SwarmAgg> aggs = new ArrayList<>();
         for(SwarmNode node : list){
             log.info("当前处理节点:{}",JSON.toJSONString(node));
