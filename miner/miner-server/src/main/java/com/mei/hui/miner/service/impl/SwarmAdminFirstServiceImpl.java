@@ -90,7 +90,11 @@ public class SwarmAdminFirstServiceImpl implements ISwarmAdminFirstService {
                     swarmTicketValidVO.setTodayTicketValid(swarmTicketValidVO.getTicketValid());
                 }
                 log.info("swarmTicketValidVO修改值之后:【{}】",JSON.toJSON(swarmTicketValidVO));
-                swarmTicketValidVO.setTicketValidPercent(BigDecimalUtil.formatTwo(swarmTicketValidVO.getTicketValidPercent().multiply(new BigDecimal(100))));
+                if(swarmTicketValidVO.getTicketValidPercent() != null) {
+                    swarmTicketValidVO.setTicketValidPercent(BigDecimalUtil.formatTwo(swarmTicketValidVO.getTicketValidPercent().multiply(new BigDecimal(100))));
+                }else {
+                    swarmTicketValidVO.setTicketValidPercent(BigDecimal.ZERO);
+                }
 
                 SysUserOut sysUserOut = new SysUserOut();
                 sysUserOut.setUserId(swarmTicketValidVO.getUserId());
