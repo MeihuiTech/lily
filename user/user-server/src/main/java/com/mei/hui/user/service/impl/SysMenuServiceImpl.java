@@ -127,7 +127,7 @@ public class SysMenuServiceImpl implements ISysMenuService{
         List<RouterVo> routers = new LinkedList<RouterVo>();
         for (SysMenu menu : menus){
             // 根据根目录过滤
-            if (menu.getParentId().equals(0L)) {
+            if (menu.getParentId() == 0L) {
                 // 币种类型，哪些币种显示这个菜单
                 String currencyType = menu.getCurrencyType();
                 if (StringUtils.isNotEmpty(currencyType)) {
