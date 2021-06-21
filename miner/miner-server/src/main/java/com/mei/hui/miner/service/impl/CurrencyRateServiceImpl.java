@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.entity.CurrencyRate;
 import com.mei.hui.miner.feign.vo.FindUserRateBO;
 import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.mapper.CurrencyRateMapper;
+import com.mei.hui.miner.mapper.SysCurrencyMapper;
 import com.mei.hui.miner.model.SaveFeeRateBO;
 import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.ISysCurrencyService;
@@ -77,6 +79,11 @@ public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,Curr
     public Result<List<FindUserRateVO>> findUserRate(FindUserRateBO findUserRateBO){
         //校验用户是否存在
         userManager.checkUserIsExist(findUserRateBO.getUserId());
+        //如果type为空则获取所有币种的费率，没有绑定的币种，则取费率默认值
+        LambdaQueryWrapper<Currency> wrapper = new LambdaQueryWrapper();
+        wrapper.eq(Currency::getStatus,1);
+        List<Currency> currencyList = iSysCurrencyService.list(wrapper);
+        log.info("查询到的所有币种:{}",JSON.toJSONString(currencyList));
         //获取用户币种费率
         LambdaQueryWrapper<CurrencyRate> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(CurrencyRate::getUserId,findUserRateBO.getUserId());
@@ -84,6 +91,13 @@ public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,Curr
             queryWrapper.eq(CurrencyRate::getType,findUserRateBO.getType());
         }
         List<CurrencyRate> list = currencyRateMapper.selectList(queryWrapper);
+        log.info("用户已绑定币种:{}",JSON.toJSONString(list));
+        //取消极筛选出用户没有绑定的币种
+        List<Currency> userNotExitCurrencyList = currencyList.stream().filter(v ->{
+                    boolean flag = list.stream().map(e -> e.getType()).collect(Collectors.toList()).contains(v.getType());
+                    return flag ? false : true;
+        }).collect(Collectors.toList());
+        log.info("用户没有绑定的币种:{}",JSON.toJSONString(userNotExitCurrencyList));
         List<FindUserRateVO> lt = list.stream().map(v -> {
             FindUserRateVO findUserRateVO = new FindUserRateVO();
             findUserRateVO.setUserId(v.getUserId());
@@ -91,6 +105,15 @@ public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,Curr
             findUserRateVO.setFeeRate(v.getFeeRate());
             return findUserRateVO;
         }).collect(Collectors.toList());
+
+        //用户没有绑定的币种，取默认费率
+        userNotExitCurrencyList.stream().forEach(v->{
+            FindUserRateVO findUserRateVO = new FindUserRateVO();
+            findUserRateVO.setUserId(findUserRateBO.getUserId());
+            findUserRateVO.setType(v.getType());
+            findUserRateVO.setFeeRate(v.getRate());
+            lt.add(findUserRateVO);
+        });
         return Result.success(lt);
     }
 
