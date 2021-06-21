@@ -20,7 +20,7 @@ public class SwarmTicket {
 
     private Long userId;
 
-    private String nodePeerId;
+    private String nodeId;
 
     private String nodeIp;
 

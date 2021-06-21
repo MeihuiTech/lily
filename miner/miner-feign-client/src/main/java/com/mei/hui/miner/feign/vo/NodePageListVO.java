@@ -17,7 +17,7 @@ public class NodePageListVO {
     private String walletAddress;
 
     @ApiModelProperty(value = "节点唯一标识")
-    private String peerId;
+    private String nodeId;
 
     @ApiModelProperty(value = "节点ip")
     private String nodeIp;

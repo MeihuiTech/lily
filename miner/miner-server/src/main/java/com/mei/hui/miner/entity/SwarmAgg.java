@@ -22,7 +22,7 @@ public class SwarmAgg {
     /**
      * 节点唯一标识
      */
-    private String peerId;
+    private String nodeId;
 
     /**
      * 连接数量

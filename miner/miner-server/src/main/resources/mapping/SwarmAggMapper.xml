@@ -14,7 +14,7 @@
                 <![CDATA[and agg.date <= #{endDate}]]>
             </if>
             <if test="peerIds != null">
-                and agg.peer_id in
+                and agg.node_id in
                 <foreach collection="peerIds" item="item" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
@@ -26,7 +26,7 @@
     <select id="findNodePageList" resultType="com.mei.hui.miner.feign.vo.NodePageListVO">
         SELECT
             n.userId,
-            n.peer_id peerId,
+            n.node_id nodeId,
             n.node_ip nodeIp,
             n.node_port nodePort,
             n.ticket_valid ticketValid,
@@ -42,7 +42,7 @@
             d.per_ticket_avail yestodayTicketAvail
         FROM
             swarm_node n
-        LEFT JOIN swarm_one_day_agg d ON n.peer_id = d.peer_id
+        LEFT JOIN swarm_one_day_agg d ON n.id = d.node_id
         ${ew.customSqlSegment}
     </select>
 
@@ -52,7 +52,7 @@
         SUM(a.ticket_valid) ticketValid
         FROM
         swarm_one_day_agg a
-        LEFT JOIN swarm_node n ON a.peer_id = n.peer_id
+        LEFT JOIN swarm_node n ON a.node_id = n.id
         <where>
             <if test="userId != null">
                 n.userId = #{userId}
