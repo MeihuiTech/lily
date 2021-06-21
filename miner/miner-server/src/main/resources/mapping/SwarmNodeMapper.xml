@@ -48,7 +48,7 @@
         <if test="ticketValid != null">
             SUM(n.ticket_valid)/#{ticketValid} ticketValidPercent,
         </if>
-        COUNT(n.id) nodeValid,SUM(link_num) linkNum
+        SUM(link_num) linkNum
         FROM
         swarm_node n
         GROUP BY n.userId

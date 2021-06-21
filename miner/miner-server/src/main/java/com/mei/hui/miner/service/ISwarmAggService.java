@@ -32,4 +32,16 @@ public interface ISwarmAggService extends IService<SwarmAgg> {
     * @version v1.0.0
     */
     public Long selectYesterdayTicketValid(Long userId, String yesterDayDateYmd);
+
+    /**
+    * 根据userID查询有效节点
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/21 16:45
+    * @param [userId]
+    * @return java.lang.Long
+    * @version v1.0.0
+    */
+    public Long selectNodeValid(Long userId);
 }

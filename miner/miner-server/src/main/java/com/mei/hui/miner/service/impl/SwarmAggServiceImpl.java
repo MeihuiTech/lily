@@ -178,4 +178,10 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     public Long selectYesterdayTicketValid(Long userId, String yesterDayDateYmd) {
         return swarmAggMapper.selectYesterdayTicketValid(userId, yesterDayDateYmd);
     }
+
+    // 根据userID查询有效节点
+    @Override
+    public Long selectNodeValid(Long userId) {
+        return swarmAggMapper.selectNodeValid(userId);
+    }
 }

@@ -28,4 +28,16 @@ public interface SwarmAggMapper extends BaseMapper<SwarmAgg> {
     List<FindChart> findChart(LocalDate startDate, LocalDateTime endDate, List<Long> nodeIds);
 
     IPage<NodePageListVO> findNodePageList(Page<NodePageListVO> page, @Param(Constants.WRAPPER) Wrapper<NodePageListVO> wrapper);
+
+    /**
+    * 根据userID查询有效节点
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/21 16:46
+    * @param [userId]
+    * @return java.lang.Long
+    * @version v1.0.0
+    */
+    public Long selectNodeValid(Long userId);
 }

@@ -46,6 +46,18 @@
         ${ew.customSqlSegment}
     </select>
 
+    <select id="selectNodeValid" resultType="java.lang.Long">
+        SELECT
+            COUNT(n.id) nodeValid
+        FROM
+            swarm_node n
+        <where>
+            n.state = 1
+            <if test="userId != null">
+                and n.userId = #{userId}
+            </if>
+        </where>
+    </select>
 
     <select id="selectYesterdayTicketValid" resultType="java.lang.Long">
         SELECT
@@ -62,6 +74,7 @@
             </if>
         </where>
     </select>
+
 
 
 </mapper>
