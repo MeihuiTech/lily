@@ -22,16 +22,61 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_duration, create_by, create_time, update_by, update_time from sys_sectors_wrap
     </sql>
 
-    <select id="selectSysSectorsWrapListByUserId" parameterType="SysSectorsWrap" resultMap="SysSectorsWrapResult">
-        select sys_sectors_wrap.id, sys_sectors_wrap.miner_id, hostname, sector_no, sys_sectors_wrap.sector_size, sector_status, sector_duration, sys_sectors_wrap.create_by, sys_sectors_wrap.create_time, sys_sectors_wrap.update_by, sys_sectors_wrap.update_time
-        from  (select user_id,miner_id from sys_miner_info where user_id=#{params.userId}) sys_miner_info inner join sys_sectors_wrap on sys_sectors_wrap.miner_id=sys_miner_info.miner_id
-        <if test="minerId != null  and minerId != ''"> and sys_sectors_wrap.miner_id = #{minerId}</if>
-        <if test="hostname != null  and hostname != ''"> and hostname like concat('%', #{hostname}, '%')</if>
-        <if test="sectorNo != null "> and sector_no = #{sectorNo}</if>
-        <if test="sectorSize != null "> and sector_size = #{sectorSize}</if>
-        <if test="sectorStatus != null "> and sector_status = #{sectorStatus}</if>
-        <if test="sectorDuration != null "> and sector_duration = #{sectorDuration}</if>
-        ORDER BY sys_sectors_wrap.create_time DESC
+    <select id="selectSysSectorsWrapListByUserId" parameterType="com.mei.hui.miner.entity.SysSectorsWrap" resultType="com.mei.hui.miner.entity.SysSectorsWrap">
+        SELECT
+        sys_sectors_wrap.id,
+        sys_sectors_wrap.miner_id minerId,
+        hostname,
+        sector_no sectorNo,
+        sys_sectors_wrap.sector_size sectorSize,
+        sector_status sectorStatus,
+        sector_duration sectorDuration,
+        sys_sectors_wrap.create_by createBy,
+        sys_sectors_wrap.create_time createTime,
+        sys_sectors_wrap.update_by updateBy,
+        sys_sectors_wrap.update_time updateTime
+        FROM
+        (
+        SELECT
+        user_id,
+        miner_id
+        FROM
+        sys_miner_info
+        WHERE
+        user_id = #{params.userId}
+        ) sys_miner_info
+        INNER JOIN sys_sectors_wrap ON sys_sectors_wrap.miner_id = sys_miner_info.miner_id
+        <where>
+            <if test="minerId != null  and minerId != ''"> and sys_sectors_wrap.miner_id = #{minerId}</if>
+            <if test="hostname != null  and hostname != ''"> and hostname like concat('%', #{hostname}, '%')</if>
+            <if test="sectorNo != null "> and sector_no = #{sectorNo}</if>
+            <if test="sectorSize != null "> and sector_size = #{sectorSize}</if>
+            <if test="sectorStatus != null "> and sector_status = #{sectorStatus}</if>
+            <if test="sectorDuration != null "> and sector_duration = #{sectorDuration}</if>
+            <if test="beginTime != null and beginTime != ''">
+                and sys_sectors_wrap.create_time >= #{beginTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and #{endTime} >= sys_sectors_wrap.create_time
+            </if>
+        </where>
+        <choose>
+            <when test="cloumName != null and cloumName != ''">
+                <if test="'sectorDuration' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY sys_sectors_wrap.sector_duration
+                        </when>
+                        <otherwise>
+                            ORDER BY sys_sectors_wrap.sector_duration desc
+                        </otherwise>
+                    </choose>
+                </if>
+            </when>
+            <otherwise>
+                ORDER BY sys_sectors_wrap.create_time DESC
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectSysSectorsWrapList" parameterType="SysSectorsWrap" resultMap="SysSectorsWrapResult">

@@ -12,6 +12,7 @@ import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,10 +46,24 @@ public class SysSectorsWrapController
     /**
      * 查询扇区信息聚合列表
      */
-    @ApiOperation(value = "扇区聚合列表")
+    @ApiOperation(value = "扇区聚合列表",notes = "入参：\n" +
+            "pageNum当前页码\n" +
+            "pageSize每页大小\n" +
+            "sectorNo扇区编号\n" +
+            "minerId旷工id\n" +
+            "beginTime开始时间，格式样例：2021-06-12\n" +
+            "endTime开始时间，格式样例：2021-06-12\n" +
+            "cloumName排序字段名称\n" +
+            "asc:true 升序，false 降序")
     @GetMapping("/list")
     public Map<String,Object> list(SysSectorsWrap sysSectorsWrap)
     {
+        if(StringUtils.isNotEmpty(sysSectorsWrap.getBeginTime())){
+            sysSectorsWrap.setBeginTime(sysSectorsWrap.getBeginTime() + " 00:00:00");
+        }
+        if(StringUtils.isNotEmpty(sysSectorsWrap.getEndTime())){
+            sysSectorsWrap.setEndTime(sysSectorsWrap.getEndTime() + " 23:59:59");
+        }
         return sysSectorsWrapService.list(sysSectorsWrap);
     }
 
