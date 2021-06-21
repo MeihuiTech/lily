@@ -53,7 +53,10 @@ public class AdminFirstController {
             "powerAvailablePercent有效算力所占百分比\n" +
             "totalBlockAward累计出块奖励,单位FIL\n" +
             "miningEfficiency挖矿效率\n" +
-            "powerIncrease算力增速")
+            "powerIncrease算力增速\n"+
+            "totalBlocksPerDay今日出块份数\n"+
+            "totalSectorAvailable有效扇区\n"+
+            "totalSectorError错误扇区\n")
     @GetMapping("/powerAvailablePage")
      public Map<String,Object> powerAvailablePage(BasePage basePage){
         Long currencyId = HttpRequestUtil.getCurrencyId();

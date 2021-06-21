@@ -133,8 +133,8 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
-        map.put("rows",powerAvailableFilVOPage.getRecords());
-        map.put("total",powerAvailableFilVOPage.getTotal());
+        map.put("rows",result.getRecords());
+        map.put("total",result.getTotal());
         return map;
     }
 
