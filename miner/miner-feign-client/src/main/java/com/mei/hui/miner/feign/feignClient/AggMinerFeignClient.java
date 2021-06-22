@@ -16,7 +16,5 @@ import java.util.List;
 @FeignClient(name = "miner-server",path = "/system/miner",fallbackFactory = AggMinerFeignFallbackFactory.class )
 public interface AggMinerFeignClient {
 
-    @PostMapping(value = "/findBatchMinerByUserId")
-    Result<List<AggMinerVO>> findBatchMinerByUserId(@RequestBody UserMinerBO userMinerBO);
 
 }

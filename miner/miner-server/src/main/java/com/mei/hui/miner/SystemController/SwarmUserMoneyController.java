@@ -28,7 +28,7 @@ public class SwarmUserMoneyController {
     @Autowired
     private ISwarmNodeService swarmNodeService;
 
-    @ApiOperation(value = "管理员-用户收益-多条件分页查询用户列表",notes = "管理员-用户收益-用户列表出参：\n" +
+    @ApiOperation(value = "管理员-用户收益-分页查询用户收益列表",notes = "管理员-用户收益-用户收益列表出参：\n" +
             "userId用户Id\n" +
             "userName用户名\n" +
             "ticketValid累计有效出票数\n" +

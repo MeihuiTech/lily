@@ -14,7 +14,7 @@ import lombok.Data;
  **/
 @Data
 @ApiModel(value = "管理员-用户收益-用户收益列表")
-public class SwarmUserMoneyBO extends BasePage {
+public class FilUserMoneyBO extends BasePage {
 
     @ApiModelProperty(value = "用户Id")
     private Long userId;

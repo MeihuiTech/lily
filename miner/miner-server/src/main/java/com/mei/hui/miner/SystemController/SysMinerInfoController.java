@@ -3,8 +3,7 @@ package com.mei.hui.miner.SystemController;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
-import com.mei.hui.miner.feign.vo.AggMinerVO;
-import com.mei.hui.miner.feign.vo.UserMinerBO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.miner.service.IChiaMinerService;
@@ -157,17 +156,21 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         return sysMinerInfoService.machines(id,pageNum,pageSize);
     }
 
-    /**
-     * 通过userid集合批量获取旷工总算力、总收益、费率
-     */
-    @ApiOperation(value = "通过userid集合批量获取旷工总算力、总收益、费率",notes = "出参：\n" +
+    @ApiOperation(value = "管理员-用户收益-分页查询用户收益列表",notes = "管理员-用户收益-用户收益列表出参：\n" +
+            "userId用户Id\n" +
+            "userName用户名\n" +
             "powerAvailable总算力\n" +
             "totalBlockAward总收益\n" +
-            "userId用户id\n" +
             "feeRate费率")
-    @PostMapping(value = "/findBatchMinerByUserId")
-    public Result<List<AggMinerVO>> findBatchMinerByUserId(@RequestBody UserMinerBO userMinerBO) {
-        return sysMinerInfoService.findBatchMinerByUserId(userMinerBO);
+    @GetMapping("/selectUserMoneyList")
+    public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO){
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
+            return sysMinerInfoService.selectUserMoneyList(filUserMoneyBO);
+        }else if(CurrencyEnum.XCH.getCurrencyId().equals(currencyId)){//起亚币
+            return chiaMinerService.selectUserMoneyList(filUserMoneyBO);
+        }
+        return null;
     }
 
 }

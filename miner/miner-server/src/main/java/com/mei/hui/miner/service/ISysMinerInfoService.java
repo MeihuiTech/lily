@@ -3,6 +3,8 @@ package com.mei.hui.miner.service;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.FilUserMoneyBO;
+import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
@@ -85,11 +87,6 @@ public interface ISysMinerInfoService
     public Map<String,Object> machines(Long id,int pageNum,int pageSize);
 
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo);
-
-    /**
-     * 通过userid集合批量获取旷工总算力、总收益、费率
-     */
-    Result<List<AggMinerVO>> findBatchMinerByUserId(UserMinerBO userMinerBO);
 
     /**
      * 获取起亚币旷工列表
@@ -184,4 +181,16 @@ public interface ISysMinerInfoService
     * @version v1.0.0
     */
     public List<String> findMinerIdByUserId(Long userId);
+
+    /**
+    * 管理员-用户收益-分页查询用户收益列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/22 16:32
+    * @param [filUserMoneyBO]
+    * @return com.mei.hui.util.PageResult<com.mei.hui.miner.feign.vo.FilUserMoneyVO>
+    * @version v1.4.0
+    */
+    public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO);
 }

@@ -18,10 +18,7 @@ public class AggMinerFeignFallbackFactory implements FallbackFactory<AggMinerFei
     public AggMinerFeignClient create(Throwable throwable) {
         log.error("远程接口异常:",throwable);
         AggMinerFeignClient aggMinerFeignClient = new AggMinerFeignClient(){
-            @Override
-            public Result<List<AggMinerVO>> findBatchMinerByUserId(UserMinerBO userMinerBO) {
-                return null;
-            }
+
 
         };
         return aggMinerFeignClient;

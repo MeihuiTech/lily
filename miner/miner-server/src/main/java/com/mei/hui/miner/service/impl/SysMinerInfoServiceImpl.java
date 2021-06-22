@@ -8,8 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
-import com.mei.hui.miner.feign.vo.AggMinerVO;
-import com.mei.hui.miner.feign.vo.UserMinerBO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.SysMinerInfoVO;
@@ -18,8 +17,13 @@ import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +61,8 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     private SysAggAccountDailyMapper sysAggAccountDailyMapper;
     @Autowired
     private CurrencyRateService currencyRateService;
+    @Autowired
+    private UserFeignClient userFeignClient;
 
     /**
      * 查询矿工信息
@@ -289,23 +295,6 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     }
 
     /**
-     * 通过userid集合批量获取旷工总算力、总收益、费率
-     */
-    @Override
-    public Result<List<AggMinerVO>> findBatchMinerByUserId(UserMinerBO userMinerBO) {
-        List<Long> userIds = userMinerBO.getUserIds();
-        if(userIds == null || userIds.size() == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"用户集合不能为空");
-        }
-        List<AggMinerVO> list = sysMachineInfoMapper.findBatchMinerByUserId(userMinerBO);
-        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIds,"FIL");
-        list.stream().forEach(v -> {
-            v.setFeeRate(rateMap.get(v.getUserId()));
-        });
-        return Result.success(list);
-    }
-
-    /**
      * 获取fil币聚合信息
      * @param id
      * @return
@@ -462,5 +451,55 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             return v.getMinerId();
         }).collect(Collectors.toList());
         return minerIdList;
+    }
+
+    /*管理员-用户收益-分页查询用户收益列表*/
+    @Override
+    public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO) {
+        //用于入参模块模糊查询，获取用户id的list
+        String userName = filUserMoneyBO.getUserName();
+        List<Long> userIdList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(userName)) {
+            FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
+            bo.setName(userName);
+            log.info("模糊查询用户id集合");
+            Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
+            log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
+            List<Long> idList = new ArrayList<>();
+            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
+                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+                // id去重
+                Set<Long> idsSet = new HashSet<>(idList);
+                userIdList = new ArrayList<Long>(idsSet);
+            } else {
+                return new PageResult(0,new ArrayList());
+            }
+        }
+
+        Page<FilUserMoneyVO> page = new Page<FilUserMoneyVO>(filUserMoneyBO.getPageNum(),filUserMoneyBO.getPageSize());
+        log.info("多条件分页查询用户收益列表入参page：【{}】,filUserMoneyBO：【{}】,userIdList：【{}】",JSON.toJSON(page),JSON.toJSON(filUserMoneyBO),userIdList);
+        IPage<FilUserMoneyVO> result = sysMinerInfoMapper.selectUserMoneyList(page,filUserMoneyBO.getUserId(),filUserMoneyBO.getCloumName(),filUserMoneyBO.isAsc(),userIdList);
+        log.info("多条件分页查询用户收益列表出参：【{}】",JSON.toJSON(result));
+        if (result == null){
+            return new PageResult(0,new ArrayList());
+        }
+        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIdList,"FIL");
+
+        result.getRecords().stream().forEach(v -> {
+            v.setPowerAvailable(BigDecimalUtil.formatTwo(v.getPowerAvailable()));
+            v.setTotalBlockAward(BigDecimalUtil.formatFour(v.getTotalBlockAward()));
+            v.setFeeRate(rateMap.get(v.getUserId()));
+
+            SysUserOut sysUserOut = new SysUserOut();
+            sysUserOut.setUserId(v.getUserId());
+            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                v.setUserName(sysUserOutResult.getData().getUserName());
+            }
+        });
+        PageResult pageResult = new PageResult(result.getTotal(),result.getRecords());
+        return pageResult;
     }
 }

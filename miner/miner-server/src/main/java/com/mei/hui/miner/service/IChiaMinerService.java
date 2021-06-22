@@ -2,8 +2,11 @@ package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.FilUserMoneyBO;
+import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 
 import java.math.BigDecimal;
@@ -116,18 +119,6 @@ public interface IChiaMinerService {
     public List<ChiaMiner> findChiaMinerList(ChiaMiner chiaMiner);
 
     /**
-    * 通过userid集合批量获取旷工总算力、总收益、费率
-    *
-    * @description
-    * @author shangbin
-    * @date 2021/6/7 14:26
-    * @param [userIds]
-    * @return com.mei.hui.util.Result<java.util.List<com.mei.hui.miner.feign.vo.AggMinerVO>>
-    * @version v1.0.0
-    */
-    public Result<List<AggMinerVO>> findBatchChiaMinerByUserId(UserMinerBO userMinerBO);
-
-    /**
     * 根据userId查询起亚币旷工信息表里的该用户所有的矿工ID
     *
     * @description
@@ -138,4 +129,16 @@ public interface IChiaMinerService {
     * @version v1.0.0
     */
     public List<String> findMinerIdByUserId(Long userId);
+
+    /**
+    * 管理员-用户收益-分页查询用户收益列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/22 17:07
+    * @param [filUserMoneyBO]
+    * @return com.mei.hui.util.PageResult<com.mei.hui.miner.feign.vo.FilUserMoneyVO>
+    * @version v1.4.0
+    */
+    public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO);
 }

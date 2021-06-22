@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.model.PowerAvailableFilVO;
 import org.apache.ibatis.annotations.Param;
@@ -78,16 +79,15 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
     public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
 
     /**
-    * 通过userid集合批量获取旷工总算力、总收益、费率
+    * 多条件分页查询用户收益列表
     *
     * @description
     * @author shangbin
-    * @date 2021/6/7 14:55
-    * @param [userChiaMinerBO]
-    * @return java.util.List<com.mei.hui.miner.feign.vo.AggMinerVO>
-    * @version v1.0.0
+    * @date 2021/6/22 17:09
+    * @param [page, userId, cloumName, asc, userIdList]
+    * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.FilUserMoneyVO>
+    * @version v1.4.0
     */
-    public List<AggMinerVO> findBatchChiaMinerByUserId(UserMinerBO userMinerBO);
-
-
+    public IPage<FilUserMoneyVO> selectUserMoneyList(Page<com.mei.hui.miner.feign.vo.FilUserMoneyVO> page,@Param("userId") Long userId,
+                                                     @Param("cloumName") String cloumName,@Param("isAsc") boolean isAsc,@Param("userIdList") List<Long> userIdList);
 }

@@ -26,11 +26,6 @@ public class ChiaMinerController {
     @Autowired
     private IChiaMinerService chiaMinerService;
 
-    @ApiOperation(value = "通过userid集合批量获取旷工总算力、总收益、费率")
-    @PostMapping(value = "/findBatchChiaMinerByUserId")
-    public Result<List<AggMinerVO>> findBatchChiaMinerByUserId(@RequestBody UserMinerBO userMinerBO) {
-        return chiaMinerService.findBatchChiaMinerByUserId(userMinerBO);
-    }
 
 
 }

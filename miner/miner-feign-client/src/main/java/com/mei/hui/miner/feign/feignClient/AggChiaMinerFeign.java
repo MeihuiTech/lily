@@ -14,6 +14,4 @@ import java.util.List;
 @FeignClient(name = "miner-server",path = "/chiaMiner",fallbackFactory = AggMinerFeignFallbackFactory.class )
 public interface AggChiaMinerFeign {
 
-    @PostMapping(value = "/findBatchChiaMinerByUserId")
-    Result<List<AggMinerVO>> findBatchChiaMinerByUserId(@RequestBody UserMinerBO userMinerBO);
 }

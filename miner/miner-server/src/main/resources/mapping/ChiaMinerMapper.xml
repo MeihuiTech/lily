@@ -58,19 +58,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SUM(i.power_available)
     </select>
 
-    <!--通过userid集合批量获取旷工总算力、总收益、费率-->
-    <select id="findBatchChiaMinerByUserId" parameterType="com.mei.hui.miner.feign.vo.UserMinerBO" resultType="com.mei.hui.miner.feign.vo.AggMinerVO">
+    <!--多条件分页查询用户收益列表-->
+    <select id="selectUserMoneyList" resultType="com.mei.hui.miner.feign.vo.FilUserMoneyVO">
         SELECT
-            SUM(m.power_available) AS powerAvailable,
-            SUM(m.total_block_award) AS totalBlockAward,
-            m.user_id AS userId
+        SUM(m.power_available) AS powerAvailable,
+        SUM(m.total_block_award) AS totalBlockAward,
+        m.user_id AS userId
         FROM
-            chia_miner m
+        chia_miner m
         <where>
-            m.user_id in
-            <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
-                #{userId}
-            </foreach>
+            <if test="userId != null">
+                m.user_id = #{userId}
+            </if>
+            <if test="userIdList != null and userIdList.size()>0">
+                and m.user_id in
+                <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+                    #{userId}
+                </foreach>
+            </if>
         </where>
         GROUP BY m.user_id
         <choose>

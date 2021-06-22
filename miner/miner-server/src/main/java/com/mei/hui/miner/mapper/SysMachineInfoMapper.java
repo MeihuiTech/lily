@@ -79,10 +79,4 @@ public interface SysMachineInfoMapper  extends BaseMapper<SysMachineInfo>
      */
     List<SysMachineInfo> selectSysMachineInfoByLimit(@Param("offset") Integer offset, @Param("rowCount") Integer rowCount);
 
-    /**
-     * 获取用户的总算力，总收益
-     * @param userIds
-     * @return
-     */
-    List<AggMinerVO> findBatchMinerByUserId(UserMinerBO userMinerBO);
 }

@@ -130,24 +130,6 @@ public class SysUserController{
         return userService.findUserIdByApiKey(apiKey);
     }
 
-    /**
-     * 管理员-获取用户收益列表
-     */
-    @ApiOperation(value = "获取用户收益列表",notes = "出参：\n" +
-            "powerAvailable总算力\n" +
-            "totalBlockAward总收益\n" +
-            "userId用户id\n" +
-            "feeRate费率")
-    @GetMapping("/list")
-    public Map<String,Object> list(SelectUserListInput user){
-        Long currencyId = HttpRequestUtil.getCurrencyId();
-        if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){
-            return userService.selectUserList(user);
-        }else if(CurrencyEnum.XCH.getCurrencyId().equals(currencyId)){
-            return userService.selectChiaUserList(user);
-        }
-        return null;
-    }
 
     /**
      * 多条件分页查询用户列表

@@ -368,4 +368,52 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             SUM(i.power_available)
     </select>
 
+    <!--分页查询用户收益列表-->
+    <select id="selectUserMoneyList" resultType="com.mei.hui.miner.feign.vo.FilUserMoneyVO">
+        SELECT
+        SUM(m.power_available) AS powerAvailable,
+        SUM(m.total_block_award) as totalBlockAward,
+        m.user_id as userId
+        FROM sys_miner_info m
+        <where>
+            <if test="userId != null">
+                m.user_id = #{userId}
+            </if>
+            <if test="userIdList != null and userIdList.size()>0">
+                and m.user_id in
+                <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY m.user_id
+        <choose>
+            <when test="cloumName != null and cloumName != ''">
+                <if test="'powerAvailable' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY SUM(m.power_available)
+                        </when>
+                        <otherwise>
+                            ORDER BY SUM(m.power_available) desc
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="'totalBlockAward' == cloumName">
+                    <choose>
+                        <when test="isAsc == true">
+                            ORDER BY SUM(m.total_block_award)
+                        </when>
+                        <otherwise>
+                            ORDER BY SUM(m.total_block_award) desc
+                        </otherwise>
+                    </choose>
+                </if>
+            </when>
+            <otherwise>
+                ORDER BY SUM(m.power_available) desc
+            </otherwise>
+        </choose>
+    </select>
+
 </mapper>

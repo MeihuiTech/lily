@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
+import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
 import com.mei.hui.miner.model.PowerAvailableFilVO;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.SysMinerInfoVO;
@@ -140,4 +141,16 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     */
     public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("yesterDayDate") String yesterDayDate, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
 
+    /**
+    * 分页查询用户收益列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/22 16:40
+    * @param [page, userId, cloumName, asc, userIdList]
+    * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.FilUserMoneyVO>
+    * @version v1.4.0
+    */
+    public IPage<FilUserMoneyVO> selectUserMoneyList(Page<com.mei.hui.miner.feign.vo.FilUserMoneyVO> page,@Param("userId") Long userId,
+                                                     @Param("cloumName") String cloumName,@Param("isAsc") boolean isAsc,@Param("userIdList") List<Long> userIdList);
 }

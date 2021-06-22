@@ -18,10 +18,7 @@ public class AggChiaMinerFeignFallbackFactory implements FallbackFactory<AggChia
     public AggChiaMinerFeign create(Throwable throwable) {
         log.error("远程接口异常:",throwable);
         AggChiaMinerFeign aggChiaMinerFeign = new AggChiaMinerFeign(){
-            @Override
-            public Result<List<AggMinerVO>> findBatchChiaMinerByUserId(UserMinerBO userMinerBO) {
-                return null;
-            }
+
         };
         return aggChiaMinerFeign;
     }

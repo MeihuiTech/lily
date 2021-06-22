@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -9,6 +10,8 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.ChiaMiner;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.FilUserMoneyBO;
+import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.model.ChiaMinerVO;
@@ -16,17 +19,19 @@ import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
+import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
+import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +43,8 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     private CurrencyRateService currencyRateService;
     @Autowired
     private ISysAggPowerDailyService sysAggPowerDailyService;
+    @Autowired
+    private UserFeignClient userFeignClient;
 
     /**
      * 获取 起亚币 旷工列表
@@ -170,25 +177,6 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     }
 
     /**
-     * 通过userid集合批量获取旷工总算力、总收益、费率
-     * @param userIds
-     * @return
-     */
-    @Override
-    public Result<List<AggMinerVO>> findBatchChiaMinerByUserId(UserMinerBO userMinerBO) {
-        List<Long> userIds = userMinerBO.getUserIds();
-        if(userIds == null || userIds.size() == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"用户集合不能为空");
-        }
-        List<AggMinerVO> list = chiaMinerMapper.findBatchChiaMinerByUserId(userMinerBO);
-        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIds,"XCH");
-        list.stream().forEach(v -> {
-            v.setFeeRate(rateMap.get(v.getUserId()));
-        });
-        return Result.success(list);
-    }
-
-    /**
     * 根据userId查询起亚币旷工信息表里的该用户所有的矿工ID
     *
     * @description
@@ -211,6 +199,53 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
         return minerIdList;
     }
 
+    /*管理员-用户收益-分页查询用户收益列表*/
+    @Override
+    public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO) {
+        //用于入参模块模糊查询，获取用户id的list
+        String userName = filUserMoneyBO.getUserName();
+        List<Long> userIdList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(userName)) {
+            FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
+            bo.setName(userName);
+            log.info("模糊查询用户id集合");
+            Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
+            log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
+            List<Long> idList = new ArrayList<>();
+            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
+                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+                // id去重
+                Set<Long> idsSet = new HashSet<>(idList);
+                userIdList = new ArrayList<Long>(idsSet);
+            } else {
+                return new PageResult(0,new ArrayList());
+            }
+        }
 
+        Page<FilUserMoneyVO> page = new Page<FilUserMoneyVO>(filUserMoneyBO.getPageNum(),filUserMoneyBO.getPageSize());
+        log.info("多条件分页查询用户收益列表入参page：【{}】,filUserMoneyBO：【{}】,userIdList：【{}】",JSON.toJSON(page),JSON.toJSON(filUserMoneyBO),userIdList);
+        IPage<FilUserMoneyVO> result = chiaMinerMapper.selectUserMoneyList(page,filUserMoneyBO.getUserId(),filUserMoneyBO.getCloumName(),filUserMoneyBO.isAsc(),userIdList);
+        log.info("多条件分页查询用户收益列表出参：【{}】",JSON.toJSON(result));
+        if (result == null){
+            return new PageResult(0,new ArrayList());
+        }
+        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIdList,"XCH");
 
+        result.getRecords().stream().forEach(v -> {
+            v.setPowerAvailable(BigDecimalUtil.formatTwo(v.getPowerAvailable()));
+            v.setTotalBlockAward(BigDecimalUtil.formatFour(v.getTotalBlockAward()));
+            v.setFeeRate(rateMap.get(v.getUserId()));
+
+            SysUserOut sysUserOut = new SysUserOut();
+            sysUserOut.setUserId(v.getUserId());
+            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                v.setUserName(sysUserOutResult.getData().getUserName());
+            }
+        });
+        PageResult pageResult = new PageResult(result.getTotal(),result.getRecords());
+        return pageResult;
+    }
 }
