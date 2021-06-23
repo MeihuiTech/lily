@@ -190,7 +190,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return miners;
     }
 
-
+    @Override
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo){
         return sysMinerInfoMapper.selectSysMinerInfoList(sysMinerInfo);
     }
@@ -225,6 +225,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return map;
     }
 
+    @Override
     public Long countByMinerId(String minerId) {
         return sysMinerInfoMapper.countByMinerId(minerId);
     }
@@ -272,6 +273,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         return sysMinerInfoMapper.selectSysMinerInfoByUserIdAndMinerId(userId, minerId);
     }
 
+    @Override
     public Map<String,Object> machines(Long id,int pageNum,int pageSize) {
 
         Long userId = HttpRequestUtil.getUserId();
@@ -299,6 +301,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
      * @param id
      * @return
      */
+    @Override
     public Map<String,Object> dailyPower(Long id) {
         Long userId = HttpRequestUtil.getUserId();
         SysMinerInfo miner = selectSysMinerInfoById(id);
@@ -327,6 +330,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
      * @param id
      * @return
      */
+    @Override
     public Map<String,Object> chiaDailyPower(Long id) {
         Long userId = HttpRequestUtil.getUserId();
         log.info("获取起亚币,入参:minerId = {}",id);
@@ -483,7 +487,10 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         if (result == null){
             return new PageResult(0,new ArrayList());
         }
-        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIdList,"FIL");
+        List<Long> dbUserIdList = result.getRecords().stream().map(v -> {
+            return v.getUserId();
+        }).collect(Collectors.toList());
+        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(dbUserIdList,"FIL");
 
         result.getRecords().stream().forEach(v -> {
             v.setPowerAvailable(BigDecimalUtil.formatTwo(v.getPowerAvailable()));

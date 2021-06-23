@@ -142,7 +142,9 @@ public class CurrencyRateServiceImpl extends ServiceImpl<CurrencyRateMapper,Curr
     @Override
     public Map<Long, BigDecimal> getUserIdRateMapByUserIdList(List<Long> userIdList,String type) {
         QueryWrapper<CurrencyRate> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("user_id",userIdList);
+        if(userIdList != null && userIdList.size() > 0) {
+            queryWrapper.in("user_id",userIdList);
+        }
         queryWrapper.eq("type",type);
         List<CurrencyRate> currencyRateList = currencyRateMapper.selectList(queryWrapper);
         Map<Long,BigDecimal> map = new HashMap<>();

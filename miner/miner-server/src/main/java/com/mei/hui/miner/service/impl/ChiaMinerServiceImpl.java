@@ -229,7 +229,10 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
         if (result == null){
             return new PageResult(0,new ArrayList());
         }
-        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(userIdList,"XCH");
+        List<Long> dbUserIdList = result.getRecords().stream().map(v -> {
+            return v.getUserId();
+        }).collect(Collectors.toList());
+        Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(dbUserIdList,"XCH");
 
         result.getRecords().stream().forEach(v -> {
             v.setPowerAvailable(BigDecimalUtil.formatTwo(v.getPowerAvailable()));
