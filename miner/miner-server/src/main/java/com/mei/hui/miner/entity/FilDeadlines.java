@@ -23,7 +23,7 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-@TableName("fil_deadlines")
+@TableName("fil_report_deadlines")
 public class FilDeadlines {
 
     @TableId(value = "id", type = IdType.AUTO)
