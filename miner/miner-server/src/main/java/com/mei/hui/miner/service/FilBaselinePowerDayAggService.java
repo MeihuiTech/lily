@@ -2,8 +2,11 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
+import com.mei.hui.miner.feign.vo.BaselineAndPowerVO;
 import com.mei.hui.miner.feign.vo.GeneralViewVo;
 import com.mei.hui.util.Result;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,5 +19,7 @@ import com.mei.hui.util.Result;
 public interface FilBaselinePowerDayAggService extends IService<FilBaselinePowerDayAgg> {
 
     Result<GeneralViewVo> generalView();
+
+    Result<List<BaselineAndPowerVO>> baselineAndPower();
 
 }

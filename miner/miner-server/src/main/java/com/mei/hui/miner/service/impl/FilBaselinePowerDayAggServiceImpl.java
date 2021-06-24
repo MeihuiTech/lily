@@ -12,13 +12,14 @@ import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
 import com.mei.hui.miner.service.FilReportGasService;
 import com.mei.hui.util.Result;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -148,6 +149,24 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         }
         netWordData.setPerDayBlocks(perDayBlocks);
         generalViewVo.setNetWordData(netWordData);
+    }
+
+    /**
+     * 全网基线算力走势图
+     * @return
+     */
+    public Result<List<BaselineAndPowerVO>> baselineAndPower(){
+        LambdaQueryWrapper<FilBaselinePowerDayAgg> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.gt(FilBaselinePowerDayAgg::getDate,LocalDate.now().minusDays(30));
+        List<FilBaselinePowerDayAgg> list = this.list(queryWrapper);
+        log.info("获取近30的基线算力数据:{}",JSON.toJSONString(list));
+
+        List<BaselineAndPowerVO> lt = list.stream().map(v -> {
+            BaselineAndPowerVO baselineAndPower = new BaselineAndPowerVO();
+            BeanUtils.copyProperties(v, baselineAndPower);
+            return baselineAndPower;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
     }
 
 }

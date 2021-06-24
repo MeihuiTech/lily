@@ -1,5 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.miner.feign.vo.BaselineAndPowerVO;
 import com.mei.hui.miner.feign.vo.GeneralViewVo;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
 import com.mei.hui.util.Result;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Api(tags = "免登陆首页")
 @RestController
@@ -24,5 +27,11 @@ public class GeneralController {
     @PostMapping("/generalView")
     public Result<GeneralViewVo> generalView(){
         return baselinePowerDayAggService.generalView();
+    }
+
+    @ApiOperation(value = "全网:基线算力走势图【鲍红建】")
+    @PostMapping("/baselineAndPower")
+    public Result<List<BaselineAndPowerVO>> baselineAndPower(){
+        return baselinePowerDayAggService.baselineAndPower();
     }
 }
