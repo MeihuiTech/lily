@@ -141,7 +141,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="totalBlockAward != null">#{totalBlockAward},</if>
             <if test="balanceMinerAvailable != null">#{balanceMinerAvailable},</if>
             <if test="balanceMinerAccount != null">#{balanceMinerAccount},</if>
-            <if test="blocksPerDay != null">#{blocksPerDay},</if>
             <if test="totalBlocks != null">#{totalBlocks},</if>
             <if test="powerIncreasePerDay != null">#{powerIncreasePerDay},</if>
             <if test="createBy != null">#{createBy},</if>
