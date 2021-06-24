@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -165,6 +166,25 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
             BaselineAndPowerVO baselineAndPower = new BaselineAndPowerVO();
             BeanUtils.copyProperties(v, baselineAndPower);
             return baselineAndPower;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
+    }
+
+    /**
+     * Gas消耗走势图
+     * @return
+     */
+    public Result<List<GaslineVO>> gasline(){
+        LambdaQueryWrapper<FilReportGas> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.gt(FilReportGas::getDate, LocalDateTime.now().minusHours(3));
+        List<FilReportGas> list = reportGasService.list(queryWrapper);
+        log.info("近3小时的gas消耗数据:{}",list.size());
+        List<GaslineVO> lt = list.stream().map(v -> {
+            GaslineVO gaslineVO = new GaslineVO();
+            gaslineVO.setDate(v.getDate());
+            gaslineVO.setThirtyTwoGas(v.getThirtyTwoGas());
+            gaslineVO.setSixtyFourGas(v.getSixtyFourGas());
+            return gaslineVO;
         }).collect(Collectors.toList());
         return Result.success(lt);
     }

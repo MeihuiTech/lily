@@ -1,6 +1,7 @@
 package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.miner.feign.vo.BaselineAndPowerVO;
+import com.mei.hui.miner.feign.vo.GaslineVO;
 import com.mei.hui.miner.feign.vo.GeneralViewVo;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
 import com.mei.hui.util.Result;
@@ -33,5 +34,11 @@ public class GeneralController {
     @PostMapping("/baselineAndPower")
     public Result<List<BaselineAndPowerVO>> baselineAndPower(){
         return baselinePowerDayAggService.baselineAndPower();
+    }
+
+    @ApiOperation(value = "全网:近3小时封装Gas费用走势图【鲍红建】")
+    @PostMapping("/gasline")
+    public Result<List<GaslineVO>> gasline(){
+        return baselinePowerDayAggService.gasline();
     }
 }
