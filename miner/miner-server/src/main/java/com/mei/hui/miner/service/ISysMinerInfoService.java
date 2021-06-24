@@ -123,7 +123,7 @@ public interface ISysMinerInfoService
     PageResult chiaDailyAccount(Long id);
 
     /**
-     * fil管理员首页-旷工统计数据-当天出块份数
+     * 查询FIL币矿工信息表里所有的累计出块份数
      *
      * @description
      * @author shangbin

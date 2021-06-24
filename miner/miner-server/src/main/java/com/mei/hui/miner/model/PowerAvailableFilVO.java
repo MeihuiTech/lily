@@ -38,6 +38,9 @@ public class PowerAvailableFilVO {
     @ApiModelProperty(value = "算力增速")
     private BigDecimal powerIncrease;
 
+    @ApiModelProperty(value = "累计出块数量")
+    private Long totalBlocks;
+
     @ApiModelProperty(value = "今日出块数量")
     private Long totalBlocksPerDay;
 

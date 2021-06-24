@@ -62,8 +62,16 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         Long allMinerCount = sysMinerInfoService.selectFilAllMinerIdCount();
         adminFirstCollectVO.setAllMinerCount(allMinerCount);
         // 管理员首页-旷工统计数据-当天出块份数
-        Long allBlocksPerDay = sysMinerInfoService.selectFilAllBlocksPerDay();
-        adminFirstCollectVO.setAllBlocksPerDay(allBlocksPerDay);
+        // 查询FIL币矿工信息表里所有的累计出块份数
+        Long allTotalBlocks = sysMinerInfoService.selectFilAllBlocksPerDay();
+        // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
+        String yesterDayDate = DateUtils.getYesterDayDateYmd();
+        Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name());
+        if (allTotalBlocks != null && yesterDayTotalBlocks != null) {
+            adminFirstCollectVO.setAllBlocksPerDay(allTotalBlocks - yesterDayTotalBlocks);
+        }else {
+            adminFirstCollectVO.setAllBlocksPerDay(0L);
+        }
         return adminFirstCollectVO;
     }
 
@@ -102,33 +110,42 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
         log.info("fil管理员首页-旷工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
-        IPage<PowerAvailableFilVO> result = sysMinerInfoMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate,allPowerAvailable);
+        log.info("fil币管理员首页-平台有效算力排行榜入参yesterDayDate:【{}】",yesterDayDate);
+        IPage<PowerAvailableFilVO> result = sysMinerInfoMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate);
         log.info("fil币管理员首页-平台有效算力排行榜出参:【{}】",JSON.toJSON(result));
-        for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
-            log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
-            List<String> minerIdList = sysMinerInfoService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
-            log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
-            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
-            PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.FIL.name());
-            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));
-            if (dbPowerAvailableFilVO != null) {
-                powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
-                powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
-            } else {
-                powerAvailableFilVO.setMiningEfficiency(BigDecimal.ZERO);
-                powerAvailableFilVO.setPowerIncrease(BigDecimal.ZERO);
-            }
+        if (result != null && result.getRecords() != null && result.getRecords().size() > 0) {
+            for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
+                log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
+                List<String> minerIdList = sysMinerInfoService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
+                log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
+                log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
+                PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.FIL.name());
+                log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));
+                if (dbPowerAvailableFilVO != null) {
+                    powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
+                    powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
+                    powerAvailableFilVO.setTotalBlocksPerDay(powerAvailableFilVO.getTotalBlocks()-dbPowerAvailableFilVO.getTotalBlocks());
+                } else {
+                    powerAvailableFilVO.setMiningEfficiency(BigDecimal.ZERO);
+                    powerAvailableFilVO.setPowerIncrease(BigDecimal.ZERO);
+                    powerAvailableFilVO.setTotalBlocksPerDay(0L);
+                }
 
-            SysUserOut sysUserOut = new SysUserOut();
-            sysUserOut.setUserId(powerAvailableFilVO.getUserId());
-            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
-            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
-            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
-            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
-                powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
+                SysUserOut sysUserOut = new SysUserOut();
+                sysUserOut.setUserId(powerAvailableFilVO.getUserId());
+                log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+                Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+                log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+                if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                    powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
+                }
+                if(powerAvailableFilVO.getPowerAvailable() != null && !allPowerAvailable.equals(BigDecimal.ZERO)) {
+                    powerAvailableFilVO.setPowerAvailablePercent(powerAvailableFilVO.getPowerAvailable().divide(allPowerAvailable,4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
+                } else {
+                    powerAvailableFilVO.setPowerAvailablePercent(BigDecimal.ZERO);
+                }
+                powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
             }
-            powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent().multiply(new BigDecimal(100))));
-            powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
@@ -153,31 +170,33 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
         IPage<PowerAvailableFilVO> result = chiaMinerMapper.powerAvailablePage(powerAvailableFilVOPage,allPowerAvailable);
         log.info("chia币管理员首页-平台有效算力排行榜:【{}】",JSON.toJSON(result));
-        for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
-            log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
-            List<String> minerIdList = chiaMinerService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
-            log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
-            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
-            PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.XCH.name());
-            log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));
-            if (dbPowerAvailableFilVO != null) {
-                powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
-                powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
-            } else {
-                powerAvailableFilVO.setMiningEfficiency(BigDecimal.ZERO);
-                powerAvailableFilVO.setPowerIncrease(BigDecimal.ZERO);
-            }
+        if (result != null && result.getRecords() != null && result.getRecords().size() > 0) {
+            for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
+                log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
+                List<String> minerIdList = chiaMinerService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
+                log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
+                log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
+                PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.XCH.name());
+                log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));
+                if (dbPowerAvailableFilVO != null) {
+                    powerAvailableFilVO.setMiningEfficiency(BigDecimalUtil.formatFour(dbPowerAvailableFilVO.getMiningEfficiency()));
+                    powerAvailableFilVO.setPowerIncrease(dbPowerAvailableFilVO.getPowerIncrease());
+                } else {
+                    powerAvailableFilVO.setMiningEfficiency(BigDecimal.ZERO);
+                    powerAvailableFilVO.setPowerIncrease(BigDecimal.ZERO);
+                }
 
-            SysUserOut sysUserOut = new SysUserOut();
-            sysUserOut.setUserId(powerAvailableFilVO.getUserId());
-            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
-            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
-            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
-            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
-                powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
+                SysUserOut sysUserOut = new SysUserOut();
+                sysUserOut.setUserId(powerAvailableFilVO.getUserId());
+                log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+                Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+                log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+                if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                    powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
+                }
+                powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent().multiply(new BigDecimal(100))));
+                powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
             }
-            powerAvailableFilVO.setPowerAvailablePercent(BigDecimalUtil.formatTwo(powerAvailableFilVO.getPowerAvailablePercent().multiply(new BigDecimal(100))));
-            powerAvailableFilVO.setTotalBlockAward(BigDecimalUtil.formatFour(powerAvailableFilVO.getTotalBlockAward()));
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());

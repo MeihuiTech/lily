@@ -82,7 +82,7 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     public IPage<SysMinerInfoVO> pageMinerInfo(IPage<SysMinerInfo> page, @Param("userId") Long userId, @Param("isAsc") boolean isAsc, @Param("cloumName")String cloumName);
 
     /**
-    * 查询FIL币矿工信息表里所有的当天出块份数
+    * 查询FIL币矿工信息表里所有的累计出块份数
     * 
     * @description 
     * @author shangbin
@@ -139,7 +139,7 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.model.PowerAvailableFilVO>
     * @version v1.0.0
     */
-    public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("yesterDayDate") String yesterDayDate, @Param("allPowerAvailable") BigDecimal allPowerAvailable);
+    public IPage<PowerAvailableFilVO> powerAvailablePage(Page<PowerAvailableFilVO> powerAvailableFilVOPage, @Param("yesterDayDate") String yesterDayDate);
 
     /**
     * 分页查询用户收益列表

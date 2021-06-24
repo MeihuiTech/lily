@@ -322,7 +322,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectAllBlocksPerDay" resultType="long">
         SELECT
-            SUM(i.blocks_per_day) blocksPerDay
+            SUM(i.total_blocks) totalBlocks
         FROM
             sys_miner_info i
     </select>
@@ -353,11 +353,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT
             i.user_id userId,
             SUM(i.power_available) powerAvailable,
-        <if test="allPowerAvailable != null">
-            SUM(i.power_available) / #{allPowerAvailable} powerAvailablePercent,
-        </if>
             SUM(i.total_block_award) totalBlockAward,
-        SUM(i.blocks_per_day) totalBlocksPerDay,
+        SUM(i.total_blocks) totalBlocks,
         SUM(i.sector_available) totalSectorAvailable,
         SUM(i.sector_error) totalSectorError
         FROM

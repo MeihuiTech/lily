@@ -121,4 +121,9 @@ public class MinerTest {
         log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
     }
 
+    @Test
+    public void testLong() {
+        System.out.println(0L-0L);
+    }
+
 }
