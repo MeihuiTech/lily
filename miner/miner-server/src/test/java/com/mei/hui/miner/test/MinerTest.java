@@ -3,12 +3,17 @@ package com.mei.hui.miner.test;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
+import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
+import com.mei.hui.miner.entity.FilReportGas;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
+import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
+import com.mei.hui.miner.service.FilReportGasService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
@@ -18,11 +23,15 @@ import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MinerApplication .class)
@@ -107,18 +116,41 @@ public class MinerTest {
 
     }
 
+    @Autowired
+    private FilBaselinePowerDayAggService baselinePowerDayAggService;
     @Test
-    public void testNullJson(){
-        System.out.print(JSON.toJSON(null));
+    public void saveTest(){
+        FilBaselinePowerDayAgg baselinePowerDayAgg = new FilBaselinePowerDayAgg();
+        baselinePowerDayAgg.setBaseLine(new BigDecimal(12))
+                .setBlocks(2L)
+                .setCreateTime(LocalDateTime.now())
+                .setPower(new BigDecimal(2000))
+                .setDate(LocalDate.now());
+        baselinePowerDayAggService.save(baselinePowerDayAgg);
     }
 
     @Test
-    public void testFeign(){
-        SysUserOut sysUserOut = new SysUserOut();
-        sysUserOut.setUserId(5L);
-        log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
-        Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
-        log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+    public void getTest(){
+        LambdaQueryWrapper<FilBaselinePowerDayAgg> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(FilBaselinePowerDayAgg::getId,1);
+        List<FilBaselinePowerDayAgg> list = baselinePowerDayAggService.list(queryWrapper);
+        log.info(JSON.toJSONString(list));
+    }
+
+    @Test
+    public void copyTest(){
+        FilBaselinePowerDayAgg baselinePowerDayAgg = new FilBaselinePowerDayAgg();
+        baselinePowerDayAgg.setBaseLine(new BigDecimal(12))
+                .setBlocks(2L)
+                .setCreateTime(LocalDateTime.now())
+                .setPower(new BigDecimal(2000))
+                .setDate(LocalDate.now());
+        FilBaselinePowerDayAgg DayAgg = new FilBaselinePowerDayAgg();
+
+        BeanUtils.copyProperties(baselinePowerDayAgg,DayAgg);
+
+        log.info("复制:{}",JSON.toJSONString(DayAgg));
+
     }
 
 }
