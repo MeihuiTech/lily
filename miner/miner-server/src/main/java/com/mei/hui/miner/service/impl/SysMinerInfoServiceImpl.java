@@ -121,6 +121,14 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         if (machine != null) {
             miner.setWorkerCount(machine.getWorkerCount());
         }
+        // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
+        String yesterDayDate = DateUtils.getYesterDayDateYmd();
+        Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
+        if (yesterDayTotalBlocks != null) {
+            miner.setBlocksPerDay(miner.getTotalBlocks() - yesterDayTotalBlocks);
+        } else {
+            miner.setBlocksPerDay(miner.getTotalBlocks());
+        }
         miner.setSectorPledge(BigDecimalUtil.formatFour(miner.getSectorPledge()));
         miner.setLockAward(BigDecimalUtil.formatFour(miner.getLockAward()));
         miner.setTotalBlockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward()));

@@ -66,7 +66,7 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         Long allTotalBlocks = sysMinerInfoService.selectFilAllBlocksPerDay();
         // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
-        Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name());
+        Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),null);
         if (allTotalBlocks != null && yesterDayTotalBlocks != null) {
             adminFirstCollectVO.setAllBlocksPerDay(allTotalBlocks - yesterDayTotalBlocks);
         }else {

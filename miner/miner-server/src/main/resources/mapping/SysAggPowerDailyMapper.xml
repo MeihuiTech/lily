@@ -157,6 +157,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="yesterDayDate != null and yesterDayDate != ''">
             AND d.date = #{yesterDayDate}
         </if>
+        <if test="minerId != null and minerId != ''">
+            and d.miner_id = #{minerId}
+        </if>
     </select>
 
 </mapper>

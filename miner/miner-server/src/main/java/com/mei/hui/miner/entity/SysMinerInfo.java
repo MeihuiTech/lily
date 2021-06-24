@@ -64,6 +64,12 @@ public class SysMinerInfo
     private BigDecimal balanceWorkerAccount;
 
     /**
+     * 当天出块份数
+     */
+    @TableField(exist = false)
+    private Long blocksPerDay;
+
+    /**
      * 累计出块份数
      */
     private Long totalBlocks;

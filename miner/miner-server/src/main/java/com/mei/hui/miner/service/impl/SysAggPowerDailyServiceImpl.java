@@ -135,7 +135,7 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
 
     /*查询算力按天聚合表里昨天所有的累计出块份数*/
     @Override
-    public Long selectTotalBlocksByDate(String yesterDayDate, String type) {
-        return sysAggPowerDailyMapper.selectTotalBlocksByDate(yesterDayDate, type);
+    public Long selectTotalBlocksByDate(String yesterDayDate, String type, String minerId) {
+        return sysAggPowerDailyMapper.selectTotalBlocksByDate(yesterDayDate, type, minerId);
     }
 }

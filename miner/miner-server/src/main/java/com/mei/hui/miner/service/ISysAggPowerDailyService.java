@@ -98,5 +98,5 @@ public interface ISysAggPowerDailyService
     * @return java.lang.Long
     * @version v1.4.0
     */
-    public Long selectTotalBlocksByDate(String yesterDayDate, String type);
+    public Long selectTotalBlocksByDate(String yesterDayDate, String type, String minerId);
 }

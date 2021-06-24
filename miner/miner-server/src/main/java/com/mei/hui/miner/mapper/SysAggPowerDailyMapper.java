@@ -90,5 +90,5 @@ public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
     * @return java.lang.Long
     * @version v1.4.0
     */
-    public Long selectTotalBlocksByDate(@Param("yesterDayDate") String yesterDayDate,@Param("type") String type);
+    public Long selectTotalBlocksByDate(@Param("yesterDayDate") String yesterDayDate,@Param("type") String type,@Param("minerId") String minerId);
 }
