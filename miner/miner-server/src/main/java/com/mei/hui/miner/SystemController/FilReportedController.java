@@ -4,12 +4,12 @@ import com.mei.hui.config.CommonUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.ReportGasBO;
+import com.mei.hui.miner.feign.vo.ReportNetworkDataBO;
 import com.mei.hui.miner.model.RequestMachineInfo;
 import com.mei.hui.miner.model.RequestMinerInfo;
 import com.mei.hui.miner.model.RequestSectorInfo;
-import com.mei.hui.miner.service.ISysMachineInfoService;
-import com.mei.hui.miner.service.ISysMinerInfoService;
-import com.mei.hui.miner.service.ISysSectorsWrapService;
+import com.mei.hui.miner.service.*;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.ErrorCode;
@@ -19,7 +19,6 @@ import com.mei.hui.util.SystemConstants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +48,10 @@ public class FilReportedController
 
     @Autowired
     private UserFeignClient userFeignClient;
+    @Autowired
+    private FilReportGasService reportGasService;
+    @Autowired
+    private FilReportNetworkDataService reportNetworkDataService;
 
     /**
      * 新增矿工信息
@@ -130,6 +133,51 @@ public class FilReportedController
 
         int rows = sysSectorsWrapService.addSector(sysSectorInfo);
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
+    }
+
+    @ApiOperation(value = "Gas费用上报接口")
+    @PostMapping("/reportGas")
+    public Result reportGas(@RequestBody ReportGasBO bo){
+        if(bo.getThirtyTwoGas() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"32G矿工Gas费用,不能为空");
+        }
+        if(bo.getThirtyTwoCost() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"32G矿工总成本,不能为空");
+        }
+        if(bo.getThirtyTwoPledge() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"32G矿工质押费用,不能为空");
+        }
+        if(bo.getSixtyFourGas() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"64G矿工Gas费用,不能为空");
+        }
+        if(bo.getSixtyFourCost() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"64G矿工总成本,不能为空");
+        }
+        if(bo.getSixtyFourPledge() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"64G矿工质押费用,不能为空");
+        }
+        return reportGasService.reportGas(bo);
+    }
+
+    @ApiOperation(value = "全网数据上报:累计出块奖励、有效算力、累计出块份数、全网活跃旷工、全网区块高度")
+    @PostMapping("/reportNetworkData")
+    public Result reportNetworkData(@RequestBody ReportNetworkDataBO bo){
+        if(bo.getActiveMiner() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"全网活跃旷工,不能为空");
+        }
+        if(bo.getBlockHeigh() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"全网区块高度,不能为空");
+        }
+        if(bo.getBlocks() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"全网累计出块份数,不能为空");
+        }
+        if(bo.getPower() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"全网有效算力,不能为空");
+        }
+        if(bo.getTotalBlockAward() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"全网累计出块奖励,不能为空");
+        }
+        return reportNetworkDataService.reportNetworkData(bo);
     }
 
 

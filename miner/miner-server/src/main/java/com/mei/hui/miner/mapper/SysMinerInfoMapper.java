@@ -3,6 +3,7 @@ package com.mei.hui.miner.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mei.hui.miner.entity.MinerAggData;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
@@ -13,6 +14,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -153,4 +155,10 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     */
     public IPage<FilUserMoneyVO> selectUserMoneyList(Page<com.mei.hui.miner.feign.vo.FilUserMoneyVO> page,@Param("userId") Long userId,
                                                      @Param("cloumName") String cloumName,@Param("isAsc") boolean isAsc,@Param("userIdList") List<Long> userIdList);
+
+    MinerAggData getMinerAggData();
+
+    long getActivityMinerCount();
+
+    long getYesterdayTotalBlocksCount(String yesterdayDate);
 }
