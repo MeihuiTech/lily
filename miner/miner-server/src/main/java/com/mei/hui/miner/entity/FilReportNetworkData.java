@@ -30,11 +30,13 @@ public class FilReportNetworkData {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private BigDecimal money;
+    private BigDecimal totalBlockAward;
 
     private BigDecimal power;
 
     private Long blocks;
+
+    private Long blockHeigh;
 
     private Long activeMiner;
 

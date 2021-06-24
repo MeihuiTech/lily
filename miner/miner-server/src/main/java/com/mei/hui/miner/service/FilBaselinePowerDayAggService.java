@@ -2,6 +2,8 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
+import com.mei.hui.miner.feign.vo.GeneralViewVo;
+import com.mei.hui.util.Result;
 
 /**
  * <p>
@@ -12,5 +14,7 @@ import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
  * @since 2021-06-23
  */
 public interface FilBaselinePowerDayAggService extends IService<FilBaselinePowerDayAgg> {
+
+    Result<GeneralViewVo> generalView();
 
 }

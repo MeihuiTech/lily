@@ -416,4 +416,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </choose>
     </select>
 
+    <select id="getMinerAggData" resultType="com.mei.hui.miner.entity.MinerAggData">
+        SELECT
+            SUM(total_block_award) totalBlockAward,
+            SUM(`power_available`) totalPower,
+            SUM(`total_blocks`) totalBlocks
+        FROM
+            sys_miner_info
+    </select>
+
+    <select id="getActivityMinerCount" resultType="long">
+        SELECT
+            COUNT(id)
+        FROM
+            sys_miner_info
+        WHERE
+            power_available > 0
+    </select>
+
+    <select id="getYesterdayTotalBlocksCount" parameterType="String" resultType="long">
+        SELECT
+            COUNT(total_blocks) yesterdayTotalBlocks
+        FROM
+            sys_agg_power_daily
+        WHERE
+            date = #{yesterdayDate}
+    </select>
+
 </mapper>
