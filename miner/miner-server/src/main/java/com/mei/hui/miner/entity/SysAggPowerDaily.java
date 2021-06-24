@@ -45,11 +45,15 @@ public class SysAggPowerDaily{
      */
     private BigDecimal blockAwardIncrease;
 
-    //TODO   需要删除
     /**
-     * 累计出块份数,起亚币使用
+     * 累计出块份数，fil币使用
      */
     private Long totalBlocks;
+
+    /**
+     * 当天出块份数，fil币使用
+     */
+    private Long blocksPerDay;
 
     /**
      * 货币种类,FIL,CHIA

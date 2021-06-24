@@ -122,12 +122,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速-->
     <select id="selectPowerAvailableByDateAndUserIdList" resultType="com.mei.hui.miner.model.PowerAvailableFilVO">
         SELECT
-            SUM(d.block_award_increase) / SUM(
-                d.power_available / 1024 / 1024 / 1024 / 1024
-            ) miningEfficiency,
-            SUM(d.power_increase) powerIncrease
+        SUM(d.block_award_increase) / SUM(
+        d.power_available / 1024 / 1024 / 1024 / 1024
+        ) miningEfficiency,
+        SUM(d.power_increase) powerIncrease,
+        SUM(d.total_blocks) totalBlocks
         FROM
-            sys_agg_power_daily d
+        sys_agg_power_daily d
         WHERE
         <if test="type != null and type != ''">
             d.type = #{type}
@@ -140,6 +141,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           <foreach item="minerId" collection="minerIdList" open="(" close=")" separator=",">
               #{minerId}
           </foreach>
+        </if>
+    </select>
+
+    <!--查询算力按天聚合表里昨天所有的累计出块份数-->
+    <select id="selectTotalBlocksByDate" resultType="java.lang.Long">
+        SELECT
+        SUM(d.total_blocks) totalBlocks
+        FROM
+        sys_agg_power_daily d
+        WHERE
+        <if test="type != null and type != ''">
+            d.type = #{type}
+        </if>
+        <if test="yesterDayDate != null and yesterDayDate != ''">
+            AND d.date = #{yesterDayDate}
+        </if>
+        <if test="minerId != null and minerId != ''">
+            and d.miner_id = #{minerId}
         </if>
     </select>
 

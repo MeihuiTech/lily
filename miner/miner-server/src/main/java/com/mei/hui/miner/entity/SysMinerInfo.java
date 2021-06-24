@@ -66,6 +66,7 @@ public class SysMinerInfo
     /**
      * 当天出块份数
      */
+    @TableField(exist = false)
     private Long blocksPerDay;
 
     /**

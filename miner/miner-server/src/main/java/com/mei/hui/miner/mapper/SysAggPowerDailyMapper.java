@@ -79,4 +79,16 @@ public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
     * @version v1.0.0
     */
     public PowerAvailableFilVO selectPowerAvailableByDateAndUserIdList(@Param("yesterDayDate") String yesterDayDate, @Param("minerIdList") List<String> minerIdList, @Param("type") String type);
+
+    /**
+    * 查询算力按天聚合表里昨天所有的累计出块份数
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/24 11:02
+    * @param [yesterDayDate, name]
+    * @return java.lang.Long
+    * @version v1.4.0
+    */
+    public Long selectTotalBlocksByDate(@Param("yesterDayDate") String yesterDayDate,@Param("type") String type,@Param("minerId") String minerId);
 }

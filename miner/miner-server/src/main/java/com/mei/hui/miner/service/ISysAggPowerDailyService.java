@@ -87,5 +87,16 @@ public interface ISysAggPowerDailyService
     * @version v1.0.0
     */
     public PowerAvailableFilVO selectPowerAvailableByDateAndUserIdList(String yesterDayDate, List<String> minerIdList,String type);
-    
+
+    /**
+    * 查询算力按天聚合表里昨天所有的累计出块份数
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/24 11:01
+    * @param [yesterDayDate, name]
+    * @return java.lang.Long
+    * @version v1.4.0
+    */
+    public Long selectTotalBlocksByDate(String yesterDayDate, String type, String minerId);
 }

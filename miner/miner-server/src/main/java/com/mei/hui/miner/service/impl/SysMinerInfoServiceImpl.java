@@ -121,6 +121,14 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         if (machine != null) {
             miner.setWorkerCount(machine.getWorkerCount());
         }
+        // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
+        String yesterDayDate = DateUtils.getYesterDayDateYmd();
+        Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
+        if (yesterDayTotalBlocks != null) {
+            miner.setBlocksPerDay(miner.getTotalBlocks() - yesterDayTotalBlocks);
+        } else {
+            miner.setBlocksPerDay(miner.getTotalBlocks());
+        }
         miner.setSectorPledge(BigDecimalUtil.formatFour(miner.getSectorPledge()));
         miner.setLockAward(BigDecimalUtil.formatFour(miner.getLockAward()));
         miner.setTotalBlockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward()));
@@ -196,7 +204,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     }
 
     /**
-     * 获取 fil 币旷工
+     * 查询fil矿工信息列表
      * @param sysMinerInfoBO
      * @return
      */
@@ -210,6 +218,14 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         Page<SysMinerInfo> minerInfoPage = new Page<>(sysMinerInfoBO.getPageNum(),sysMinerInfoBO.getPageSize());
         IPage<SysMinerInfoVO> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,userId,isAsc,cloumName);
         for (SysMinerInfoVO sysMinerInfoVO:result.getRecords()) {
+            // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
+            String yesterDayDate = DateUtils.getYesterDayDateYmd();
+            Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),sysMinerInfoVO.getMinerId());
+            if (yesterDayTotalBlocks != null) {
+                sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks() - yesterDayTotalBlocks);
+            } else {
+                sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks());
+            }
             sysMinerInfoVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAccount()));
             sysMinerInfoVO.setBalanceMinerAvailable(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAvailable()));
             sysMinerInfoVO.setSectorPledge(BigDecimalUtil.formatFour(sysMinerInfoVO.getSectorPledge()));
