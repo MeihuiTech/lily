@@ -11,8 +11,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="powerAvailable"    column="power_available"    />
         <result property="powerIncrease"    column="power_increase"    />
         <result property="totalBlockAward"    column="total_block_award"    />
-        <result property="totalBlocks"    column="total_blocks"    />
         <result property="blockAwardIncrease"    column="block_award_increase"    />
+        <result property="totalBlocks"    column="total_blocks"    />
+        <result property="blocksPerDay"    column="blocks_per_day"    />
         <result property="type"    column="type"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
@@ -21,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysAggPowerDailyVo">
-        select id, miner_id, date, power_available, power_increase,total_block_award,total_blocks,block_award_increase,type, create_time, update_time, create_by, update_by from sys_agg_power_daily
+        select id, miner_id, date, power_available, power_increase,total_block_award,total_blocks,block_award_increase,blocks_per_day,type, create_time, update_time, create_by, update_by from sys_agg_power_daily
     </sql>
 
     <select id="selectSysAggPowerDailyList" parameterType="SysAggPowerDaily" resultMap="SysAggPowerDailyResult">
@@ -50,6 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="totalBlockAward != null">total_block_award,</if>
             <if test="totalBlocks != null">total_blocks,</if>
             <if test="blockAwardIncrease != null">block_award_increase,</if>
+            <if test="blocksPerDay != null">blocks_per_day,</if>
             <if test="type != null and type != ''">type,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
@@ -65,6 +67,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="totalBlockAward != null">#{totalBlockAward},</if>
             <if test="totalBlocks != null">#{totalBlocks},</if>
             <if test="blockAwardIncrease != null">#{blockAwardIncrease},</if>
+            <if test="blocksPerDay != null">#{blocksPerDay},</if>
             <if test="type != null and type != ''">#{type},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
@@ -83,6 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="totalBlockAward != null">total_block_award = #{totalBlockAward},</if>
             <if test="totalBlocks != null">total_blocks = #{totalBlocks},</if>
             <if test="blockAwardIncrease != null">block_award_increase = #{blockAwardIncrease},</if>
+            <if test="blocksPerDay != null">blocks_per_day = #{blocksPerDay},</if>
             <if test="type != null and type != ''">type = #{type},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
