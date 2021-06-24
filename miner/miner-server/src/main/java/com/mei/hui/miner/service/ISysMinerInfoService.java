@@ -82,6 +82,16 @@ public interface ISysMinerInfoService
 
     public Long countByMinerId(String minerId);
 
+    /**
+    * 查询矿工信息列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/24 15:10
+    * @param [sysMinerInfoBO]
+    * @return java.util.Map<java.lang.String,java.lang.Object>
+    * @version v1.4.0
+    */
     Map<String,Object> findPage(SysMinerInfoBO sysMinerInfoBO);
 
     public Map<String,Object> machines(Long id,int pageNum,int pageSize);
