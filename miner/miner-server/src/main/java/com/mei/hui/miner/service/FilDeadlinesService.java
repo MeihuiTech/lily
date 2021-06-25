@@ -2,6 +2,7 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilDeadlines;
+import com.mei.hui.util.Result;
 
 /**
  * <p>
@@ -13,4 +14,15 @@ import com.mei.hui.miner.entity.FilDeadlines;
  */
 public interface FilDeadlinesService extends IService<FilDeadlines> {
 
+    /**
+    * 用户首页WindowPoSt的96个窗口
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/25 16:38
+    * @param []
+    * @return com.mei.hui.util.Result
+    * @version v1.4.0
+    */
+    public Result selectFilDeadlinesNinetySixList();
 }

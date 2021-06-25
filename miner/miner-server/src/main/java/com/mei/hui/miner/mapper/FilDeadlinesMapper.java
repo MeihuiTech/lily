@@ -2,6 +2,9 @@ package com.mei.hui.miner.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.FilDeadlines;
+import com.mei.hui.miner.model.FilDeadlinesListVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,15 @@ import com.mei.hui.miner.entity.FilDeadlines;
  */
 public interface FilDeadlinesMapper extends BaseMapper<FilDeadlines> {
 
+    /**
+    * 用户首页WindowPoSt的96个窗口
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/25 16:40
+    * @param []
+    * @return java.util.List<com.mei.hui.miner.entity.FilDeadlines>
+    * @version v1.4.0
+    */
+    public List<FilDeadlinesListVO> selectFilDeadlinesNinetySixList();
 }
