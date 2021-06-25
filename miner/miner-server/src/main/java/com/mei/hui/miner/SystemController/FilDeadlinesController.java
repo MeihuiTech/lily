@@ -17,7 +17,7 @@ import java.util.List;
  * @version v1.0.0
  * @date 2021/6/25 16:01
  **/
-@Api("fil矿工窗口记录")
+@Api(tags = "fil矿工窗口记录")
 @RestController
 @RequestMapping("/fil/reportDeadlines")
 public class FilDeadlinesController {
