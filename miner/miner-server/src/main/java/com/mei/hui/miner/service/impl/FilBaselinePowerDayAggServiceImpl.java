@@ -184,8 +184,8 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         List<GaslineVO> lt = list.stream().map(v -> {
             GaslineVO gaslineVO = new GaslineVO();
             gaslineVO.setDate(v.getDate());
-            gaslineVO.setThirtyTwoGas(v.getThirtyTwoGas());
-            gaslineVO.setSixtyFourGas(v.getSixtyFourGas());
+            gaslineVO.setThirtyTwoGas(BigDecimalUtil.formatFour(v.getThirtyTwoGas()));
+            gaslineVO.setSixtyFourGas(BigDecimalUtil.formatFour(v.getSixtyFourGas()));
             return gaslineVO;
         }).collect(Collectors.toList());
         return Result.success(lt);
