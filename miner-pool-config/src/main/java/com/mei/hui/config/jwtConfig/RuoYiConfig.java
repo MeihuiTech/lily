@@ -28,6 +28,16 @@ public class RuoYiConfig
      */
     private String aesSecret;
 
+    private String logUrl;
+
+    public String getLogUrl() {
+        return logUrl;
+    }
+
+    public void setLogUrl(String logUrl) {
+        this.logUrl = logUrl;
+    }
+
     public static String getProfile()
     {
         return profile;
