@@ -182,8 +182,8 @@ public class FilReportedController {
     @ApiOperation(value = "窗口上报")
     @PostMapping("/reportDeadlines")
     public Result reportDeadlines(@RequestBody ReportDeadlinesBO bo){
-        if(bo.getWindows().size() == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"窗口列表,不能为空");
+        if(bo.getWindows().size() != 48){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"请传48个窗口,不能为空");
         }
         if(bo.getMinerId() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId不能为空");

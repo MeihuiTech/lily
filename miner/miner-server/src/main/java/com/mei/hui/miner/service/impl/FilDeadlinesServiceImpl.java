@@ -7,14 +7,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilDeadlines;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.ReportDeadlinesBO;
 import com.mei.hui.miner.feign.vo.WindowBo;
 import com.mei.hui.miner.mapper.FilDeadlinesMapper;
+import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.FilDeadlinesService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, FilDeadlines> implements FilDeadlinesService {
+    @Autowired
+    private SysMinerInfoMapper minerInfoMapper;
 
     /**
      * localCurrent-本地标记的当前窗口编号；remoteCurrent-上报的当前窗口编号
@@ -47,14 +52,19 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Result reportDeadlines(ReportDeadlinesBO bo) {
+        /**
+         * 校验minerId 是否正确
+         */
+        checkMinerId(bo.getMinerId());
         //从数据库查询最后插入一轮子的当前窗口序号
         LambdaQueryWrapper<FilDeadlines> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(FilDeadlines::getMinerId,bo.getMinerId());
         queryWrapper.eq(FilDeadlines::getIsCurrent,1);
         queryWrapper.orderByDesc(FilDeadlines::getCreateTime);
         IPage<FilDeadlines> page = this.page(new Page<>(0, 1), queryWrapper);
-        log.info("从数据库查询最后插入一轮子的当前窗口序号:{}", JSON.toJSONString(page.getRecords()));
+        log.info("查询本地库中矿工的当前窗口:{}", JSON.toJSONString(page.getRecords()));
         if(page.getRecords().size() == 0){
+            log.info("数据库没有当前矿工窗口数据,新增窗口数据48条");
             saveDeadLine(bo,0);
             return Result.OK;
         }
@@ -64,12 +74,30 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
         log.info("本地当前窗口编号:{},远程当前窗口编号:{}",localWindowNo,remoteWindowNo);
         if(localWindowNo <= remoteWindowNo){
             //更新
+            log.info("更新窗口数据");
             updateDeadLine(bo);
         }else{
             //新增
+            log.info("新增窗口数据");
             saveDeadLine(bo,localWindow.getSort()+1);
         }
         return Result.OK;
+    }
+
+    /**
+     * 校验minerId 是否正确
+     * @param minerId
+     */
+    public void checkMinerId(String minerId){
+        log.info("校验minerid是否正确");
+        LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SysMinerInfo::getMinerId,minerId);
+        List<SysMinerInfo> list = minerInfoMapper.selectList(queryWrapper);
+        log.info("查询矿工信息:{}",JSON.toJSONString(list));
+        if(list.size() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId 错误");
+        }
+        log.info("minerid校验通过");
     }
 
     /**
@@ -78,9 +106,6 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
      * @return
      */
     public boolean updateDeadLine(ReportDeadlinesBO bo){
-        if(bo.getWindows().size() != 48){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"窗口数不足48");
-        }
         Map<Integer,WindowBo> map = new HashMap<>();
         bo.getWindows().stream().forEach(v->{
             map.put(v.getDeadline(),v);
@@ -91,9 +116,6 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
         queryWrapper.orderByDesc(FilDeadlines::getCreateTime);
         IPage<FilDeadlines> page = this.page(new Page<>(0, 48), queryWrapper);
         log.info("查询本地minerId={}的窗口信息,正常是48条数据:{}",bo.getMinerId(),JSON.toJSONString(page.getRecords()));
-        if(page.getRecords().size() != 48){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"本地窗口数不足48");
-        }
 
         List<FilDeadlines> lt = page.getRecords().stream().map(v -> {
             FilDeadlines filDeadlines = new FilDeadlines();
@@ -101,7 +123,8 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
             filDeadlines.setId(v.getId()).setSort(v.getSort()).setUpdateTime(LocalDateTime.now())
                     .setMinerId(v.getMinerId()).setSectorsFaults(windowBo.getSectorsFaults())
                     .setProvenPartitions(windowBo.getProvenPartitions()).setPartitions(windowBo.getPartitions())
-                    .setDeadline(windowBo.getDeadline()).setIsCurrent(windowBo.getIsCurrent());
+                    .setDeadline(windowBo.getDeadline()).setIsCurrent(windowBo.getIsCurrent())
+                    .setSectors(windowBo.getSectors());
             return filDeadlines;
         }).collect(Collectors.toList());
         return this.updateBatchById(lt);
