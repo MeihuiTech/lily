@@ -29,6 +29,8 @@ public class FilDeadlines {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    private String minerId;
+
     private Integer deadline;
 
     private Integer partitions;

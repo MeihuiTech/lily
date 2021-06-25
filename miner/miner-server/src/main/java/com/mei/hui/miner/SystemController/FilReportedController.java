@@ -4,6 +4,7 @@ import com.mei.hui.config.CommonUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.ReportDeadlinesBO;
 import com.mei.hui.miner.feign.vo.ReportGasBO;
 import com.mei.hui.miner.feign.vo.ReportNetworkDataBO;
 import com.mei.hui.miner.model.RequestMachineInfo;
@@ -35,23 +36,21 @@ import javax.servlet.http.HttpServletRequest;
 @Api(value="fil客户端上报信息", tags = "fil客户端上报信息")
 @RestController
 @RequestMapping("/fil/reported")
-public class FilReportedController
-{
+public class FilReportedController {
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
-
     @Autowired
     private ISysMachineInfoService sysMachineInfoService;
-
     @Autowired
     private ISysSectorsWrapService sysSectorsWrapService;
-
     @Autowired
     private UserFeignClient userFeignClient;
     @Autowired
     private FilReportGasService reportGasService;
     @Autowired
     private FilReportNetworkDataService reportNetworkDataService;
+    @Autowired
+    private FilDeadlinesService deadlinesService;
 
     /**
      * 新增矿工信息
@@ -180,6 +179,16 @@ public class FilReportedController
         return reportNetworkDataService.reportNetworkData(bo);
     }
 
-
+    @ApiOperation(value = "窗口上报")
+    @PostMapping("/reportDeadlines")
+    public Result reportDeadlines(@RequestBody ReportDeadlinesBO bo){
+        if(bo.getWindows().size() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"窗口列表,不能为空");
+        }
+        if(bo.getMinerId() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId不能为空");
+        }
+        return deadlinesService.reportDeadlines(bo);
+    }
 
 }
