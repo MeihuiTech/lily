@@ -1,6 +1,7 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,8 +12,14 @@ import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.ReportDeadlinesBO;
 import com.mei.hui.miner.feign.vo.WindowBo;
 import com.mei.hui.miner.mapper.FilDeadlinesMapper;
+import com.mei.hui.miner.model.FilDeadlinesListVO;
+import com.mei.hui.miner.model.FilDeadlinesNinetySixVO;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.FilDeadlinesService;
+import com.mei.hui.util.Result;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * filcoin 矿工窗口记录表 服务实现类
@@ -41,6 +51,8 @@ import java.util.stream.Collectors;
 public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, FilDeadlines> implements FilDeadlinesService {
     @Autowired
     private SysMinerInfoMapper minerInfoMapper;
+    @Autowired
+    private FilDeadlinesMapper filDeadlinesMapper;
 
     /**
      * localCurrent-本地标记的当前窗口编号；remoteCurrent-上报的当前窗口编号
@@ -83,6 +95,40 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
         }
         return Result.OK;
     }
+
+
+
+    /*用户首页WindowPoSt的96个窗口*/
+    @Override
+    public Result selectFilDeadlinesNinetySixList() {
+        List<FilDeadlinesListVO> filDeadlinesList = filDeadlinesMapper.selectFilDeadlinesNinetySixList();
+        log.info("用户首页WindowPoSt的96个窗口出参：【{}】",JSON.toJSON(filDeadlinesList));
+        if (filDeadlinesList == null || filDeadlinesList.size() < 1) {
+            return Result.OK;
+        }
+        FilDeadlinesNinetySixVO filDeadlinesNinetySixVO = new FilDeadlinesNinetySixVO();
+        //今天矿工窗口记录
+        List<FilDeadlinesListVO> todayFilDeadlinesList = new ArrayList<>();
+        //昨天矿工窗口记录
+        List<FilDeadlinesListVO> yesterdayFilDeadlinesList = new ArrayList<>();
+        //当前窗口序号
+        Integer deadline;
+        for (int i = 0;i<filDeadlinesList.size();i++) {
+            if (i<48){
+                todayFilDeadlinesList.add(filDeadlinesList.get(i));
+                if (1 == filDeadlinesList.get(i).getIsCurrent()) {
+                    deadline = filDeadlinesList.get(i).getDeadline();
+                    filDeadlinesNinetySixVO.setDeadline(deadline);
+                }
+            } else {
+                yesterdayFilDeadlinesList.add(filDeadlinesList.get(i));
+            }
+        }
+        filDeadlinesNinetySixVO.setTodayFilDeadlinesList(todayFilDeadlinesList);
+        filDeadlinesNinetySixVO.setYesterdayFilDeadlinesList(yesterdayFilDeadlinesList);
+        return Result.success(filDeadlinesNinetySixVO);
+    }
+
 
     /**
      * 校验minerId 是否正确

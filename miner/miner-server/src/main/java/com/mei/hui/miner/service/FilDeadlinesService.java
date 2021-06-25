@@ -15,4 +15,16 @@ import com.mei.hui.util.Result;
  */
 public interface FilDeadlinesService extends IService<FilDeadlines> {
     Result reportDeadlines(ReportDeadlinesBO bo);
+
+    /**
+    * 用户首页WindowPoSt的96个窗口
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/25 16:38
+    * @param []
+    * @return com.mei.hui.util.Result
+    * @version v1.4.0
+    */
+    public Result selectFilDeadlinesNinetySixList();
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.FilDeadlinesMapper">
+
+    <!--用户首页WindowPoSt的96个窗口-->
+    <select id="selectFilDeadlinesNinetySixList" resultType="com.mei.hui.miner.model.FilDeadlinesListVO">
+        SELECT
+            d.deadline,
+            d.sectors,
+            d.sectors_faults sectorsFaults,
+            d.is_current isCurrent,
+            d.sort
+        FROM
+            fil_report_deadlines d
+        ORDER BY
+            d.sort DESC,d.deadline
+        LIMIT 96
+    </select>
+
+</mapper>

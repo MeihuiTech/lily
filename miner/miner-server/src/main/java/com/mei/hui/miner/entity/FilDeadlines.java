@@ -31,18 +31,33 @@ public class FilDeadlines {
 
     private String minerId;
 
+    /**
+     * 窗口序号
+     */
     private Integer deadline;
 
     private Integer partitions;
 
+    /**
+     * 扇区数量
+     */
     private Integer sectors;
 
+    /**
+     * 错误扇区数量
+     */
     private Integer sectorsFaults;
 
     private Long provenPartitions;
 
+    /**
+     * 是否是当前窗口,1-是当前窗口，0-不是
+     */
     private Integer isCurrent;
 
+    /**
+     * 轮数
+     */
     private Long sort;
 
     private LocalDateTime createTime;
