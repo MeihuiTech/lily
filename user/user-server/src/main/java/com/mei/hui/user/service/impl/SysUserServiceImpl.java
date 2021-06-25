@@ -354,6 +354,7 @@ public class SysUserServiceImpl implements ISysUserService {
     {
         // 新增用户信息
         user.setCreateTime(LocalDateTime.now());
+        user.setAvatar(ruoYiConfig.getLogUrl());
         int rows = sysUserMapper.insert(user);
         // 新增用户与角色管理
         insertUserRole(user);
