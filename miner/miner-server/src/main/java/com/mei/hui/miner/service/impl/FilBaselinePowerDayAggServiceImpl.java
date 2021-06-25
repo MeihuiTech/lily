@@ -11,6 +11,7 @@ import com.mei.hui.miner.mapper.FilBaselinePowerDayAggMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
 import com.mei.hui.miner.service.FilReportGasService;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -71,7 +72,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         MinerAggData minerAggData = minerInfoMapper.getMinerAggData();
         log.info("平台数据,累计出块奖励,全平台算力,全平台累计出块数量:{}",JSON.toJSONString(minerAggData));
         if(minerAggData != null){
-            platformData.setPower(minerAggData.getTotalPower()).setTotalBlockAward(minerAggData.getTotalBlockAward());
+            platformData.setPower(minerAggData.getTotalPower()).setTotalBlockAward(BigDecimalUtil.formatFour(minerAggData.getTotalBlockAward()));
         }
         /**
          * 活跃旷工
@@ -159,6 +160,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
     public Result<List<BaselineAndPowerVO>> baselineAndPower(){
         LambdaQueryWrapper<FilBaselinePowerDayAgg> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.gt(FilBaselinePowerDayAgg::getDate,LocalDate.now().minusDays(30));
+        queryWrapper.orderByAsc(FilBaselinePowerDayAgg ::getDate);
         List<FilBaselinePowerDayAgg> list = this.list(queryWrapper);
         log.info("获取近30的基线算力数据:{}",JSON.toJSONString(list));
 
