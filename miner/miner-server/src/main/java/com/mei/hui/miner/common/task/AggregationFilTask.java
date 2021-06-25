@@ -89,15 +89,18 @@ public class AggregationFilTask {
             String yesterDateStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.addDays(DateUtils.parseDate(date), -1));
             log.info("查询昨天算力聚合表,入参:minerId ={},date={}",info.getMinerId(),yesterDateStr);
             SysAggPowerDaily yesterday = sysAggPowerDailyService.selectSysAggPowerDailyByMinerIdAndDate(info.getMinerId(),yesterDateStr);
-            log.info("查询昨天算力聚合表,出参:{}",JSON.toJSONString(yesterDateStr));
+            log.info("查询昨天算力聚合表,出参:{}",JSON.toJSONString(yesterday));
             SysAggPowerDaily sysAggPowerDaily = new SysAggPowerDaily();
             sysAggPowerDaily.setMinerId(info.getMinerId());
             sysAggPowerDaily.setDate(date);
             sysAggPowerDaily.setPowerAvailable(info.getPowerAvailable());
+            sysAggPowerDaily.setTotalBlocks(info.getTotalBlocks());
             if (yesterday != null) {
                 sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable().subtract(yesterday.getPowerAvailable()));
+                sysAggPowerDaily.setBlocksPerDay(info.getTotalBlocks() - yesterday.getTotalBlocks());
             } else {
                 sysAggPowerDaily.setPowerIncrease(info.getPowerAvailable());
+                sysAggPowerDaily.setBlocksPerDay(info.getTotalBlocks());
             }
             sysAggPowerDaily.setTotalBlockAward(info.getTotalBlockAward());
             if (yesterday != null) {
