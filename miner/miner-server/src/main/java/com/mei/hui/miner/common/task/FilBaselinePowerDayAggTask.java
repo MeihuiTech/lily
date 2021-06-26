@@ -60,7 +60,13 @@ public class FilBaselinePowerDayAggTask {
 
     public BigDecimal baseLineValue(){
         Long t = getSecond();
-        BigDecimal baseInit = new BigDecimal("2.50571167981217");
+        BigDecimal baseInit = new BigDecimal("2.50571167981217") //E
+                .multiply(new BigDecimal(1024)) //P
+                .multiply(new BigDecimal(1024)) //T
+                .multiply(new BigDecimal(1024)) //G
+                .multiply(new BigDecimal(1024)) //M
+                .multiply(new BigDecimal(1024))//KB
+                .multiply(new BigDecimal(1024)); //B
         double ss = Math.log(2);
         //10770900 t为从主网到现在的时间距离（秒为单位），
         BigDecimal gt = new BigDecimal(ss).divide(new BigDecimal("31536000"),20, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(t));
