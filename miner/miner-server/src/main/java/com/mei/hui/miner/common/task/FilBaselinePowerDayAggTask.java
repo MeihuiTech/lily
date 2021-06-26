@@ -35,7 +35,7 @@ public class FilBaselinePowerDayAggTask {
 
     @Scheduled(cron = "55 59 23 */1 * ?")
     public void run(){
-        log.info("======================SwarmOneHourAggTask-start===================");
+        log.info("======================FilBaselinePowerDayAggTask-start===================");
         if("dev".equals(env)){
             log.info("开发环境,不执行");
             return;
@@ -54,7 +54,7 @@ public class FilBaselinePowerDayAggTask {
                 .setBlocks(data.getBlocks())
                 .setBaseLine(baseLine).setDate(LocalDate.now()).setCreateTime(LocalDateTime.now());
         baselinePowerDayAggService.save(baselinePowerDayAgg);
-        log.info("======================SwarmOneHourAggTask-end===================");
+        log.info("======================FilBaselinePowerDayAggTask-end===================");
     }
 
 
