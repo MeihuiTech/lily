@@ -357,7 +357,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         GROUP BY
             i.user_id
         ORDER BY
-            SUM(i.power_available)
+            SUM(i.power_available) desc
     </select>
 
     <!--分页查询用户收益列表-->

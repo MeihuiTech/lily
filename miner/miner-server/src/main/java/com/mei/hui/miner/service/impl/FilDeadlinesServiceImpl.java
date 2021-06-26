@@ -1,7 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,14 +11,10 @@ import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.ReportDeadlinesBO;
 import com.mei.hui.miner.feign.vo.WindowBo;
 import com.mei.hui.miner.mapper.FilDeadlinesMapper;
+import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.FilDeadlinesListVO;
 import com.mei.hui.miner.model.FilDeadlinesNinetySixVO;
-import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.FilDeadlinesService;
-import com.mei.hui.util.Result;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>
