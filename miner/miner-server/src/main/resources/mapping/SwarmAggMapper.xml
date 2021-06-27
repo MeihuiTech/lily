@@ -5,7 +5,7 @@
 
     <select id="findChart" parameterType="Map" resultType="com.mei.hui.miner.feign.vo.FindChart">
         SELECT
-        SUM(agg.link_num) totallinkNum,SUM(agg.ticket_valid) totalTicketValid,SUM(agg.convert_bzz) totalConvertBzz,agg.date FROM swarm_one_hour_agg agg
+        SUM(agg.link_num) totallinkNum,SUM(agg.ticket_valid) totalTicketValid,SUM(agg.convert_bzz) totalConvertBzz,agg.date FROM swarm_one_hour_agg agg LEFT JOIN swarm_node n on agg.node_id = n.id
         <where>
             <if test="startDate != null">
                 <![CDATA[agg.date > #{startDate} ]]>
@@ -13,11 +13,8 @@
             <if test="endDate != null">
                 <![CDATA[and agg.date <= #{endDate}]]>
             </if>
-            <if test="nodeIds != null">
-                and agg.node_id in
-                <foreach collection="nodeIds" item="item" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
+            <if test="endDate != null">
+                and n.userId = #{userId}
             </if>
         </where>
         GROUP BY agg.date

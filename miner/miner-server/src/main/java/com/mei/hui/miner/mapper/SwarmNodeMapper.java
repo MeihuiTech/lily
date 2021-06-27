@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.SwarmNode;
+import com.mei.hui.miner.entity.TotalMoneyAndTicketNum;
 import com.mei.hui.miner.feign.vo.SwarmTicketValidVO;
 import com.mei.hui.miner.feign.vo.SwarmUserMoneyBO;
 import com.mei.hui.miner.feign.vo.SwarmUserMoneyVO;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface SwarmNodeMapper extends BaseMapper<SwarmNode> {
@@ -89,4 +91,8 @@ public interface SwarmNodeMapper extends BaseMapper<SwarmNode> {
     */
     IPage<SwarmUserMoneyVO> selectUserMoneyList(Page<SwarmUserMoneyVO> page,@Param("userId") Long userId,@Param("cloumName") String cloumName,
                                                 @Param("isAsc") boolean isAsc, @Param("userIdList") List<Long> userIdList);
+
+    TotalMoneyAndTicketNum getTotalMoneyAndTicketNum(Long userId);
+
+    Map<String,Object> getYesterdayTicketAvailAndValid(Map<String,Object> map);
 }

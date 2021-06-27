@@ -10,12 +10,14 @@ import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SwarmAgg;
 import com.mei.hui.miner.mapper.SwarmAggMapper;
+import com.mei.hui.miner.mapper.SwarmNodeMapper;
 import com.mei.hui.miner.mapper.SwarmOneDayAggMapper;
 import com.mei.hui.miner.service.ISwarmAggService;
 import com.mei.hui.miner.service.ISwarmNodeService;
 import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
+import com.netflix.ribbon.proxy.annotation.Http;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,36 +45,24 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
     private ISwarmNodeService swarmNodeService;
     @Autowired
     private SwarmOneDayAggMapper swarmOneDayAggMapper;
-
     @Autowired
     private SwarmAggMapper swarmAggMapper;
+    @Autowired
+    private SwarmNodeMapper swarmNodeMapper;
 
     public Result<SwarmHomePageVO> homePage(){
         if(CurrencyEnum.BZZ.getCurrencyId() != HttpRequestUtil.getCurrencyId()){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"当前选择币种不是swarm");
         }
         SwarmHomePageVO swarmHomePageVO = new SwarmHomePageVO();
-        /**
-         * 查询当前用户所有的节点
-         */
-        Long userId = HttpRequestUtil.getUserId();
-        LambdaQueryWrapper<SwarmNode> nodeQuery = new LambdaQueryWrapper<>();
-        nodeQuery.eq(SwarmNode::getUserid,userId);
-        log.info("查询用户的节点信息,入参:userId = {}",userId);
-        List<SwarmNode> nodes = swarmNodeService.list(nodeQuery);
-        log.info("查询用户的节点信息,出参:{}", JSON.toJSONString(nodes));
-        if(nodes.size() == 0){
-            return Result.success(swarmHomePageVO);
-        }
-
         log.info("总出票资产、有效出票数、无效出票数");
-        putTotalMoneyAndTicketNum(swarmHomePageVO,nodes);
+        putTotalMoneyAndTicketNum(swarmHomePageVO);
 
         log.info("昨日有效出票数、昨日无效出票数");
-        putYesterdayTicketAvailAndValid(swarmHomePageVO,nodes);
+        putYesterdayTicketAvailAndValid(swarmHomePageVO);
 
         log.info("图表显示数据");
-        putChart(swarmHomePageVO,nodes);
+        putChart(swarmHomePageVO);
 
         return Result.success(swarmHomePageVO);
     }
@@ -81,10 +71,10 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
      * 近30天连接数图表数据
      * @param swarmHomePageVO
      */
-    public void putChart(SwarmHomePageVO swarmHomePageVO,List<SwarmNode> nodes){
-        List<Long> nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toList());
+    public void putChart(SwarmHomePageVO swarmHomePageVO){
+        Long userId = HttpRequestUtil.getUserId();
         log.info("查询近30的连接数");
-        List<FindChart> list = swarmAggMapper.findChart(LocalDate.now().minusDays(30), LocalDateTime.now(), nodeIds);
+        List<FindChart> list = swarmAggMapper.findChart(LocalDate.now().minusDays(30), LocalDateTime.now(), userId);
         log.info("查询近30的连接数,出参:{}",JSON.toJSONString(list));
 
         //连接数图表数据
@@ -111,62 +101,40 @@ public class SwarmAggServiceImpl extends ServiceImpl<SwarmAggMapper, SwarmAgg> i
      * 累计出票数：有效出票数、无效出票数
      * 在线节点、离线节点、连接数
      */
-    public void putTotalMoneyAndTicketNum(SwarmHomePageVO swarmHomePageVO,List<SwarmNode> nodes){
+    public void putTotalMoneyAndTicketNum(SwarmHomePageVO swarmHomePageVO){
+        Long userId = HttpRequestUtil.getUserId();
        /**
          * 资产数据,计算所有节点资产的总和
          */
-        //总出票资产
-        BigDecimal totalMoney = new BigDecimal("0");
-        //累计有效出票数
-        BigDecimal totalTicketValid = new BigDecimal("0");
-        //累计无效出票数
-        BigDecimal totalTicketAvail = new BigDecimal("0");
-        //总的连接数
-        BigDecimal totalLinkNum = new BigDecimal("0");
-        long onlineNodeNum = 0;//在线节点数
-        long offlineNodeNum = 0;//离线节点数
-        for(SwarmNode node : nodes){
-            totalMoney = totalMoney.add(node.getMoney());
-            totalTicketValid = totalTicketValid.add(new BigDecimal(node.getTicketValid()));
-            totalTicketAvail = totalTicketAvail.add(new BigDecimal(node.getTicketAvail()));
-            totalLinkNum = totalLinkNum.add(new BigDecimal(node.getLinkNum()));
-            if (node.getState() == 1) {
-                onlineNodeNum++;
-            } else {
-                offlineNodeNum++;
-            }
+        TotalMoneyAndTicketNum v = swarmNodeMapper.getTotalMoneyAndTicketNum(userId);
+        log.info("统计数据:{}",JSON.toJSONString(v));
+        if(v != null){
+            swarmHomePageVO.setTotalMoney(v.getTotalMoney() != null ? v.getTotalMoney() : new BigDecimal(0));
+            swarmHomePageVO.setTotalTicketValid(v.getTotalTicketValid() != null ? v.getTotalTicketValid().longValue() : 0);
+            swarmHomePageVO.setTotalTicketAvail(v.getTotalTicketAvail() != null ? v.getTotalTicketAvail().longValue() : 0);
+            swarmHomePageVO.setTotalLinkNum(v.getTotalLinkNum() != null ? v.getTotalLinkNum().longValue() : 0);
+            swarmHomePageVO.setOnlineNodeNum(v.getOnlineNodeNum() != null ? v.getOnlineNodeNum().longValue() : 0);
+            swarmHomePageVO.setOfflineNodeNum(v.getTotalSize()!= null && v.getOnlineNodeNum() != null ?
+                    v.getTotalSize().subtract(v.getOnlineNodeNum()).longValue() : 0);
         }
-        swarmHomePageVO.setTotalMoney(totalMoney);
-        swarmHomePageVO.setTotalTicketValid(totalTicketValid.longValue());
-        swarmHomePageVO.setTotalTicketAvail(totalTicketAvail.longValue());
-        swarmHomePageVO.setTotalLinkNum(totalLinkNum.longValue());
-        swarmHomePageVO.setOfflineNodeNum(offlineNodeNum);
-        swarmHomePageVO.setOnlineNodeNum(onlineNodeNum);
     }
 
     /**
      * 昨日有效出票数、昨日无效出票数
      */
-    public void putYesterdayTicketAvailAndValid(SwarmHomePageVO swarmHomePageVO,List<SwarmNode> nodes){
-        List<Long> nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toList());
-        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(SwarmOneDayAgg::getNodeId,nodeIds);
-        queryWrapper.eq(SwarmOneDayAgg::getDate,LocalDate.now().minusDays(1));
-        List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggMapper.selectList(queryWrapper);
-
-        log.info("查询节点每天的出票数，出参:{}", JSON.toJSONString(swarmOneDayAggList));
-        if(swarmOneDayAggList == null || swarmOneDayAggList.size() == 0){
-            return;
+    public void putYesterdayTicketAvailAndValid(SwarmHomePageVO swarmHomePageVO){
+        Map<String,Object> param = new HashMap<>();
+        param.put("userId", HttpRequestUtil.getUserId());
+        param.put("date",LocalDate.now().minusDays(1));
+        Map<String, Object> v = swarmNodeMapper.getYesterdayTicketAvailAndValid(param);
+        log.info("查询昨日出票情况,结果:{}",JSON.toJSONString(v));
+        if(v != null && v.size() > 0){
+            BigDecimal yesterdayTicketValid = (BigDecimal) v.get("totalPerTicketValid");
+            BigDecimal yesterdayTicketAvail = (BigDecimal) v.get("totalPerTicketAvail");
+            log.info("昨日的有效出票数:{},昨天无效出票数:{}",yesterdayTicketValid,yesterdayTicketAvail);
+            swarmHomePageVO.setYesterdayTicketAvail(yesterdayTicketAvail.longValue());
+            swarmHomePageVO.setYesterdayTicketValid(yesterdayTicketValid.longValue());
         }
-        long yesterdayTicketAvail = 0;
-        long yesterdayTicketValid = 0;
-        for(SwarmOneDayAgg swarmOneDayAgg :swarmOneDayAggList ){
-            yesterdayTicketAvail +=swarmOneDayAgg.getPerTicketAvail();
-            yesterdayTicketValid += swarmOneDayAgg.getPerTicketValid();
-        }
-        log.info("昨日的有效出票数:{},昨天无效出票数:{}",yesterdayTicketValid,yesterdayTicketAvail);
-        swarmHomePageVO.setYesterdayTicketAvail(yesterdayTicketAvail);
-        swarmHomePageVO.setYesterdayTicketValid(yesterdayTicketValid);
     }
 
     /**
