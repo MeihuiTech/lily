@@ -8,7 +8,7 @@
         SUM(agg.link_num) totallinkNum,SUM(agg.ticket_valid) totalTicketValid,SUM(agg.convert_bzz) totalConvertBzz,agg.date FROM swarm_one_hour_agg agg LEFT JOIN swarm_node n on agg.node_id = n.id
         <where>
             <if test="startDate != null">
-                <![CDATA[agg.date > #{startDate} ]]>
+                <![CDATA[agg.date >= #{startDate} ]]>
             </if>
             <if test="endDate != null">
                 <![CDATA[and agg.date <= #{endDate}]]>
