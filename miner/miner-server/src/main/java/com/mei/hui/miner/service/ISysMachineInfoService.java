@@ -2,6 +2,7 @@ package com.mei.hui.miner.service;
 
 
 import com.mei.hui.miner.entity.SysMachineInfo;
+import com.mei.hui.miner.model.RequestMachineInfo;
 
 import java.util.List;
 
@@ -73,4 +74,16 @@ public interface ISysMachineInfoService
      * @return 结果
      */
     List<SysMachineInfo> selectSysMachineInfoByLimit(Integer offset, Integer rowCount);
+
+    /**
+    * 批量新增矿机
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/28 16:14
+    * @param [requestMachineInfoListBO]
+    * @return int
+    * @version v1.4.0
+    */
+    public int insertSysMachineInfoList(List<RequestMachineInfo> requestMachineInfoList);
 }

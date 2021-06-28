@@ -134,7 +134,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
                     .setPower(filReportNetworkData.getPower())
                     .setTotalBlockAward(filReportNetworkData.getTotalBlockAward());
             perDayBlocks = filReportNetworkData.getBlocks();
-            generalViewVo.setBlockHeigh(filReportNetworkData.getBlockHeigh());
+            generalViewVo.setBlockHeigh(filReportNetworkData.getBlockHeight());
         }
 
         /**

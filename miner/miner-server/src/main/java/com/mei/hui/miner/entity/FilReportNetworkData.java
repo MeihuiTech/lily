@@ -36,7 +36,7 @@ public class FilReportNetworkData {
 
     private Long blocks;
 
-    private Long blockHeigh;
+    private Long blockHeight;
 
     private Long activeMiner;
 

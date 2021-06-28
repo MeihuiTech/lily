@@ -2,9 +2,11 @@ package com.mei.hui.miner.service.impl;
 
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
+import com.mei.hui.miner.model.RequestMachineInfo;
 import com.mei.hui.miner.service.ISysMachineInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -114,5 +116,26 @@ public class SysMachineInfoServiceImpl implements ISysMachineInfoService
     @Override
     public List<SysMachineInfo> selectSysMachineInfoByLimit(Integer offset, Integer rowCount) {
         return sysMachineInfoMapper.selectSysMachineInfoByLimit(offset, rowCount);
+    }
+
+    /*批量新增矿机*/
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int insertSysMachineInfoList(List<RequestMachineInfo> requestMachineInfoList) {
+        int count = 0;
+        for (RequestMachineInfo requestMachineInfo: requestMachineInfoList) {
+            SysMachineInfo machine = selectSysMachineInfoByMinerAndHostname(requestMachineInfo.getMinerId(),requestMachineInfo.getHostname());
+            if (machine == null) {
+                int rows = insertSysMachineInfo(requestMachineInfo);
+                count += rows;
+            } else {
+                requestMachineInfo.setId(machine.getId());
+                int rows = updateSysMachineInfo(requestMachineInfo);
+                count += rows;
+            }
+        }
+
+
+        return count;
     }
 }
