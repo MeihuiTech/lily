@@ -3,13 +3,16 @@ package com.mei.hui.miner.SystemController;
 import com.mei.hui.miner.feign.vo.BaselineAndPowerVO;
 import com.mei.hui.miner.feign.vo.GaslineVO;
 import com.mei.hui.miner.feign.vo.GeneralViewVo;
+import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,6 +21,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/noAuthority")
 public class GeneralController {
+    @Autowired
+    private UserManager userManager;
 
     @Autowired
     private FilBaselinePowerDayAggService baselinePowerDayAggService;
@@ -40,5 +45,10 @@ public class GeneralController {
     @PostMapping("/gasline")
     public Result<List<GaslineVO>> gasline(){
         return baselinePowerDayAggService.gasline();
+    }
+
+    @RequestMapping(value = "/findAllUser",method = RequestMethod.POST)
+    public List<SysUserOut> findAllUser(){
+        return userManager.findAllUser();
     }
 }
