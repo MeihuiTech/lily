@@ -27,7 +27,11 @@ public class CommonUtil {
 
 
     public static HttpServletRequest getHttpServletRequest() {
-            return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        try {
+            return ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

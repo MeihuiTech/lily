@@ -43,10 +43,10 @@ public class SwarmOneHourAggTask {
     @Scheduled(cron = "0 0 0/1 * * ?")
     public void run() {
         log.info("======================SwarmOneHourAggTask-start===================");
-        /*if("dev".equals(env)){
+        if("dev".equals(env)){
             log.info("开发环境,不执行");
             return;
-        }*/
+        }
         List<SysUserOut> users = userManager.findAllUser();
         log.info("查询所有用户数:{}",users.size());
 
