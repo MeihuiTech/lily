@@ -19,7 +19,7 @@ public class ReportNetworkDataBO {
     private Long blocks;
 
     @ApiModelProperty(value = "全网区块高度",required = true)
-    private Long blockHeigh;
+    private Long blockHeight;
 
     @ApiModelProperty(value = "全网活跃旷工",required = true)
     private Long activeMiner;

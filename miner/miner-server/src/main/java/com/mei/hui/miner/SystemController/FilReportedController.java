@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 矿工信息Controller
@@ -116,6 +117,28 @@ public class FilReportedController {
     }
 
     /**
+     * 批量新增矿机信息
+     */
+    @ApiOperation(value = "批量新增矿机")
+    @PostMapping("/machineList")
+    public Result machineList(@RequestBody List<RequestMachineInfo> requestMachineInfoList)
+    {
+        HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
+        String apiKey = httpServletRequest.getHeader(SystemConstants.APIKEY);
+        Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
+        if (!ErrorCode.MYB_000000.getCode().equals(userIdResult.getCode())
+                || userIdResult.getData() == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"apiKey不存在");
+        }
+
+        if (requestMachineInfoList == null || requestMachineInfoList.size() < 1) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"数据为空");
+        }
+        int rows = sysMachineInfoService.insertSysMachineInfoList(requestMachineInfoList);
+        return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
+    }
+
+    /**
      * 新增扇区信息
      */
     @ApiOperation(value = "新增扇区")
@@ -164,7 +187,7 @@ public class FilReportedController {
         if(bo.getActiveMiner() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"全网活跃旷工,不能为空");
         }
-        if(bo.getBlockHeigh() == null){
+        if(bo.getBlockHeight() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"全网区块高度,不能为空");
         }
         if(bo.getBlocks() == null){

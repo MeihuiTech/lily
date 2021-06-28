@@ -26,7 +26,7 @@ public class FilReportNetworkDataServiceImpl extends ServiceImpl<FilReportNetwor
     public Result reportNetworkData(ReportNetworkDataBO bo) {
         FilReportNetworkData reportNetworkData = new FilReportNetworkData();
         reportNetworkData.setActiveMiner(bo.getActiveMiner())
-                .setBlockHeigh(bo.getBlockHeigh())
+                .setBlockHeight(bo.getBlockHeight())
                 .setBlocks(bo.getBlocks())
                 .setPower(bo.getPower())
                 .setTotalBlockAward(bo.getTotalBlockAward())
