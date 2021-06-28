@@ -105,5 +105,31 @@
         </choose>
     </select>
 
+    <select id="getTotalMoneyAndTicketNum" parameterType="long" resultType="com.mei.hui.miner.entity.TotalMoneyAndTicketNum">
+        SELECT
+            SUM(n.money) totalMoney,
+            SUM(n.ticket_valid) totalTicketValid,
+            SUM(n.ticket_avail) totalTicketAvail,
+            SUM(n.link_num) totalLinkNum,
+            COUNT(*) totalSize,
+            SUM(n.state) onlineNodeNum,
+            SUM(n.changed) totalChanged
+        FROM
+            swarm_node n
+        WHERE
+            n.userId = #{userId};
+    </select>
+
+    <select id="getYesterdayTicketAvailAndValid" parameterType="Map" resultType="Map">
+        SELECT
+            SUM(d.per_ticket_valid) totalPerTicketValid,
+            SUM(d.per_ticket_avail) totalPerTicketAvail
+        FROM
+            swarm_one_day_agg d
+        LEFT JOIN swarm_node n ON d.node_id = n.id
+        WHERE
+            n.userId = #{userId} and d.date = #{date}
+    </select>
+
 
 </mapper>
