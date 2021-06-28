@@ -19,6 +19,8 @@ import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.DateUtils;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -156,6 +158,15 @@ public class MinerTest {
     @Test
     public void testLong() {
         System.out.println(0L-0L);
+    }
+
+    @Test
+    public  void testFindAllUser(){
+        Result<List<SysUserOut>> result = userFeignClient.findAllUser();
+        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+            throw MyException.fail(result.getCode(),result.getMsg());
+        }
+        System.out.print("查询所有用户:【{}】"+JSON.toJSON(result.getData()));
     }
 
 }

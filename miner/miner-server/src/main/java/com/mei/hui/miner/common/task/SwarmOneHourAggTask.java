@@ -47,6 +47,7 @@ public class SwarmOneHourAggTask {
             log.info("开发环境,不执行");
             return;
         }*/
+        log.info("userManager:【{}】",userManager);
         List<SysUserOut> users = userManager.findAllUser();
         log.info("查询所有用户数:{}",users.size());
 
