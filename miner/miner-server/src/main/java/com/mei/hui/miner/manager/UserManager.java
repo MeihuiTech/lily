@@ -44,6 +44,7 @@ public class UserManager {
      * @return
      */
     public List<SysUserOut> findAllUser(){
+        log.info("userFeignClient:【{}】",userFeignClient);
         Result<List<SysUserOut>> result = userFeignClient.findAllUser();
         if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
             throw MyException.fail(result.getCode(),result.getMsg());

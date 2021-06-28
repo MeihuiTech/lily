@@ -22,13 +22,13 @@ public class GeneralViewVo {
     private Long perDayBlocksRate;
 
     @ApiModelProperty("区块高度")
-    private Long blockHeigh;
+    private Long blockHeight;
 
     @ApiModelProperty("活跃旷工占比")
     private Long activeMinerRate;
 */
    @ApiModelProperty("区块高度")
-   private Long blockHeigh;
+   private Long blockHeight;
 
     @ApiModelProperty("全网数据")
     private NetWordDataVo netWordData;
