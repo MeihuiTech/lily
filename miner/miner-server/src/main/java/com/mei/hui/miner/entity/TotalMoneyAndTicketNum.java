@@ -12,4 +12,5 @@ public class TotalMoneyAndTicketNum {
     private BigDecimal totalLinkNum;
     private BigDecimal totalSize;
     private BigDecimal onlineNodeNum;
+    private BigDecimal totalChanged;
 }

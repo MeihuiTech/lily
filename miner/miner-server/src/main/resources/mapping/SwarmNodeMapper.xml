@@ -112,7 +112,8 @@
             SUM(n.ticket_avail) totalTicketAvail,
             SUM(n.link_num) totalLinkNum,
             COUNT(*) totalSize,
-            SUM(n.state) onlineNodeNum
+            SUM(n.state) onlineNodeNum,
+            SUM(n.changed) totalChanged
         FROM
             swarm_node n
         WHERE

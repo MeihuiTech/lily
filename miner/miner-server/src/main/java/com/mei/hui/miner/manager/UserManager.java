@@ -11,6 +11,10 @@ import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -33,5 +37,17 @@ public class UserManager {
         if(StringUtils.checkValNull(userResult.getData())){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"查询用户为空");
         }
+    }
+
+    /**
+     * 获取所有用户
+     * @return
+     */
+    public List<SysUserOut> findAllUser(){
+        Result<List<SysUserOut>> result = userFeignClient.findAllUser();
+        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+            throw MyException.fail(result.getCode(),result.getMsg());
+        }
+        return result.getData();
     }
 }
