@@ -10,6 +10,7 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.*;
+import com.mei.hui.miner.model.RequestMinerInfo;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.SysMinerInfoVO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
@@ -63,6 +64,9 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     private CurrencyRateService currencyRateService;
     @Autowired
     private UserFeignClient userFeignClient;
+
+    @Autowired
+    private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
 
     /**
      * 查询矿工信息
@@ -524,5 +528,45 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         });
         PageResult pageResult = new PageResult(result.getTotal(),result.getRecords());
         return pageResult;
+    }
+
+    /*新增矿工上报接口*/
+    @Override
+    public int insertReportedSysMinerInfo(Long userId, RequestMinerInfo sysMinerInfo) {
+        SysMinerInfo miner  = selectSysMinerInfoByUserIdAndMinerId(userId, sysMinerInfo.getMinerId());
+        int rows = 0;
+        if (miner == null) {
+            log.info("新增矿工上报接口:【{}】",JSON.toJSON(sysMinerInfo));
+            rows = insertSysMinerInfo(sysMinerInfo);
+        } else {
+            sysMinerInfo.setId(miner.getId());
+            log.info("新增矿工上报已存在，更新旷工几款:【{}】",JSON.toJSON(sysMinerInfo));
+            rows = updateSysMinerInfo(sysMinerInfo);
+        }
+
+        List<FilMinerControlBalance> filMinerControlBalanceList = sysMinerInfo.getControlAccounts();
+        if(filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0) {
+            String minerId = sysMinerInfo.getMinerId();
+            for (FilMinerControlBalance filMinerControlBalance:filMinerControlBalanceList) {
+                QueryWrapper<FilMinerControlBalance> queryWrapper = new QueryWrapper<>();
+                FilMinerControlBalance selectFilMinerControlBalance = new FilMinerControlBalance();
+                selectFilMinerControlBalance.setMinerId(minerId);
+                selectFilMinerControlBalance.setName(filMinerControlBalance.getName());
+                queryWrapper.setEntity(selectFilMinerControlBalance);
+                List<FilMinerControlBalance> dbFilMinerControlBalanceList = filMinerControlBalanceMapper.selectList(queryWrapper);
+                log.info("查询FilMinerControlBalance是否存在出参：【{}】",JSON.toJSON(dbFilMinerControlBalanceList));
+                filMinerControlBalance.setMinerId(minerId);
+                if (dbFilMinerControlBalanceList == null || dbFilMinerControlBalanceList.size() < 1) {
+                    filMinerControlBalance.setCreateTime(LocalDateTime.now());
+                    log.info("新增FilMinerControlBalance入参：【{}】",JSON.toJSON(filMinerControlBalance));
+                    filMinerControlBalanceMapper.insert(filMinerControlBalance);
+                } else {
+                    filMinerControlBalance.setId(dbFilMinerControlBalanceList.get(0).getId());
+                    log.info("修改FilMinerControlBalance入参：【{}】",JSON.toJSON(filMinerControlBalance));
+                    filMinerControlBalanceMapper.updateById(filMinerControlBalance);
+                }
+            }
+        }
+        return rows;
     }
 }

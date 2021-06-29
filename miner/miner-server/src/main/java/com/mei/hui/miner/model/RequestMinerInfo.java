@@ -1,10 +1,14 @@
 package com.mei.hui.miner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mei.hui.miner.entity.FilMinerControlBalance;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @ApiModel
@@ -34,4 +38,15 @@ public class RequestMinerInfo extends SysMinerInfo {
     @JsonIgnore
     /** 请求参数 */
     private Map<String, Object> params;
+
+    @ApiModelProperty(value = "FilMinerControlBalance表的list")
+    private List<FilMinerControlBalance> controlAccounts;
+
+    public List<FilMinerControlBalance> getControlAccounts() {
+        return controlAccounts;
+    }
+
+    public void setControlAccounts(List<FilMinerControlBalance> controlAccounts) {
+        this.controlAccounts = controlAccounts;
+    }
 }
