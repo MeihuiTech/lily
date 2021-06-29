@@ -12,21 +12,7 @@ import java.math.BigDecimal;
 @ApiModel("概览")
 public class GeneralViewVo {
 
-   /* @ApiModelProperty("累计出块奖励占比")
-    private BigDecimal totalBlockAwardRate;
 
-    @ApiModelProperty("算力占比")
-    private BigDecimal powerRate;
-
-    @ApiModelProperty("今日出块数占比")
-    private Long perDayBlocksRate;
-
-    @ApiModelProperty("区块高度")
-    private Long blockHeight;
-
-    @ApiModelProperty("活跃旷工占比")
-    private Long activeMinerRate;
-*/
    @ApiModelProperty("区块高度")
    private Long blockHeight;
 
