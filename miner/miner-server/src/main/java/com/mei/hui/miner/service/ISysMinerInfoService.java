@@ -6,6 +6,7 @@ import com.mei.hui.miner.feign.vo.AggMinerVO;
 import com.mei.hui.miner.feign.vo.FilUserMoneyBO;
 import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
+import com.mei.hui.miner.model.RequestMinerInfo;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.util.PageResult;
@@ -77,6 +78,12 @@ public interface ISysMinerInfoService
      */
     public int deleteSysMinerInfoByIds(Long[] ids);
 
+    /**
+     * 根据userId、minerId查询FIL币矿工信息表里是否存在数据
+     * @param userId
+     * @param minerId
+     * @return
+     */
     SysMinerInfo selectSysMinerInfoByUserIdAndMinerId(Long userId, String minerId);
 
 
@@ -203,4 +210,16 @@ public interface ISysMinerInfoService
     * @version v1.4.0
     */
     public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO);
+
+    /**
+    * 新增矿工上报接口
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/29 16:51
+    * @param [userId, sysMinerInfo]
+    * @return int
+    * @version v1.4.0
+    */
+    public int insertReportedSysMinerInfo(Long userId, RequestMinerInfo sysMinerInfo);
 }
