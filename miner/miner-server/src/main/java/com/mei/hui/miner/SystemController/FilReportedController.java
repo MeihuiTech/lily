@@ -77,9 +77,15 @@ public class FilReportedController {
                 || userResult.getData() == null) {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"获取用户失败");
         }
-
-        int rows = sysMinerInfoService.insertReportedSysMinerInfo(userId, sysMinerInfo);
-        return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
+        SysMinerInfo miner  = sysMinerInfoService.selectSysMinerInfoByUserIdAndMinerId(userId, sysMinerInfo.getMinerId());
+        if (miner == null) {
+            int rows = sysMinerInfoService.insertSysMinerInfo(sysMinerInfo);
+            return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
+        } else {
+            sysMinerInfo.setId(miner.getId());
+            int rows = sysMinerInfoService.updateSysMinerInfo(sysMinerInfo);
+            return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
+        }
     }
 
 
