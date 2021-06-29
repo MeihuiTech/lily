@@ -50,7 +50,7 @@ public class SwarmOneDayAggTask {
          * 查询所有节点
          */
         List<SwarmNode> nodes = swarmNodeService.list();
-        log.info("查询所有节点:{}",JSON.toJSON(nodes));
+        log.info("查询所有节点数量:{}",nodes.size());
         if(nodes.size() ==0){
             return;
         }

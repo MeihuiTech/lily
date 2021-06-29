@@ -162,7 +162,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         queryWrapper.gt(FilBaselinePowerDayAgg::getDate,LocalDate.now().minusDays(30));
         queryWrapper.orderByAsc(FilBaselinePowerDayAgg ::getDate);
         List<FilBaselinePowerDayAgg> list = this.list(queryWrapper);
-        log.info("获取近30的基线算力数据:{}",JSON.toJSONString(list));
+        log.info("获取近30的基线算力数据数:{}",list.size());
 
         List<BaselineAndPowerVO> lt = list.stream().map(v -> {
             BaselineAndPowerVO baselineAndPower = new BaselineAndPowerVO();
