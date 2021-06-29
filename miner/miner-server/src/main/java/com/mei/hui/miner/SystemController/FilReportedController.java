@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 
 /**
  * 矿工信息Controller
@@ -93,6 +94,7 @@ public class FilReportedController
     @PostMapping("/machine")
     public Result machine(@RequestBody RequestMachineInfo sysMachineInfo)
     {
+        sysMachineInfo.setOnline(1);
         HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
         String apiKey = httpServletRequest.getHeader(SystemConstants.APIKEY);
         Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
