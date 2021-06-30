@@ -26,5 +26,5 @@ public interface FilDeadlinesService extends IService<FilDeadlines> {
     * @return com.mei.hui.util.Result
     * @version v1.4.0
     */
-    public Result selectFilDeadlinesNinetySixList();
+    public Result selectFilDeadlinesNinetySixList(Long id);
 }

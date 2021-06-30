@@ -12,6 +12,11 @@
             d.sort
         FROM
             fil_report_deadlines d
+            <where>
+                <if test="minerId != null and minerId != ''">
+                    miner_id = #{minerId}
+                </if>
+            </where>
         ORDER BY
             d.sort DESC,d.deadline
         LIMIT 96
