@@ -98,6 +98,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         query.eq(SysAggPowerDaily::getType, CurrencyEnum.XCH.name());
         query.eq(SysAggPowerDaily::getDate,yesterDateStr);
         List<SysAggPowerDaily> aggPowers = sysAggPowerDailyMapper.selectList(query);
+        log.info("算力按天聚合表出参：【{}】",JSON.toJSON(aggPowers));
         if (aggPowers.size() > 0){
             SysAggPowerDaily agg = aggPowers.get(0);
             xchMinerDetailBO.setPowerIncreasePerDay(xchMiner.getPowerAvailable().subtract(agg.getPowerAvailable()));
@@ -118,16 +119,19 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     public SysMinerInfo selectSysMinerInfoById(Long id)
     {
         SysMinerInfo miner = sysMinerInfoMapper.selectSysMinerInfoById(id);
+        log.info("矿工信息：【{}】",JSON.toJSON(miner));
         if (miner == null) {
             return null;
         }
         PoolInfo machine = poolInfoMapper.selectMachineInfoByUserIdAndMinerId(miner.getUserId(),miner.getMinerId());
+        log.info("矿机出参：【{}】",JSON.toJSON(machine));
         if (machine != null) {
             miner.setWorkerCount(machine.getWorkerCount());
         }
         // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
         Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
+        log.info("查询算力按天聚合表里昨天所有的累计出块份数出参：【{}】",yesterDayTotalBlocks);
         if (yesterDayTotalBlocks != null) {
             miner.setBlocksPerDay(miner.getTotalBlocks() - yesterDayTotalBlocks);
         } else {
@@ -135,6 +139,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         }
         // 查询FIL币算力按天聚合表里昨天所有的有效算力
         BigDecimal yesterPowerIncrease = sysAggPowerDailyService.selectPowerIncreaseByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
+        log.info("查询FIL币算力按天聚合表里昨天所有的有效算力出参：【{}】",yesterPowerIncrease);
         if (yesterPowerIncrease != null) {
             miner.setPowerIncreasePerDay(miner.getPowerAvailable().subtract(yesterPowerIncrease));
         } else {
@@ -191,13 +196,14 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         Long userId = HttpRequestUtil.getUserId();
         List<ChiaMiner> list = null;
         if(userId !=null && userId == 1L){
-            log.info("查询矿工信息列表：【{}】",userId);
+            log.info("查询矿工信息列表入参：【{}】",userId);
             list = chiaMinerMapper.selectList(null);
         }else{
             LambdaQueryWrapper<ChiaMiner> queryWrapper = new LambdaQueryWrapper();
             queryWrapper.eq(ChiaMiner::getUserId,userId);
             list = chiaMinerMapper.selectList(queryWrapper);
         }
+        log.info("查询矿工信息列表出参：【{}】",JSON.toJSON(list));
         List<SysMinerInfo> miners = list.stream().map(v -> {
             SysMinerInfo miner = new SysMinerInfo();
             miner.setUserId(userId);
@@ -228,10 +234,12 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
 
         Page<SysMinerInfo> minerInfoPage = new Page<>(sysMinerInfoBO.getPageNum(),sysMinerInfoBO.getPageSize());
         IPage<SysMinerInfoVO> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,userId,isAsc,cloumName);
+        log.info("分页查询矿工表出参：【{}】",JSON.toJSON(result));
         for (SysMinerInfoVO sysMinerInfoVO:result.getRecords()) {
             // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
             String yesterDayDate = DateUtils.getYesterDayDateYmd();
             Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),sysMinerInfoVO.getMinerId());
+            log.info("查询算力按天聚合表里昨天所有的累计出块份数出参：【{}】",yesterDayTotalBlocks);
             if (yesterDayTotalBlocks != null) {
                 sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks() - yesterDayTotalBlocks);
             } else {
