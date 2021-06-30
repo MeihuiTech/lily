@@ -48,7 +48,7 @@ public class MachineTask {
                 SysMachineInfo machine = new SysMachineInfo();
                 machine.setOnline(0);
                 machine.setId(sysMachineInfo.getId());
-                int row = sysMachineInfoMapper.updateSysMachineInfo(sysMachineInfo);
+                int row = sysMachineInfoMapper.updateSysMachineInfo(machine);
                 log.info("更新结果:{}",row);
             }
         }

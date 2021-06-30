@@ -96,6 +96,7 @@ public class FilReportedController {
     @PostMapping("/machine")
     public Result machine(@RequestBody RequestMachineInfo sysMachineInfo)
     {
+        sysMachineInfo.setOnline(1);
         HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
         String apiKey = httpServletRequest.getHeader(SystemConstants.APIKEY);
         Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
