@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mei.hui.miner.entity.*;
+import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
+import com.mei.hui.miner.entity.FilReportGas;
+import com.mei.hui.miner.entity.FilReportNetworkData;
+import com.mei.hui.miner.entity.MinerAggData;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.FilBaselinePowerDayAggMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
@@ -72,7 +75,8 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         MinerAggData minerAggData = minerInfoMapper.getMinerAggData();
         log.info("平台数据,累计出块奖励,全平台算力,全平台累计出块数量:{}",JSON.toJSONString(minerAggData));
         if(minerAggData != null){
-            platformData.setPower(minerAggData.getTotalPower()).setTotalBlockAward(BigDecimalUtil.formatFour(minerAggData.getTotalBlockAward()));
+            platformData.setPower(minerAggData.getTotalPower())
+                    .setTotalBlockAward(BigDecimalUtil.formatFour(minerAggData.getTotalBlockAward()));
         }
         /**
          * 活跃旷工
@@ -104,13 +108,18 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
             FilReportGas data = page.getRecords().get(0);
             //32G扇区封装成本
             ThirtyTwoGasVO thirtyTwoGasVO = new ThirtyTwoGasVO();
-            thirtyTwoGasVO.setCost(data.getThirtyTwoCost()).setGas(data.getThirtyTwoGas()).setPledge(data.getThirtyTwoPledge());
+            thirtyTwoGasVO.setCost(BigDecimalUtil.formatFour(data.getThirtyTwoCost()))
+                    .setGas(BigDecimalUtil.formatFour(data.getThirtyTwoGas()))
+                    .setPledge(BigDecimalUtil.formatFour(data.getThirtyTwoPledge()));
 
             //64G扇区封装成本
             SixtyFourGasVO sixtyFourGasVO = new SixtyFourGasVO();
-            sixtyFourGasVO.setCost(data.getSixtyFourCost()).setGas(data.getSixtyFourGas()).setPledge(data.getSixtyFourPledge());
+            sixtyFourGasVO.setCost(BigDecimalUtil.formatFour(data.getSixtyFourCost()))
+                    .setGas(BigDecimalUtil.formatFour(data.getSixtyFourGas()))
+                    .setPledge(BigDecimalUtil.formatFour(data.getSixtyFourPledge()));
 
-            generalViewVo.setThirtyTwoGasVO(thirtyTwoGasVO).setSixtyFourGasVO(sixtyFourGasVO);
+            generalViewVo.setThirtyTwoGasVO(thirtyTwoGasVO)
+                    .setSixtyFourGasVO(sixtyFourGasVO);
         }
     }
 
@@ -132,7 +141,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
             FilReportNetworkData filReportNetworkData = networkDatas.get(0);
             netWordData.setActiveMiner(filReportNetworkData.getActiveMiner())
                     .setPower(filReportNetworkData.getPower())
-                    .setTotalBlockAward(filReportNetworkData.getTotalBlockAward());
+                    .setTotalBlockAward(BigDecimalUtil.formatFour(filReportNetworkData.getTotalBlockAward()));
             perDayBlocks = filReportNetworkData.getBlocks();
             generalViewVo.setBlockHeight(filReportNetworkData.getBlockHeight());
         }
