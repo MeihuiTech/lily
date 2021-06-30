@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -193,8 +194,8 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         List<GaslineVO> lt = list.stream().map(v -> {
             GaslineVO gaslineVO = new GaslineVO();
             gaslineVO.setDate(v.getDate());
-            gaslineVO.setThirtyTwoGas(BigDecimalUtil.formatFour(v.getThirtyTwoGas()));
-            gaslineVO.setSixtyFourGas(BigDecimalUtil.formatFour(v.getSixtyFourGas()));
+            gaslineVO.setThirtyTwoGas(v.getThirtyTwoGas().setScale(6, BigDecimal.ROUND_DOWN));
+            gaslineVO.setSixtyFourGas(v.getSixtyFourGas().setScale(6,BigDecimal.ROUND_DOWN));
             return gaslineVO;
         }).collect(Collectors.toList());
         return Result.success(lt);
