@@ -125,6 +125,7 @@ public class SysMachineInfoServiceImpl implements ISysMachineInfoService
         int count = 0;
         for (RequestMachineInfo requestMachineInfo: requestMachineInfoList) {
             SysMachineInfo machine = selectSysMachineInfoByMinerAndHostname(requestMachineInfo.getMinerId(),requestMachineInfo.getHostname());
+            requestMachineInfo.setOnline(1);
             if (machine == null) {
                 int rows = insertSysMachineInfo(requestMachineInfo);
                 count += rows;
