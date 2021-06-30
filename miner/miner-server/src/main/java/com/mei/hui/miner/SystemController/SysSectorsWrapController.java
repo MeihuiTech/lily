@@ -75,16 +75,6 @@ public class SysSectorsWrapController
         if (wrap == null) {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
         }
-        SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoByMinerId(wrap.getMinerId());
-        Long userId = HttpRequestUtil.getUserId();
-
-        if (userId != null && userId != 1L) {
-            //扇区所属矿工信息丢失，无从判断扇区聚合信息所有权；或扇区聚合信息不属于当前登录者
-            if (miner == null || !miner.getUserId().equals(userId)) {
-                throw MyException.fail(MinerError.MYB_222222.getCode(),"没有权限");
-            }
-        }
-
         SysSectorInfo sectorInfo = new SysSectorInfo();
         sectorInfo.setSectorNo(wrap.getSectorNo());
         sectorInfo.setMinerId(wrap.getMinerId());

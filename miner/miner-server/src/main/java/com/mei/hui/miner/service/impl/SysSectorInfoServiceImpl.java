@@ -48,7 +48,9 @@ public class SysSectorInfoServiceImpl implements ISysSectorInfoService
     @Override
     public List<SysSectorInfo> selectSysSectorInfoList(SysSectorInfo sysSectorInfo)
     {
-        return sysSectorInfoMapper.selectSysSectorInfoList(sysSectorInfo);
+        LambdaQueryWrapper<SysSectorInfo> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.setEntity(sysSectorInfo);
+        return sysSectorInfoMapper.selectList(queryWrapper);
     }
 
     public Map<String,Object> list(SysSectorInfo sysSectorInfo)
