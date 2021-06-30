@@ -6,6 +6,7 @@ import com.mei.hui.miner.model.PowerAvailableFilVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -91,4 +92,16 @@ public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
     * @version v1.4.0
     */
     public Long selectTotalBlocksByDate(@Param("yesterDayDate") String yesterDayDate,@Param("type") String type,@Param("minerId") String minerId);
+
+    /**
+    * 查询FIL币算力按天聚合表里昨天所有的有效算力
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/6/30 15:16
+    * @param [yesterDayDate, name, minerId]
+    * @return java.lang.Long
+    * @version v1.4.0
+    */
+    public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String name, String minerId);
 }

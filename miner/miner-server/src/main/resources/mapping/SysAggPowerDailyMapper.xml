@@ -166,4 +166,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     </select>
 
+    <!--查询FIL币算力按天聚合表里昨天所有的有效算力-->
+    <select id="selectPowerIncreaseByDate" resultType="java.math.BigDecimal">
+        SELECT
+        d.power_available
+        FROM
+        sys_agg_power_daily d
+        WHERE
+        <if test="type != null and type != ''">
+            d.type = #{type}
+        </if>
+        <if test="yesterDayDate != null and yesterDayDate != ''">
+            AND d.date = #{yesterDayDate}
+        </if>
+        <if test="minerId != null and minerId != ''">
+            and d.miner_id = #{minerId}
+        </if>
+    </select>
+
+
+
+
 </mapper>
