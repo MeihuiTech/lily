@@ -96,5 +96,7 @@ public class SysMinerInfo
     @TableField(exist = false)
     private long pageSize = 10;
 
+    @TableField(exist = false)
+    private BigDecimal postBalance;
 
 }

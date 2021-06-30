@@ -140,6 +140,20 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         miner.setBalanceMinerAccount(BigDecimalUtil.formatFour(miner.getBalanceMinerAccount()));
         miner.setPowerAvailable(BigDecimalUtil.formatTwo(miner.getPowerAvailable()));
         miner.setBalanceWorkerAccount(BigDecimalUtil.formatFour(miner.getBalanceWorkerAccount()));
+
+        // Post账户余额
+        QueryWrapper<FilMinerControlBalance> queryWrapper = new QueryWrapper<>();
+        FilMinerControlBalance filMinerControlBalance = new FilMinerControlBalance();
+        filMinerControlBalance.setMinerId(miner.getMinerId());
+        filMinerControlBalance.setName("control-0");
+        queryWrapper.setEntity(filMinerControlBalance);
+        List<FilMinerControlBalance> filMinerControlBalanceList = filMinerControlBalanceMapper.selectList(queryWrapper);
+        if (filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0) {
+            miner.setPostBalance(BigDecimalUtil.formatFour(filMinerControlBalanceList.get(0).getBalance()));
+        } else {
+            miner.setPostBalance(BigDecimal.ZERO);
+        }
+
         return miner;
     }
 
