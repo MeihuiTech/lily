@@ -26,5 +26,5 @@ public interface FilDeadlinesMapper extends BaseMapper<FilDeadlines> {
     * @return java.util.List<com.mei.hui.miner.entity.FilDeadlines>
     * @version v1.4.0
     */
-    public List<FilDeadlinesListVO> selectFilDeadlinesNinetySixList();
+    public List<FilDeadlinesListVO> selectFilDeadlinesNinetySixList(String minerId);
 }

@@ -92,8 +92,8 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
 
     /*用户首页WindowPoSt的96个窗口*/
     @Override
-    public Result selectFilDeadlinesNinetySixList() {
-        List<FilDeadlinesListVO> filDeadlinesList = filDeadlinesMapper.selectFilDeadlinesNinetySixList();
+    public Result selectFilDeadlinesNinetySixList(String minerId) {
+        List<FilDeadlinesListVO> filDeadlinesList = filDeadlinesMapper.selectFilDeadlinesNinetySixList(minerId);
         log.info("用户首页WindowPoSt的96个窗口出参：【{}】",JSON.toJSON(filDeadlinesList));
         if (filDeadlinesList == null || filDeadlinesList.size() < 1) {
             return Result.OK;

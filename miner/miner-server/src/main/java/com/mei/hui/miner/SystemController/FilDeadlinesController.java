@@ -28,8 +28,8 @@ public class FilDeadlinesController {
 
     @ApiOperation(value = "普通用户首页WindowPoSt的96个窗口")
     @GetMapping("/ninetySix")
-    public Result selectFilDeadlinesNinetySixList(){
-        return filDeadlinesService.selectFilDeadlinesNinetySixList();
+    public Result selectFilDeadlinesNinetySixList(String minerId){
+        return filDeadlinesService.selectFilDeadlinesNinetySixList(minerId);
     }
 
 
