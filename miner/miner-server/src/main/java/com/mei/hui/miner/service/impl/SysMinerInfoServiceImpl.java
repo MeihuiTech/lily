@@ -118,16 +118,19 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     public SysMinerInfo selectSysMinerInfoById(Long id)
     {
         SysMinerInfo miner = sysMinerInfoMapper.selectSysMinerInfoById(id);
+        log.info("FIL币矿工信息表出参：【{}】",JSON.toJSON(miner));
         if (miner == null) {
             return null;
         }
         PoolInfo machine = poolInfoMapper.selectMachineInfoByUserIdAndMinerId(miner.getUserId(),miner.getMinerId());
+        log.info("矿机信息表出参：【{}】",JSON.toJSON(machine));
         if (machine != null) {
             miner.setWorkerCount(machine.getWorkerCount());
         }
         // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
         Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
+        log.info("查询算力按天聚合表里昨天所有的累计出块份数方法出参：【{}】",yesterDayTotalBlocks);
         if (yesterDayTotalBlocks != null) {
             miner.setBlocksPerDay(miner.getTotalBlocks() - yesterDayTotalBlocks);
         } else {
@@ -148,6 +151,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         filMinerControlBalance.setName("control-0");
         queryWrapper.setEntity(filMinerControlBalance);
         List<FilMinerControlBalance> filMinerControlBalanceList = filMinerControlBalanceMapper.selectList(queryWrapper);
+        log.info("Post账户余额表出参：【{}】",JSON.toJSON(filMinerControlBalanceList));
         if (filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0) {
             miner.setPostBalance(BigDecimalUtil.formatFour(filMinerControlBalanceList.get(0).getBalance()));
         } else {
