@@ -120,11 +120,11 @@ public class SysMachineInfoServiceImpl implements ISysMachineInfoService
 
     /*批量新增矿机*/
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public int insertSysMachineInfoList(List<RequestMachineInfo> requestMachineInfoList) {
         int count = 0;
         for (RequestMachineInfo requestMachineInfo: requestMachineInfoList) {
             SysMachineInfo machine = selectSysMachineInfoByMinerAndHostname(requestMachineInfo.getMinerId(),requestMachineInfo.getHostname());
+            requestMachineInfo.setOnline(1);
             if (machine == null) {
                 int rows = insertSysMachineInfo(requestMachineInfo);
                 count += rows;
