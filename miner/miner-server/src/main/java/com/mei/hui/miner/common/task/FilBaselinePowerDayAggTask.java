@@ -33,7 +33,7 @@ public class FilBaselinePowerDayAggTask {
     @Value("${spring.profiles.active}")
     private String env;
 
-    @Scheduled(cron = "55 59 23 */1 * ?")
+    @Scheduled(cron = "0 59 23 */1 * ?")
     public void run(){
         log.info("======================FilBaselinePowerDayAggTask-start===================");
         if("dev".equals(env)){
