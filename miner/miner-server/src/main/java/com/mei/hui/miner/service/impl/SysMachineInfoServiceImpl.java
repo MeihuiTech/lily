@@ -56,6 +56,7 @@ public class SysMachineInfoServiceImpl implements ISysMachineInfoService
     @Override
     public int insertSysMachineInfo(SysMachineInfo sysMachineInfo)
     {
+        sysMachineInfo.setUpdateTime(LocalDateTime.now());
         sysMachineInfo.setCreateTime(LocalDateTime.now());
         return sysMachineInfoMapper.insertSysMachineInfo(sysMachineInfo);
     }
