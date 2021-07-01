@@ -43,7 +43,7 @@ public class AggregationFilTask {
     /**
      * fil币账户按天聚合，每天晚上23点59分55秒执行
      */
-    @Scheduled(cron = "55 59 23 */1 * ?")
+    @Scheduled(cron = "0 59 23 */1 * ?")
     public void dailyAccount() {
         log.info("======================fil币AggregationTask-start===================");
         if("dev".equals(env)){
