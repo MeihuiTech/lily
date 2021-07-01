@@ -99,12 +99,15 @@ public class FilDeadlinesServiceImpl extends ServiceImpl<FilDeadlinesMapper, Fil
             return null;
         }
 
+        FilDeadlinesNinetySixVO filDeadlinesNinetySixVO = new FilDeadlinesNinetySixVO();
+        filDeadlinesNinetySixVO.setDeadline(-1);
+
         List<FilDeadlinesListVO> filDeadlinesList = filDeadlinesMapper.selectFilDeadlinesNinetySixList(miner.getMinerId());
         log.info("用户首页WindowPoSt的96个窗口出参：【{}】",JSON.toJSON(filDeadlinesList));
         if (filDeadlinesList == null || filDeadlinesList.size() < 1) {
-            return Result.OK;
+            // 如果没数据，返回空数据
+            Result.success(filDeadlinesNinetySixVO);
         }
-        FilDeadlinesNinetySixVO filDeadlinesNinetySixVO = new FilDeadlinesNinetySixVO();
         //今天矿工窗口记录
         List<FilDeadlinesListVO> todayFilDeadlinesList = new ArrayList<>();
         //昨天矿工窗口记录
