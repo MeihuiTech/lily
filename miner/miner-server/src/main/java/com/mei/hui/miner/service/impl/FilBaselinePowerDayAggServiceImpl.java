@@ -110,13 +110,13 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
             //32G扇区封装成本
             ThirtyTwoGasVO thirtyTwoGasVO = new ThirtyTwoGasVO();
             thirtyTwoGasVO.setCost(BigDecimalUtil.formatFour(data.getThirtyTwoCost()))
-                    .setGas(BigDecimalUtil.formatFour(data.getThirtyTwoGas()))
+                    .setGas(formatBigdecimal(data.getThirtyTwoGas()))
                     .setPledge(BigDecimalUtil.formatFour(data.getThirtyTwoPledge()));
 
             //64G扇区封装成本
             SixtyFourGasVO sixtyFourGasVO = new SixtyFourGasVO();
             sixtyFourGasVO.setCost(BigDecimalUtil.formatFour(data.getSixtyFourCost()))
-                    .setGas(BigDecimalUtil.formatFour(data.getSixtyFourGas()))
+                    .setGas(formatBigdecimal(data.getSixtyFourGas()))
                     .setPledge(BigDecimalUtil.formatFour(data.getSixtyFourPledge()));
 
             generalViewVo.setThirtyTwoGasVO(thirtyTwoGasVO)
