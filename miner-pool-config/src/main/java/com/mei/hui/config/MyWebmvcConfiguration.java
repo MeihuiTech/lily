@@ -1,8 +1,6 @@
 package com.mei.hui.config;
 
-import com.alibaba.fastjson.serializer.BigDecimalCodec;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.alibaba.fastjson.serializer.*;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
@@ -11,7 +9,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.springframework.context.annotation.Configuration;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 
@@ -37,10 +34,14 @@ public class MyWebmvcConfiguration{
                 // 将 List 类型的 null 转成 []
                 SerializerFeature.WriteNullListAsEmpty,
                 // 将 Boolean 类型的 null 转成 false
-                SerializerFeature.WriteNullBooleanAsFalse,
-                // 避免循环引用
-                SerializerFeature.DisableCircularReferenceDetect
+                SerializerFeature.WriteNullBooleanAsFalse
         );
+        fastJsonConfig.setSerializeFilters((ValueFilter) (object, name, value) -> {
+            if(value instanceof BigDecimal) {
+                return ((BigDecimal)value).toPlainString();
+            }
+            return value;
+        });
         fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);
         return new HttpMessageConverters(fastJsonHttpMessageConverter);
     }

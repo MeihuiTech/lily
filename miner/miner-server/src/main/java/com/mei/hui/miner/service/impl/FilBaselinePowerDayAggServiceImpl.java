@@ -206,7 +206,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
      * @param val
      * @return
      */
-    public BigDecimal formatBigdecimal(BigDecimal val){
+    public static BigDecimal formatBigdecimal(BigDecimal val){
         if(val == null){
             return null;
         }
@@ -230,11 +230,11 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         return val.setScale(firstNotZeroIndex - pointIndex + 1, BigDecimal.ROUND_DOWN);
     }
 
- /*   public static void main(String[] args) {
+    public static void main(String[] args) {
 
         BigDecimal big = formatBigdecimal(new BigDecimal("0.0000003598684556"));
         log.info(big.toPlainString());
     }
-*/
+
 
 }
