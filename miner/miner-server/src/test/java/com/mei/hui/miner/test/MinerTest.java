@@ -63,16 +63,7 @@ public class MinerTest {
         redisUtil.set("testRedisKey","testRedisValue");
         System.out.print(redisUtil.get("testRedisKey"));
     }
-    @Test
-    public void testMydql(){
-        SysMinerInfo miner = sysMinerInfoMapper.selectById(29);
-        miner.setDeadlineIndex(100000L);
-        miner.setDeadlineSectors(10000L);
-        miner.setProvingPeriodStart(100000L);
-        miner.setId(30L);
-       // sysMinerInfoService.updateSysMinerInfo(miner);
-        sysMinerInfoService.insertSysMinerInfo(miner);
-    }
+
 
     @Test
     public  void testGetUserById(){
