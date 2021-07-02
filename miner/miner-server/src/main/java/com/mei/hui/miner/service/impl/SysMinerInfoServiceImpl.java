@@ -137,6 +137,14 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         } else {
             miner.setBlocksPerDay(miner.getTotalBlocks());
         }
+        // 查询FIL币算力按天聚合表里昨天所有的有效算力
+        BigDecimal yesterPowerIncrease = sysAggPowerDailyService.selectPowerIncreaseByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
+        log.info("查询FIL币算力按天聚合表里昨天所有的有效算力出参：【{}】",yesterPowerIncrease);
+        if (yesterPowerIncrease != null) {
+            miner.setPowerIncreasePerDay(miner.getPowerAvailable().subtract(yesterPowerIncrease));
+        } else {
+            miner.setPowerIncreasePerDay(miner.getPowerAvailable());
+        }
         miner.setSectorPledge(BigDecimalUtil.formatFour(miner.getSectorPledge()));
         miner.setLockAward(BigDecimalUtil.formatFour(miner.getLockAward()));
         miner.setTotalBlockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward()));

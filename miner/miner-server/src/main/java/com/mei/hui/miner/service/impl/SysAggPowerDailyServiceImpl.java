@@ -7,6 +7,8 @@ import com.mei.hui.miner.model.PowerAvailableFilVO;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -137,5 +139,11 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
     @Override
     public Long selectTotalBlocksByDate(String yesterDayDate, String type, String minerId) {
         return sysAggPowerDailyMapper.selectTotalBlocksByDate(yesterDayDate, type, minerId);
+    }
+
+    /*查询FIL币算力按天聚合表里昨天所有的有效算力*/
+    @Override
+    public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String name, String minerId) {
+        return sysAggPowerDailyMapper.selectPowerIncreaseByDate(yesterDayDate, name, minerId);
     }
 }
