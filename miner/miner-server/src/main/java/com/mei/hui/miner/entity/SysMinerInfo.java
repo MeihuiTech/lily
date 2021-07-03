@@ -62,6 +62,10 @@ public class SysMinerInfo
      */
     private Long totalBlocks;
 
+    /**
+     * 算力增速
+     */
+    @TableField(exist = false)
     private BigDecimal powerIncreasePerDay;
 
     private String createBy;

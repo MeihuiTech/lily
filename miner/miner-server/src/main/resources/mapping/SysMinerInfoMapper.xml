@@ -19,7 +19,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="balanceMinerAvailable"    column="balance_miner_available"    />
         <result property="balanceMinerAccount"    column="balance_miner_account"    />
         <result property="totalBlocks" column="total_blocks"/>
-        <result property="powerIncreasePerDay" column="power_increase_per_day"/>
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -55,7 +54,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="balanceMinerAvailable != null "> and balance_miner_available = #{balanceMinerAvailable}</if>
             <if test="balanceMinerAccount != null "> and balance_miner_account = #{balanceMinerAccount}</if>
             <if test="totalBlocks != null "> and total_blocks = #{totalBlocks}</if>
-            <if test="powerIncreasePerDay != null "> and power_increase_per_day = #{powerIncreasePerDay}</if>
             <if test="balanceWorkerAccount != null "> and balance_worker_account = #{balanceWorkerAccount}</if>
         </where>
     </select>
@@ -104,7 +102,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="balanceMinerAvailable != null">balance_miner_available,</if>
             <if test="balanceMinerAccount != null">balance_miner_account,</if>
             <if test="totalBlocks != null">total_blocks,</if>
-            <if test="powerIncreasePerDay != null">power_increase_per_day,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
@@ -125,7 +122,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="balanceMinerAvailable != null">#{balanceMinerAvailable},</if>
             <if test="balanceMinerAccount != null">#{balanceMinerAccount},</if>
             <if test="totalBlocks != null">#{totalBlocks},</if>
-            <if test="powerIncreasePerDay != null">#{powerIncreasePerDay},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
@@ -150,7 +146,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="balanceMinerAvailable != null">balance_miner_available = #{balanceMinerAvailable},</if>
             <if test="balanceMinerAccount != null">balance_miner_account = #{balanceMinerAccount},</if>
             <if test="totalBlocks != null">total_blocks = #{totalBlocks},</if>
-            <if test="powerIncreasePerDay != null">power_increase_per_day = #{powerIncreasePerDay},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
