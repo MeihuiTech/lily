@@ -189,7 +189,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             mi.sector_available sectorAvailable,
             mi.sector_error sectorError
         FROM
-            sys_miner_info mi,
+            sys_miner_info mi left join
             (
                 SELECT
                     m.miner_id,
@@ -205,7 +205,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 GROUP BY
                     m.miner_id
             ) smi
-        WHERE
+        on
             mi.miner_id = smi.miner_id
         <choose>
             <when test="cloumName != null and cloumName != ''">
