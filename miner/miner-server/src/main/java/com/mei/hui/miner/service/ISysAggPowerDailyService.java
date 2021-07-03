@@ -111,5 +111,5 @@ public interface ISysAggPowerDailyService
     * @return java.lang.Long
     * @version v1.4.0
     */
-    public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String name, String minerId);
+    public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String type, String minerId);
 }

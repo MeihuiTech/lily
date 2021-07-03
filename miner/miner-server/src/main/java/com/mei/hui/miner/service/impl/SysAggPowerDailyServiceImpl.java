@@ -143,7 +143,7 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
 
     /*查询FIL币算力按天聚合表里昨天所有的有效算力*/
     @Override
-    public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String name, String minerId) {
-        return sysAggPowerDailyMapper.selectPowerIncreaseByDate(yesterDayDate, name, minerId);
+    public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String type, String minerId) {
+        return sysAggPowerDailyMapper.selectPowerIncreaseByDate(yesterDayDate, type, minerId);
     }
 }

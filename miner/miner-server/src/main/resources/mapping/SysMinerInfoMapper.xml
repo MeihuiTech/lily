@@ -212,7 +212,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             mi.total_block_award totalBlockAward,
             mi.power_available powerAvailable,
             smi.count machineCount,
-            mi.power_increase_per_day powerIncreasePerDay,
             mi.total_blocks totalBlocks,
             mi.balance_worker_account balanceWorkerAccount,
             mi.sector_available sectorAvailable,

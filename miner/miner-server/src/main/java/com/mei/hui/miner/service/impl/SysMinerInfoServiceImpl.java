@@ -260,6 +260,14 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             } else {
                 sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks());
             }
+            // 查询FIL币算力按天聚合表里昨天所有的有效算力
+            BigDecimal yesterPowerIncrease = sysAggPowerDailyService.selectPowerIncreaseByDate(yesterDayDate,CurrencyEnum.FIL.name(),sysMinerInfoVO.getMinerId());
+            log.info("查询FIL币算力按天聚合表里昨天所有的有效算力出参：【{}】",yesterPowerIncrease);
+            if (yesterPowerIncrease != null) {
+                sysMinerInfoVO.setPowerIncreasePerDay(sysMinerInfoVO.getPowerAvailable().subtract(yesterPowerIncrease));
+            } else {
+                sysMinerInfoVO.setPowerIncreasePerDay(sysMinerInfoVO.getPowerAvailable());
+            }
             sysMinerInfoVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAccount()));
             sysMinerInfoVO.setBalanceMinerAvailable(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAvailable()));
             sysMinerInfoVO.setSectorPledge(BigDecimalUtil.formatFour(sysMinerInfoVO.getSectorPledge()));

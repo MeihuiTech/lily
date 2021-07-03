@@ -103,5 +103,5 @@ public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
     * @return java.lang.Long
     * @version v1.4.0
     */
-    public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String name, String minerId);
+    public BigDecimal selectPowerIncreaseByDate(@Param("yesterDayDate") String yesterDayDate,@Param("type")  String type,@Param("minerId")  String minerId);
 }
