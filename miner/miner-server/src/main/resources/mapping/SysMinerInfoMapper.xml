@@ -34,7 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectSysMinerInfoVo">
         select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available,
         sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account,
-        total_blocks, power_increase_per_day, create_by, create_time, update_by, update_time,balance_worker_account
+        total_blocks, create_by, create_time, update_by, update_time,balance_worker_account
         from sys_miner_info
     </sql>
 
@@ -61,7 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSysMinerInfoById" parameterType="Long" resultMap="SysMinerInfoResult">
         select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available,
         sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account,
-        total_blocks, power_increase_per_day, create_by, create_time, update_by, update_time,
+        total_blocks, create_by, create_time, update_by, update_time,
         balance_worker_account
         from sys_miner_info
         where id = #{id}
