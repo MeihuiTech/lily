@@ -110,13 +110,13 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
             //32G扇区封装成本
             ThirtyTwoGasVO thirtyTwoGasVO = new ThirtyTwoGasVO();
             thirtyTwoGasVO.setCost(BigDecimalUtil.formatFour(data.getThirtyTwoCost()))
-                    .setGas(BigDecimalUtil.formatFour(data.getThirtyTwoGas()))
+                    .setGas(formatBigdecimal(data.getThirtyTwoGas()))
                     .setPledge(BigDecimalUtil.formatFour(data.getThirtyTwoPledge()));
 
             //64G扇区封装成本
             SixtyFourGasVO sixtyFourGasVO = new SixtyFourGasVO();
             sixtyFourGasVO.setCost(BigDecimalUtil.formatFour(data.getSixtyFourCost()))
-                    .setGas(BigDecimalUtil.formatFour(data.getSixtyFourGas()))
+                    .setGas(formatBigdecimal(data.getSixtyFourGas()))
                     .setPledge(BigDecimalUtil.formatFour(data.getSixtyFourPledge()));
 
             generalViewVo.setThirtyTwoGasVO(thirtyTwoGasVO)
@@ -194,11 +194,47 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         List<GaslineVO> lt = list.stream().map(v -> {
             GaslineVO gaslineVO = new GaslineVO();
             gaslineVO.setDate(v.getDate());
-            gaslineVO.setThirtyTwoGas(v.getThirtyTwoGas().setScale(6, BigDecimal.ROUND_DOWN));
-            gaslineVO.setSixtyFourGas(v.getSixtyFourGas().setScale(6,BigDecimal.ROUND_DOWN));
+            gaslineVO.setThirtyTwoGas(formatBigdecimal(v.getThirtyTwoGas()));
+            gaslineVO.setSixtyFourGas(formatBigdecimal(v.getSixtyFourGas()));
             return gaslineVO;
         }).collect(Collectors.toList());
         return Result.success(lt);
     }
+
+    /**
+     *从左向右搜取两个数字进行显示，例如：0.0000003498031908 显示 0.00000034
+     * @param val
+     * @return
+     */
+    public static BigDecimal formatBigdecimal(BigDecimal val){
+        if(val == null){
+            return null;
+        }
+        //如果大于0，直接返回
+
+        if(val.compareTo(new BigDecimal("1")) > 1){
+            return val.setScale(2, BigDecimal.ROUND_DOWN);
+        }
+        char[] array = val.toPlainString().toCharArray();
+        int pointIndex = 0;
+        int firstNotZeroIndex = 0;
+        for(int i=0;i<array.length;i++){
+            if(".".equals(array[i]+"")){
+                pointIndex=i;
+            }
+            if(!".".equals(array[i]+"") && !"0".equals(array[i]+"")){
+                firstNotZeroIndex = i;
+                break;
+            }
+        }
+        return val.setScale(firstNotZeroIndex - pointIndex + 1, BigDecimal.ROUND_DOWN);
+    }
+
+    public static void main(String[] args) {
+
+        BigDecimal big = formatBigdecimal(new BigDecimal("0.0000003598684556"));
+        log.info(big.toPlainString());
+    }
+
 
 }

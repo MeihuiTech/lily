@@ -1,6 +1,5 @@
 package com.mei.hui.miner.feign.vo;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @ApiModel
 public class GaslineVO {
+
 
     @ApiModelProperty("时间")
     private LocalDateTime date;

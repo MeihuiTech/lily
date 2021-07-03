@@ -25,18 +25,6 @@ public class SysMinerInfo
 
     private Integer sectorError;
 
-    //窗口序号
-    private Long deadlineIndex;
-    //窗口扇区数
-    private Long deadlineSectors;
-    //窗口运行时间
-    private Long provingPeriodStart;
-
-    //证明高度
-    private Long provingPeriodEpoch;
-
-    //当前高度
-    private Long currentEpoch;
 
     /**
      * 锁仓收益, 单位FIL

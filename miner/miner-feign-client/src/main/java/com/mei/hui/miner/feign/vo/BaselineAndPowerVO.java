@@ -11,13 +11,10 @@ import java.time.LocalDate;
 @Data
 @ApiModel(value = "全网基线算力走势图")
 public class BaselineAndPowerVO {
-
-
-    @JSONField(serializeUsing = ToStringSerializer.class)
+    
     @ApiModelProperty("基线值")
     private BigDecimal baseLine;
 
-    @JSONField(serializeUsing = ToStringSerializer.class)
     @ApiModelProperty("全网有效算力")
     private BigDecimal power;
 

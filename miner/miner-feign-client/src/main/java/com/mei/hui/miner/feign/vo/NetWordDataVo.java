@@ -14,11 +14,9 @@ import java.math.BigDecimal;
 @ApiModel("全网数据")
 public class NetWordDataVo {
 
-    @JSONField(serializeUsing = ToStringSerializer.class)
     @ApiModelProperty("全网累计出块奖励")
     private BigDecimal totalBlockAward;
 
-    @JSONField(serializeUsing = ToStringSerializer.class)
     @ApiModelProperty("全网算力")
     private BigDecimal power;
 

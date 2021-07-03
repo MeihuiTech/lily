@@ -27,7 +27,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
         <spring-cloud-alibaba.version>2.2.3.RELEASE</spring-cloud-alibaba.version>
-        <fastjson.version>1.2.47</fastjson.version>
+        <fastjson.version>1.2.76</fastjson.version>
         <mybatis-plus.version>3.2.0</mybatis-plus.version>
         <springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
         <springfox-swagger.version>2.9.2</springfox-swagger.version>
