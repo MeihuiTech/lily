@@ -2,6 +2,8 @@ package com.mei.hui.miner.common.task;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.SwarmNode;
 import com.mei.hui.miner.entity.SwarmOneDayAgg;
 import com.mei.hui.miner.mapper.SwarmNodeMapper;
@@ -41,56 +43,66 @@ public class SwarmOneDayAggTask {
 
     @Scheduled(cron = "0 59 23 */1 * ?")
     public void run() {
-        log.info("======================SwarmOneHourAggTask-start===================");
+        log.info("======================SwarmOneDayAggTask-start===================");
         if("dev".equals(env)){
             log.info("开发环境,不执行");
             return;
         }
-        /**
-         * 查询所有节点
-         */
-        List<SwarmNode> nodes = swarmNodeService.list();
-        log.info("查询所有节点数量:{}",nodes.size());
-        if(nodes.size() ==0){
-            return;
-        }
-        /**
-         * 查询节点昨日数据
-         */
-        List<Long> nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toList());
-        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(SwarmOneDayAgg::getNodeId,nodeIds);
-        queryWrapper.eq(SwarmOneDayAgg::getDate, LocalDate.now().minusDays(1));
-        List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggService.list(queryWrapper);
-        log.info("查询节点昨日数据:{}",JSON.toJSONString(swarmOneDayAggList));
-        Map<Long,SwarmOneDayAgg> map = new HashMap<>();
-        swarmOneDayAggList.stream().forEach(v->{
-            map.put(v.getNodeId(),v);
-        });
-
-        List<SwarmOneDayAgg> batch = new ArrayList<>();
-        for(SwarmNode node : nodes){
-            SwarmOneDayAgg swarmOneDayAgg = map.get(node.getId());
-            long perTicketAvail = node.getTicketAvail();
-            long perTicketValid = node.getTicketValid();
-            if(swarmOneDayAgg != null){
-                perTicketAvail = node.getTicketAvail() - swarmOneDayAgg.getTicketAvail();
-                perTicketValid = node.getTicketValid() - swarmOneDayAgg.getTicketValid();
+        int pageNum = 1;
+        int pageSize = 100;
+        while (true) {
+            /**
+             * 查询所有节点
+             */
+            IPage<SwarmNode> page = swarmNodeService.page(new Page<>(pageNum, pageSize));
+            List<SwarmNode> nodes = page.getRecords();
+            log.info("页数:{},查询节点数量:{}",pageNum,nodes.size());
+            if (nodes.size() == 0) {
+                break;
             }
-            SwarmOneDayAgg oneDayAgg = new SwarmOneDayAgg();
-            oneDayAgg.setNodeId(node.getId());
-            oneDayAgg.setPerTicketAvail(perTicketAvail);
-            oneDayAgg.setPerTicketValid(perTicketValid);
-            oneDayAgg.setTicketAvail(node.getTicketAvail());
-            oneDayAgg.setTicketValid(node.getTicketValid());
-            oneDayAgg.setDate(LocalDate.now());
-            oneDayAgg.setCreateTime(LocalDateTime.now());
-            batch.add(oneDayAgg);
+            /**
+             * 查询节点昨日数据
+             */
+            List<Long> nodeIds = nodes.stream().map(v -> v.getId()).collect(Collectors.toList());
+            LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.in(SwarmOneDayAgg::getNodeId, nodeIds);
+            queryWrapper.eq(SwarmOneDayAgg::getDate, LocalDate.now().minusDays(1));
+            List<SwarmOneDayAgg> swarmOneDayAggList = swarmOneDayAggService.list(queryWrapper);
+            log.info("查询节点昨日数据:{}", JSON.toJSONString(swarmOneDayAggList));
+            Map<Long, SwarmOneDayAgg> map = new HashMap<>();
+            swarmOneDayAggList.stream().forEach(v -> {
+                map.put(v.getNodeId(), v);
+            });
+
+            List<SwarmOneDayAgg> batch = new ArrayList<>();
+            for (SwarmNode node : nodes) {
+                SwarmOneDayAgg swarmOneDayAgg = map.get(node.getId());
+                long perTicketAvail = node.getTicketAvail();
+                long perTicketValid = node.getTicketValid();
+                if (swarmOneDayAgg != null) {
+                    perTicketAvail = node.getTicketAvail() - swarmOneDayAgg.getTicketAvail();
+                    perTicketValid = node.getTicketValid() - swarmOneDayAgg.getTicketValid();
+                }
+                SwarmOneDayAgg oneDayAgg = new SwarmOneDayAgg();
+                oneDayAgg.setNodeId(node.getId());
+                oneDayAgg.setPerTicketAvail(perTicketAvail);
+                oneDayAgg.setPerTicketValid(perTicketValid);
+                oneDayAgg.setTicketAvail(node.getTicketAvail());
+                oneDayAgg.setTicketValid(node.getTicketValid());
+                oneDayAgg.setDate(LocalDate.now());
+                oneDayAgg.setCreateTime(LocalDateTime.now());
+                batch.add(oneDayAgg);
+            }
+            if (batch.size() == 0) {
+                break;
+            }
+            swarmOneDayAggService.saveBatch(batch);
+            if (nodes.size() < pageSize) {
+                break;
+            } else {
+                pageNum ++;
+            }
         }
-        if(batch.size() == 0){
-            return;
-        }
-        swarmOneDayAggService.saveBatch(batch);
-        log.info("======================SwarmOneHourAggTask-end===================");
+        log.info("======================SwarmOneDayAggTask-end===================");
     }
 }

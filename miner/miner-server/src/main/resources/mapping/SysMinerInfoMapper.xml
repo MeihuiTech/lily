@@ -107,6 +107,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="balanceWorkerAccount != null">balance_worker_account,</if>
+            <if test="sectorTotal != null">sector_total,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -127,6 +128,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="balanceWorkerAccount != null">#{balanceWorkerAccount},</if>
+            <if test="sectorTotal != null">#{sectorTotal},</if>
          </trim>
     </insert>
 
@@ -151,6 +153,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="balanceWorkerAccount != null">balance_worker_account = #{balanceWorkerAccount},</if>
+            <if test="sectorTotal != null">sector_total = #{sectorTotal},</if>
         </trim>
         where id = #{id}
     </update>

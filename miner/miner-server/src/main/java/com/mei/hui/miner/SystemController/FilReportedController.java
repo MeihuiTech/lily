@@ -60,6 +60,7 @@ public class FilReportedController {
     @PostMapping("/miner")
     public Result miner(@RequestBody RequestMinerInfo sysMinerInfo)
     {
+        sysMinerInfo.setSectorAvailable(sysMinerInfo.getSectorActive());
         HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
         String apiKey = httpServletRequest.getHeader(SystemConstants.APIKEY);
         Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);

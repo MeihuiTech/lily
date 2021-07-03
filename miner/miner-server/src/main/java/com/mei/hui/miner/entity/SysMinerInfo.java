@@ -24,7 +24,7 @@ public class SysMinerInfo
     private Integer sectorAvailable;
 
     private Integer sectorError;
-
+    private Integer sectorTotal;
 
     /**
      * 锁仓收益, 单位FIL
