@@ -1,2 +1,0 @@
-# miner-pool
-# miner-pool
