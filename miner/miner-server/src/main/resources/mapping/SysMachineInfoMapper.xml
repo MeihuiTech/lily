@@ -143,4 +143,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!--根据矿工id查询矿机信息表的在线/离线矿机数量-->
+    <select id="selectOnlineMachineCountVO" resultType="com.mei.hui.miner.feign.vo.OnlineMachineCountVO">
+        SELECT
+            m. ONLINE,
+            count(m.miner_id) count
+        FROM
+            sys_machine_info m
+        WHERE
+            m.miner_id = #{minerId}
+        GROUP BY
+            m. ONLINE
+    </select>
+
 </mapper>

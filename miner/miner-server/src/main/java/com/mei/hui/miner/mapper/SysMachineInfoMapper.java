@@ -3,6 +3,7 @@ package com.mei.hui.miner.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.feign.vo.AggMinerVO;
+import com.mei.hui.miner.feign.vo.OnlineMachineCountVO;
 import com.mei.hui.miner.feign.vo.UserMinerBO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -79,4 +80,15 @@ public interface SysMachineInfoMapper  extends BaseMapper<SysMachineInfo>
      */
     List<SysMachineInfo> selectSysMachineInfoByLimit(@Param("offset") Integer offset, @Param("rowCount") Integer rowCount);
 
+    /**
+    * 根据矿工id查询矿机信息表的在线/离线矿机数量
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/5 20:02
+    * @param [minerId]
+    * @return java.util.List<com.mei.hui.miner.feign.vo.OnlineMachineCountVO>
+    * @version v1.4.1
+    */
+    public List<OnlineMachineCountVO> selectOnlineMachineCountVO(String minerId);
 }

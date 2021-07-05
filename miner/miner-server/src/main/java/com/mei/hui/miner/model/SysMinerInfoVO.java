@@ -36,8 +36,11 @@ public class SysMinerInfoVO {
     @ApiModelProperty(value = "有效算力, 单位B")
     private BigDecimal powerAvailable;
 
-    @ApiModelProperty(value = "矿机数量")
-    private Long machineCount;
+    @ApiModelProperty(value = "在线矿机数量")
+    private Long onlineMachineCount;
+
+    @ApiModelProperty(value = "离线矿机数量")
+    private Long offMachineCount;
 
     @ApiModelProperty(value = "算力增速, 单位B")
     private BigDecimal powerIncreasePerDay;
