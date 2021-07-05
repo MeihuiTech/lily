@@ -332,7 +332,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
     }
 
     @Override
-    public Map<String,Object> machines(Long id,int pageNum,int pageSize) {
+    public Map<String,Object> machines(Long id,int pageNum,int pageSize,Integer online,String machineType) {
 
         Long userId = HttpRequestUtil.getUserId();
         SysMinerInfo miner = selectSysMinerInfoById(id);
@@ -345,6 +345,12 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
 
         LambdaQueryWrapper<SysMachineInfo> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(SysMachineInfo::getMinerId,miner.getMinerId());
+        if(online != null){
+            queryWrapper.eq(SysMachineInfo::getOnline,online);
+        }
+        if(StringUtils.isNotEmpty(machineType)){
+            queryWrapper.eq(SysMachineInfo::getMachineType,machineType);
+        }
         IPage<SysMachineInfo> page = sysMachineInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
