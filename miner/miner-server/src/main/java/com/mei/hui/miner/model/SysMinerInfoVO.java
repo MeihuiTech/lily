@@ -57,4 +57,7 @@ public class SysMinerInfoVO {
     @ApiModelProperty(value = "错误状态扇区数量")
     private Integer sectorError;
 
+    @ApiModelProperty(value = "PoSt账户余额")
+    private BigDecimal postBalance;
+
 }

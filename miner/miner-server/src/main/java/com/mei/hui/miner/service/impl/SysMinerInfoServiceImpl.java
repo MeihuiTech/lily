@@ -276,6 +276,21 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             sysMinerInfoVO.setTotalBlockAward(BigDecimalUtil.formatFour(sysMinerInfoVO.getTotalBlockAward()));
             sysMinerInfoVO.setPowerAvailable(BigDecimalUtil.formatTwo(sysMinerInfoVO.getPowerAvailable()));
             sysMinerInfoVO.setBalanceWorkerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceWorkerAccount()));
+
+            // PoSt账户余额
+            QueryWrapper<FilMinerControlBalance> queryWrapper = new QueryWrapper<>();
+            FilMinerControlBalance filMinerControlBalance = new FilMinerControlBalance();
+            filMinerControlBalance.setMinerId(sysMinerInfoVO.getMinerId());
+            filMinerControlBalance.setName("control-0");
+            queryWrapper.setEntity(filMinerControlBalance);
+            List<FilMinerControlBalance> filMinerControlBalanceList = filMinerControlBalanceMapper.selectList(queryWrapper);
+            log.info("PoSt账户余额表出参：【{}】",JSON.toJSON(filMinerControlBalanceList));
+            if (filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0) {
+                sysMinerInfoVO.setPostBalance(BigDecimalUtil.formatFour(filMinerControlBalanceList.get(0).getBalance()));
+            } else {
+                sysMinerInfoVO.setPostBalance(BigDecimal.ZERO);
+            }
+
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
