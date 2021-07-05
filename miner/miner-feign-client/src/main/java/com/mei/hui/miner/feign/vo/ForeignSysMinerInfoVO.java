@@ -39,6 +39,9 @@ public class ForeignSysMinerInfoVO
     @ApiModelProperty(value = "错误状态扇区数量")
     private Integer sectorError;
 
+    @ApiModelProperty(value = "扇区总数")
+    private Integer sectorTotal;
+
     @ApiModelProperty(value = "挖矿琐仓、锁仓收益, 单位FIL")
     private BigDecimal lockAward;
 
