@@ -17,14 +17,36 @@ public class SysMinerInfo
     private Long id;
     private Long userId;
     private String minerId;
+
+    /**
+     * 有效算力, 单位B
+     */
     private BigDecimal powerAvailable;
+
+    /**
+     * 扇区质押, 单位FIL
+     */
     private BigDecimal sectorPledge;
+
+    /**
+     * 扇区大小,单位GB
+     */
     private Long sectorSize;
+
+    /**
+     * 证明状态扇区数量
+     */
     private Integer sectorProving;
+
+    /**
+     * 有效状态扇区数量
+     */
     private Integer sectorAvailable;
 
+    /**
+     * 错误状态扇区数量
+     */
     private Integer sectorError;
-
 
     /**
      * 锁仓收益, 单位FIL

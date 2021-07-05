@@ -236,5 +236,36 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         log.info(big.toPlainString());
     }
 
+    /*对外API-全网数据*/
+    @Override
+    public Result<ForeignNetworkVO> selectForeignNetwork() {
+        GeneralViewVo generalViewVo = new GeneralViewVo();
+        //全网数据获取:累计出块奖励，全网算力，全网今日出块数，全网活跃旷工
+        pushNetWordDataVo(generalViewVo);
+        log.info("全网数据出参:【{}】",JSON.toJSON(generalViewVo));
 
+        //扇区封装成本
+        pushThirtyTwoGasVO(generalViewVo);
+        log.info("扇区封装成本出参:【{}】",JSON.toJSON(generalViewVo));
+
+        ForeignNetworkVO foreignNetworkVO = new  ForeignNetworkVO();
+        foreignNetworkVO.setNetWordData(generalViewVo.getNetWordData());
+        foreignNetworkVO.setSixtyFourGasVO(generalViewVo.getSixtyFourGasVO());
+        foreignNetworkVO.setThirtyTwoGasVO(generalViewVo.getThirtyTwoGasVO());
+        return Result.success(foreignNetworkVO);
+    }
+
+    /*对外API-平台数据*/
+    @Override
+    public Result<ForeignPlatformVO> selectForeignPlatform() {
+        GeneralViewVo generalViewVo = new GeneralViewVo();
+        //平台数据:累计出块奖励，算力，今日出块数，活跃旷工
+        pushPlatformDataVo(generalViewVo);
+        log.info("平台数据出参:【{}】",JSON.toJSON(generalViewVo));
+        PlatformDataVo platformData = generalViewVo.getPlatformData();
+
+        ForeignPlatformVO foreignPlatformVO = new ForeignPlatformVO();
+        BeanUtils.copyProperties(platformData,foreignPlatformVO);
+        return Result.success(foreignPlatformVO);
+    }
 }

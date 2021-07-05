@@ -2,9 +2,7 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
-import com.mei.hui.miner.feign.vo.BaselineAndPowerVO;
-import com.mei.hui.miner.feign.vo.GaslineVO;
-import com.mei.hui.miner.feign.vo.GeneralViewVo;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.Result;
 
 import java.util.List;
@@ -25,4 +23,27 @@ public interface FilBaselinePowerDayAggService extends IService<FilBaselinePower
 
     Result<List<GaslineVO>> gasline();
 
+    /**
+    * 对外API-全网数据
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/3 17:40
+    * @param []
+    * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.ForeignNetworkVO>
+    * @version v1.4.1
+    */
+    public Result<ForeignNetworkVO> selectForeignNetwork();
+
+    /**
+    * 对外API-平台数据
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/3 17:52
+    * @param []
+    * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.ForeignPlatformVO>
+    * @version v1.4.1
+    */
+    public Result<ForeignPlatformVO> selectForeignPlatform();
 }

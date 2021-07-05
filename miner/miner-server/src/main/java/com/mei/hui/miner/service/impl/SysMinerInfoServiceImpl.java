@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
@@ -29,6 +30,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -606,5 +608,68 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             }
         }
         return rows;
+    }
+
+    /*对外API-矿工数据*/
+    @Override
+    public Result<ForeignSysMinerInfoVO> selectForeignMiner(ForeignMinerBO foreignMinerBO) {
+        String minerId = foreignMinerBO.getMinerId();
+        QueryWrapper<SysMinerInfo> queryWrapper = new QueryWrapper<>();
+        SysMinerInfo selectSysMinerInfo = new SysMinerInfo();
+        selectSysMinerInfo.setMinerId(minerId);
+        queryWrapper.setEntity(selectSysMinerInfo);
+        List<SysMinerInfo> dbSysMinerInfoList = sysMinerInfoMapper.selectList(queryWrapper);
+        log.info("dbSysMinerInfoList出参：【{}】", JSON.toJSON(dbSysMinerInfoList));
+        if (dbSysMinerInfoList == null || dbSysMinerInfoList.size() < 1) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工不存在");
+        }
+
+        SysMinerInfo sysMinerInfo = selectSysMinerInfoById(dbSysMinerInfoList.get(0).getId());
+        log.info("查询矿工信息出参：【{}】",JSON.toJSON(sysMinerInfo));
+        if (sysMinerInfo == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工不存在");
+        }
+        ForeignSysMinerInfoVO foreignSysMinerInfoVO = new ForeignSysMinerInfoVO();
+        BeanUtils.copyProperties(sysMinerInfo,foreignSysMinerInfoVO);
+        log.info("foreignSysMinerInfoVO:【{}】",JSON.toJSON(foreignSysMinerInfoVO));
+        return Result.success(foreignSysMinerInfoVO);
+    }
+
+    /*对外API-用户数据*/
+    @Override
+    public Result<ForeignSysMinerInfoVO> selectForeignUser(ForeignUserBO foreignUserBO) {
+        String apiKey = foreignUserBO.getApiKey();
+        Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
+        log.info("根据apiKey查询用户的userId出参：【{}】",JSON.toJSON(userIdResult));
+        if (!ErrorCode.MYB_000000.getCode().equals(userIdResult.getCode())
+                || userIdResult.getData() == null) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"apiKey不存在");
+        }
+        Long userId = userIdResult.getData();
+
+        QueryWrapper<SysMinerInfo> queryWrapper = new QueryWrapper<>();
+        SysMinerInfo selectSysMinerInfo = new SysMinerInfo();
+        selectSysMinerInfo.setUserId(userId);
+        queryWrapper.setEntity(selectSysMinerInfo);
+        List<SysMinerInfo> dbSysMinerInfoList = sysMinerInfoMapper.selectList(queryWrapper);
+        log.info("dbSysMinerInfoList出参：【{}】",JSON.toJSON(dbSysMinerInfoList));
+        if (dbSysMinerInfoList == null || dbSysMinerInfoList.size() < 1) {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工不存在");
+        }
+
+        List<ForeignSysMinerInfoVO> foreignSysMinerInfoVOList = new ArrayList<>();
+        for (SysMinerInfo dbSysMinerInfo : dbSysMinerInfoList) {
+            SysMinerInfo sysMinerInfo = selectSysMinerInfoById(dbSysMinerInfo.getId());
+            log.info("查询矿工信息出参：【{}】",JSON.toJSON(sysMinerInfo));
+            if (sysMinerInfo == null) {
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工不存在");
+            }
+            ForeignSysMinerInfoVO foreignSysMinerInfoVO = new ForeignSysMinerInfoVO();
+            BeanUtils.copyProperties(sysMinerInfo,foreignSysMinerInfoVO);
+            log.info("foreignSysMinerInfoVO:【{}】",JSON.toJSON(foreignSysMinerInfoVO));
+            foreignSysMinerInfoVOList.add(foreignSysMinerInfoVO);
+        }
+
+        return Result.success(foreignSysMinerInfoVOList);
     }
 }

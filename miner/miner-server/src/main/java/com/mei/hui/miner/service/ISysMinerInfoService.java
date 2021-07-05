@@ -2,10 +2,7 @@ package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
-import com.mei.hui.miner.feign.vo.AggMinerVO;
-import com.mei.hui.miner.feign.vo.FilUserMoneyBO;
-import com.mei.hui.miner.feign.vo.FilUserMoneyVO;
-import com.mei.hui.miner.feign.vo.UserMinerBO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.model.RequestMinerInfo;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
@@ -222,4 +219,28 @@ public interface ISysMinerInfoService
     * @version v1.4.0
     */
     public int insertReportedSysMinerInfo(Long userId, RequestMinerInfo sysMinerInfo);
+
+    /**
+    * 对外API-矿工数据
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/3 20:26
+    * @param []
+    * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.ForeignSysMinerInfoVO>
+    * @version v1.4.1
+    */
+    public Result<ForeignSysMinerInfoVO> selectForeignMiner(ForeignMinerBO foreignMinerBO);
+
+    /**
+    * 对外API-用户数据
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/5 11:57
+    * @param [foreignUserBO]
+    * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.ForeignSysMinerInfoVO>
+    * @version v1.4.1
+    */
+    public Result<ForeignSysMinerInfoVO> selectForeignUser(ForeignUserBO foreignUserBO);
 }
