@@ -23,6 +23,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
 *@Description:
@@ -59,7 +61,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         /**
          * 白名单不校验
          */
-        if(gatewaySetting.getWhiteUrls().contains(url)){
+        if(isWhiteUrl(url)){
             return chain.filter(exchange);
         }
         String token = exchange.getRequest().getHeaders().getFirst(SystemConstants.TOKEN);
@@ -95,5 +97,24 @@ public class LoginFilter  implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return 200;
+    }
+
+    /**
+     * 如果是白名单中的url，则返回true
+     * @param url
+     * @return
+     */
+    public boolean isWhiteUrl(String url){
+        boolean flag = false;
+        for (String regex : gatewaySetting.getWhiteUrls()){
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(url);
+            flag = matcher.find();
+            if(flag){
+                log.info("匹配的白名单数据:{}",regex);
+                break;
+            }
+        }
+        return flag;
     }
 }

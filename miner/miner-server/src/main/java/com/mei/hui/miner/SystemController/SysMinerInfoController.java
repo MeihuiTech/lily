@@ -152,8 +152,8 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      */
     @ApiOperation(value = "矿机列表")
     @GetMapping(value = "machines/{id}")
-    public Map<String,Object> machines(@PathVariable("id") Long id,int pageNum,int pageSize) {
-        return sysMinerInfoService.machines(id,pageNum,pageSize);
+    public Map<String,Object> machines(@PathVariable("id") Long id,int pageNum,int pageSize,int online,String machineType) {
+        return sysMinerInfoService.machines(id,pageNum,pageSize,online,machineType);
     }
 
     @ApiOperation(value = "管理员-用户收益-分页查询用户收益列表",notes = "管理员-用户收益-用户收益列表出参：\n" +

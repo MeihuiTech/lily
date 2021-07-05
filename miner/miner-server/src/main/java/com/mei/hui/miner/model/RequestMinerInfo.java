@@ -35,6 +35,9 @@ public class RequestMinerInfo extends SysMinerInfo {
     @JsonIgnore
     private String updateBy;
 
+    //有效扇区
+    private Integer sectorActive;
+
     @JsonIgnore
     /** 请求参数 */
     private Map<String, Object> params;
@@ -48,5 +51,13 @@ public class RequestMinerInfo extends SysMinerInfo {
 
     public void setControlAccounts(List<FilMinerControlBalance> controlAccounts) {
         this.controlAccounts = controlAccounts;
+    }
+
+    public Integer getSectorActive() {
+        return sectorActive;
+    }
+
+    public void setSectorActive(Integer sectorActive) {
+        this.sectorActive = sectorActive;
     }
 }

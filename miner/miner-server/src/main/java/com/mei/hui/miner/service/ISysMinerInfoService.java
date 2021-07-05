@@ -98,7 +98,7 @@ public interface ISysMinerInfoService
     */
     Map<String,Object> findPage(SysMinerInfoBO sysMinerInfoBO);
 
-    public Map<String,Object> machines(Long id,int pageNum,int pageSize);
+    public Map<String,Object> machines(Long id,int pageNum,int pageSize,Integer online,String machineType);
 
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo);
 

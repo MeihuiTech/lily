@@ -49,6 +49,11 @@ public class SysMinerInfo
     private Integer sectorError;
 
     /**
+     * 扇区总数
+     */
+    private Integer sectorTotal;
+
+    /**
      * 锁仓收益, 单位FIL
      */
     private BigDecimal lockAward;

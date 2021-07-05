@@ -12,6 +12,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="sectorPledge"    column="sector_pledge"    />
         <result property="sectorSize"    column="sector_size"    />
         <result property="sectorProving"    column="sector_proving"    />
+        <result property="sectorTotal"    column="sector_total"    />
         <result property="sectorAvailable"    column="sector_available"    />
         <result property="sectorError"    column="sector_error"    />
         <result property="lockAward"    column="lock_award"    />
@@ -62,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available,
         sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account,
         total_blocks, create_by, create_time, update_by, update_time,
-        balance_worker_account
+        balance_worker_account,sector_total
         from sys_miner_info
         where id = #{id}
     </select>
@@ -107,6 +108,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="balanceWorkerAccount != null">balance_worker_account,</if>
+            <if test="sectorTotal != null">sector_total,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -127,6 +129,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="balanceWorkerAccount != null">#{balanceWorkerAccount},</if>
+            <if test="sectorTotal != null">#{sectorTotal},</if>
          </trim>
     </insert>
 
@@ -151,6 +154,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="balanceWorkerAccount != null">balance_worker_account = #{balanceWorkerAccount},</if>
+            <if test="sectorTotal != null">sector_total = #{sectorTotal},</if>
         </trim>
         where id = #{id}
     </update>
@@ -185,7 +189,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             mi.sector_available sectorAvailable,
             mi.sector_error sectorError
         FROM
-            sys_miner_info mi,
+            sys_miner_info mi left join
             (
                 SELECT
                     m.miner_id,
@@ -201,7 +205,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 GROUP BY
                     m.miner_id
             ) smi
-        WHERE
+        on
             mi.miner_id = smi.miner_id
         <choose>
             <when test="cloumName != null and cloumName != ''">
