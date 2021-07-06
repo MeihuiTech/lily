@@ -134,6 +134,13 @@
             <artifactId>user-feign-client</artifactId>
             <version>1.2-SNAPSHOT</version>
         </dependency>
+
+        <!-- 优化界面UI -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
+        </dependency>
+
     </dependencies>
 
 
