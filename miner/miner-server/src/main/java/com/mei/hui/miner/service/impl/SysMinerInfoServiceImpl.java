@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
@@ -167,6 +168,65 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
             miner.setPostBalance(BigDecimalUtil.formatFour(filMinerControlBalanceList.get(0).getBalance()));
         } else {
             miner.setPostBalance(BigDecimal.ZERO);
+        }
+
+        // 矿机数量
+        List<MachineInfoTypeOnlineVO> machineInfoTypeOnlineVOList = sysMachineInfoMapper.selectMachineInfoTypeOnlineCountList();
+        log.info("按照机器类型、是否在线分组查询矿机信息表的数量出参：【{}】",JSON.toJSON(machineInfoTypeOnlineVOList));
+
+        // 赋默认值
+        miner.setAllOnlineMachineCount(0);
+        miner.setAllOfflineMachineCount(0);
+        miner.setMinerOnlineMachineCount(0);
+        miner.setMinerOfflineMachineCount(0);
+        miner.setPostOnlineMachineCount(0);
+        miner.setPostOfflineMachineCount(0);
+        miner.setCtwoOnlineMachineCount(0);
+        miner.setCtwoOfflineMachineCount(0);
+        miner.setSealOnlineMachineCount(0);
+        miner.setSealOfflineMachineCount(0);
+
+        if (machineInfoTypeOnlineVOList != null && machineInfoTypeOnlineVOList.size() > 0){
+            Integer allOnlineMachineCount = 0;
+            Integer allOfflineMachineCount = 0;
+            for (MachineInfoTypeOnlineVO machineInfoTypeOnlineVO : machineInfoTypeOnlineVOList){
+                log.info("按照机器类型、是否在线分组查询矿机信息表的数量：【{}】",machineInfoTypeOnlineVO);
+                if (Constants.MACHINETYPEMINER.equals(machineInfoTypeOnlineVO.getMachineType())){
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())){
+                        miner.setMinerOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOfflineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    } else {
+                        miner.setMinerOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOnlineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    }
+                } else if (Constants.MACHINETYPEPOST.equals(machineInfoTypeOnlineVO.getMachineType())){
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())){
+                        miner.setPostOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOfflineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    } else {
+                        miner.setPostOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOnlineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    }
+                } else if (Constants.MACHINETYPECTWO.equals(machineInfoTypeOnlineVO.getMachineType())){
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())){
+                        miner.setCtwoOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOfflineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    } else {
+                        miner.setCtwoOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOnlineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    }
+                } else if (Constants.MACHINETYPESEAL.equals(machineInfoTypeOnlineVO.getMachineType())){
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())){
+                        miner.setSealOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOfflineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    } else {
+                        miner.setSealOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                        allOnlineMachineCount += machineInfoTypeOnlineVO.getCount();
+                    }
+                }
+            }
+            miner.setAllOnlineMachineCount(allOnlineMachineCount);
+            miner.setAllOfflineMachineCount(allOfflineMachineCount);
         }
 
         return miner;

@@ -160,4 +160,9 @@ public class MinerTest {
         System.out.print("查询所有用户:【{}】"+JSON.toJSON(result.getData()));
     }
 
+    @Test
+    public void testPath(){
+        System.out.println(System.getProperty("user.dir")+"\\src\\main\\resources\\swagger.txt");
+    }
+
 }

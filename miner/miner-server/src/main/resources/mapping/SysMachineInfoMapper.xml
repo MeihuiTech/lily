@@ -156,4 +156,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             m. ONLINE
     </select>
 
+    <!--按照机器类型、是否在线分组查询矿机信息表的数量-->
+    <select id="selectMachineInfoTypeOnlineCountList"
+            resultType="com.mei.hui.miner.feign.vo.MachineInfoTypeOnlineVO">
+        SELECT
+            machine_type machineType,
+            online,
+            COUNT(machine_type) count
+        FROM
+            sys_machine_info
+        GROUP BY
+            machine_type,
+            online
+    </select>
+
 </mapper>

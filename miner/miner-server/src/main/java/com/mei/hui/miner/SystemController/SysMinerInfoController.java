@@ -71,7 +71,17 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      * 普通用户-首页-获取矿工信息详细信息
      */
     @ApiOperation(value = "矿工详情",notes = "FIL币矿工详情出参：\n" +
-            "balanceWorkerAccount：\n" +
+            "balanceWorkerAccount：" +
+            "所有在线矿机数量allOnlineMachineCount\n" +
+            "所有离线矿机数量allOfflineMachineCount\n" +
+            "Miner在线矿机数量minerOnlineMachineCount\n" +
+            "Miner离线矿机数量minerOfflineMachineCount\n" +
+            "post在线矿机数量postOnlineMachineCount\n" +
+            "post离线矿机数量postOfflineMachineCount\n" +
+            "c2在线矿机数量ctwoOnlineMachineCount\n" +
+            "c2离线矿机数量ctwoOfflineMachineCount\n" +
+            "seal在线矿机数量sealOnlineMachineCount\n" +
+            "seal离线矿机数量sealOfflineMachineCount\n" +
             "\n" +
             "chia币矿工详情出参：\n" +
             "\n" +

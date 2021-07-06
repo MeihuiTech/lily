@@ -118,4 +118,65 @@ public class SysMinerInfo
     @TableField(exist = false)
     private BigDecimal postBalance;
 
+    /**
+     * 所有在线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer allOnlineMachineCount;
+
+    /**
+     * 所有离线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer allOfflineMachineCount;
+
+    /**
+     * Miner在线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer minerOnlineMachineCount;
+
+    /**
+     * Miner离线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer minerOfflineMachineCount;
+
+    /**
+     * post在线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer postOnlineMachineCount;
+
+    /**
+     * post离线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer postOfflineMachineCount;
+
+    /**
+     * c2在线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer ctwoOnlineMachineCount;
+
+    /**
+     * c2离线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer ctwoOfflineMachineCount;
+
+    /**
+     * seal在线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer sealOnlineMachineCount;
+
+    /**
+     * seal离线矿机数量
+     */
+    @TableField(exist = false)
+    private Integer sealOfflineMachineCount;
+
+
 }
