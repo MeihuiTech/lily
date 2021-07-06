@@ -291,6 +291,20 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
                 sysMinerInfoVO.setPostBalance(BigDecimal.ZERO);
             }
 
+            // 矿机数量
+            List<OnlineMachineCountVO> onlineMachineCountVOList = sysMachineInfoMapper.selectOnlineMachineCountVO(sysMinerInfoVO.getMinerId());
+            if(onlineMachineCountVOList == null || onlineMachineCountVOList.size() < 1){
+                sysMinerInfoVO.setOnlineMachineCount(0L);
+                sysMinerInfoVO.setOffMachineCount(0L);
+            }
+            for (OnlineMachineCountVO onlineMachineCountVO : onlineMachineCountVOList) {
+                if (onlineMachineCountVO.getOnline() == 1){
+                    sysMinerInfoVO.setOnlineMachineCount(onlineMachineCountVO.getCount());
+                } else {
+                    sysMinerInfoVO.setOffMachineCount(onlineMachineCountVO.getCount());
+                }
+            }
+
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
