@@ -39,4 +39,8 @@ public interface Constants extends SystemConstants {
      */
     Integer MACHINEONLINEONE = 1;
 
+    String qi_niu_token = "qi_niu_token";
+
+
+
 }

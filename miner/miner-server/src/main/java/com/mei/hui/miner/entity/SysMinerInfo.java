@@ -178,5 +178,7 @@ public class SysMinerInfo
     @TableField(exist = false)
     private Integer sealOfflineMachineCount;
 
+    private String bucket;
+
 
 }

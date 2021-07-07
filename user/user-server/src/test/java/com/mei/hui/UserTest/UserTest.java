@@ -1,6 +1,7 @@
 package com.mei.hui.UserTest;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -139,6 +140,16 @@ public class UserTest {
             roleMenuList.add(sysRoleMenu);
         }
         sysRoleMenuMapper.batchRoleMenu(roleMenuList);
+    }
+
+    public static void main(String[] args) {
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("Host","");
+
+
+
+
     }
 
 

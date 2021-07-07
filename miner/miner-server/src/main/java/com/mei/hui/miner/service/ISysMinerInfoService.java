@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.feign.vo.*;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2021-03-02
  */
-public interface ISysMinerInfoService
+public interface ISysMinerInfoService extends IService<SysMinerInfo>
 {
     /**
      * 获取起亚币

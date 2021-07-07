@@ -80,14 +80,17 @@ public class HttpUtil {
 		return doGet(url,param.toString());
 	}
 
+	public static String doGet(String url,String queryStr){
+		return doGet(url,queryStr,null);
+	}
+
 	/**
 	 * 发送 GET 请求（支持HTTPS）
 	 * @param url
 	 * @param queryStr
 	 * @return
 	 */
-	public static String doGet(String url,String queryStr) {
-		log.info("@请求地址:"+url);
+	public static String doGet(String url,String queryStr,Map<String, String> heads) {
 		String result = null;
 		CloseableHttpResponse response = null;
 		CloseableHttpClient httpClient = null;
@@ -96,9 +99,17 @@ public class HttpUtil {
 			if(isHttps(url)){
 				httpClient = wrapClient(httpClient);
 			}
-			url += "?"+queryStr;
+			if(StringUtils.isNotEmpty(queryStr)){
+				url += "?"+queryStr;
+			}
 			log.info("@请求参数:"+url);
 			HttpGet httpget = new HttpGet(url);
+			//头信息
+			if(heads != null){
+				for (String key : heads.keySet()) {
+					httpget.setHeader(key, heads.get(key));
+				}
+			}
 			response = httpClient.execute(httpget);
 			int statusCode = response.getStatusLine().getStatusCode();
 			log.info("@响应状态码：statusCode = " + statusCode);

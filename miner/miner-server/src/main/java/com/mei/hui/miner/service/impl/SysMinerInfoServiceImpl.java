@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.Constants;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class SysMinerInfoServiceImpl implements ISysMinerInfoService
+public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysMinerInfo> implements ISysMinerInfoService
 {
     @Autowired
     private SysMinerInfoMapper sysMinerInfoMapper;

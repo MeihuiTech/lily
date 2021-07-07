@@ -30,6 +30,46 @@ public class RuoYiConfig
 
     private String logUrl;
 
+    private String qiNiuEmail;
+
+    private String qiNiuPassword;
+
+    private String qiNiuEcloudUrl;
+
+    private String qiNiuPrometheusUrl;
+
+    public String getQiNiuEcloudUrl() {
+        return qiNiuEcloudUrl;
+    }
+
+    public void setQiNiuEcloudUrl(String qiNiuEcloudUrl) {
+        this.qiNiuEcloudUrl = qiNiuEcloudUrl;
+    }
+
+    public String getQiNiuPrometheusUrl() {
+        return qiNiuPrometheusUrl;
+    }
+
+    public void setQiNiuPrometheusUrl(String qiNiuPrometheusUrl) {
+        this.qiNiuPrometheusUrl = qiNiuPrometheusUrl;
+    }
+
+    public String getQiNiuEmail() {
+        return qiNiuEmail;
+    }
+
+    public void setQiNiuEmail(String qiNiuEmail) {
+        this.qiNiuEmail = qiNiuEmail;
+    }
+
+    public String getQiNiuPassword() {
+        return qiNiuPassword;
+    }
+
+    public void setQiNiuPassword(String qiNiuPassword) {
+        this.qiNiuPassword = qiNiuPassword;
+    }
+
     public String getLogUrl() {
         return logUrl;
     }
