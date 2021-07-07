@@ -442,6 +442,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         if(StringUtils.isNotEmpty(machineType)){
             queryWrapper.eq(SysMachineInfo::getMachineType,machineType);
         }
+        queryWrapper.orderByDesc(SysMachineInfo::getUpdateTime);
         IPage<SysMachineInfo> page = sysMachineInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
