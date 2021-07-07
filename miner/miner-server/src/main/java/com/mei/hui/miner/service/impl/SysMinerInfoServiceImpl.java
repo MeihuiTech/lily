@@ -171,7 +171,7 @@ public class SysMinerInfoServiceImpl implements ISysMinerInfoService
         }
 
         // 矿机数量
-        List<MachineInfoTypeOnlineVO> machineInfoTypeOnlineVOList = sysMachineInfoMapper.selectMachineInfoTypeOnlineCountList();
+        List<MachineInfoTypeOnlineVO> machineInfoTypeOnlineVOList = sysMachineInfoMapper.selectMachineInfoTypeOnlineCountList(miner.getMinerId());
         log.info("按照机器类型、是否在线分组查询矿机信息表的数量出参：【{}】",JSON.toJSON(machineInfoTypeOnlineVOList));
 
         // 赋默认值

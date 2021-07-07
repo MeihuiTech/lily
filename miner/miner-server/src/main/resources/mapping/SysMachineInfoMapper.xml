@@ -161,13 +161,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             resultType="com.mei.hui.miner.feign.vo.MachineInfoTypeOnlineVO">
         SELECT
             machine_type machineType,
-            online,
+            ONLINE,
             COUNT(machine_type) count
         FROM
             sys_machine_info
+        <where>
+            <if test="minerId != null and minerId != ''">
+                miner_id = #{minerId}
+            </if>
+        </where>
         GROUP BY
             machine_type,
-            online
+            ONLINE
     </select>
 
 </mapper>

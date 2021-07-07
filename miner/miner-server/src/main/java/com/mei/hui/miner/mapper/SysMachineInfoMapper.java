@@ -103,5 +103,5 @@ public interface SysMachineInfoMapper  extends BaseMapper<SysMachineInfo>
     * @return java.util.List<com.mei.hui.miner.feign.vo.MachineInfoTypeOnlineVO>
     * @version v1.4.1
     */
-    public List<MachineInfoTypeOnlineVO> selectMachineInfoTypeOnlineCountList();
+    public List<MachineInfoTypeOnlineVO> selectMachineInfoTypeOnlineCountList(String minerId);
 }
