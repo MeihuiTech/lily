@@ -30,11 +30,14 @@ public class QiniuOneDayAgg {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @ApiModelProperty(value = "累计使用容量,单位Byte")
+    //累计使用容量,单位Byte
     private BigDecimal storeSize;
 
-    @ApiModelProperty(value = "创建日期")
+    //创建日期
     private LocalDate createDate;
+
+    //过去5天平均使用容量
+    private BigDecimal usedSizeAvg;
 
 
 }
