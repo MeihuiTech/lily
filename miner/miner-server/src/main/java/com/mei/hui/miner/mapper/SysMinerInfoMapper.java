@@ -96,7 +96,7 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     public Long selectAllBlocksPerDay();
 
     /**
-    * 管理员首页-旷工统计数据-平台总资产
+    * 管理员首页-矿工统计数据-平台总资产
     *
     * @description
     * @author shangbin
@@ -108,7 +108,7 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     public BigDecimal selectAllBalanceMinerAccount();
 
     /**
-    * 管理员首页-旷工统计数据-平台有效算力
+    * 管理员首页-矿工统计数据-平台有效算力
     *
     * @description
     * @author shangbin
@@ -120,7 +120,7 @@ public interface SysMinerInfoMapper extends BaseMapper<SysMinerInfo> {
     public BigDecimal selectAllPowerAvailable();
 
     /**
-    * 管理员首页-旷工统计数据-活跃旷工
+    * 管理员首页-矿工统计数据-活跃矿工
     *
     * @description
     * @author shangbin

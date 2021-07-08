@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 起亚币旷工信息表
+ * 起亚币矿工信息表
  */
 public interface IChiaMinerService {
 
@@ -23,7 +23,7 @@ public interface IChiaMinerService {
 
 
     /**
-     * chia管理员首页-旷工统计数据-平台总资产
+     * chia管理员首页-矿工统计数据-平台总资产
      *
      * @description
      * @author shangbin
@@ -35,7 +35,7 @@ public interface IChiaMinerService {
     public BigDecimal selectFilAllBalanceMinerAccount();
 
     /**
-     * chia管理员首页-旷工统计数据-平台有效算力
+     * chia管理员首页-矿工统计数据-平台有效算力
      *
      * @description
      * @author shangbin
@@ -47,7 +47,7 @@ public interface IChiaMinerService {
     public BigDecimal selectFilAllPowerAvailable();
 
     /**
-     * chia管理员首页-旷工统计数据-活跃旷工
+     * chia管理员首页-矿工统计数据-活跃矿工
      *
      * @description
      * @author shangbin
@@ -59,7 +59,7 @@ public interface IChiaMinerService {
     public Long selectFilAllMinerIdCount();
 
     /**
-     * chia管理员首页-旷工统计数据-当天出块份数
+     * chia管理员首页-矿工统计数据-当天出块份数
      *
      * @description
      * @author shangbin
@@ -71,7 +71,7 @@ public interface IChiaMinerService {
     public Long selectFilAllBlocksPerDay(String yesterDayDate);
 
     /**
-    * 根据用户id、旷工id查询起亚币旷工信息表中是否有数据
+    * 根据用户id、矿工id查询起亚币矿工信息表中是否有数据
     *
     * @description
     * @author shangbin
@@ -83,7 +83,7 @@ public interface IChiaMinerService {
     public List<ChiaMiner> selectChiaMinerByUserIdAndMinerId(Long userId, String minerId);
 
     /**
-    * 新增起亚币旷工信息表
+    * 新增起亚币矿工信息表
     *
     * @description
     * @author shangbin
@@ -95,7 +95,7 @@ public interface IChiaMinerService {
     public int insertChiaMiner(ChiaMiner chiaMiner);
 
     /**
-    * 修改起亚币旷工信息表
+    * 修改起亚币矿工信息表
     *
     * @description
     * @author shangbin
@@ -107,7 +107,7 @@ public interface IChiaMinerService {
     public int updateChiaMiner(ChiaMiner chiaMiner);
 
     /**
-    * 不分页根据条件查询起亚币旷工信息表列表
+    * 不分页根据条件查询起亚币矿工信息表列表
     * 
     * @description 
     * @author shangbin
@@ -119,7 +119,7 @@ public interface IChiaMinerService {
     public List<ChiaMiner> findChiaMinerList(ChiaMiner chiaMiner);
 
     /**
-    * 根据userId查询起亚币旷工信息表里的该用户所有的矿工ID
+    * 根据userId查询起亚币矿工信息表里的该用户所有的矿工ID
     *
     * @description
     * @author shangbin

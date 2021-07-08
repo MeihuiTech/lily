@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 public class ChiaMinerReportedBO {
 
 
-    @ApiModelProperty(value = "旷工id")
+    @ApiModelProperty(value = "矿工id")
     private String minerId;
 
     @ApiModelProperty(value = "总资产, 单位XCH")

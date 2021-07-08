@@ -8,7 +8,7 @@ import java.util.Map;
 public interface IAdminFirstService {
 
     /**
-    * fil管理员首页-旷工统计数据
+    * fil管理员首页-矿工统计数据
     *
     * @description
     * @author shangbin
@@ -20,7 +20,7 @@ public interface IAdminFirstService {
     public AdminFirstCollectVO filAdminFirstAllCount();
 
     /**
-    * chia管理员首页-旷工统计数据
+    * chia管理员首页-矿工统计数据
     *
     * @description
     * @author shangbin

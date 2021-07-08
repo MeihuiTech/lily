@@ -57,11 +57,11 @@ public class AggregationChiaTask {
         while (true) {
             // 每100条插入一次
             PageHelper.startPage(pageNum,pageSize, "id");
-            log.info("获取旷工,入参: pageNum = {},pageSize = {}",pageNum,pageSize);
+            log.info("获取矿工,入参: pageNum = {},pageSize = {}",pageNum,pageSize);
             List<ChiaMiner> list = chiaMinerService.findChiaMinerList(chiaMiner);
-            log.info("获取旷工,出参: {}", JSON.toJSONString(list));
+            log.info("获取矿工,出参: {}", JSON.toJSONString(list));
             for (ChiaMiner dbchiaMiner : list) {
-                log.info("旷工信息:{}",JSON.toJSONString(dbchiaMiner));
+                log.info("矿工信息:{}",JSON.toJSONString(dbchiaMiner));
                 insertSysAggAccountDaily(dbchiaMiner);
                 insertSysAggPowerDaily(dbchiaMiner);
             }

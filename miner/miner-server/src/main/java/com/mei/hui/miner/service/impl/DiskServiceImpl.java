@@ -4,15 +4,19 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
+import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.QiniuOneDayAgg;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.DiskBO;
 import com.mei.hui.miner.feign.vo.DiskVO;
 import com.mei.hui.miner.service.DiskService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.miner.service.QiniuOneDayAggService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +43,8 @@ public class DiskServiceImpl implements DiskService {
     private RedisUtil redisUtil;
     @Autowired
     private ISysMinerInfoService minerInfoService;
+    @Autowired
+    private QiniuOneDayAggService qiniuOneDayAggService;
 
     public Result<DiskVO> diskSizeInfo(DiskBO diskBO){
         String totalDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_capacity_bytes{service=\"blkmaster\"})";
@@ -52,19 +59,26 @@ public class DiskServiceImpl implements DiskService {
         log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);
 
         BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(diskBO.getMinerId());
-        log.info("旷工已用存储量:{}",minerUsedDiskSize);
+        log.info("矿工已用存储量:{}",minerUsedDiskSize);
 
+        BigDecimal usedSizeAvg = usedSizeAvg();
+        log.info("过去5天平均使用容量:{}",usedSizeAvg);
+
+        Integer days = days(logicalAvailSize,usedSizeAvg);
+        log.info("剩余使用天数:{}",days);
 
         DiskVO diskVO = new DiskVO()
                 .setAvailDiskSize(availDiskSize)
                 .setUsedDiskSize(totalDiskSize.subtract(availDiskSize))
                 .setLogicalAvailSize(logicalAvailSize)
-                .setMinerUsedDiskSize(minerUsedDiskSize);
+                .setMinerUsedDiskSize(minerUsedDiskSize)
+                .setDays(days)
+                .setUsedSizeAvg(usedSizeAvg);
         return Result.success(diskVO);
     }
 
     /**
-     * 获取旷工已用存储量
+     * 获取矿工已用存储量
      * @param minerId
      * @return
      */
@@ -73,10 +87,11 @@ public class DiskServiceImpl implements DiskService {
 
         LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysMinerInfo::getMinerId,minerId);
+        queryWrapper.eq(SysMinerInfo::getUserId, HttpRequestUtil.getUserId());
         List<SysMinerInfo> list = minerInfoService.list(queryWrapper);
-        log.info("获取旷工信息:{}",JSON.toJSONString(list));
+        log.info("获取矿工信息:{}",JSON.toJSONString(list));
         if(list.size() == 0){
-            return new BigDecimal("0");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工错误");
         }
         return map.get(list.get(0).getBucket());
     }
@@ -107,7 +122,7 @@ public class DiskServiceImpl implements DiskService {
             return value.getBigDecimal(1);
         } catch (Exception e) {
             log.error("调用七牛接口异常:",e);
-            return new BigDecimal("0");
+            return null;
         }
     }
     /**
@@ -133,36 +148,34 @@ public class DiskServiceImpl implements DiskService {
         return token;
     }
     /**
-     * 查询集群剩余科协逻辑容量估算值
+     * 查询集群剩余可写逻辑容量估算值
      */
     public BigDecimal miscconfigs() {
-        Map<String,String> header = new HashMap<>();
-        header.put("Authorization",getQiNiuToken());
-        String rt = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl()+"/api/proxy/blkmaster/z0/miscconfigs", null, header);
-        String str = JSON.parseObject(rt).getString("default_write_mode");
-        if(StringUtils.isEmpty(str)){
-            log.error("调用七牛接口失败");
-            return new BigDecimal("0");
+        try {
+            Map<String,String> header = new HashMap<>();
+            header.put("Authorization",getQiNiuToken());
+            String rt = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl()+"/api/proxy/blkmaster/z0/miscconfigs", null, header);
+            String str = JSON.parseObject(rt).getString("default_write_mode");
+            String EC_N = str.substring(str.lastIndexOf("N")+1, str.lastIndexOf("M"));
+            String EC_M = str.substring(str.lastIndexOf("M")+1);
+            log.info("EC_N={},EC_M={}",EC_N,EC_M);
+            String result = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl() + "/api/proxy/blkmaster/z0/tool/scale/n/" + EC_N + "/m/" + EC_M + "/expected/0/disk_size/1000000000/disk_per_host/16", null, header);
+            BigDecimal logical_avail_size = JSON.parseObject(result).getBigDecimal("logical_avail_size");
+            return logical_avail_size;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("查询集群剩余可写逻辑容量估算值,异常:",e);
+            return null;
         }
-        String EC_N = str.substring(str.lastIndexOf("N")+1, str.lastIndexOf("M"));
-        String EC_M = str.substring(str.lastIndexOf("M")+1);
-        log.info("EC_N={},EC_M={}",EC_N,EC_M);
-        String result = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl() + "/api/proxy/blkmaster/z0/tool/scale/n/" + EC_N + "/m/" + EC_M + "/expected/0/disk_size/1000000000/disk_per_host/16", null, header);
-        if(StringUtils.isEmpty(result)){
-            log.error("调用七牛接口失败");
-            return new BigDecimal("0");
-        }
-        BigDecimal logical_avail_size = JSON.parseObject(result).getBigDecimal("logical_avail_size");
-        return logical_avail_size;
     }
 
     /**
-     * 获取每个旷工已使用存储量
+     * 获取每个矿工已使用存储量
      * @return
      */
     public Map<String,BigDecimal> allbucketInfo() {
         int count = minerInfoService.count();
-        log.info("平台旷工数量:{}",count);
+        log.info("平台矿工数量:{}",count);
 
         Map<String,BigDecimal> map = new HashMap<>();
         Map<String,String> header = new HashMap<>();
@@ -181,5 +194,48 @@ public class DiskServiceImpl implements DiskService {
         }
         return map;
     }
+
+    /**
+     * 查询集群剩余可写逻辑容量估算值
+     * available_capacity=剩余可写物理容量=集群剩余可写逻辑容量*(EC-N+EC-M)/EC-N
+     * 预测天数 days= available_capacity / used_avg
+     */
+    public Integer days(BigDecimal logicalAvailSize,BigDecimal usedSizeAvg) {
+        log.info("logicalAvailSize:{},usedSizeAvg:{}",logicalAvailSize,usedSizeAvg);
+        try {
+            Map<String,String> header = new HashMap<>();
+            header.put("Authorization",getQiNiuToken());
+            String rt = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl()+"/api/proxy/blkmaster/z0/miscconfigs", null, header);
+            String str = JSON.parseObject(rt).getString("default_write_mode");
+            String EC_N = str.substring(str.lastIndexOf("N")+1, str.lastIndexOf("M"));
+            String EC_M = str.substring(str.lastIndexOf("M")+1);
+            log.info("EC_N={},EC_M={}",EC_N,EC_M);
+            BigDecimal available_capacity = logicalAvailSize.multiply(new BigDecimal(EC_N).add(new BigDecimal(EC_M))).divide(new BigDecimal(EC_N));
+            log.info("available_capacity:{}",available_capacity);
+            return available_capacity.divide(usedSizeAvg,2,BigDecimal.ROUND_HALF_UP).intValue();
+        } catch (Exception e) {
+            log.error("计算剩余使用天数,异常:",e);
+            return null;
+        }
+    }
+
+    /**
+     * 过去5天平均使用容量
+     * @return
+     */
+    public BigDecimal usedSizeAvg(){
+        try {
+            //获取过去5天，平均每天的使用容量
+            LambdaQueryWrapper<QiniuOneDayAgg> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.eq(QiniuOneDayAgg::getCreateDate, LocalDate.now().minusDays(1));
+            List<QiniuOneDayAgg> list = qiniuOneDayAggService.list(queryWrapper);
+            log.info("获取过去5天,平均每天的使用容量:{}",JSON.toJSONString(list));
+            return list.get(0).getUsedSizeAvg();
+        } catch (Exception e) {
+            log.error("过去5天平均使用容量",e);
+            return null;
+        }
+    }
+
 
 }

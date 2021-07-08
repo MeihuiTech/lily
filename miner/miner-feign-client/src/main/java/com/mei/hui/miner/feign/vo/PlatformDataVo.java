@@ -21,7 +21,7 @@ public class PlatformDataVo {
     @ApiModelProperty("平台今日出块数")
     private Long perDayBlocks;
 
-    @ApiModelProperty("平台活跃旷工")
+    @ApiModelProperty("平台活跃矿工")
     private Long activeMiner;
 
 }

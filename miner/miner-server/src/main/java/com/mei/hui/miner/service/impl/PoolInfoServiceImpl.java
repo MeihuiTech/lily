@@ -31,14 +31,14 @@ public class PoolInfoServiceImpl implements IPoolInfoService {
     private ChiaMinerMapper xchMinerMapper;
 
     /**
-     * 查询file币，旷工，矿机数量
+     * 查询file币，矿工，矿机数量
      * @return
      */
     @Override
     public PoolInfo selectPoolInfoByUserId(Long currencyId) {
         Long userId = HttpRequestUtil.getUserId();
         /**
-         * 查询旷工
+         * 查询矿工
          */
         LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
         if(userId != 1){
@@ -64,7 +64,7 @@ public class PoolInfoServiceImpl implements IPoolInfoService {
     public PoolInfo getXchMinerAmount(Long currencyId){
         Long userId = HttpRequestUtil.getUserId();
         /**
-         * 查询旷工
+         * 查询矿工
          */
         LambdaQueryWrapper<ChiaMiner> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(ChiaMiner::getUserId,userId);

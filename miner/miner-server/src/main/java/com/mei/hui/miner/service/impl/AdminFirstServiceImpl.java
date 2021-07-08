@@ -46,22 +46,22 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
     private ISysAggPowerDailyService sysAggPowerDailyService;
 
     /**
-     * fil管理员首页-旷工统计数据
+     * fil管理员首页-矿工统计数据
      * @return
      */
     @Override
     public AdminFirstCollectVO filAdminFirstAllCount() {
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
-        // 管理员首页-旷工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
+        // 管理员首页-矿工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
         BigDecimal allBalanceMinerAccount = sysMinerInfoService.selectFilAllBalanceMinerAccount();
         adminFirstCollectVO.setAllBalanceMinerAccount(BigDecimalUtil.formatFour(allBalanceMinerAccount));
-        // 管理员首页-旷工统计数据-平台有效算力
+        // 管理员首页-矿工统计数据-平台有效算力
         BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
         adminFirstCollectVO.setAllPowerAvailable(allPowerAvailable);
-        // 管理员首页-旷工统计数据-活跃旷工
+        // 管理员首页-矿工统计数据-活跃矿工
         Long allMinerCount = sysMinerInfoService.selectFilAllMinerIdCount();
         adminFirstCollectVO.setAllMinerCount(allMinerCount);
-        // 管理员首页-旷工统计数据-当天出块份数
+        // 管理员首页-矿工统计数据-当天出块份数
         // 查询FIL币矿工信息表里所有的累计出块份数
         Long allTotalBlocks = sysMinerInfoService.selectFilAllBlocksPerDay();
         // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
@@ -76,22 +76,22 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
     }
 
     /**
-     * chia管理员首页-旷工统计数据
+     * chia管理员首页-矿工统计数据
      * @return
      */
     @Override
     public AdminFirstCollectVO chiaAdminFirstAllCount() {
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
-        // 管理员首页-旷工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
+        // 管理员首页-矿工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
         BigDecimal allBalanceMinerAccount = chiaMinerService.selectFilAllBalanceMinerAccount();
         adminFirstCollectVO.setAllBalanceMinerAccount(BigDecimalUtil.formatFour(allBalanceMinerAccount));
-        // 管理员首页-旷工统计数据-平台有效算力
+        // 管理员首页-矿工统计数据-平台有效算力
         BigDecimal allPowerAvailable = chiaMinerService.selectFilAllPowerAvailable();
         adminFirstCollectVO.setAllPowerAvailable(allPowerAvailable);
-        // 管理员首页-旷工统计数据-活跃旷工
+        // 管理员首页-矿工统计数据-活跃矿工
         Long allMinerCount = chiaMinerService.selectFilAllMinerIdCount();
         adminFirstCollectVO.setAllMinerCount(allMinerCount);
-        // 管理员首页-旷工统计数据-当天出块份数
+        // 管理员首页-矿工统计数据-当天出块份数
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
         Long allBlocksPerDay = chiaMinerService.selectFilAllBlocksPerDay(yesterDayDate);
         adminFirstCollectVO.setAllBlocksPerDay(allBlocksPerDay);
@@ -106,18 +106,18 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
      */
     @Override
     public Map<String,Object> filPowerAvailablePage(String yesterDayDate,BasePage basePage) {
-        // 管理员首页-旷工统计数据-平台有效算力
+        // 管理员首页-矿工统计数据-平台有效算力
         BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
-        log.info("fil管理员首页-旷工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
+        log.info("fil管理员首页-矿工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
         log.info("fil币管理员首页-平台有效算力排行榜入参yesterDayDate:【{}】",yesterDayDate);
         IPage<PowerAvailableFilVO> result = sysMinerInfoMapper.powerAvailablePage(powerAvailableFilVOPage,yesterDayDate);
         log.info("fil币管理员首页-平台有效算力排行榜出参:【{}】",JSON.toJSON(result));
         if (result != null && result.getRecords() != null && result.getRecords().size() > 0) {
             for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
-                log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
+                log.info("根据userId查询fil币矿工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
                 List<String> minerIdList = sysMinerInfoService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
-                log.info("根据userId查询fil币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
+                log.info("根据userId查询fil币矿工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
                 log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
                 PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.FIL.name());
                 log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));
@@ -164,17 +164,17 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
      */
     @Override
     public Map<String,Object> chiaPowerAvailablePage(String yesterDayDate,BasePage basePage) {
-        // 管理员首页-旷工统计数据-平台有效算力
+        // 管理员首页-矿工统计数据-平台有效算力
         BigDecimal allPowerAvailable = chiaMinerService.selectFilAllPowerAvailable();
-        log.info("chia管理员首页-旷工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
+        log.info("chia管理员首页-矿工统计数据-平台有效算力出参：【{}】",allPowerAvailable);
         Page<PowerAvailableFilVO> powerAvailableFilVOPage = new Page<>(basePage.getPageNum(),basePage.getPageSize());
         IPage<PowerAvailableFilVO> result = chiaMinerMapper.powerAvailablePage(powerAvailableFilVOPage,allPowerAvailable);
         log.info("chia币管理员首页-平台有效算力排行榜:【{}】",JSON.toJSON(result));
         if (result != null && result.getRecords() != null && result.getRecords().size() > 0) {
             for (PowerAvailableFilVO powerAvailableFilVO:result.getRecords()) {
-                log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
+                log.info("根据userId查询起亚币矿工信息表里的该用户所有的矿工ID入参：【{}】",powerAvailableFilVO.getUserId());
                 List<String> minerIdList = chiaMinerService.findMinerIdByUserId(powerAvailableFilVO.getUserId());
-                log.info("根据userId查询起亚币旷工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
+                log.info("根据userId查询起亚币矿工信息表里的该用户所有的矿工ID出参：【{}】",minerIdList);
                 log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速入参yesterDayDate：【{}】,minerIdList:【{}】",yesterDayDate, minerIdList);
                 PowerAvailableFilVO dbPowerAvailableFilVO = sysAggPowerDailyService.selectPowerAvailableByDateAndUserIdList(yesterDayDate, minerIdList,CurrencyEnum.XCH.name());
                 log.info("管理员-首页-平台有效算力排行榜-查询算力按天聚合表里的挖矿效率、算力增速出参：【{}】",JSON.toJSON(dbPowerAvailableFilVO));

@@ -9,19 +9,27 @@ import java.math.BigDecimal;
 
 @Data
 @Accessors(chain = true)
-@ApiModel(value = "管理员-用户列表出参")
+@ApiModel
 public class DiskVO {
 
-    @ApiModelProperty(value = "剩余物理容量")
+    @ApiModelProperty("剩余物理容量")
     private BigDecimal availDiskSize;
 
-    @ApiModelProperty(value = "已用物理容量")
+    @ApiModelProperty("已用物理容量")
     private BigDecimal usedDiskSize;
 
-    @ApiModelProperty(value = "剩余可写逻辑容量")
+    @ApiModelProperty("剩余可写逻辑容量")
     private BigDecimal logicalAvailSize;
 
-    @ApiModelProperty(value = "旷工已用存储量")
+    @ApiModelProperty("矿工已用存储量")
     private BigDecimal minerUsedDiskSize;
+
+    @ApiModelProperty("剩余容量可用天数预测")
+    private Integer days;
+
+    @ApiModelProperty("过去5天平均使用容量")
+    private BigDecimal usedSizeAvg;
+
+
 
 }

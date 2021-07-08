@@ -380,7 +380,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Transactional(rollbackFor = Exception.class)
     public Result withdraw(SysTransferRecordWrap sysTransferRecordWrap){
         if(sysTransferRecordWrap.getMinerId() == null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择旷工");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择矿工");
         }
         Long userId = HttpRequestUtil.getUserId();
         Long currencyId = HttpRequestUtil.getCurrencyId();
@@ -401,11 +401,11 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper();
             wrapper.eq(SysMinerInfo::getMinerId,minerId);
             wrapper.eq(SysMinerInfo::getUserId,userId);
-            log.info("查询fil旷工信息,入参:{}",wrapper.toString());
+            log.info("查询fil矿工信息,入参:{}",wrapper.toString());
             List<SysMinerInfo> miners = sysMinerInfoMapper.selectList(wrapper);
-            log.info("查询fil旷工信息,出参:{}",JSON.toJSONString(miners));
+            log.info("查询fil矿工信息,出参:{}",JSON.toJSONString(miners));
             if(miners.size() == 0){
-                throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工不存在");
             }
             SysMinerInfo sysMinerInfo = miners.get(0);
             balanceMinerAvailable = sysMinerInfo.getBalanceMinerAvailable();
@@ -418,11 +418,11 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             chiaMiner.setMinerId(minerId);
             QueryWrapper<ChiaMiner> queryWrapper = new QueryWrapper<>();
             queryWrapper.setEntity(chiaMiner);
-            log.info("查询chia旷工信息,入参:{}",JSON.toJSON(chiaMiner));
+            log.info("查询chia矿工信息,入参:{}",JSON.toJSON(chiaMiner));
             List<ChiaMiner> chiaMinerList = chiaMinerMapper.selectList(queryWrapper);
-            log.info("查询chia旷工信息,出参:{}",JSON.toJSON(chiaMinerList));
+            log.info("查询chia矿工信息,出参:{}",JSON.toJSON(chiaMinerList));
             if(chiaMinerList.size() == 0){
-                throw MyException.fail(MinerError.MYB_222222.getCode(),"旷工不存在");
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工不存在");
             }
             balanceMinerAvailable =chiaMinerList.get(0).getBalanceMinerAccount();
             //费率
@@ -504,14 +504,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         }
         EarningVo earningVo = new EarningVo(0.0, 0.0, 0.0, 0.0);
         /**
-         *获取旷工信息
+         *获取矿工信息
          */
-        log.info("查询旷工信息,userId ={},minerId={}",userId,minerId);
+        log.info("查询矿工信息,userId ={},minerId={}",userId,minerId);
         LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysMinerInfo::getMinerId,minerId);
         queryWrapper.eq(SysMinerInfo::getUserId,userId);
         List<SysMinerInfo> miners = sysMinerInfoMapper.selectList(queryWrapper);
-        log.info("旷工信息查询结果:{}",JSON.toJSONString(miners));
+        log.info("矿工信息查询结果:{}",JSON.toJSONString(miners));
         if(miners == null || miners.size() == 0){
             return Result.success(earningVo);
         }
@@ -569,14 +569,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         }
         EarningChiaVo earningVo = new EarningChiaVo(0.0, 0.0);
         /**
-         *获取旷工信息
+         *获取矿工信息
          */
-        log.info("查询旷工信息,userId ={},minerId={}",userId,minerId);
+        log.info("查询矿工信息,userId ={},minerId={}",userId,minerId);
         LambdaQueryWrapper<ChiaMiner> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ChiaMiner::getMinerId,minerId);
         queryWrapper.eq(ChiaMiner::getUserId,userId);
         List<ChiaMiner> miners = chiaMinerMapper.selectList(queryWrapper);
-        log.info("旷工信息查询结果:{}",JSON.toJSONString(miners));
+        log.info("矿工信息查询结果:{}",JSON.toJSONString(miners));
         if(miners == null || miners.size() == 0){
             return Result.success(earningVo);
         }

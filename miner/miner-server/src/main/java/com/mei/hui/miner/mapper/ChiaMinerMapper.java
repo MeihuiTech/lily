@@ -19,7 +19,7 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
 
 
     /**
-     * chia管理员首页-旷工统计数据-平台总资产
+     * chia管理员首页-矿工统计数据-平台总资产
      *
      * @description
      * @author shangbin
@@ -31,7 +31,7 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
     public BigDecimal selectAllBalanceMinerAccount();
 
     /**
-     * chia管理员首页-旷工统计数据-平台有效算力
+     * chia管理员首页-矿工统计数据-平台有效算力
      *
      * @description
      * @author shangbin
@@ -43,7 +43,7 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
     public BigDecimal selectAllPowerAvailable();
 
     /**
-     * chia管理员首页-旷工统计数据-活跃旷工
+     * chia管理员首页-矿工统计数据-活跃矿工
      *
      * @description
      * @author shangbin

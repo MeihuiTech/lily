@@ -56,11 +56,11 @@ public class AggregationFilTask {
         int pageSize = 100;
         while (true) {
             PageHelper.startPage(pageNum,pageSize, "id");
-            log.info("获取旷工,入参: pageNum = {},pageSize = {}",pageNum,pageSize);
+            log.info("获取矿工,入参: pageNum = {},pageSize = {}",pageNum,pageSize);
             List<SysMinerInfo> list = sysMinerInfoService.findMinerInfoList(sysMinerInfo);
-            log.info("获取旷工,出参: {}", JSON.toJSONString(list));
+            log.info("获取矿工,出参: {}", JSON.toJSONString(list));
             for (SysMinerInfo info : list) {
-                log.info("旷工信息:{}",JSON.toJSONString(info));
+                log.info("矿工信息:{}",JSON.toJSONString(info));
                 insertAccount(info);
                 insertPower(info);
             }

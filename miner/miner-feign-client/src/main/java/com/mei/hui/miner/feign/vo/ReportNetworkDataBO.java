@@ -21,6 +21,6 @@ public class ReportNetworkDataBO {
     @ApiModelProperty(value = "全网区块高度",required = true)
     private Long blockHeight;
 
-    @ApiModelProperty(value = "全网活跃旷工",required = true)
+    @ApiModelProperty(value = "全网活跃矿工",required = true)
     private Long activeMiner;
 }

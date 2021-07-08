@@ -176,11 +176,11 @@ public class FilReportedController {
         return reportGasService.reportGas(bo);
     }
 
-    @ApiOperation(value = "全网数据上报:累计出块奖励、有效算力、累计出块份数、全网活跃旷工、全网区块高度")
+    @ApiOperation(value = "全网数据上报:累计出块奖励、有效算力、累计出块份数、全网活跃矿工、全网区块高度")
     @PostMapping("/reportNetworkData")
     public Result reportNetworkData(@RequestBody ReportNetworkDataBO bo){
         if(bo.getActiveMiner() == null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"全网活跃旷工,不能为空");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"全网活跃矿工,不能为空");
         }
         if(bo.getBlockHeight() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"全网区块高度,不能为空");

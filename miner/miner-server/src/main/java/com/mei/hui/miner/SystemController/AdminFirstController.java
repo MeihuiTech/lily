@@ -26,11 +26,11 @@ public class AdminFirstController {
     @Autowired
     private IAdminFirstService adminFirstService;
 
-    @ApiOperation(value = "管理员首页-旷工统计数据",notes = "管理员首页-旷工统计数据出参：\n" +
+    @ApiOperation(value = "管理员首页-矿工统计数据",notes = "管理员首页-矿工统计数据出参：\n" +
             "\n" +
             "allBalanceMinerAccount平台总资产\n" +
             "allPowerAvailable平台有效算力\n" +
-            "allMinerCount活跃旷工\n" +
+            "allMinerCount活跃矿工\n" +
             "allBlocksPerDay当天出块份数")
     @GetMapping("/allCount")
     public Result adminFirstAllCount(){

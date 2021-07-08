@@ -104,7 +104,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo);
 
     /**
-     * 获取起亚币旷工列表
+     * 获取起亚币矿工列表
      * @return
      */
     List<SysMinerInfo> findXchMinerList();
@@ -150,7 +150,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     public Long selectFilAllBlocksPerDay();
 
     /**
-     * fil管理员首页-旷工统计数据-平台总资产
+     * fil管理员首页-矿工统计数据-平台总资产
      *
      * @description
      * @author shangbin
@@ -162,7 +162,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     public BigDecimal selectFilAllBalanceMinerAccount();
 
     /**
-     * fil管理员首页-旷工统计数据-平台有效算力
+     * fil管理员首页-矿工统计数据-平台有效算力
      *
      * @description
      * @author shangbin
@@ -174,7 +174,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     public BigDecimal selectFilAllPowerAvailable();
 
     /**
-     * fil管理员首页-旷工统计数据-活跃旷工
+     * fil管理员首页-矿工统计数据-活跃矿工
      *
      * @description
      * @author shangbin
@@ -186,7 +186,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     public Long selectFilAllMinerIdCount();
 
     /**
-    * 根据userId查询fil币旷工信息表里的该用户所有的矿工ID
+    * 根据userId查询fil币矿工信息表里的该用户所有的矿工ID
     *
     * @description
     * @author shangbin

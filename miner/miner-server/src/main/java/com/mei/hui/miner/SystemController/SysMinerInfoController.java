@@ -38,7 +38,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     @Autowired
     private IChiaMinerService chiaMinerService;
 
-    @ApiOperation(value = "根据旷工id查询账户按天聚合信息")
+    @ApiOperation(value = "根据矿工id查询账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
     public PageResult dailyAccount(@PathVariable("id") Long id) {
         Long currencyId = HttpRequestUtil.getCurrencyId();
@@ -109,7 +109,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         return Result.fail(MinerError.MYB_222222.getCode(),"用户当前币种异常");
     }
 
-    @ApiOperation(value = "根据旷工id查询算力按天聚合信息")
+    @ApiOperation(value = "根据矿工id查询算力按天聚合信息")
     @GetMapping(value = "/{id}/dailyPower")
     public Map<String,Object> dailyPower(@PathVariable("id") Long id) {
         Long currencyId = HttpRequestUtil.getCurrencyId();
@@ -126,7 +126,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      */
     @ApiOperation(value = "矿工列表",notes = "fil矿工列表出参：\n" +
             "\n" +
-            "minerId旷工id\n" +
+            "minerId矿工id\n" +
             "balanceMinerAccount挖矿账户余额, 单位FIL\n" +
             "balanceMinerAvailable矿工可用余额,单位FIL\n" +
             "sectorPledge扇区质押, 单位FIL\n" +
@@ -141,7 +141,7 @@ public class SysMinerInfoController<ISysMachineInfoService> {
             "\n" +
             "chia查询矿工信息列表出参：\n" +
             "\n" +
-            "minerId旷工id\n" +
+            "minerId矿工id\n" +
             "powerAvailable有效算力, 单位B\n" +
             "totalBlockAward累计出块奖励,单位XCH\n" +
             "balanceMinerAccount总资产, 单位XCH\n" +

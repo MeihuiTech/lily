@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-@ApiModel(value = "管理员-用户列表出参")
+@ApiModel
 public class DiskBO {
 
     @ApiModelProperty(value = "剩余物理容量",required = true)

@@ -17,7 +17,7 @@ import java.util.List;
  * @version v1.0.0
  * @date 2021/6/7 14:13
  **/
-@Api(value = "起亚币旷工信息",tags = "起亚币旷工信息")
+@Api(value = "起亚币矿工信息",tags = "起亚币矿工信息")
 @Slf4j
 @RestController
 @RequestMapping("/chiaMiner")

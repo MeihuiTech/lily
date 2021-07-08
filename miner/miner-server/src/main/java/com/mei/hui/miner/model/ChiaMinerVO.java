@@ -16,7 +16,7 @@ public class ChiaMinerVO {
 
     private Long id;
 
-    @ApiModelProperty(value = "旷工id")
+    @ApiModelProperty(value = "矿工id")
     private String minerId;
 
     @ApiModelProperty(value = "有效算力, 单位B")

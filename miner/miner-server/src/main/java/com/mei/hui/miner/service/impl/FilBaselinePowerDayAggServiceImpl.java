@@ -53,10 +53,10 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
      */
     public Result<GeneralViewVo> generalView(){
         GeneralViewVo generalViewVo = new GeneralViewVo();
-        //全网数据获取:累计出块奖励，全网算力，全网今日出块数，全网活跃旷工
+        //全网数据获取:累计出块奖励，全网算力，全网今日出块数，全网活跃矿工
         pushNetWordDataVo(generalViewVo);
 
-        //平台数据:累计出块奖励，算力，今日出块数，活跃旷工
+        //平台数据:累计出块奖励，算力，今日出块数，活跃矿工
         pushPlatformDataVo(generalViewVo);
 
         //扇区封装成本
@@ -65,7 +65,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
     }
 
     /**
-     * 平台数据:累计出块奖励，算力，今日出块数，活跃旷工
+     * 平台数据:累计出块奖励，算力，今日出块数，活跃矿工
      * @param generalViewVo
      */
     public void pushPlatformDataVo(GeneralViewVo generalViewVo){
@@ -80,7 +80,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
                     .setTotalBlockAward(BigDecimalUtil.formatFour(minerAggData.getTotalBlockAward()));
         }
         /**
-         * 活跃旷工
+         * 活跃矿工
          */
         long activityMinerCount = minerInfoMapper.getActivityMinerCount();
         log.info("平台活跃矿工数量:{}",activityMinerCount);
@@ -125,7 +125,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
     }
 
     /**
-     * 全网数据获取:累计出块奖励，全网算力，全网今日出块数，全网活跃旷工
+     * 全网数据获取:累计出块奖励，全网算力，全网今日出块数，全网活跃矿工
      * @param generalViewVo
      */
     public void pushNetWordDataVo(GeneralViewVo generalViewVo){
@@ -133,10 +133,10 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         //全网今日出块
         Long perDayBlocks = 0L;
         /**
-         * 全网数据:累计出块奖励,全网算力,全网出块份数,全网活跃旷工
+         * 全网数据:累计出块奖励,全网算力,全网出块份数,全网活跃矿工
          */
         List<FilReportNetworkData> networkDatas = reportNetworkDataService.list();
-        log.info("计出块奖励,全网算力,全网出块份数,全网活跃旷工:{}", JSON.toJSONString(networkDatas));
+        log.info("计出块奖励,全网算力,全网出块份数,全网活跃矿工:{}", JSON.toJSONString(networkDatas));
 
         if(networkDatas.size() > 0){
             FilReportNetworkData filReportNetworkData = networkDatas.get(0);
@@ -240,7 +240,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
     @Override
     public Result<ForeignNetworkVO> selectForeignNetwork() {
         GeneralViewVo generalViewVo = new GeneralViewVo();
-        //全网数据获取:累计出块奖励，全网算力，全网今日出块数，全网活跃旷工
+        //全网数据获取:累计出块奖励，全网算力，全网今日出块数，全网活跃矿工
         pushNetWordDataVo(generalViewVo);
         log.info("全网数据出参:【{}】",JSON.toJSON(generalViewVo));
 
@@ -259,7 +259,7 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
     @Override
     public Result<ForeignPlatformVO> selectForeignPlatform() {
         GeneralViewVo generalViewVo = new GeneralViewVo();
-        //平台数据:累计出块奖励，算力，今日出块数，活跃旷工
+        //平台数据:累计出块奖励，算力，今日出块数，活跃矿工
         pushPlatformDataVo(generalViewVo);
         log.info("平台数据出参:【{}】",JSON.toJSON(generalViewVo));
         PlatformDataVo platformData = generalViewVo.getPlatformData();

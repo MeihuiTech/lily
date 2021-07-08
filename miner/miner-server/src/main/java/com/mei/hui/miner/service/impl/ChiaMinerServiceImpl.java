@@ -47,7 +47,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     private UserFeignClient userFeignClient;
 
     /**
-     * 获取 起亚币 旷工列表
+     * 获取 起亚币 矿工列表
      * @param sysMinerInfoBO
      * @return
      */
@@ -107,7 +107,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     }
 
     /**
-     * chia管理员首页-旷工统计数据-平台总资产
+     * chia管理员首页-矿工统计数据-平台总资产
      * @return
      */
     @Override
@@ -116,7 +116,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     }
 
     /**
-     * chia管理员首页-旷工统计数据-平台有效算力
+     * chia管理员首页-矿工统计数据-平台有效算力
      * @return
      */
     @Override
@@ -125,7 +125,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     }
 
     /**
-     * chia管理员首页-旷工统计数据-活跃旷工
+     * chia管理员首页-矿工统计数据-活跃矿工
      * @return
      */
     @Override
@@ -134,7 +134,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     }
 
     /**
-     * chia管理员首页-旷工统计数据-当天出块份数
+     * chia管理员首页-矿工统计数据-当天出块份数
      * @return
      */
     @Override
@@ -143,7 +143,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     }
 
     /**
-     * 根据用户id、旷工id查询起亚币旷工信息表中是否有数据
+     * 根据用户id、矿工id查询起亚币矿工信息表中是否有数据
      * @param userId
      * @param minerId
      * @return
@@ -177,7 +177,7 @@ public class ChiaMinerServiceImpl implements IChiaMinerService {
     }
 
     /**
-    * 根据userId查询起亚币旷工信息表里的该用户所有的矿工ID
+    * 根据userId查询起亚币矿工信息表里的该用户所有的矿工ID
     *
     * @description
     * @author shangbin

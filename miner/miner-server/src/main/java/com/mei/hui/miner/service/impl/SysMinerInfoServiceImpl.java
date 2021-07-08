@@ -266,7 +266,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     }
 
     /**
-     * 获取 起亚币 旷工列表
+     * 获取 起亚币 矿工列表
      * @return
      */
     @Override
@@ -597,7 +597,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     }
 
     /**
-     * 根据userId查询fil币旷工信息表里的该用户所有的矿工ID
+     * 根据userId查询fil币矿工信息表里的该用户所有的矿工ID
      * @param userId
      * @return
      */
@@ -677,7 +677,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             rows = insertSysMinerInfo(sysMinerInfo);
         } else {
             sysMinerInfo.setId(miner.getId());
-            log.info("新增矿工上报已存在，更新旷工几款:【{}】",JSON.toJSON(sysMinerInfo));
+            log.info("新增矿工上报已存在，更新矿工几款:【{}】",JSON.toJSON(sysMinerInfo));
             rows = updateSysMinerInfo(sysMinerInfo);
         }
 

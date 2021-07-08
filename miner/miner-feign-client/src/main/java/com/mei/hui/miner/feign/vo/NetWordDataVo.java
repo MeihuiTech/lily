@@ -23,7 +23,7 @@ public class NetWordDataVo {
     @ApiModelProperty("全网今日出块数")
     private Long perDayBlocks;
 
-    @ApiModelProperty("全网活跃旷工")
+    @ApiModelProperty("全网活跃矿工")
     private Long activeMiner;
 
 }
