@@ -7,4 +7,6 @@ import com.mei.hui.util.Result;
 public interface DiskService {
 
     Result<DiskVO> diskSizeInfo(DiskBO diskBO);
+
+    String getQiNiuToken();
 }
