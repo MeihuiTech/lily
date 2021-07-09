@@ -41,8 +41,6 @@ import java.util.concurrent.TimeUnit;
 public class DiskServiceImpl implements DiskService {
 
     @Autowired
-    private RuoYiConfig ruoYiConfig;
-    @Autowired
     private RedisUtil redisUtil;
     @Autowired
     private ISysMinerInfoService minerInfoService;
