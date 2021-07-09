@@ -84,10 +84,10 @@ public class DiskServiceImpl implements DiskService {
         DiskVO diskVO = new DiskVO()
                 .setAvailDiskSize(availDiskSize)
                 .setUsedDiskSize(totalDiskSize.subtract(availDiskSize))
-                .setLogicalAvailSize(logicalAvailSize)
-                .setMinerUsedDiskSize(minerUsedDiskSize)
-                .setDays(days)
-                .setUsedSizeAvg(usedSizeAvg);
+               // .setLogicalAvailSize(logicalAvailSize)
+                .setMinerUsedDiskSize(minerUsedDiskSize);
+              //  .setDays(days)
+              //  .setUsedSizeAvg(usedSizeAvg);
         return Result.success(diskVO);
     }
 
