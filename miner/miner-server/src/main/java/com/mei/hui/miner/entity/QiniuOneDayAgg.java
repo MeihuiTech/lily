@@ -39,5 +39,8 @@ public class QiniuOneDayAgg {
     //过去5天平均使用容量
     private BigDecimal usedSizeAvg;
 
+    //集群名称，取表qiniu_store_config 中的值
+    private String clusterName;
+
 
 }

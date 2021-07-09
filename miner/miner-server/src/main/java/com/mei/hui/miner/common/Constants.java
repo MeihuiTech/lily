@@ -39,7 +39,8 @@ public interface Constants extends SystemConstants {
      */
     Integer MACHINEONLINEONE = 1;
 
-    String qi_niu_token = "qi_niu_token";
+    //格式:qi_niu_集群名称_token
+    String qi_niu_token = "qi_niu_%s_token";
 
 
 

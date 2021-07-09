@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
@@ -11,12 +12,14 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.QiniuOneDayAgg;
+import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.DiskBO;
 import com.mei.hui.miner.feign.vo.DiskVO;
 import com.mei.hui.miner.service.DiskService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.miner.service.QiniuOneDayAggService;
+import com.mei.hui.miner.service.QiniuStoreConfigService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
@@ -45,26 +48,37 @@ public class DiskServiceImpl implements DiskService {
     private ISysMinerInfoService minerInfoService;
     @Autowired
     private QiniuOneDayAggService qiniuOneDayAggService;
+    @Autowired
+    private QiniuStoreConfigService qiniuStoreConfigService;
 
     public Result<DiskVO> diskSizeInfo(DiskBO diskBO){
+        //获取当前选择矿工的七牛配置信息
+        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(QiniuStoreConfig::getMinerId,diskBO.getMinerId());
+        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
+        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
+        if(storeConfig == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
+        }
+
         String totalDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_capacity_bytes{service=\"blkmaster\"})";
-        BigDecimal totalDiskSize = getDiskSize(totalDiskSizeUrl);
+        BigDecimal totalDiskSize = getDiskSize(storeConfig,totalDiskSizeUrl);
         log.info("获取磁盘总容量:{}",totalDiskSize);
 
         String availDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_avail_bytes{service=\"blkmaster\"})";
-        BigDecimal availDiskSize = getDiskSize(availDiskSizeUrl);
+        BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
         log.info("获取磁盘剩余可用容量:{}",availDiskSize);
 
-        BigDecimal logicalAvailSize = miscconfigs();
+        BigDecimal logicalAvailSize = miscconfigs(storeConfig);
         log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);
 
-        BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(diskBO.getMinerId());
+        BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(storeConfig);
         log.info("矿工已用存储量:{}",minerUsedDiskSize);
 
         BigDecimal usedSizeAvg = usedSizeAvg();
         log.info("过去5天平均使用容量:{}",usedSizeAvg);
 
-        Integer days = days(logicalAvailSize,usedSizeAvg);
+        Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
         log.info("剩余使用天数:{}",days);
 
         DiskVO diskVO = new DiskVO()
@@ -79,32 +93,22 @@ public class DiskServiceImpl implements DiskService {
 
     /**
      * 获取矿工已用存储量
-     * @param minerId
      * @return
      */
-    public BigDecimal getMinerUsedDiskSize(String minerId){
-        Map<String, BigDecimal> map = allbucketInfo();
-
-        LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SysMinerInfo::getMinerId,minerId);
-        queryWrapper.eq(SysMinerInfo::getUserId, HttpRequestUtil.getUserId());
-        List<SysMinerInfo> list = minerInfoService.list(queryWrapper);
-        log.info("获取矿工信息:{}",JSON.toJSONString(list));
-        if(list.size() == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工错误");
-        }
-        return map.get(list.get(0).getBucket());
+    public BigDecimal getMinerUsedDiskSize(QiniuStoreConfig storeConfig){
+        Map<String, BigDecimal> map = allbucketInfo(storeConfig);
+        return map.get(storeConfig.getBucket());
     }
     /**
      * 获取总容量
      * @return
      * @throws UnsupportedEncodingException
      */
-    public BigDecimal getDiskSize(String metric) {
+    public BigDecimal getDiskSize(QiniuStoreConfig qiniuStoreConfig,String metric) {
         try {
-            String url = ruoYiConfig.getQiNiuPrometheusUrl()+"/api/v1/query?query="+ URLEncoder.encode(metric,"UTF-8");
+            String url = qiniuStoreConfig.getPrometheusDomain()+"/api/v1/query?query="+ URLEncoder.encode(metric,"UTF-8");
             Map<String,String> header = new HashMap<>();
-            header.put("Authorization",getQiNiuToken());
+            header.put("Authorization",getQiNiuToken(qiniuStoreConfig));
             String rt = HttpUtil.doPost(url,"",header);
             if(StringUtils.isEmpty(rt)){
                 log.error("获取集群总物理容量失败");
@@ -129,37 +133,40 @@ public class DiskServiceImpl implements DiskService {
      * 获取七牛云token 用于接口调用
      * @return
      */
-    public String getQiNiuToken(){
-        String qi_niu_token = redisUtil.get(Constants.qi_niu_token);
+    public String getQiNiuToken(QiniuStoreConfig qiniuStoreConfig){
+        String qiniuUserName = AESUtil.decrypt(qiniuStoreConfig.getUserName());
+        String qiniuPassWord = AESUtil.decrypt(qiniuStoreConfig.getPassWord());
+        String redisKey = String.format(Constants.qi_niu_token,qiniuStoreConfig.getClusterName());
+        String qi_niu_token = redisUtil.get(redisKey);
         if(StringUtils.isNotEmpty(qi_niu_token)){
             return qi_niu_token;
         }
-        String domain = ruoYiConfig.getQiNiuEcloudUrl()+"/api/proxy/admin-acc/login/signin";
+        String domain = qiniuStoreConfig.getEcloudDomain()+"/api/proxy/admin-acc/login/signin";
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("email",ruoYiConfig.getQiNiuEmail());
-        jsonObject.put("password",ruoYiConfig.getQiNiuPassword());
+        jsonObject.put("email",qiniuUserName);
+        jsonObject.put("password",qiniuPassWord);
         String result = HttpUtil.doPost(domain,jsonObject.toJSONString());
         if(StringUtils.isEmpty(result)){
             throw MyException.fail(ErrorCode.MYB_111111.getCode(),"获取七牛token失败");
         }
         JSONObject json = JSON.parseObject(result);
         String token = json.getString("token");
-        redisUtil.set(Constants.qi_niu_token,token,6, TimeUnit.DAYS);
+        redisUtil.set(redisKey,token,5, TimeUnit.DAYS);
         return token;
     }
     /**
      * 查询集群剩余可写逻辑容量估算值
      */
-    public BigDecimal miscconfigs() {
+    public BigDecimal miscconfigs(QiniuStoreConfig qiniuStoreConfig) {
         try {
             Map<String,String> header = new HashMap<>();
-            header.put("Authorization",getQiNiuToken());
-            String rt = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl()+"/api/proxy/blkmaster/z0/miscconfigs", null, header);
+            header.put("Authorization",getQiNiuToken(qiniuStoreConfig));
+            String rt = HttpUtil.doGet(qiniuStoreConfig.getEcloudDomain()+"/api/proxy/blkmaster/z0/miscconfigs", null, header);
             String str = JSON.parseObject(rt).getString("default_write_mode");
             String EC_N = str.substring(str.lastIndexOf("N")+1, str.lastIndexOf("M"));
             String EC_M = str.substring(str.lastIndexOf("M")+1);
             log.info("EC_N={},EC_M={}",EC_N,EC_M);
-            String result = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl() + "/api/proxy/blkmaster/z0/tool/scale/n/" + EC_N + "/m/" + EC_M + "/expected/0/disk_size/1000000000/disk_per_host/16", null, header);
+            String result = HttpUtil.doGet(qiniuStoreConfig.getEcloudDomain() + "/api/proxy/blkmaster/z0/tool/scale/n/" + EC_N + "/m/" + EC_M + "/expected/0/disk_size/1000000000/disk_per_host/16", null, header);
             BigDecimal logical_avail_size = JSON.parseObject(result).getBigDecimal("logical_avail_size");
             return logical_avail_size;
         } catch (Exception e) {
@@ -173,14 +180,14 @@ public class DiskServiceImpl implements DiskService {
      * 获取每个矿工已使用存储量
      * @return
      */
-    public Map<String,BigDecimal> allbucketInfo() {
+    public Map<String,BigDecimal> allbucketInfo(QiniuStoreConfig qiniuStoreConfig) {
         int count = minerInfoService.count();
         log.info("平台矿工数量:{}",count);
 
         Map<String,BigDecimal> map = new HashMap<>();
         Map<String,String> header = new HashMap<>();
-        header.put("Authorization",getQiNiuToken());
-        String result = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl()+"/api/proxy/uc/qbox/admin/allbuckets?limit="+count, null, header);
+        header.put("Authorization",getQiNiuToken(qiniuStoreConfig));
+        String result = HttpUtil.doGet(qiniuStoreConfig.getEcloudDomain()+"/api/proxy/uc/qbox/admin/allbuckets?limit="+count, null, header);
         if(StringUtils.isEmpty(result)){
             log.error("调用七牛接口失败");
             return map;
@@ -200,12 +207,12 @@ public class DiskServiceImpl implements DiskService {
      * available_capacity=剩余可写物理容量=集群剩余可写逻辑容量*(EC-N+EC-M)/EC-N
      * 预测天数 days= available_capacity / used_avg
      */
-    public Integer days(BigDecimal logicalAvailSize,BigDecimal usedSizeAvg) {
+    public Integer days(QiniuStoreConfig qiniuStoreConfig,BigDecimal logicalAvailSize,BigDecimal usedSizeAvg) {
         log.info("logicalAvailSize:{},usedSizeAvg:{}",logicalAvailSize,usedSizeAvg);
         try {
             Map<String,String> header = new HashMap<>();
-            header.put("Authorization",getQiNiuToken());
-            String rt = HttpUtil.doGet(ruoYiConfig.getQiNiuEcloudUrl()+"/api/proxy/blkmaster/z0/miscconfigs", null, header);
+            header.put("Authorization",getQiNiuToken(qiniuStoreConfig));
+            String rt = HttpUtil.doGet(qiniuStoreConfig.getEcloudDomain()+"/api/proxy/blkmaster/z0/miscconfigs", null, header);
             String str = JSON.parseObject(rt).getString("default_write_mode");
             String EC_N = str.substring(str.lastIndexOf("N")+1, str.lastIndexOf("M"));
             String EC_M = str.substring(str.lastIndexOf("M")+1);
