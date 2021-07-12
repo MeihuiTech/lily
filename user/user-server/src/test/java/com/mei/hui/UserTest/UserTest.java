@@ -2,6 +2,7 @@ package com.mei.hui.UserTest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.common.utils.UuidUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,7 +17,9 @@ import com.mei.hui.user.entity.SysRoleMenu;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysRoleMenuMapper;
 import com.mei.hui.user.mapper.SysUserMapper;
+import com.mei.hui.util.IdUtils;
 import com.mei.hui.util.SystemConstants;
+import com.mei.hui.util.UUID;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,116 +44,16 @@ import java.util.regex.Pattern;
 @Slf4j
 public class UserTest {
 
-    @Autowired
-    private RedisUtil redisUtil;
-    @Autowired
-    private SmsConfig smsConfig;
 
-    @Value("${swagger.is.enable}")
-    private String sdd;
-
-    @Test
-    public void swaggerTest(){
-
-        log.info("swagger.is.enable={}",sdd);
-    }
-
-    @Test
-    public void entry(){
-        String token = AESUtil.encrypt("admin123");
-        log.info("token = {}",token);
-    }
-
-    /**
-     * 测试本地是否能连上redis服务器
-     */
-    @Test
-    public void testRedis() {
-        redisUtil.set("testRedisKey","testRedisValue");
-        System.out.print(redisUtil.get("testRedisKey"));
-    }
-
-    @Test
-    public void getIP() {
-        InetAddress address = null;
-        try {
-            address = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        log.info("IP:"+address.getHostAddress());
-    }
-
-    @Test
-    public void configTest(){
-        log.info("sms url:"+smsConfig.getUrl());
-    }
-
-
-
-    @Test
-    public void jwtDecodeTest(){
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJkZWxfZmxhZyI6IjAiLCJleHAiOjE2MjEzODUyNDAsInVzZXJJZCI6MSwiaWF0IjoxNjIxMzI1MjQwLCJwbGF0Zm9ybSI6IndlYiIsInN0YXR1cyI6IjAifQ.lu6NYnOwgKX4KjL9Sh4TbqYt2X2X3ewrNOPh2RXoEFI";
-        Claims claims = JwtUtil.parseToken(token);
-        Integer userId = (Integer) claims.get("userId");
-        String name = (String) claims.get("name");
-        log.info("userId:{}，name:{}",userId,name);
-    }
-
-
-    /**
-     * 判断字符串中是否包含中文
-     * @param str
-     * 待校验字符串
-     * @return 是否为中文
-     * @warn 不能校验是否为中文标点符号
-     */
-    public static boolean isContainChinese(String str) {
-        Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
-        Matcher m = p.matcher(str);
-        if (m.find()) {
-            return true;
-        }
-        return false;
-    }
-
-    @Test
-    public void createToken() {
-//        Map<String, Object> claims = new HashMap<>();
-//        claims.put(SystemConstants.USERID,5);
-//        claims.put(SystemConstants.CURRENCYID,2L);
-//        claims.put(SystemConstants.PLATFORM,Constants.WEB);
-        //生成token
-        String token = JwtUtil.createToken(5L,2L,Constants.WEB);
-        System.out.print(token);
-    }
-    @Autowired
-    protected SysUserMapper sysUserMapper;
-    @Autowired
-    private SysRoleMenuMapper sysRoleMenuMapper;
     @Test
     public void testToken() {
-        String meanIds = "1,2016,2007,2008,2009,100,1001,1002,1003,1004,1005,1006,1007,101,1008,1009,1010,1011,1012,102,1013,1014,1015,1016,108,500,1040,1041,1042,501,1043,1044,1045";
-        List<SysRoleMenu> roleMenuList = new ArrayList<>();
-        String[] array = meanIds.split(",");
-        for(int i=0;i<array.length;i++){
-            SysRoleMenu sysRoleMenu = new SysRoleMenu();
-            sysRoleMenu.setMenuId(Long.valueOf(array[i]));
-            sysRoleMenu.setRoleId(1L);
-            roleMenuList.add(sysRoleMenu);
-        }
-        sysRoleMenuMapper.batchRoleMenu(roleMenuList);
-    }
-
-    public static void main(String[] args) {
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Host","");
-
-
+        String accessKey = IdUtils.fastSimpleUUID();
+        String secretKey = IdUtils.fastSimpleUUID();
+        log.info("accessKey = {},secretKey = {}",accessKey,secretKey);
 
 
     }
+
 
 
 }
