@@ -73,17 +73,17 @@ public class DiskServiceImpl implements DiskService {
         BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
         log.info("获取磁盘剩余可用容量:{}",availDiskSize);
 
-        BigDecimal logicalAvailSize = miscconfigs(storeConfig);
-        log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);
+        /*BigDecimal logicalAvailSize = miscconfigs(storeConfig);
+        log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);*/
 
         BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(storeConfig);
         log.info("矿工已用存储量:{}",minerUsedDiskSize);
 
-        BigDecimal usedSizeAvg = usedSizeAvg();
-        log.info("过去5天平均使用容量:{}",usedSizeAvg);
+        /*BigDecimal usedSizeAvg = usedSizeAvg();
+        log.info("过去5天平均使用容量:{}",usedSizeAvg);*/
 
-        Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
-        log.info("剩余使用天数:{}",days);
+       /* Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
+        log.info("剩余使用天数:{}",days);*/
 
         DiskVO diskVO = new DiskVO()
                 .setAvailDiskSize(availDiskSize)
