@@ -14,6 +14,8 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.QiniuOneDayAgg;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.BroadbandUpDownVO;
+import com.mei.hui.miner.feign.vo.BroadbandVO;
 import com.mei.hui.miner.feign.vo.DiskBO;
 import com.mei.hui.miner.feign.vo.DiskVO;
 import com.mei.hui.miner.service.DiskService;
@@ -31,6 +33,9 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +54,7 @@ public class DiskServiceImpl implements DiskService {
     @Autowired
     private QiniuStoreConfigService qiniuStoreConfigService;
 
+    @Override
     public Result<DiskVO> diskSizeInfo(DiskBO diskBO){
         //获取当前选择矿工的七牛配置信息
         LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
@@ -238,6 +244,80 @@ public class DiskServiceImpl implements DiskService {
             return list.get(0).getUsedSizeAvg();
         } catch (Exception e) {
             log.error("过去5天平均使用容量",e);
+            return null;
+        }
+    }
+
+
+    /*获取宽带信息*/
+    @Override
+    public Result<BroadbandVO> broadband(DiskBO diskBO) {
+        //获取当前选择矿工的七牛配置信息
+        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(QiniuStoreConfig::getMinerId,diskBO.getMinerId());
+        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
+        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
+        if(storeConfig == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
+        }
+
+        // 查24小时的数据
+        Long yesterdayTimeLong = LocalDateTime.now().plusHours(-24L).toEpochSecond(ZoneOffset.of("+8"));
+        Long nowTimeLong = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+
+        // 上传带宽，单位 bps
+        String upBroadbandMetric = "sum (rate(service_request_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"up.*|s3apiv2.putobject.*|s3apiv2.postobject|s3apiv2.uploadpart.*\"}[1m]))*8";
+        List<BroadbandUpDownVO> upBroadbandVOList = getQiniuData(storeConfig,upBroadbandMetric,yesterdayTimeLong,nowTimeLong);
+        log.info("获取上传带宽:{}",JSON.toJSON(upBroadbandVOList));
+
+        // 下载带宽，单位 bps
+        String downBroadbandMetric = "sum (rate(service_response_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"io.get|s3apiv2.getobject\"}[1m]))*8";
+        List<BroadbandUpDownVO> downBroadbandVOList = getQiniuData(storeConfig,downBroadbandMetric,yesterdayTimeLong,nowTimeLong);
+        log.info("获取上传带宽:{}",JSON.toJSON(downBroadbandVOList));
+
+        BroadbandVO broadbandVO = new BroadbandVO();
+        broadbandVO.setBroadbandUpVOList(upBroadbandVOList);
+        broadbandVO.setBroadbandDownVOList(downBroadbandVOList);
+
+        return Result.success(broadbandVO);
+    }
+
+    /**
+     * 查询七牛云一段时间内上传/下载的带宽、IOPS和响应时间95值
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public List<BroadbandUpDownVO> getQiniuData(QiniuStoreConfig qiniuStoreConfig,String metric,Long startTime, Long endTime) {
+        try {
+            String url = qiniuStoreConfig.getPrometheusDomain()+"/api/v1/query_range?query="+ URLEncoder.encode(metric,"UTF-8") + "&start=" + startTime + "&end=" + endTime + "&step=2m";
+            Map<String,String> header = new HashMap<>();
+            header.put("Authorization",getQiNiuToken(qiniuStoreConfig));
+            String rt = HttpUtil.doPost(url,"",header);
+            if(StringUtils.isEmpty(rt)){
+                log.error("查询七牛云一段时间内上传/下载的带宽、IOPS和响应时间95值失败");
+                return null;
+            }
+            JSONObject json = JSON.parseObject(rt);
+            String status = json.getString("status");
+            if(!"success".equals(status)){
+                log.error("查询七牛云一段时间内上传/下载的带宽、IOPS和响应时间95值失败");
+                return null;
+            }
+            JSONObject data = json.getJSONObject("data");
+            JSONArray result = data.getJSONArray("result");
+            JSONArray value = result.getJSONObject(0).getJSONArray("values");
+            List<BroadbandUpDownVO> broadbandUpDownVOList = new ArrayList<>();
+            if (value.size() > 0){
+                for (int i=0;i<value.size();i++){
+                    BroadbandUpDownVO broadbandUpDownVO = new BroadbandUpDownVO();
+                    broadbandUpDownVO.setTimestamp(Long.valueOf(value.getJSONArray(i).get(0) + ""));
+                    broadbandUpDownVO.setValue(new BigDecimal(value.getJSONArray(i).get(1)+""));
+                    broadbandUpDownVOList.add(broadbandUpDownVO);
+                }
+            }
+            return broadbandUpDownVOList;
+        } catch (Exception e) {
+            log.error("查询七牛云一段时间内上传/下载的带宽、IOPS和响应时间95值接口异常:",e);
             return null;
         }
     }

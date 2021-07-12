@@ -244,4 +244,18 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     * @version v1.4.1
     */
     public Result<ForeignSysMinerInfoVO> selectForeignUser(ForeignUserBO foreignUserBO);
+
+    /**
+    * 不分页根据FIL币矿工信息表entity查询FIL币矿工信息表list
+    * 
+    * @description 
+    * @author shangbin
+    * @date 2021/7/10 15:03
+    * @param [sysMinerInfo] 
+    * @return java.util.List<com.mei.hui.miner.entity.SysMinerInfo> 
+    * @version v1.4.1
+    */
+    public List<SysMinerInfo> selectSysMinerInfoListBySysMinerInfo(SysMinerInfo sysMinerInfo);
+
+
 }

@@ -42,6 +42,14 @@ public interface Constants extends SystemConstants {
     //格式:qi_niu_集群名称_token
     String qi_niu_token = "qi_niu_%s_token";
 
+    /**
+     * 存储类型,qiniu-七牛
+     */
+    String STORETYPEQINIU = "qiniu";
 
+    /**
+     * 存储类型,gpfs-GPFS
+     */
+    String STORETYPEGPFS = "gpfs";
 
 }

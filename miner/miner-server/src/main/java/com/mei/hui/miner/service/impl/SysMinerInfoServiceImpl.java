@@ -769,4 +769,17 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
 
         return Result.success(foreignSysMinerInfoVOList);
     }
+
+    /*不分页根据FIL币矿工信息表entity查询FIL币矿工信息表list*/
+    @Override
+    public List<SysMinerInfo> selectSysMinerInfoListBySysMinerInfo(SysMinerInfo sysMinerInfo) {
+        QueryWrapper<SysMinerInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(sysMinerInfo);
+        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoMapper.selectList(queryWrapper);
+        return sysMinerInfoList;
+    }
+
+
+
+
 }

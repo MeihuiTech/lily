@@ -165,4 +165,11 @@ public class MinerTest {
         System.out.println(System.getProperty("user.dir")+"\\src\\main\\resources\\swagger.txt");
     }
 
+
+    @Test
+    public void testLocalDateTime(){
+        System.out.println(LocalDateTime.now());
+        System.out.println(LocalDateTime.now().plusHours(-24L));
+    }
+
 }

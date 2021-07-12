@@ -66,5 +66,9 @@ public class QiniuStoreConfig implements Serializable {
      */
     private String clusterName;
 
+    /**
+     *
+     */
+    private String idcname;
 
 }

@@ -10,6 +10,6 @@ import lombok.experimental.Accessors;
 @ApiModel
 public class DiskBO {
 
-    @ApiModelProperty(value = "剩余物理容量",required = true)
+    @ApiModelProperty(value = "矿工id",required = true)
     private String minerId;
 }
