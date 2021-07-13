@@ -272,12 +272,10 @@ public class DiskServiceImpl implements DiskService {
 
     /*获取宽带信息*/
     @Override
-    public Result<BroadbandVO> broadband(DiskBO diskBO) {
+    public Result<BroadbandVO> broadband(List<SysMinerInfo> sysMinerInfoList) {
         //获取当前选择矿工的七牛配置信息
-        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(QiniuStoreConfig::getMinerId,diskBO.getMinerId());
-        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
-        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
+        String minerId = sysMinerInfoList.get(0).getMinerId();
+        QiniuStoreConfig storeConfig = selectQiniuStoreConfigByMinerId(minerId);
         if(storeConfig == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
         }
@@ -289,12 +287,12 @@ public class DiskServiceImpl implements DiskService {
         // 上传带宽，单位 bps
         String upBroadbandMetric = "sum (rate(service_request_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"up.*|s3apiv2.putobject.*|s3apiv2.postobject|s3apiv2.uploadpart.*\"}[1m]))*8";
         List<BroadbandUpDownVO> upBroadbandVOList = getQiniuData(storeConfig,upBroadbandMetric,yesterdayTimeLong,nowTimeLong);
-        log.info("获取上传带宽:{}",JSON.toJSON(upBroadbandVOList));
+        log.info("获取上传带宽出参:{}",JSON.toJSON(upBroadbandVOList));
 
         // 下载带宽，单位 bps
         String downBroadbandMetric = "sum (rate(service_response_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"io.get|s3apiv2.getobject\"}[1m]))*8";
         List<BroadbandUpDownVO> downBroadbandVOList = getQiniuData(storeConfig,downBroadbandMetric,yesterdayTimeLong,nowTimeLong);
-        log.info("获取上传带宽:{}",JSON.toJSON(downBroadbandVOList));
+        log.info("获取下载带宽出参:{}",JSON.toJSON(downBroadbandVOList));
 
         BroadbandVO broadbandVO = new BroadbandVO();
         broadbandVO.setBroadbandUpVOList(upBroadbandVOList);
@@ -309,6 +307,7 @@ public class DiskServiceImpl implements DiskService {
      * @throws UnsupportedEncodingException
      */
     public List<BroadbandUpDownVO> getQiniuData(QiniuStoreConfig qiniuStoreConfig,String metric,Long startTime, Long endTime) {
+        log.info("查询七牛云一段时间内上传/下载的带宽、IOPS和响应时间95值入参:qiniuStoreConfig【{}】,metric：【{}】,startTime:【{}】,endTime：【{}】",JSON.toJSON(qiniuStoreConfig),metric,startTime,endTime);
         try {
             String url = qiniuStoreConfig.getPrometheusDomain()+"/api/v1/query_range?query="+ URLEncoder.encode(metric,"UTF-8") + "&start=" + startTime + "&end=" + endTime + "&step=2m";
             Map<String,String> header = new HashMap<>();
