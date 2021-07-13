@@ -1,5 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMinerInfo;
@@ -31,46 +32,30 @@ public class DiskController {
     private ISysMinerInfoService sysMinerInfoService;
 
     @ApiOperation(value = "获取磁盘容量信息")
-    @PostMapping("/diskSizeInfo")
-    public Result<DiskVO> diskSizeInfo(@RequestBody DiskBO diskBO){
-        String minerId = diskBO.getMinerId();
-        if(StringUtils.isEmpty(minerId)){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工id不能为空");
-        }
-
+    @GetMapping("/diskSizeInfo")
+    public Result<DiskVO> diskSizeInfo(){
+        Long userId = HttpRequestUtil.getUserId();
         SysMinerInfo sysMinerInfo = new SysMinerInfo();
-        sysMinerInfo.setMinerId(minerId);
+        sysMinerInfo.setUserId(userId);
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.selectSysMinerInfoListBySysMinerInfo(sysMinerInfo);
         if (sysMinerInfoList == null || sysMinerInfoList.size() < 1){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工id不存在");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"当前登录用户不存在矿工");
         }
-        if (Constants.STORETYPEQINIU.equals(sysMinerInfoList.get(0).getStoreType())) {
-            return diskService.diskSizeInfo(diskBO);
-        } else {
-            return Result.OK;
-        }
+        return diskService.diskSizeInfo(sysMinerInfoList);
     }
 
 
     @ApiOperation(value = "获取宽带信息")
-    @PostMapping("/broadband")
-    public Result<BroadbandVO> broadband(@RequestBody DiskBO diskBO){
-        String minerId = diskBO.getMinerId();
-        if(StringUtils.isEmpty(minerId)){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工id不能为空");
-        }
-
+    @GetMapping("/broadband")
+    public Result<BroadbandVO> broadband(){
+        Long userId = HttpRequestUtil.getUserId();
         SysMinerInfo sysMinerInfo = new SysMinerInfo();
-        sysMinerInfo.setMinerId(minerId);
+        sysMinerInfo.setUserId(userId);
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.selectSysMinerInfoListBySysMinerInfo(sysMinerInfo);
         if (sysMinerInfoList == null || sysMinerInfoList.size() < 1){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工id不存在");
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"当前登录用户不存在矿工");
         }
-        if (Constants.STORETYPEQINIU.equals(sysMinerInfoList.get(0).getStoreType())) {
-            return diskService.broadband(diskBO);
-        } else {
-            return Result.OK;
-        }
+        return diskService.broadband(sysMinerInfoList);
     }
 
 }

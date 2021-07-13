@@ -55,12 +55,10 @@ public class DiskServiceImpl implements DiskService {
     private QiniuStoreConfigService qiniuStoreConfigService;
 
     @Override
-    public Result<DiskVO> diskSizeInfo(DiskBO diskBO){
+    public Result<DiskVO> diskSizeInfo(List<SysMinerInfo> sysMinerInfoList){
         //获取当前选择矿工的七牛配置信息
-        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(QiniuStoreConfig::getMinerId,diskBO.getMinerId());
-        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
-        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
+        String minerId = sysMinerInfoList.get(0).getMinerId();
+        QiniuStoreConfig storeConfig = selectQiniuStoreConfigByMinerId(minerId);
         if(storeConfig == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
         }
@@ -73,26 +71,49 @@ public class DiskServiceImpl implements DiskService {
         BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
         log.info("获取磁盘剩余可用容量:{}",availDiskSize);
 
-        BigDecimal logicalAvailSize = miscconfigs(storeConfig);
-        log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);
+//        BigDecimal logicalAvailSize = miscconfigs(storeConfig);
+//        log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);
 
-        BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(storeConfig);
-        log.info("矿工已用存储量:{}",minerUsedDiskSize);
+        BigDecimal allMinerUsedDiskSize = new BigDecimal("0");
+        for (SysMinerInfo sysMinerInfo:sysMinerInfoList){
+            if (Constants.STORETYPEQINIU.equals(sysMinerInfo.getStoreType())) {
+                String dbMinerId = sysMinerInfo.getMinerId();
+                QiniuStoreConfig qiniuStoreConfig = selectQiniuStoreConfigByMinerId(dbMinerId);
+                BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(qiniuStoreConfig);
+                log.info("获取矿工为：【{}】  已用存储量:【{}】",dbMinerId,minerUsedDiskSize);
+                allMinerUsedDiskSize = allMinerUsedDiskSize.add(minerUsedDiskSize);
+            }
+        }
+        log.info("所有矿工已用存储量:{}",allMinerUsedDiskSize);
 
-        BigDecimal usedSizeAvg = usedSizeAvg();
-        log.info("过去5天平均使用容量:{}",usedSizeAvg);
+//        BigDecimal usedSizeAvg = usedSizeAvg();
+//        log.info("过去5天平均使用容量:{}",usedSizeAvg);
 
-        Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
-        log.info("剩余使用天数:{}",days);
+//        Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
+//        log.info("剩余使用天数:{}",days);
 
         DiskVO diskVO = new DiskVO()
                 .setAvailDiskSize(availDiskSize)
                 .setUsedDiskSize(totalDiskSize.subtract(availDiskSize))
                // .setLogicalAvailSize(logicalAvailSize)
-                .setMinerUsedDiskSize(minerUsedDiskSize);
+                .setMinerUsedDiskSize(allMinerUsedDiskSize);
               //  .setDays(days)
               //  .setUsedSizeAvg(usedSizeAvg);
         return Result.success(diskVO);
+    }
+
+    /**
+     * 根据minerId查询矿工存储服务配置表
+     * @param minerId
+     * @return
+     */
+    public QiniuStoreConfig selectQiniuStoreConfigByMinerId(String minerId){
+        log.info("根据minerId查询矿工存储服务配置表入参minerId:【{}】",minerId);
+        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(QiniuStoreConfig::getMinerId,minerId);
+        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
+        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
+        return storeConfig;
     }
 
     /**
@@ -251,12 +272,10 @@ public class DiskServiceImpl implements DiskService {
 
     /*获取宽带信息*/
     @Override
-    public Result<BroadbandVO> broadband(DiskBO diskBO) {
+    public Result<BroadbandVO> broadband(List<SysMinerInfo> sysMinerInfoList) {
         //获取当前选择矿工的七牛配置信息
-        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(QiniuStoreConfig::getMinerId,diskBO.getMinerId());
-        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
-        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
+        String minerId = sysMinerInfoList.get(0).getMinerId();
+        QiniuStoreConfig storeConfig = selectQiniuStoreConfigByMinerId(minerId);
         if(storeConfig == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
         }
@@ -268,12 +287,12 @@ public class DiskServiceImpl implements DiskService {
         // 上传带宽，单位 bps
         String upBroadbandMetric = "sum (rate(service_request_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"up.*|s3apiv2.putobject.*|s3apiv2.postobject|s3apiv2.uploadpart.*\"}[1m]))*8";
         List<BroadbandUpDownVO> upBroadbandVOList = getQiniuData(storeConfig,upBroadbandMetric,yesterdayTimeLong,nowTimeLong);
-        log.info("获取上传带宽:{}",JSON.toJSON(upBroadbandVOList));
+        log.info("获取上传带宽出参:{}",JSON.toJSON(upBroadbandVOList));
 
         // 下载带宽，单位 bps
         String downBroadbandMetric = "sum (rate(service_response_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"io.get|s3apiv2.getobject\"}[1m]))*8";
         List<BroadbandUpDownVO> downBroadbandVOList = getQiniuData(storeConfig,downBroadbandMetric,yesterdayTimeLong,nowTimeLong);
-        log.info("获取上传带宽:{}",JSON.toJSON(downBroadbandVOList));
+        log.info("获取下载带宽出参:{}",JSON.toJSON(downBroadbandVOList));
 
         BroadbandVO broadbandVO = new BroadbandVO();
         broadbandVO.setBroadbandUpVOList(upBroadbandVOList);
@@ -288,6 +307,7 @@ public class DiskServiceImpl implements DiskService {
      * @throws UnsupportedEncodingException
      */
     public List<BroadbandUpDownVO> getQiniuData(QiniuStoreConfig qiniuStoreConfig,String metric,Long startTime, Long endTime) {
+        log.info("查询七牛云一段时间内上传/下载的带宽、IOPS和响应时间95值入参:qiniuStoreConfig【{}】,metric：【{}】,startTime:【{}】,endTime：【{}】",JSON.toJSON(qiniuStoreConfig),metric,startTime,endTime);
         try {
             String url = qiniuStoreConfig.getPrometheusDomain()+"/api/v1/query_range?query="+ URLEncoder.encode(metric,"UTF-8") + "&start=" + startTime + "&end=" + endTime + "&step=2m";
             Map<String,String> header = new HashMap<>();

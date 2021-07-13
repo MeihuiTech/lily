@@ -1,14 +1,17 @@
 package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.QiniuStoreConfig;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.BroadbandVO;
 import com.mei.hui.miner.feign.vo.DiskBO;
 import com.mei.hui.miner.feign.vo.DiskVO;
 import com.mei.hui.util.Result;
 
+import java.util.List;
+
 public interface DiskService {
 
-    Result<DiskVO> diskSizeInfo(DiskBO diskBO);
+    Result<DiskVO> diskSizeInfo(List<SysMinerInfo> sysMinerInfoList);
 
     String getQiNiuToken(QiniuStoreConfig storeConfig);
 
@@ -22,5 +25,5 @@ public interface DiskService {
     * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.DiskVO>
     * @version v1.4.1
     */
-    public Result<BroadbandVO> broadband(DiskBO diskBO);
+    public Result<BroadbandVO> broadband(List<SysMinerInfo> sysMinerInfoList);
 }
