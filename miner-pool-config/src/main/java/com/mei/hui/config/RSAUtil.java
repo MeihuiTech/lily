@@ -37,7 +37,7 @@ public class RSAUtil {
         String message = "美辉科技有限公司";
         System.out.println("随机生成的公钥为:" + keyMap.get(0));
         System.out.println("随机生成的私钥为:" + keyMap.get(1));
-       /* String messageEn = encrypt(message,keyMap.get(0));
+      /*  String messageEn = encrypt(message,keyMap.get(0));
         System.out.println(message + "\t加密后的字符串为:" + messageEn);
         String messageDe = decrypt(messageEn,keyMap.get(1));
         System.out.println("还原后的字符串为:" + messageDe);*/
@@ -51,7 +51,7 @@ public class RSAUtil {
         // KeyPairGenerator类用于生成公钥和私钥对，基于RSA算法生成对象
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(SystemConstants.RSA);
         // 初始化密钥对生成器，密钥大小为96-1024位
-        keyPairGen.initialize(512,new SecureRandom());
+        keyPairGen.initialize(1024,new SecureRandom());
         // 生成一个密钥对，保存在keyPair中
         KeyPair keyPair = keyPairGen.generateKeyPair();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();   // 得到私钥
