@@ -1,5 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
@@ -37,6 +38,7 @@ public class DiskController {
         SysMinerInfo sysMinerInfo = new SysMinerInfo();
         sysMinerInfo.setUserId(userId);
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.selectSysMinerInfoListBySysMinerInfo(sysMinerInfo);
+        log.info("不分页根据FIL币矿工信息表entity查询FIL币矿工信息表list出参：【{}】",JSON.toJSON(sysMinerInfoList));
         if (sysMinerInfoList == null || sysMinerInfoList.size() < 1){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"当前登录用户不存在矿工");
         }
