@@ -14,10 +14,7 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.QiniuOneDayAgg;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.entity.SysMinerInfo;
-import com.mei.hui.miner.feign.vo.BroadbandUpDownVO;
-import com.mei.hui.miner.feign.vo.BroadbandVO;
-import com.mei.hui.miner.feign.vo.DiskBO;
-import com.mei.hui.miner.feign.vo.DiskVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.service.DiskService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.miner.service.QiniuOneDayAggService;
@@ -54,45 +51,130 @@ public class DiskServiceImpl implements DiskService {
     @Autowired
     private QiniuStoreConfigService qiniuStoreConfigService;
 
+    /*获取七牛云集群硬盘容量和宽带信息*/
     @Override
-    public Result<DiskVO> diskSizeInfo(DiskBO diskBO){
-        //获取当前选择矿工的七牛配置信息
-        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(QiniuStoreConfig::getMinerId,diskBO.getMinerId());
-        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
-        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
-        if(storeConfig == null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
+    public List<QiniuVO> selectDiskSizeAndBroadbandList(List<SysMinerInfo> sysMinerInfoList) {
+        List<QiniuStoreConfig> qiniuStoreConfigList = new ArrayList<>();
+        List<String> idcnameList = new ArrayList<>();
+        for (SysMinerInfo sysMinerInfo:sysMinerInfoList){
+            if (Constants.STORETYPEQINIU.equals(sysMinerInfo.getStoreType())){
+                //获取当前选择矿工的七牛配置信息
+                String minerId = sysMinerInfo.getMinerId();
+                QiniuStoreConfig storeConfig = selectQiniuStoreConfigByMinerId(minerId);
+                if(storeConfig == null){
+                    throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
+                }
+                String idcname = storeConfig.getIdcname();
+                if (!idcnameList.contains(idcname)){
+                    idcnameList.add(idcname);
+                    qiniuStoreConfigList.add(storeConfig);
+                }
+            }
+        }
+        log.info("idcnameList：【{}】，qiniuStoreConfigList:【{}】",idcnameList,JSON.toJSON(qiniuStoreConfigList));
+
+        // 循环集群
+        List<QiniuVO> qiniuVOList = new ArrayList<>();
+        for (QiniuStoreConfig dbQiniuStoreConfig:qiniuStoreConfigList) {
+            QiniuVO qiniuVO = new QiniuVO();
+            // 容量
+            DiskSizeVO diskSizeVO = diskSizeInfo(dbQiniuStoreConfig);
+            log.info("获取七牛云集群硬盘容量出参：【{}】",JSON.toJSON(diskSizeVO));
+            qiniuVO.setDiskSizeVO(diskSizeVO);
+
+            // 宽带
+            BroadbandVO broadbandVO = broadband(dbQiniuStoreConfig);
+            log.info("获取宽带信息出参：【{}】",JSON.toJSON(broadbandVO));
+            qiniuVO.setBroadbandVO(broadbandVO);
+            qiniuVOList.add(qiniuVO);
         }
 
-        String totalDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_capacity_bytes{service=\"blkmaster\"})";
-        BigDecimal totalDiskSize = getDiskSize(storeConfig,totalDiskSizeUrl);
-        log.info("获取磁盘总容量:{}",totalDiskSize);
+        return qiniuVOList;
+    }
 
-        String availDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_avail_bytes{service=\"blkmaster\"})";
-        BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
-        log.info("获取磁盘剩余可用容量:{}",availDiskSize);
+    /**
+     * 获取七牛云集群硬盘容量
+     * @param sysMinerInfoList
+     * @return
+     */
+    public DiskSizeVO diskSizeInfo(QiniuStoreConfig storeConfig){
+        try {
+            String totalDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_capacity_bytes{service=\"blkmaster\"})";
+            log.info("获取磁盘总容量入参storeConfig：【{}】,totalDiskSizeUrl：【{}】",JSON.toJSON(storeConfig),totalDiskSizeUrl);
+            BigDecimal totalDiskSize = getDiskSize(storeConfig,totalDiskSizeUrl);
+            log.info("获取磁盘总容量出参:{}",totalDiskSize);
+
+            String availDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_avail_bytes{service=\"blkmaster\"})";
+            log.info("获取磁盘总容量入参storeConfig：【{}】,availDiskSizeUrl：【{}】",JSON.toJSON(storeConfig),availDiskSizeUrl);
+            BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
+            log.info("获取磁盘剩余可用容量出参:{}",availDiskSize);
+
+            List<QiniuStoreConfig> qiniuStoreConfigList = selectQiniuStoreConfigListByIdcname(storeConfig.getIdcname());
+            List<MinerDiskSizeVO> minerUsedDiskSizeVOList = new ArrayList<>();
+            // 循环获得每个矿工id
+            for (QiniuStoreConfig dbQiniuStoreConfig:qiniuStoreConfigList){
+                log.info("dbQiniuStoreConfig：【{}】",JSON.toJSON(dbQiniuStoreConfig));
+                String dbMinerId = dbQiniuStoreConfig.getMinerId();
+                QiniuStoreConfig qiniuStoreConfig = selectQiniuStoreConfigByMinerId(dbMinerId);
+                BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(qiniuStoreConfig);
+                log.info("获取矿工为：【{}】  已用存储量:【{}】",dbMinerId,minerUsedDiskSize);
+                MinerDiskSizeVO minerDiskSizeVO = new MinerDiskSizeVO();
+                minerDiskSizeVO.setMinerId(dbMinerId);
+                minerDiskSizeVO.setDiskSize(minerUsedDiskSize);
+                log.info("minerDiskSizeVO：【{}】",JSON.toJSON(minerDiskSizeVO));
+                minerUsedDiskSizeVOList.add(minerDiskSizeVO);
+            }
 
         /*BigDecimal logicalAvailSize = miscconfigs(storeConfig);
-        log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);*/
+        log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);
 
-        BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(storeConfig);
-        log.info("矿工已用存储量:{}",minerUsedDiskSize);
+        BigDecimal usedSizeAvg = usedSizeAvg();
+        log.info("过去5天平均使用容量:{}",usedSizeAvg);
 
-        /*BigDecimal usedSizeAvg = usedSizeAvg();
-        log.info("过去5天平均使用容量:{}",usedSizeAvg);*/
-
-       /* Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
+        Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
         log.info("剩余使用天数:{}",days);*/
 
-        DiskVO diskVO = new DiskVO()
-                .setAvailDiskSize(availDiskSize)
-                .setUsedDiskSize(totalDiskSize.subtract(availDiskSize))
-               // .setLogicalAvailSize(logicalAvailSize)
-                .setMinerUsedDiskSize(minerUsedDiskSize);
-              //  .setDays(days)
-              //  .setUsedSizeAvg(usedSizeAvg);
-        return Result.success(diskVO);
+            DiskSizeVO diskSizeVO = new DiskSizeVO();
+            diskSizeVO.setAllDiskSize(totalDiskSize);
+            diskSizeVO.setAvailDiskSize(availDiskSize);
+            diskSizeVO.setUsedDiskSize(totalDiskSize.subtract(availDiskSize));
+            diskSizeVO.setMinerUsedDiskSizeVOList(minerUsedDiskSizeVOList);
+            // .setLogicalAvailSize(logicalAvailSize)
+            //  .setDays(days)
+            //  .setUsedSizeAvg(usedSizeAvg);
+            return diskSizeVO;
+        } catch (Exception e) {
+            log.error("获取宽带信息报错",e);
+            return null;
+        }
+    }
+
+    /**
+     * 根据minerId查询矿工存储服务配置表
+     * @param minerId
+     * @return
+     */
+    public QiniuStoreConfig selectQiniuStoreConfigByMinerId(String minerId){
+        log.info("根据minerId查询矿工存储服务配置表入参minerId:【{}】",minerId);
+        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(QiniuStoreConfig::getMinerId,minerId);
+        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
+        log.info("根据minerId查询矿工存储服务配置表出参:{}",JSON.toJSONString(storeConfig));
+        return storeConfig;
+    }
+
+    /**
+     * 根据idcname查询矿工存储服务配置表
+     * @param idcname
+     * @return
+     */
+    public List<QiniuStoreConfig> selectQiniuStoreConfigListByIdcname(String idcname){
+        log.info("根据idcname查询矿工存储服务配置表入参minerId:【{}】",idcname);
+        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(QiniuStoreConfig::getIdcname,idcname);
+        List<QiniuStoreConfig> qiniuStoreConfigList = qiniuStoreConfigService.list(queryWrapper);
+        log.info("根据idcname查询矿工存储服务配置表出参:{}",JSON.toJSONString(qiniuStoreConfigList));
+        return qiniuStoreConfigList;
     }
 
     /**
@@ -101,6 +183,7 @@ public class DiskServiceImpl implements DiskService {
      */
     public BigDecimal getMinerUsedDiskSize(QiniuStoreConfig storeConfig){
         Map<String, BigDecimal> map = allbucketInfo(storeConfig);
+        log.info("获取每个矿工已使用存储量出参：【{}】",map.toString());
         return map.get(storeConfig.getBucket());
     }
     /**
@@ -127,6 +210,7 @@ public class DiskServiceImpl implements DiskService {
             JSONObject data = json.getJSONObject("data");
             JSONArray result = data.getJSONArray("result");
             JSONArray value = result.getJSONObject(0).getJSONArray("value");
+            log.info("value:【{}】",value);
             return value.getBigDecimal(1);
         } catch (Exception e) {
             log.error("调用七牛接口异常:",e);
@@ -138,6 +222,7 @@ public class DiskServiceImpl implements DiskService {
      * @return
      */
     public String getQiNiuToken(QiniuStoreConfig qiniuStoreConfig){
+        log.info("获取七牛云token 用于接口调用入参：【{}】",JSON.toJSON(qiniuStoreConfig));
         String qiniuUserName = AESUtil.decrypt(qiniuStoreConfig.getUserName());
         String qiniuPassWord = AESUtil.decrypt(qiniuStoreConfig.getPassWord());
         String redisKey = String.format(Constants.qi_niu_token,qiniuStoreConfig.getClusterName());
@@ -185,6 +270,7 @@ public class DiskServiceImpl implements DiskService {
      * @return
      */
     public Map<String,BigDecimal> allbucketInfo(QiniuStoreConfig qiniuStoreConfig) {
+        log.info("获取每个矿工已使用存储量入参：【{}】",JSON.toJSON(qiniuStoreConfig));
         int count = minerInfoService.count();
         log.info("平台矿工数量:{}",count);
 
@@ -197,6 +283,7 @@ public class DiskServiceImpl implements DiskService {
             return map;
         }
         JSONArray buckets = JSON.parseObject(result).getJSONArray("buckets");
+        log.info("七牛云-buckets：【{}】",buckets.toJSONString());
         for(int i=0;i<buckets.size();i++){
             JSONObject jsonObject = buckets.getJSONObject(i);
             String bucketName = jsonObject.getString("id");
@@ -249,37 +336,36 @@ public class DiskServiceImpl implements DiskService {
     }
 
 
-    /*获取宽带信息*/
-    @Override
-    public Result<BroadbandVO> broadband(DiskBO diskBO) {
-        //获取当前选择矿工的七牛配置信息
-        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(QiniuStoreConfig::getMinerId,diskBO.getMinerId());
-        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
-        log.info("矿工的七牛云配置信息:{}",JSON.toJSONString(storeConfig));
-        if(storeConfig == null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
+    /**
+     * 获取宽带信息
+     * @param sysMinerInfoList
+     * @return
+     */
+    public BroadbandVO broadband(QiniuStoreConfig storeConfig) {
+        try {
+            // 查24小时的数据
+            Long yesterdayTimeLong = LocalDateTime.now().plusHours(-24L).toEpochSecond(ZoneOffset.of("+8"));
+            Long nowTimeLong = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+
+            // 上传带宽，单位 bps
+            String upBroadbandMetric = "sum (rate(service_request_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"up.*|s3apiv2.putobject.*|s3apiv2.postobject|s3apiv2.uploadpart.*\"}[1m]))*8";
+            List<BroadbandUpDownVO> upBroadbandVOList = getQiniuData(storeConfig,upBroadbandMetric,yesterdayTimeLong,nowTimeLong);
+            log.info("获取上传带宽出参:{}",JSON.toJSON(upBroadbandVOList));
+
+            // 下载带宽，单位 bps
+            String downBroadbandMetric = "sum (rate(service_response_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"io.get|s3apiv2.getobject\"}[1m]))*8";
+            List<BroadbandUpDownVO> downBroadbandVOList = getQiniuData(storeConfig,downBroadbandMetric,yesterdayTimeLong,nowTimeLong);
+            log.info("获取下载带宽出参:{}",JSON.toJSON(downBroadbandVOList));
+
+            BroadbandVO broadbandVO = new BroadbandVO();
+            broadbandVO.setBroadbandUpVOList(upBroadbandVOList);
+            broadbandVO.setBroadbandDownVOList(downBroadbandVOList);
+
+            return broadbandVO;
+        }catch (Exception e){
+            log.error("获取宽带信息报错",e);
+            return null;
         }
-
-        // 查24小时的数据
-        Long yesterdayTimeLong = LocalDateTime.now().plusHours(-24L).toEpochSecond(ZoneOffset.of("+8"));
-        Long nowTimeLong = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-
-        // 上传带宽，单位 bps
-        String upBroadbandMetric = "sum (rate(service_request_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"up.*|s3apiv2.putobject.*|s3apiv2.postobject|s3apiv2.uploadpart.*\"}[1m]))*8";
-        List<BroadbandUpDownVO> upBroadbandVOList = getQiniuData(storeConfig,upBroadbandMetric,yesterdayTimeLong,nowTimeLong);
-        log.info("获取上传带宽:{}",JSON.toJSON(upBroadbandVOList));
-
-        // 下载带宽，单位 bps
-        String downBroadbandMetric = "sum (rate(service_response_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"io.get|s3apiv2.getobject\"}[1m]))*8";
-        List<BroadbandUpDownVO> downBroadbandVOList = getQiniuData(storeConfig,downBroadbandMetric,yesterdayTimeLong,nowTimeLong);
-        log.info("获取上传带宽:{}",JSON.toJSON(downBroadbandVOList));
-
-        BroadbandVO broadbandVO = new BroadbandVO();
-        broadbandVO.setBroadbandUpVOList(upBroadbandVOList);
-        broadbandVO.setBroadbandDownVOList(downBroadbandVOList);
-
-        return Result.success(broadbandVO);
     }
 
     /**
@@ -288,6 +374,7 @@ public class DiskServiceImpl implements DiskService {
      * @throws UnsupportedEncodingException
      */
     public List<BroadbandUpDownVO> getQiniuData(QiniuStoreConfig qiniuStoreConfig,String metric,Long startTime, Long endTime) {
+        log.info("查询七牛云一段时间内上传/下载的带宽、IOPS和响应时间95值入参:qiniuStoreConfig【{}】,metric：【{}】,startTime:【{}】,endTime：【{}】",JSON.toJSON(qiniuStoreConfig),metric,startTime,endTime);
         try {
             String url = qiniuStoreConfig.getPrometheusDomain()+"/api/v1/query_range?query="+ URLEncoder.encode(metric,"UTF-8") + "&start=" + startTime + "&end=" + endTime + "&step=2m";
             Map<String,String> header = new HashMap<>();
@@ -306,10 +393,12 @@ public class DiskServiceImpl implements DiskService {
             JSONObject data = json.getJSONObject("data");
             JSONArray result = data.getJSONArray("result");
             JSONArray value = result.getJSONObject(0).getJSONArray("values");
+            log.info("value：【{}】",value.toJSONString());
             List<BroadbandUpDownVO> broadbandUpDownVOList = new ArrayList<>();
             if (value.size() > 0){
                 for (int i=0;i<value.size();i++){
                     BroadbandUpDownVO broadbandUpDownVO = new BroadbandUpDownVO();
+//                    log.info("value.getJSONArray(i)：【{}】",value.getJSONArray(i).toJSONString());
                     broadbandUpDownVO.setTimestamp(Long.valueOf(value.getJSONArray(i).get(0) + ""));
                     broadbandUpDownVO.setValue(new BigDecimal(value.getJSONArray(i).get(1)+""));
                     broadbandUpDownVOList.add(broadbandUpDownVO);
