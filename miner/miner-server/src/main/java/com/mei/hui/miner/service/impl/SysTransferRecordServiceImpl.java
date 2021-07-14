@@ -242,6 +242,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         page.getRecords().stream().forEach(v -> {
             SysUserOut user = userMaps.get(v.getUserId());
             v.setUserName(user.getUserName());
+            v.setAmount(BigDecimalUtil.formatFour(v.getAmount()));
+            v.setFee(BigDecimalUtil.formatFour(v.getFee()));
         });
         /**
          * 组装返回信息
@@ -344,7 +346,13 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
          * 组装返回信息
          */
         if(map.size() > 0){
-            page.getRecords().stream().forEach(v->v.setUserName(map.get(v.getUserId()).getUserName()));
+            page.getRecords().stream().forEach(
+                    v->{
+                        v.setUserName(map.get(v.getUserId()).getUserName());
+                        v.setAmount(BigDecimalUtil.formatFour(v.getAmount()));
+                        v.setFee(BigDecimalUtil.formatFour(v.getFee()));
+                    }
+            );
         }
 
         Map<String,Object> result = new HashMap<>();
