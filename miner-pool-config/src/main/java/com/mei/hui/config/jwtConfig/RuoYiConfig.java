@@ -30,6 +30,17 @@ public class RuoYiConfig
 
     private String logUrl;
 
+    //sdk 私钥
+    private String privateKey;
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
     public String getLogUrl() {
         return logUrl;
     }
