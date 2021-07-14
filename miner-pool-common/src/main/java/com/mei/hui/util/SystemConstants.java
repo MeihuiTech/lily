@@ -15,8 +15,12 @@ public interface SystemConstants {
     String CURRENCYID = "currency_id";
     String PLATFORM = "platform";
 
+    String ACCESSKEY = "ACCESSKEY";
+
     String WEB = "web";
     String APP = "app";
+    //用于sdk
+    String API = "API";
 
     //短信验证码5分钟有效，格式sms:serviceName:userId
     String SMSKEY="sms:%s:%s";
@@ -25,6 +29,8 @@ public interface SystemConstants {
     String SMSKEYTIME="sms:%s:%stime";
 
     String KEY_ALGORITHM = "AES";
+
+    String RSA = "RSA";
     /**
      * 默认的加密算法
      */
