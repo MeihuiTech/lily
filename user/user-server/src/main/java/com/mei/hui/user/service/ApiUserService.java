@@ -3,6 +3,7 @@ package com.mei.hui.user.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.user.entity.ApiUser;
 import com.mei.hui.user.model.ApiTokenVO;
+import com.mei.hui.user.model.GetTokenBO;
 import com.mei.hui.util.Result;
 
 /**
@@ -15,6 +16,6 @@ import com.mei.hui.util.Result;
  */
 public interface ApiUserService extends IService<ApiUser> {
 
-    Result<ApiTokenVO> getToken(String body);
+    Result<ApiTokenVO> getToken(GetTokenBO getTokenBO);
 
 }

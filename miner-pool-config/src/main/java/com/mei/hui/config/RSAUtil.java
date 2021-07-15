@@ -1,12 +1,10 @@
 package com.mei.hui.config;
 
-import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
@@ -23,12 +21,9 @@ import java.util.Map;
 public class RSAUtil {
     private static Map<Integer, String> keyMap = new HashMap<>();  //用于封装随机产生的公钥与私钥
 
-    private static RuoYiConfig staticRuoYiConfig;
+    private static String privateKey = "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAoMI8nS8TWcp6kPHiglEO6mSi5JApNtXnVIVSBAsPMXIsf1ich9N2LL2iJnxdqiF8eSUUtRj7ZusfJ/0iSKNfYQIDAQABAkAUIj+VMCAsTr+rB6Bm0eAcWx5LogKHa6LdYxUyjHAKsR8NWyeTttSDVOany8Ilm5gcEmgCLNVAjwIvpr6nK3MBAiEA2mp4mgkIkb6Ms5F67v5l0cPDAPuPfHuQrFaPSphhqTUCIQC8a+LZnEjjnU4QHqlLMopVopdYcoZFHR96WGLqt21O/QIgTox13OecxlVh4n5SWLrywTKG4caWfq0thV0H4UrV7HUCIF8uWK/4xNFGW3LFKlv0MfFEaxOg9rbfGVGiaIWNF0i5AiB6xMSBo8pvB1wou8xCUCvKoRMXGHBB/QnsS4dl6kLQnQ==";
 
-    @Autowired
-    public void setRuoYiConfig(RuoYiConfig ruoYiConfig) {
-        this.staticRuoYiConfig = ruoYiConfig;
-    }
+    private static String publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKDCPJ0vE1nKepDx4oJRDupkouSQKTbV51SFUgQLDzFyLH9YnIfTdiy9oiZ8XaohfHklFLUY+2brHyf9IkijX2ECAwEAAQ==";
 
     public static void main(String[] args) throws Exception {
         //生成公钥和私钥
@@ -73,7 +68,6 @@ public class RSAUtil {
      *             加密过程中的异常信息
      */
     public static String encrypt(String str,String publicKey) throws Exception{
-        str = AESUtil.encrypt(str);
         //base64编码的公钥
         byte[] decoded = Base64.decodeBase64(publicKey);
         RSAPublicKey pubKey = (RSAPublicKey) KeyFactory.getInstance(SystemConstants.RSA).generatePublic(new X509EncodedKeySpec(decoded));
@@ -95,11 +89,10 @@ public class RSAUtil {
      */
     public static String decrypt(String str){
         try {
-            str = AESUtil.decrypt(str);
             //64位解码加密后的字符串
             byte[] inputByte = Base64.decodeBase64(str.getBytes("UTF-8"));
             //base64编码的私钥
-            byte[] decoded = Base64.decodeBase64(staticRuoYiConfig.getPrivateKey());
+            byte[] decoded = Base64.decodeBase64(privateKey);
             RSAPrivateKey priKey = (RSAPrivateKey) KeyFactory.getInstance(SystemConstants.RSA).generatePrivate(new PKCS8EncodedKeySpec(decoded));
             //RSA解密
             Cipher cipher = Cipher.getInstance(SystemConstants.RSA);
