@@ -15,6 +15,7 @@ import com.mei.hui.user.mapper.ApiUserMapper;
 import com.mei.hui.user.model.ApiTokenVO;
 import com.mei.hui.user.model.GetTokenBO;
 import com.mei.hui.user.service.ApiUserService;
+import com.mei.hui.util.PlatFormEnum;
 import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
 import io.jsonwebtoken.Jwts;
@@ -49,7 +50,7 @@ public class ApiUserServiceImpl extends ServiceImpl<ApiUserMapper, ApiUser> impl
         Long tokenExpires = json.getLong("tokenExpires");
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put(SystemConstants.PLATFORM,Constants.API);
+        claims.put(SystemConstants.PLATFORM, PlatFormEnum.api.name());
         claims.put(SystemConstants.ACCESSKEY,accessKey);
         String token = Jwts.builder().setClaims(claims).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
