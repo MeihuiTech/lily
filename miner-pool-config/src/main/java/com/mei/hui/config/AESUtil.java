@@ -32,7 +32,7 @@ public class AESUtil {
      *
      * @return
      */
-    private static String getAESRandomKey() {
+    public static String getAESRandomKey() {
         SecureRandom random = new SecureRandom();
         long randomKey = random.nextLong();
         return String.valueOf(randomKey);
@@ -73,6 +73,21 @@ public class AESUtil {
             Cipher cipher = Cipher.getInstance(SystemConstants.DEFAULT_CIPHER_ALGORITHM);
             //使用密钥初始化，设置为解密模式
             cipher.init(Cipher.DECRYPT_MODE, getSecretKey(ruoYiConfig.getAesSecret()));
+            //执行操作
+            byte[] result = cipher.doFinal(base642Byte(content));
+            return new String(result, "utf-8");
+        } catch (Exception ex) {
+            log.error("解密失败", ex);
+            throw new MyException(ErrorCode.MYB_111111.getCode(),"token 无效");
+        }
+    }
+
+    public static String decrypt(String content,String aesKey) {
+        try {
+            //实例化
+            Cipher cipher = Cipher.getInstance(SystemConstants.DEFAULT_CIPHER_ALGORITHM);
+            //使用密钥初始化，设置为解密模式
+            cipher.init(Cipher.DECRYPT_MODE, getSecretKey(aesKey));
             //执行操作
             byte[] result = cipher.doFinal(base642Byte(content));
             return new String(result, "utf-8");

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.RSAUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
@@ -11,6 +12,8 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.entity.ApiUser;
 import com.mei.hui.user.mapper.ApiUserMapper;
+import com.mei.hui.user.model.ApiTokenVO;
+import com.mei.hui.user.model.GetTokenBO;
 import com.mei.hui.user.service.ApiUserService;
 import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
@@ -38,11 +41,12 @@ public class ApiUserServiceImpl extends ServiceImpl<ApiUserMapper, ApiUser> impl
     @Autowired
     private RuoYiConfig staticRuoYiConfig;
 
-    public Result getToken(String body){
-        String str = RSAUtil.decrypt(body);
-        JSONObject json = JSON.parseObject(str);
+    public Result<ApiTokenVO> getToken(@RequestBody GetTokenBO getTokenBO){
+        String aesKey = RSAUtil.decrypt(getTokenBO.getAesKeyEncry());
+        String body = AESUtil.decrypt(getTokenBO.getBodyEncry(), aesKey);
+        JSONObject json = JSON.parseObject(body);
         String accessKey = json.getString("accessKey");
-        long tokenExpires = json.getLongValue("tokenExpires");
+        Long tokenExpires = json.getLong("tokenExpires");
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(SystemConstants.PLATFORM,Constants.API);
@@ -50,7 +54,7 @@ public class ApiUserServiceImpl extends ServiceImpl<ApiUserMapper, ApiUser> impl
         String token = Jwts.builder().setClaims(claims).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
         redisUtils.set(token,"",tokenExpires, TimeUnit.MINUTES);
-        return Result.success(token);
+        return Result.success(new ApiTokenVO().setToken(token));
     }
 
 
