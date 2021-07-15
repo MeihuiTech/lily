@@ -150,22 +150,27 @@ public class LoginController {
 
     @PostMapping("/user/authority")
     public Result authority(@RequestBody String token){
-        //是否主动退出，如果redis无值，则是主动退出
-        if(!redisCache.exists(token)){
-            throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
-        }
         //token 验签，校验是否过期
         Claims claims = JwtUtil.parseToken(token);
-        Integer userId = (Integer)claims.get("userId");
-        /**
-         * 校验是否已经被下线ht
-         */
-        String offline = String.format(Constants.OfflineUser, userId);
-        if (redisUtils.exists(offline)){
-            redisUtils.delete(offline);
-            throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
+        String platform = (String) claims.get(SystemConstants.PLATFORM);
+        if(PlatFormEnum.web.name().equals(platform)){
+            //是否主动退出，如果redis无值，则是主动退出
+            if(!redisCache.exists(token)){
+                throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
+            }
+            Integer userId = (Integer)claims.get("userId");
+            //校验是否已经被下线
+            String offline = String.format(Constants.OfflineUser, userId);
+            if (redisUtils.exists(offline)){
+                redisUtils.delete(offline);
+                throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
+            }
+            redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
+        }else if(PlatFormEnum.api.name().equals(platform)){
+            if(!redisCache.exists(token)){
+                throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
+            }
         }
-        redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         return Result.OK;
     }
 

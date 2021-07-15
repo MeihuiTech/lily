@@ -113,7 +113,7 @@ public class SysUserServiceImpl implements ISysUserService {
         //默认当前币种时fil币
         Long currencyId = Constants.fileCurrencyId;
         //生成token
-        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,Constants.WEB);
+        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name());
         result.put(SystemConstants.TOKEN,token);
         redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         insertLoginInfo(sysUser);
@@ -491,7 +491,7 @@ public class SysUserServiceImpl implements ISysUserService {
         //默认当前币种时fil币
         Long currencyId = Constants.fileCurrencyId;
         //生成token
-        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,Constants.WEB);
+        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name());
         /**
          * 组装响应数据
          */
@@ -506,7 +506,7 @@ public class SysUserServiceImpl implements ISysUserService {
     public Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO){
         Long currencyId = changeCurrencyBO.getCurrencyId();
         //生成token
-        String token = JwtUtil.createToken(HttpRequestUtil.getUserId(),currencyId,Constants.WEB);
+        String token = JwtUtil.createToken(HttpRequestUtil.getUserId(),currencyId,PlatFormEnum.web.name());
         redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         ChangeCurrencyVO changeCurrencyVO = new ChangeCurrencyVO();
         changeCurrencyVO.setToken(token);
