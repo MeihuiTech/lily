@@ -32,7 +32,7 @@ public class AESUtil {
      *
      * @return
      */
-    private static String getAESRandomKey() {
+    public static String getAESRandomKey() {
         SecureRandom random = new SecureRandom();
         long randomKey = random.nextLong();
         return String.valueOf(randomKey);

@@ -73,6 +73,7 @@ public class RSAUtil {
      *             加密过程中的异常信息
      */
     public static String encrypt(String str,String publicKey) throws Exception{
+        str = AESUtil.encrypt(str);
         //base64编码的公钥
         byte[] decoded = Base64.decodeBase64(publicKey);
         RSAPublicKey pubKey = (RSAPublicKey) KeyFactory.getInstance(SystemConstants.RSA).generatePublic(new X509EncodedKeySpec(decoded));
@@ -94,6 +95,7 @@ public class RSAUtil {
      */
     public static String decrypt(String str){
         try {
+            str = AESUtil.decrypt(str);
             //64位解码加密后的字符串
             byte[] inputByte = Base64.decodeBase64(str.getBytes("UTF-8"));
             //base64编码的私钥

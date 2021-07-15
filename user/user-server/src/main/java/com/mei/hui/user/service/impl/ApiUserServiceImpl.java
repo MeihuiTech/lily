@@ -11,6 +11,7 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.entity.ApiUser;
 import com.mei.hui.user.mapper.ApiUserMapper;
+import com.mei.hui.user.model.ApiTokenVO;
 import com.mei.hui.user.service.ApiUserService;
 import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
@@ -38,7 +39,7 @@ public class ApiUserServiceImpl extends ServiceImpl<ApiUserMapper, ApiUser> impl
     @Autowired
     private RuoYiConfig staticRuoYiConfig;
 
-    public Result getToken(String body){
+    public Result<ApiTokenVO> getToken(String body){
         String str = RSAUtil.decrypt(body);
         JSONObject json = JSON.parseObject(str);
         String accessKey = json.getString("accessKey");
@@ -50,7 +51,7 @@ public class ApiUserServiceImpl extends ServiceImpl<ApiUserMapper, ApiUser> impl
         String token = Jwts.builder().setClaims(claims).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
         redisUtils.set(token,"",tokenExpires, TimeUnit.MINUTES);
-        return Result.success(token);
+        return Result.success(new ApiTokenVO().setToken(token));
     }
 
 

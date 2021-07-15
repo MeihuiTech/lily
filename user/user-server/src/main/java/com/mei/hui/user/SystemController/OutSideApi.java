@@ -1,5 +1,6 @@
 package com.mei.hui.user.SystemController;
 
+import com.mei.hui.user.model.ApiTokenVO;
 import com.mei.hui.user.service.ApiUserService;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
@@ -22,7 +23,7 @@ public class OutSideApi {
 
     @ApiOperation("获取token")
     @PostMapping("/getToken")
-    public Result getToken(@RequestBody String body){
+    public Result<ApiTokenVO> getToken(@RequestBody String body){
         return apiUserService.getToken(body);
     }
 
