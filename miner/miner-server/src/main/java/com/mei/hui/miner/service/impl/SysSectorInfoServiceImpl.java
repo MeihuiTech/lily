@@ -130,4 +130,10 @@ public class SysSectorInfoServiceImpl implements ISysSectorInfoService
     {
         return sysSectorInfoMapper.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
     }
+
+    /*查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态*/
+    @Override
+    public List<SysSectorInfo> selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(SysSectorInfo sectorInfo) {
+        return sysSectorInfoMapper.selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(sectorInfo);
+    }
 }

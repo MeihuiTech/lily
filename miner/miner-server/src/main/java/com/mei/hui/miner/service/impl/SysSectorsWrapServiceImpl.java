@@ -221,6 +221,16 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
             sysSectorInfoService.updateSysSectorInfo(sysSectorInfo);
         }
 
+        // 查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态，如果有，改成已完成
+        List<SysSectorInfo> dbSysSectorInfoList = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(sysSectorInfo);
+        log.info("查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态出参：【{}】",JSON.toJSON(dbSysSectorInfoList));
+        if (dbSysSectorInfoList != null && dbSysSectorInfoList.size() > 0) {
+            for (SysSectorInfo dbSysSectorInfo:dbSysSectorInfoList){
+                dbSysSectorInfo.setStatus(1);
+                sysSectorInfoService.updateSysSectorInfo(dbSysSectorInfo);
+            }
+        }
+
         // 如果是扇区开始封装，不插入/更新sys_sectors_wrap表，只有是扇区结束封装，才插入/更新sys_sectors_wrap表
         if (Constants.ACTIONSTART.equals(sysSectorInfo.getAction())){
             return 1;

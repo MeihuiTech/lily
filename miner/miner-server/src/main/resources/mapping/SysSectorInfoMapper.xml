@@ -23,6 +23,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_start, sector_duration, create_by, create_time, update_by, update_time from sys_sector_info
     </sql>
 
+    <sql id="SysSectorInfoVo">
+        select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_start, sector_duration, create_by, create_time, update_by, update_time from sys_sector_info
+    </sql>
+
     <select id="selectSysSectorInfoList" parameterType="SysSectorInfo" resultMap="SysSectorInfoResult">
         <include refid="selectSysSectorInfoVo"/>
         <where>  
@@ -104,4 +108,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <!--查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态-->
+    <select id="selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus" parameterType="com.mei.hui.miner.entity.SysSectorInfo" resultMap="SysSectorInfoResult">
+        <include refid="selectSysSectorInfoVo"/>
+        <where>
+            STATUS = 0
+            <if test="minerId != null and minerId != ''">
+                AND miner_id = #{minerId}
+            </if>
+            <if test="sectorNo != null and sectorNo != ''">
+                AND sector_no = #{sectorNo}
+            </if>
+            <if test="sectorStatus != null and sectorStatus != ''">
+                AND #{sectorStatus} > sector_status
+            </if>
+        </where>
+    </select>
+
+
+
 </mapper>
