@@ -243,7 +243,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.ForeignSysMinerInfoVO>
     * @version v1.4.1
     */
-    public Result<ForeignSysMinerInfoVO> selectForeignUser(ForeignUserBO foreignUserBO);
+    public Result<List<ForeignSysMinerInfoVO>> selectForeignUser(ForeignUserBO foreignUserBO);
 
     /**
     * 不分页根据FIL币矿工信息表entity查询FIL币矿工信息表list

@@ -732,7 +732,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
 
     /*对外API-用户数据*/
     @Override
-    public Result<ForeignSysMinerInfoVO> selectForeignUser(ForeignUserBO foreignUserBO) {
+    public Result<List<ForeignSysMinerInfoVO>> selectForeignUser(ForeignUserBO foreignUserBO) {
         String apiKey = foreignUserBO.getApiKey();
         Result<Long> userIdResult = userFeignClient.findUserIdByApiKey(apiKey);
         log.info("根据apiKey查询用户的userId出参：【{}】",JSON.toJSON(userIdResult));

@@ -10,9 +10,11 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Api(tags = "对外部系统提供api接口")
 @RestController
-@RequestMapping("/foreign")
+@RequestMapping("/k2Pool")
 public class ForeignController {
 
     @Autowired
@@ -23,13 +25,10 @@ public class ForeignController {
 
     /**
     * 对外API-全网数据
-    *
-    * @description
     * @author shangbin
     * @date 2021/7/3 17:45
     * @param []
     * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.ForeignNetworkVO>
-    * @version v1.4.1
     */
     @ApiOperation(value = "对外API-全网数据")
     @GetMapping("/network")
@@ -81,7 +80,7 @@ public class ForeignController {
     */
     @ApiOperation(value = "对外API-用户数据")
     @PostMapping("/user")
-    public Result<ForeignSysMinerInfoVO> selectForeignUser(@RequestBody ForeignUserBO foreignUserBO){
+    public Result<List<ForeignSysMinerInfoVO>> selectForeignUser(@RequestBody ForeignUserBO foreignUserBO){
         return sysMinerInfoService.selectForeignUser(foreignUserBO);
     }
 
