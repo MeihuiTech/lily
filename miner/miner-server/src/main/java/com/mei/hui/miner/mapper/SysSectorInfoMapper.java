@@ -37,7 +37,7 @@ public interface SysSectorInfoMapper extends BaseMapper<SysSectorInfo>
      * @param sysSectorInfo 扇区信息
      * @return 结果
      */
-    public int insertSysSectorInfo(SysSectorInfo sysSectorInfo);
+//    public int insertSysSectorInfo(SysSectorInfo sysSectorInfo);
 
     /**
      * 修改扇区信息
@@ -45,7 +45,7 @@ public interface SysSectorInfoMapper extends BaseMapper<SysSectorInfo>
      * @param sysSectorInfo 扇区信息
      * @return 结果
      */
-    public int updateSysSectorInfo(SysSectorInfo sysSectorInfo);
+//    public int updateSysSectorInfo(SysSectorInfo sysSectorInfo);
 
     /**
      * 删除扇区信息

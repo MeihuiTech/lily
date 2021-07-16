@@ -29,6 +29,11 @@ public class RequestSectorInfo extends SysSectorInfo {
     @ApiModelProperty(value = "扇区当前状态持续时间", required = true)
     private Long sectorDuration;
 
+    @ApiModelProperty(value = "扇区开始/结束记录创建时间")
+    private LocalDateTime time;
+
+    @ApiModelProperty(value = "扇区封装过程：开始封装start,结束封装stop")
+    private String action;
 
     private LocalDateTime createTime;
 

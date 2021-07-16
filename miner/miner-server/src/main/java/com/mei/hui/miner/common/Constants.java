@@ -52,4 +52,14 @@ public interface Constants extends SystemConstants {
      */
     String STORETYPEGPFS = "gpfs";
 
+    /**
+     * 扇区封装过程：开始封装start
+     */
+    String ACTIONSTART = "start";
+
+    /**
+     * 扇区封装过程：结束封装stop
+     */
+    String ACTIONSTOP = "stop";
+
 }
