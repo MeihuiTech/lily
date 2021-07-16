@@ -35,11 +35,6 @@ public class ApiUser implements Serializable {
     private String accessKey;
 
     /**
-     * 加密秘钥
-     */
-    private String secretKey;
-
-    /**
      * 帐号状态（0正常 1停用）
      */
     private String status;
