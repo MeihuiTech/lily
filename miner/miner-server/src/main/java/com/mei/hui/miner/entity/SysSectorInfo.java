@@ -64,12 +64,23 @@ public class SysSectorInfo {
      * 扇区当前状态开始时间，获取不到可传空
      */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date sectorStart;
+    private LocalDateTime sectorStart;
+
+    /**
+     * 扇区当前状态结束时间，获取不到可传空
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDateTime sectorEnd;
 
     /**
      * 扇区当前状态持续时间，单位秒(s)
      */
     private Long sectorDuration;
+
+    /**
+     * 封装状态：0进行中，1已完成，默认0
+     */
+    private Integer status;
 
     private String createBy;
 

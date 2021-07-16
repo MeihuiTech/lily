@@ -79,7 +79,7 @@ public class SysSectorInfoServiceImpl implements ISysSectorInfoService
     public int insertSysSectorInfo(SysSectorInfo sysSectorInfo)
     {
         sysSectorInfo.setCreateTime(LocalDateTime.now());
-        return sysSectorInfoMapper.insertSysSectorInfo(sysSectorInfo);
+        return sysSectorInfoMapper.insert(sysSectorInfo);
     }
 
     /**
@@ -92,7 +92,7 @@ public class SysSectorInfoServiceImpl implements ISysSectorInfoService
     public int updateSysSectorInfo(SysSectorInfo sysSectorInfo)
     {
         sysSectorInfo.setUpdateTime(LocalDateTime.now());
-        return sysSectorInfoMapper.updateSysSectorInfo(sysSectorInfo);
+        return sysSectorInfoMapper.updateById(sysSectorInfo);
     }
 
     /**

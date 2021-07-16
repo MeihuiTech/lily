@@ -46,7 +46,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where miner_id = #{minerId} and sector_no = #{sectorNo} and sector_status = #{sectorStatus}
     </select>
         
-    <insert id="insertSysSectorInfo" parameterType="SysSectorInfo" useGeneratedKeys="true" keyProperty="id">
+    <!--<insert id="insertSysSectorInfo" parameterType="SysSectorInfo" useGeneratedKeys="true" keyProperty="id">
         insert into sys_sector_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="minerId != null and minerId != ''">miner_id,</if>
@@ -74,9 +74,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
          </trim>
-    </insert>
+    </insert>-->
 
-    <update id="updateSysSectorInfo" parameterType="SysSectorInfo">
+    <!--<update id="updateSysSectorInfo" parameterType="SysSectorInfo">
         update sys_sector_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="minerId != null and minerId != ''">miner_id = #{minerId},</if>
@@ -92,7 +92,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
         where id = #{id}
-    </update>
+    </update>-->
 
     <delete id="deleteSysSectorInfoById" parameterType="Long">
         delete from sys_sector_info where id = #{id}
