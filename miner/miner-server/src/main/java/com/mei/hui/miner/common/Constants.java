@@ -62,4 +62,14 @@ public interface Constants extends SystemConstants {
      */
     String ACTIONSTOP = "stop";
 
+    /**
+     * 封装状态：0进行中
+     */
+    Integer SECTORSTATUSZERO = 0;
+
+    /**
+     * 封装状态：1已完成
+     */
+    Integer SECTORSTATUSONE = 1;
+
 }
