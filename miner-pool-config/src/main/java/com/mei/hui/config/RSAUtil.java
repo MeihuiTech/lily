@@ -1,12 +1,10 @@
 package com.mei.hui.config;
 
-import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
@@ -23,12 +21,9 @@ import java.util.Map;
 public class RSAUtil {
     private static Map<Integer, String> keyMap = new HashMap<>();  //用于封装随机产生的公钥与私钥
 
-    private static RuoYiConfig staticRuoYiConfig;
+    private static String privateKey = "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAoMI8nS8TWcp6kPHiglEO6mSi5JApNtXnVIVSBAsPMXIsf1ich9N2LL2iJnxdqiF8eSUUtRj7ZusfJ/0iSKNfYQIDAQABAkAUIj+VMCAsTr+rB6Bm0eAcWx5LogKHa6LdYxUyjHAKsR8NWyeTttSDVOany8Ilm5gcEmgCLNVAjwIvpr6nK3MBAiEA2mp4mgkIkb6Ms5F67v5l0cPDAPuPfHuQrFaPSphhqTUCIQC8a+LZnEjjnU4QHqlLMopVopdYcoZFHR96WGLqt21O/QIgTox13OecxlVh4n5SWLrywTKG4caWfq0thV0H4UrV7HUCIF8uWK/4xNFGW3LFKlv0MfFEaxOg9rbfGVGiaIWNF0i5AiB6xMSBo8pvB1wou8xCUCvKoRMXGHBB/QnsS4dl6kLQnQ==";
 
-    @Autowired
-    public void setRuoYiConfig(RuoYiConfig ruoYiConfig) {
-        this.staticRuoYiConfig = ruoYiConfig;
-    }
+    private static String publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKDCPJ0vE1nKepDx4oJRDupkouSQKTbV51SFUgQLDzFyLH9YnIfTdiy9oiZ8XaohfHklFLUY+2brHyf9IkijX2ECAwEAAQ==";
 
     public static void main(String[] args) throws Exception {
         //生成公钥和私钥
@@ -37,7 +32,7 @@ public class RSAUtil {
         String message = "美辉科技有限公司";
         System.out.println("随机生成的公钥为:" + keyMap.get(0));
         System.out.println("随机生成的私钥为:" + keyMap.get(1));
-       /* String messageEn = encrypt(message,keyMap.get(0));
+      /*  String messageEn = encrypt(message,keyMap.get(0));
         System.out.println(message + "\t加密后的字符串为:" + messageEn);
         String messageDe = decrypt(messageEn,keyMap.get(1));
         System.out.println("还原后的字符串为:" + messageDe);*/
@@ -51,7 +46,7 @@ public class RSAUtil {
         // KeyPairGenerator类用于生成公钥和私钥对，基于RSA算法生成对象
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(SystemConstants.RSA);
         // 初始化密钥对生成器，密钥大小为96-1024位
-        keyPairGen.initialize(512,new SecureRandom());
+        keyPairGen.initialize(1024,new SecureRandom());
         // 生成一个密钥对，保存在keyPair中
         KeyPair keyPair = keyPairGen.generateKeyPair();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();   // 得到私钥
@@ -97,7 +92,7 @@ public class RSAUtil {
             //64位解码加密后的字符串
             byte[] inputByte = Base64.decodeBase64(str.getBytes("UTF-8"));
             //base64编码的私钥
-            byte[] decoded = Base64.decodeBase64(staticRuoYiConfig.getPrivateKey());
+            byte[] decoded = Base64.decodeBase64(privateKey);
             RSAPrivateKey priKey = (RSAPrivateKey) KeyFactory.getInstance(SystemConstants.RSA).generatePrivate(new PKCS8EncodedKeySpec(decoded));
             //RSA解密
             Cipher cipher = Cipher.getInstance(SystemConstants.RSA);

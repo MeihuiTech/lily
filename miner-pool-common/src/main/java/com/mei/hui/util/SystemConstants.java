@@ -17,11 +17,6 @@ public interface SystemConstants {
 
     String ACCESSKEY = "ACCESSKEY";
 
-    String WEB = "web";
-    String APP = "app";
-    //用于sdk
-    String API = "API";
-
     //短信验证码5分钟有效，格式sms:serviceName:userId
     String SMSKEY="sms:%s:%s";
 

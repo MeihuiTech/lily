@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import sun.security.krb5.internal.crypto.Aes128;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -47,9 +48,8 @@ public class UserTest {
 
     @Test
     public void testToken() {
-        String accessKey = IdUtils.fastSimpleUUID();
-        String secretKey = IdUtils.fastSimpleUUID();
-        log.info("accessKey = {},secretKey = {}",accessKey,secretKey);
+        //String aes = AESUtil.getAESRandomKey();
+        log.info("秘钥:{}",UUID.randomUUID());
 
 
     }

@@ -32,7 +32,7 @@ public class AESUtil {
      *
      * @return
      */
-    private static String getAESRandomKey() {
+    public static String getAESRandomKey() {
         SecureRandom random = new SecureRandom();
         long randomKey = random.nextLong();
         return String.valueOf(randomKey);
@@ -57,9 +57,8 @@ public class AESUtil {
             return byte2Base64(result);
         } catch (Exception ex) {
             log.error("加密失败", ex);
+            throw new MyException(ErrorCode.MYB_111111.getCode(),"加密失败");
         }
-
-        return null;
     }
 
     /**
@@ -78,7 +77,22 @@ public class AESUtil {
             return new String(result, "utf-8");
         } catch (Exception ex) {
             log.error("解密失败", ex);
-            throw new MyException(ErrorCode.MYB_111111.getCode(),"token 无效");
+            throw new MyException(ErrorCode.MYB_111111.getCode(),"解密失败");
+        }
+    }
+
+    public static String decrypt(String content,String aesKey) {
+        try {
+            //实例化
+            Cipher cipher = Cipher.getInstance(SystemConstants.DEFAULT_CIPHER_ALGORITHM);
+            //使用密钥初始化，设置为解密模式
+            cipher.init(Cipher.DECRYPT_MODE, getSecretKey(aesKey));
+            //执行操作
+            byte[] result = cipher.doFinal(base642Byte(content));
+            return new String(result, "utf-8");
+        } catch (Exception ex) {
+            log.error("解密失败", ex);
+            throw new MyException(ErrorCode.MYB_111111.getCode(),"解密失败");
         }
     }
 
@@ -103,9 +117,9 @@ public class AESUtil {
             // 转换为AES专用密钥
             return new SecretKeySpec(secretKey.getEncoded(),SystemConstants.KEY_ALGORITHM);
         } catch (Exception ex) {
-            log.info("生成加密秘钥异常！");
+            log.info("生成加密秘钥异常");
+            throw new MyException(ErrorCode.MYB_111111.getCode(),"生成加密秘钥异常");
         }
-        return null;
     }
 
     /**
