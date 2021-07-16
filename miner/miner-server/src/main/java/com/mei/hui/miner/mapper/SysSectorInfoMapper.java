@@ -70,4 +70,16 @@ public interface SysSectorInfoMapper extends BaseMapper<SysSectorInfo>
      * @return 扇区信息
      */
     SysSectorInfo selectSysSectorInfoByMinerIdAndSectorNoAndStatus(SysSectorInfo sysSectorInfo);
+
+    /**
+    * 查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/16 11:44
+    * @param [sectorInfo]
+    * @return java.util.List<com.mei.hui.miner.entity.SysSectorInfo>
+    * @version v1.4.1
+    */
+    public List<SysSectorInfo> selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(com.mei.hui.miner.entity.SysSectorInfo sectorInfo);
 }
