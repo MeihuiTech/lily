@@ -31,6 +31,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -170,6 +172,29 @@ public class MinerTest {
     public void testLocalDateTime(){
         System.out.println(LocalDateTime.now());
         System.out.println(LocalDateTime.now().plusHours(-24L));
+    }
+
+    /**
+     * 将域名转换为ip地址
+     * @throws UnknownHostException
+     */
+    @Test
+    public void testAddressToIp() throws UnknownHostException {
+//获取本机IP地址
+        System.out.println(InetAddress.getLocalHost().getHostAddress());
+//获取www.luoruiyuan.cn的地址
+        System.out.println(InetAddress.getByName("www.luoruiyuan.cn").getHostAddress());
+//获取www.luoruiyuan.cn的真实IP地址
+        System.out.println(InetAddress.getByName("www.luoruiyuan.cn"));
+//获取配置在HOST中的域名IP地址
+        System.out.println(InetAddress.getByName("www.luoruiyuan.cn").getHostAddress());
+    }
+
+
+    @Test
+    public void testIpToAddress(){
+        String rt = HttpUtil.doGet("https://restapi.amap.com/v5/ip?ip=193.118.43.158&key=a86d26bdd2ab3fcba6251ae6bb974c43&type=4","");
+        System.out.println(rt);
     }
 
 }

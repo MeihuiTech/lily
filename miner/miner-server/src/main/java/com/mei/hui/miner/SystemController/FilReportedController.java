@@ -4,6 +4,7 @@ import com.mei.hui.config.CommonUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.MinerIpLongitudeLatitudeBO;
 import com.mei.hui.miner.feign.vo.ReportDeadlinesBO;
 import com.mei.hui.miner.feign.vo.ReportGasBO;
 import com.mei.hui.miner.feign.vo.ReportNetworkDataBO;
@@ -19,6 +20,8 @@ import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,6 +55,8 @@ public class FilReportedController {
     private FilReportNetworkDataService reportNetworkDataService;
     @Autowired
     private FilDeadlinesService deadlinesService;
+    @Autowired
+    private IMinerLongitudeLatitudeService minerLongitudeLatitudeService;
 
     /**
      * 新增矿工信息
@@ -207,6 +212,20 @@ public class FilReportedController {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId不能为空");
         }
         return deadlinesService.reportDeadlines(bo);
+    }
+
+
+    @ApiOperation(value = "上报矿工ip")
+    @PostMapping("/reportMinerIp")
+    public Result reportMinerIpLongitudeLatitude(@RequestBody MinerIpLongitudeLatitudeBO minerIpLongitudeLatitudeBO){
+        if (StringUtils.isEmpty(minerIpLongitudeLatitudeBO.getMinerId())){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId为空");
+        }
+        if (StringUtils.isEmpty(minerIpLongitudeLatitudeBO.getIp())){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"ip为空");
+        }
+        Integer rows = minerLongitudeLatitudeService.reportMinerIpLongitudeLatitude(minerIpLongitudeLatitudeBO);
+        return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 
 }

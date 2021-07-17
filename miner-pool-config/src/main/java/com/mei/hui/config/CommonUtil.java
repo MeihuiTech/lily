@@ -119,12 +119,30 @@ public class CommonUtil {
         return m.matches();
     }
 
+    /**
+    * 验证ip格式是否正确
+    * 
+    * @description 
+    * @author shangbin
+    * @date 2021/7/16 19:28
+    * @param [ip] 
+    * @return boolean 
+    * @version v1.4.1
+    */
+    public static boolean isIp(String ip) {
+        String regex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(ip);
+        return m.matches();
+    }
 
     public static void main(String[] args) {
-        String mobile = "18056389877";
-        String email = "dfafsd@234.com";
+//        String mobile = "18056389877";
+//        String email = "d fafsd@234.com";
 //        System.out.print(isMobile(mobile));
-        System.out.print(isEmail(email));
+//        System.out.print(isEmail(email));
+        String ip = "193.118.43.158";
+        System.out.println(isIp(ip));
     }
 
 }
