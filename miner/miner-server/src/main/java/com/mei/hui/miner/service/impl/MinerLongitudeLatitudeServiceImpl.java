@@ -71,8 +71,9 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
             }
         }
 
-        // 通过ip查询经纬度
-        String apiStr = selectLongitudeLatitudeByIp(trueIp);
+        // 高德api
+        /*// 通过ip查询经纬度
+        String apiStr = selectGaoDeLongitudeLatitudeByIp(trueIp);
         log.info("通过ip查询经纬度出参：【{}】",apiStr);
         if (StringUtils.isEmpty(apiStr)){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"通过ip查询不到经纬度");
@@ -86,7 +87,24 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
         String country = apiJson.getString("country") == null?"":apiJson.getString("country");
         String province = apiJson.getString("province") == null?"":apiJson.getString("province");
         String city = apiJson.getString("city") == null?"":apiJson.getString("city");
-        minerLongitudeLatitude.setAddress(country + province + city);
+        minerLongitudeLatitude.setAddress(country + "," + province + "," + city);
+*/
+
+        // ip-api通过ip查询经纬度
+        String apiStr = selectIpApiLongitudeLatitudeByIp(trueIp);
+        log.info("通过ip查询经纬度出参：【{}】",apiStr);
+        if (StringUtils.isEmpty(apiStr)){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"通过ip查询不到经纬度");
+        }
+        JSONObject json = JSON.parseObject(apiStr);
+        String country = json.getString("country");
+        String regionName = json.getString("regionName");
+        String city = json.getString("city");
+        String lat = json.getString("lat");
+        String lon = json.getString("lon");
+        minerLongitudeLatitude.setLongitude(new BigDecimal(lon));
+        minerLongitudeLatitude.setLatitude(new BigDecimal(lat));
+        minerLongitudeLatitude.setAddress(country+","+regionName+","+city);
 
         // 查询哪些是自己的矿工
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list();
@@ -124,22 +142,43 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
     }
 
     /**
-     * 通过ip查询经纬度
+     * 通过ip查询经纬度-高德
      * @param ip
      * @return
      */
-    public String selectLongitudeLatitudeByIp(String ip) {
-        log.info("通过ip查询经纬度入参:【{}】",ip);
+    public String selectGaoDeLongitudeLatitudeByIp(String ip) {
+        log.info("通过ip查询经纬度-高德入参:【{}】",ip);
         try {
             String url = "https://restapi.amap.com/v5/ip?type=4&ip=" + ip + "&key="+key;
             String rt = HttpUtil.doGet(url,"");
             if(StringUtils.isEmpty(rt)){
-                log.error("通过ip查询经纬度失败");
+                log.error("通过ip查询经纬度-高德失败");
                 return null;
             }
             return rt;
         } catch (Exception e) {
-            log.error("查询通过ip查询经纬度接口异常:",e);
+            log.error("查询通过ip查询经纬度-高德接口异常:",e);
+            return null;
+        }
+    }
+
+    /**
+     * 通过ip查询经纬度-ip-api
+     * @param ip
+     * @return
+     */
+    public String selectIpApiLongitudeLatitudeByIp(String ip) {
+        log.info("通过ip查询经纬度-ip-api入参:【{}】",ip);
+        try {
+            String url = "http://ip-api.com/json/" + ip + "?lang=zh-CN";
+            String rt = HttpUtil.doGet(url,"");
+            if(StringUtils.isEmpty(rt)){
+                log.error("通过ip查询经纬度-ip-api失败");
+                return null;
+            }
+            return rt;
+        } catch (Exception e) {
+            log.error("查询通过ip查询经纬度-ip-api接口异常:",e);
             return null;
         }
     }
