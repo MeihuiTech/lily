@@ -38,4 +38,6 @@ public interface IMinerLongitudeLatitudeService extends IService<MinerLongitudeL
     * @version v1.4.1
     */
     public List<MinerLongitudeLatitudeVO> selectMap();
+
+    Result initMinerIp();
 }

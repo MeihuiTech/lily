@@ -2,7 +2,10 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpUtil;
@@ -15,6 +18,7 @@ import com.mei.hui.miner.mapper.MinerLongitudeLatitudeMapper;
 import com.mei.hui.miner.service.IMinerLongitudeLatitudeService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,7 @@ import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -192,5 +197,53 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
             v.setIp(ipArr[0] + ".**.**." + ipArr[3]);
         });
         return minerLongitudeLatitudeVOList;
+    }
+
+    /**
+     * 更新矿工所在地理位置
+     * @return
+     */
+    public Result initMinerIp(){
+        int pageNum = 1;
+        int pageSize = 20;
+        while (true) {
+            LambdaQueryWrapper<MinerLongitudeLatitude> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.isNull(MinerLongitudeLatitude::getAddress);
+            IPage<MinerLongitudeLatitude> page = this.page(new Page<>(pageNum, pageSize), queryWrapper);
+
+            List<MinerLongitudeLatitude> batch = new ArrayList<>();
+            for(MinerLongitudeLatitude v : page.getRecords()){
+                MinerLongitudeLatitude vo = new MinerLongitudeLatitude();
+                String result = null;
+                try {
+                    result = HttpUtil.doGet("http://ip-api.com/json/" + v.getIp() + "?lang=zh-CN", "");
+                } catch (Exception e) {
+                }
+                if(StringUtils.isEmpty(result)){
+                    continue;
+                }
+                JSONObject json = JSON.parseObject(result);
+                String country = json.getString("country");
+                String regionName = json.getString("regionName");
+                String city = json.getString("city");
+                String lat = json.getString("lat");
+                String lon = json.getString("lon");
+                vo.setAddress(country+","+regionName+","+city);
+                vo.setId(v.getId());
+                vo.setLatitude(new BigDecimal(lat));
+                vo.setLongitude(new BigDecimal(lon));
+                batch.add(vo);
+            }
+            if (page.getRecords().size() == 0) {
+                break;
+            }
+            this.updateBatchById(batch);
+            if (page.getRecords().size() < pageSize) {
+                break;
+            } else {
+                pageNum ++;
+            }
+        }
+        return Result.OK;
     }
 }

@@ -228,4 +228,10 @@ public class FilReportedController {
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 
+    @ApiOperation(value = "初始化矿工ip")
+    @PostMapping("/initMinerIp")
+    public Result initMinerIp(){
+        return minerLongitudeLatitudeService.initMinerIp();
+    }
+
 }
