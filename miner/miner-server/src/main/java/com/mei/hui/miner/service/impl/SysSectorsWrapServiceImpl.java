@@ -1,17 +1,22 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.Constants;
+import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.entity.SysSectorsWrap;
 import com.mei.hui.miner.mapper.SysSectorsWrapMapper;
 import com.mei.hui.miner.model.RequestSectorInfo;
+import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.miner.service.ISysSectorInfoService;
 import com.mei.hui.miner.service.ISysSectorsWrapService;
 import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,9 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 扇区信息聚合Service业务层处理
@@ -40,6 +44,9 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
 
     @Autowired
     private ISysSectorInfoService sysSectorInfoService;
+
+    @Autowired
+    private ISysMinerInfoService sysMinerInfoService;
 
     /**
      * 查询扇区信息聚合
@@ -115,19 +122,43 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
         return sysSectorsWrapMapper.deleteSysSectorsWrapById(id);
     }
 
-    @Override
+    /*@Override
     public List<SysSectorsWrap> selectSysSectorsWrapListByUserId(SysSectorsWrap sysSectorsWrap, Long userId) {
         //sysSectorsWrap.getParams().put("userId", userId);
         userId = HttpRequestUtil.getUserId();
         return sysSectorsWrapMapper.selectSysSectorsWrapListByUserId(sysSectorsWrap);
-    }
+    }*/
 
     @Override
     public Map<String,Object> list(SysSectorsWrap sysSectorsWrap) {
+        /**
+         * 组装返回信息
+         */
+        Map<String,Object> map = new HashMap<>();
+        map.put("code", ErrorCode.MYB_000000.getCode());
+        map.put("msg", ErrorCode.MYB_000000.getMsg());
+
         Long userId = HttpRequestUtil.getUserId();
-        sysSectorsWrap.getParams().put("userId", userId);
+        QueryWrapper<SysMinerInfo> queryWrapper = new QueryWrapper<>();
+        SysMinerInfo sysMinerInfo = new SysMinerInfo();
+        sysMinerInfo.setUserId(userId);
+        queryWrapper.setEntity(sysMinerInfo);
+        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list(queryWrapper);
+        log.info("查询FIL币矿工信息表里该用户userId：【{}】所有的数据：【{}】",userId,JSON.toJSON(sysMinerInfoList));
+        if (sysMinerInfoList == null || sysMinerInfoList.size()<1){
+            map.put("rows",new ArrayList<SysSectorsWrap>());
+            map.put("total",0);
+            return map;
+        }
+        List<String> minerIdList = sysMinerInfoList.stream().map(v->{
+            return v.getMinerId();
+        }).collect(Collectors.toList());
+        log.info("该用户userId：【{}】所有的矿工为：【{}】",userId,JSON.toJSON(minerIdList));
+
+        sysSectorsWrap.setMinerIdList(minerIdList);
         PageHelper.startPage(Integer.valueOf(sysSectorsWrap.getPageNum()+""),Integer.valueOf(sysSectorsWrap.getPageSize()+""));
         List<SysSectorsWrap> list = sysSectorsWrapMapper.selectSysSectorsWrapListByUserId(sysSectorsWrap);
+        log.info("扇区信息表出参：【{}】",JSON.toJSON(list));
         for (SysSectorsWrap dbSysSectorsWrap:list) {
             // 显示GB，原来单位是B，结果肯定是整数，不会出来小数点
             dbSysSectorsWrap.setSectorSize(dbSysSectorsWrap.getSectorSize()/1024/1024/1024);
@@ -135,12 +166,7 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
                 dbSysSectorsWrap.setHostname("");
             }
         }
-        /**
-         * 组装返回信息
-         */
-        Map<String,Object> map = new HashMap<>();
-        map.put("code", ErrorCode.MYB_000000.getCode());
-        map.put("msg", ErrorCode.MYB_000000.getMsg());
+
         map.put("rows",list);
         map.put("total",new PageInfo(list).getTotal());
         return map;

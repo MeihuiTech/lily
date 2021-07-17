@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,6 +86,9 @@ public class SysSectorsWrap
     /*排序字段名称*/
     @TableField(exist = false)
     private String cloumName;
+
+    @TableField(exist = false)
+    private List<String> minerIdList;
 
     public Map<String, Object> getParams()
     {
