@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpUtil;
+import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.MinerLongitudeLatitude;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.MinerIpLongitudeLatitudeBO;
@@ -13,6 +14,7 @@ import com.mei.hui.miner.feign.vo.MinerLongitudeLatitudeVO;
 import com.mei.hui.miner.mapper.MinerLongitudeLatitudeMapper;
 import com.mei.hui.miner.service.IMinerLongitudeLatitudeService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.util.MyException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,29 +52,41 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
         String minerId = minerIpLongitudeLatitudeBO.getMinerId();
         MinerLongitudeLatitude minerLongitudeLatitude = new MinerLongitudeLatitude();
         minerLongitudeLatitude.setMinerId(minerIpLongitudeLatitudeBO.getMinerId());
+        minerLongitudeLatitude.setCreateTime(LocalDateTime.now());
         String ip = minerIpLongitudeLatitudeBO.getIp();
+        String trueIp = "";
         // 判断ip里的内容是ip还是域名
         if (CommonUtil.isIp(ip)){
             log.info("ip为：【{}】",ip);
+            trueIp = ip;
             minerLongitudeLatitude.setIp(ip);
         } else {
             log.info("域名为：【{}】",ip);
             try {
-                minerLongitudeLatitude.setIp(InetAddress.getByName(ip).getHostAddress());
+                trueIp = InetAddress.getByName(ip).getHostAddress();
+                minerLongitudeLatitude.setIp(trueIp);
             } catch (UnknownHostException e) {
-                log.info("域名转ip错误，ip：【{}】",ip);
                 e.printStackTrace();
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"域名转ip错误");
             }
         }
 
         // 通过ip查询经纬度
-        String aipStr = selectLongitudeLatitudeByIp(ip);
-        JSONObject apiJson = JSON.parseObject(aipStr);
+        String apiStr = selectLongitudeLatitudeByIp(trueIp);
+        log.info("通过ip查询经纬度出参：【{}】",apiStr);
+        if (StringUtils.isEmpty(apiStr)){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"通过ip查询不到经纬度");
+        }
+        JSONObject apiJson = JSON.parseObject(apiStr);
         String location = apiJson.getString("location");
-        if (StringUtils.isNotEmpty(location)){
+        if (StringUtils.isNotEmpty(location) && location.split(",").length > 0){
             minerLongitudeLatitude.setLongitude(new BigDecimal(location.split(",")[0]));
             minerLongitudeLatitude.setLatitude(new BigDecimal(location.split(",")[1]));
         }
+        String country = apiJson.getString("country") == null?"":apiJson.getString("country");
+        String province = apiJson.getString("province") == null?"":apiJson.getString("province");
+        String city = apiJson.getString("city") == null?"":apiJson.getString("city");
+        minerLongitudeLatitude.setAddress(country + province + city);
 
         // 查询哪些是自己的矿工
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list();
@@ -88,12 +102,6 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
                 minerLongitudeLatitude.setType(0);
             }
         }
-
-        String country = apiJson.getString("country");
-        String province = apiJson.getString("province");
-        String city = apiJson.getString("city");
-        minerLongitudeLatitude.setAddress(country + province + city);
-        minerLongitudeLatitude.setCreateTime(LocalDateTime.now());
 
         // 查询矿工节点经纬度表里该minerId是否已经存在，如果不存在则插入，存在则更新
         QueryWrapper<MinerLongitudeLatitude> queryWrapper = new QueryWrapper<>();
