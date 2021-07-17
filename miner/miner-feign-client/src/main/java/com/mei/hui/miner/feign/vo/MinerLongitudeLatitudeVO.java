@@ -30,4 +30,7 @@ public class MinerLongitudeLatitudeVO {
     @ApiModelProperty(value = "经度")
     private BigDecimal longitude;
 
+    @ApiModelProperty(value = "矿工类型，0不是我们的，1是我们的，默认0")
+    private Integer type;
+
 }

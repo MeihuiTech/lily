@@ -6,9 +6,10 @@
     <select id="selectMinerLongitudeLatitudeVOList"
             resultType="com.mei.hui.miner.feign.vo.MinerLongitudeLatitudeVO">
         SELECT
-        miner_id minerId,ip,address,latitude,longitude
+        miner_id minerId,ip,address,latitude,longitude,type
         FROM
         miner_longitude_latitude
+        ORDER BY type
     </select>
 
 </mapper>

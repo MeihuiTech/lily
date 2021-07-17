@@ -7,11 +7,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.miner.entity.MinerLongitudeLatitude;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.MinerIpLongitudeLatitudeBO;
 import com.mei.hui.miner.feign.vo.MinerLongitudeLatitudeVO;
 import com.mei.hui.miner.mapper.MinerLongitudeLatitudeMapper;
 import com.mei.hui.miner.service.IMinerLongitudeLatitudeService;
-import com.mei.hui.util.Result;
+import com.mei.hui.miner.service.ISysMinerInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author shangbin
@@ -36,6 +38,9 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
     @Autowired
     private MinerLongitudeLatitudeMapper minerLongitudeLatitudeMapper;
 
+    @Autowired
+    private ISysMinerInfoService sysMinerInfoService;
+
     @Value("${gaode.key}")
     private String key;
 
@@ -46,6 +51,8 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
         MinerLongitudeLatitude selectMinerLongitudeLatitude = new MinerLongitudeLatitude();
         selectMinerLongitudeLatitude.setMinerId(minerIpLongitudeLatitudeBO.getMinerId());
         queryWrapper.setEntity(selectMinerLongitudeLatitude);
+        List<MinerLongitudeLatitude> minerLongitudeLatitudeList = minerLongitudeLatitudeMapper.selectList(queryWrapper);
+
         // TODO   修改
 
         MinerLongitudeLatitude minerLongitudeLatitude = new MinerLongitudeLatitude();
@@ -70,6 +77,17 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
             minerLongitudeLatitude.setLongitude(new BigDecimal(location.split(",")[0]));
             minerLongitudeLatitude.setLatitude(new BigDecimal(location.split(",")[1]));
         }
+
+        // 查询那些是自己的矿工
+        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list();
+        if (sysMinerInfoList != null && sysMinerInfoList.size() > 0){
+            List<String> myMinerIdList = sysMinerInfoList.stream().map(v -> {
+                return v.getMinerId();
+            }).collect(Collectors.toList());
+// TODO   修改
+
+        }
+
         String country = apiJson.getString("country");
         String province = apiJson.getString("province");
         String city = apiJson.getString("city");

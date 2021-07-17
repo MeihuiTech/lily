@@ -36,6 +36,11 @@ public class MinerLongitudeLatitude {
      */
     private BigDecimal longitude;
 
+    /**
+     * 矿工类型，0不是我们的，1是我们的，默认0
+     */
+    private Integer type;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
