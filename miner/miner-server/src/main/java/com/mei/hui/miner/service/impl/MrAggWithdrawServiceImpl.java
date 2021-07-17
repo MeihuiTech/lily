@@ -128,6 +128,8 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
             BeanUtils.copyProperties(v, vo);
             vo.setUserName(maps.get(v.getSysUserId()));
             vo.setType(vo.getType());
+            vo.setTakeTotalMony(BigDecimalUtil.formatFour(vo.getTakeTotalMony()));
+            vo.setTotalFee(BigDecimalUtil.formatFour(vo.getTotalFee()));
             return vo;
         }).collect(Collectors.toList());
         PageResult pageResult = new PageResult(page.getTotal(),lt);
