@@ -30,7 +30,7 @@ public class MachineTask {
     @Value("${spring.profiles.active}")
     private String env;
 
-    @Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     public void run() {
         log.info("======================MachineTask-start===================");
         if("dev".equals(env)){
@@ -44,7 +44,7 @@ public class MachineTask {
             log.info("处理矿机:{}", JSON.toJSONString(sysMachineInfo));
             long date = sysMachineInfo.getUpdateTime().toInstant(ZoneOffset.of("+8")).toEpochMilli();
             long nowDate = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli();
-            if ((nowDate - date) > (60 * 1000)) {
+            if ((nowDate - date) > (60 * 1000 * 10)) {
                 SysMachineInfo machine = new SysMachineInfo();
                 machine.setOnline(0);
                 machine.setId(sysMachineInfo.getId());
