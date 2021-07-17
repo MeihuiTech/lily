@@ -31,7 +31,7 @@ public class ForeignController {
     * @return com.mei.hui.util.Result<com.mei.hui.miner.feign.vo.ForeignNetworkVO>
     */
     @ApiOperation(value = "对外API-全网数据")
-    @GetMapping("/network")
+    @PostMapping("/network")
     public Result<ForeignNetworkVO> selectForeignNetwork(){
         return baselinePowerDayAggService.selectForeignNetwork();
     }
@@ -47,7 +47,7 @@ public class ForeignController {
     * @version v1.4.1
     */
     @ApiOperation(value = "对外API-平台数据")
-    @GetMapping("/platform")
+    @PostMapping("/platform")
     public Result<ForeignPlatformVO> selectForeignPlatform(){
         return baselinePowerDayAggService.selectForeignPlatform();
     }

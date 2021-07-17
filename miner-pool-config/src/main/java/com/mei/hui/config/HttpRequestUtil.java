@@ -15,8 +15,12 @@ public class HttpRequestUtil {
      */
     public static Long getUserId(){
         Claims claims = parseToken();
-        Integer userId = (Integer) claims.get(SystemConstants.USERID);
-        return Long.valueOf(userId);
+        Object obj = claims.get(SystemConstants.USERID);
+        if(obj != null){
+            Integer userId = (Integer) obj;
+            return Long.valueOf(userId);
+        }
+        return null;
     }
 
     /**
