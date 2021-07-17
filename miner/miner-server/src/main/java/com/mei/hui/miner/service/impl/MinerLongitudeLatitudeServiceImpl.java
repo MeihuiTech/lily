@@ -93,18 +93,17 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
         // ip-api通过ip查询经纬度
         String apiStr = selectIpApiLongitudeLatitudeByIp(trueIp);
         log.info("通过ip查询经纬度出参：【{}】",apiStr);
-        if (StringUtils.isEmpty(apiStr)){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"通过ip查询不到经纬度");
+        if (StringUtils.isNotEmpty(apiStr)){
+            JSONObject json = JSON.parseObject(apiStr);
+            String country = json.getString("country");
+            String regionName = json.getString("regionName");
+            String city = json.getString("city");
+            String lat = json.getString("lat");
+            String lon = json.getString("lon");
+            minerLongitudeLatitude.setLongitude(new BigDecimal(lon));
+            minerLongitudeLatitude.setLatitude(new BigDecimal(lat));
+            minerLongitudeLatitude.setAddress(country+","+regionName+","+city);
         }
-        JSONObject json = JSON.parseObject(apiStr);
-        String country = json.getString("country");
-        String regionName = json.getString("regionName");
-        String city = json.getString("city");
-        String lat = json.getString("lat");
-        String lon = json.getString("lon");
-        minerLongitudeLatitude.setLongitude(new BigDecimal(lon));
-        minerLongitudeLatitude.setLatitude(new BigDecimal(lat));
-        minerLongitudeLatitude.setAddress(country+","+regionName+","+city);
 
         // 查询哪些是自己的矿工
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list();
@@ -173,12 +172,12 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
             String url = "http://ip-api.com/json/" + ip + "?lang=zh-CN";
             String rt = HttpUtil.doGet(url,"");
             if(StringUtils.isEmpty(rt)){
-                log.error("通过ip查询经纬度-ip-api失败");
+                log.error("通过ip：【{}】查询经纬度-ip-api失败",ip);
                 return null;
             }
             return rt;
         } catch (Exception e) {
-            log.error("查询通过ip查询经纬度-ip-api接口异常:",e);
+            log.error("查询通过ip：【{}】查询经纬度-ip-api接口异常:",ip,e);
             return null;
         }
     }
