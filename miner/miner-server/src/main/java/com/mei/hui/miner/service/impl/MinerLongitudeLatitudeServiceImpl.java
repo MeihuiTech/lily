@@ -148,6 +148,10 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
     @Override
     public List<MinerLongitudeLatitudeVO> selectMap() {
         List<MinerLongitudeLatitudeVO> minerLongitudeLatitudeVOList = minerLongitudeLatitudeMapper.selectMinerLongitudeLatitudeVOList();
+        minerLongitudeLatitudeVOList.stream().forEach(v->{
+            String[] ipArr = v.getIp().split("\\.");
+            v.setIp(ipArr[0] + ".**.**." + ipArr[3]);
+        });
         return minerLongitudeLatitudeVOList;
     }
 }
