@@ -47,20 +47,16 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
     /*上报矿工ip*/
     @Override
     public Integer reportMinerIpLongitudeLatitude(MinerIpLongitudeLatitudeBO minerIpLongitudeLatitudeBO) {
-        QueryWrapper<MinerLongitudeLatitude> queryWrapper = new QueryWrapper<>();
-        MinerLongitudeLatitude selectMinerLongitudeLatitude = new MinerLongitudeLatitude();
-        selectMinerLongitudeLatitude.setMinerId(minerIpLongitudeLatitudeBO.getMinerId());
-        queryWrapper.setEntity(selectMinerLongitudeLatitude);
-        List<MinerLongitudeLatitude> minerLongitudeLatitudeList = minerLongitudeLatitudeMapper.selectList(queryWrapper);
-
-        // TODO   修改
-
+        String minerId = minerIpLongitudeLatitudeBO.getMinerId();
         MinerLongitudeLatitude minerLongitudeLatitude = new MinerLongitudeLatitude();
         minerLongitudeLatitude.setMinerId(minerIpLongitudeLatitudeBO.getMinerId());
         String ip = minerIpLongitudeLatitudeBO.getIp();
+        // 判断ip里的内容是ip还是域名
         if (CommonUtil.isIp(ip)){
+            log.info("ip为：【{}】",ip);
             minerLongitudeLatitude.setIp(ip);
         } else {
+            log.info("域名为：【{}】",ip);
             try {
                 minerLongitudeLatitude.setIp(InetAddress.getByName(ip).getHostAddress());
             } catch (UnknownHostException e) {
@@ -78,14 +74,19 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
             minerLongitudeLatitude.setLatitude(new BigDecimal(location.split(",")[1]));
         }
 
-        // 查询那些是自己的矿工
+        // 查询哪些是自己的矿工
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list();
+        log.info("查询矿工表里所有的矿工出参：【{}】",JSON.toJSON(sysMinerInfoList));
         if (sysMinerInfoList != null && sysMinerInfoList.size() > 0){
             List<String> myMinerIdList = sysMinerInfoList.stream().map(v -> {
                 return v.getMinerId();
             }).collect(Collectors.toList());
-// TODO   修改
-
+            log.info("所有的矿工list：【{}】",JSON.toJSON(myMinerIdList));
+            if (myMinerIdList.contains(minerId)){
+                minerLongitudeLatitude.setType(1);
+            } else {
+                minerLongitudeLatitude.setType(0);
+            }
         }
 
         String country = apiJson.getString("country");
@@ -93,7 +94,24 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
         String city = apiJson.getString("city");
         minerLongitudeLatitude.setAddress(country + province + city);
         minerLongitudeLatitude.setCreateTime(LocalDateTime.now());
-        Integer count = minerLongitudeLatitudeMapper.insert(minerLongitudeLatitude);
+
+        // 查询矿工节点经纬度表里该minerId是否已经存在，如果不存在则插入，存在则更新
+        QueryWrapper<MinerLongitudeLatitude> queryWrapper = new QueryWrapper<>();
+        MinerLongitudeLatitude selectMinerLongitudeLatitude = new MinerLongitudeLatitude();
+        selectMinerLongitudeLatitude.setMinerId(minerId);
+        queryWrapper.setEntity(selectMinerLongitudeLatitude);
+        MinerLongitudeLatitude dbMinerLongitudeLatitude = minerLongitudeLatitudeMapper.selectOne(queryWrapper);
+        log.info("查询矿工节点经纬度表里该minerId：【{}】是否已经存在出参：【{}】",minerId,JSON.toJSON(dbMinerLongitudeLatitude));
+
+        Integer count = 0;
+        if (dbMinerLongitudeLatitude == null){
+            count = minerLongitudeLatitudeMapper.insert(minerLongitudeLatitude);
+        } else {
+            minerLongitudeLatitude.setId(dbMinerLongitudeLatitude.getId());
+            minerLongitudeLatitude.setUpdateTime(LocalDateTime.now());
+            count = minerLongitudeLatitudeMapper.updateById(minerLongitudeLatitude);
+        }
+
         return count;
     }
 
