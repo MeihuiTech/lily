@@ -140,7 +140,7 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
                     powerAvailableFilVO.setUserName(sysUserOutResult.getData().getUserName());
                 }
                 if(powerAvailableFilVO.getPowerAvailable() != null && !allPowerAvailable.equals(BigDecimal.ZERO)) {
-                    powerAvailableFilVO.setPowerAvailablePercent(powerAvailableFilVO.getPowerAvailable().divide(allPowerAvailable,4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
+                    powerAvailableFilVO.setPowerAvailablePercent(powerAvailableFilVO.getPowerAvailable().divide(allPowerAvailable,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
                 } else {
                     powerAvailableFilVO.setPowerAvailablePercent(BigDecimal.ZERO);
                 }
