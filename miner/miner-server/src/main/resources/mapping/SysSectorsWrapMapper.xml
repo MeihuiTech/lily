@@ -50,7 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="endTime != null and endTime != ''">
                 and #{endTime} >= sys_sectors_wrap.create_time
             </if>
-            sys_sectors_wrap.miner_id in
+            and sys_sectors_wrap.miner_id in
             <foreach item="minerId" collection="minerIdList" open="(" separator="," close=")">
                 #{minerId}
             </foreach>
