@@ -36,16 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         sys_sectors_wrap.update_by updateBy,
         sys_sectors_wrap.update_time updateTime
         FROM
-        (
-        SELECT
-        user_id,
-        miner_id
-        FROM
-        sys_miner_info
-        WHERE
-        user_id = #{params.userId}
-        ) sys_miner_info
-        INNER JOIN sys_sectors_wrap ON sys_sectors_wrap.miner_id = sys_miner_info.miner_id
+        sys_sectors_wrap
         <where>
             <if test="minerId != null  and minerId != ''"> and sys_sectors_wrap.miner_id = #{minerId}</if>
             <if test="hostname != null  and hostname != ''"> and hostname like concat('%', #{hostname}, '%')</if>
@@ -59,6 +50,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="endTime != null and endTime != ''">
                 and #{endTime} >= sys_sectors_wrap.create_time
             </if>
+            sys_sectors_wrap.miner_id in
+            <foreach item="minerId" collection="minerIdList" open="(" separator="," close=")">
+                #{minerId}
+            </foreach>
         </where>
         <choose>
             <when test="cloumName != null and cloumName != ''">

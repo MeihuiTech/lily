@@ -63,7 +63,7 @@ public interface ISysSectorsWrapService
      */
     public int deleteSysSectorsWrapById(Long id);
 
-    List<SysSectorsWrap> selectSysSectorsWrapListByUserId(SysSectorsWrap sysSectorsWrap, Long userId);
+//    List<SysSectorsWrap> selectSysSectorsWrapListByUserId(SysSectorsWrap sysSectorsWrap, Long userId);
 
 
     /**
