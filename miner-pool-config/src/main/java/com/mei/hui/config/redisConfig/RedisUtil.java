@@ -71,7 +71,7 @@ public class RedisUtil {
     }
 
     /**
-     * 将value加入到 Set 集合中
+     * Set集合：将value加入到 Set 集合中
      * @param key
      * @param value
      * @return
@@ -81,12 +81,13 @@ public class RedisUtil {
     }
 
     /**
-     * 返回 Set 集合中所有成员
+     * Set集合：移除集合中的指定 key 的一个或多个随机元素，移除后会返回移除的元素
      * @param key
      * @return
      */
-    public Set<String> smembers(String key){
-        return redisTemplate.opsForSet().members(key);
+    public String spop(String key){
+        Object value = redisTemplate.opsForSet().pop(key);
+        return value == null ? null :String.valueOf(value);
     }
 
     /**
