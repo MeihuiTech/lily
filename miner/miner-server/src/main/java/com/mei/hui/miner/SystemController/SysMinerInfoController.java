@@ -183,4 +183,5 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         return null;
     }
 
+
 }

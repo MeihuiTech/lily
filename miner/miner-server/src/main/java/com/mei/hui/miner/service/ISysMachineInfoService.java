@@ -2,6 +2,7 @@ package com.mei.hui.miner.service;
 
 
 import com.mei.hui.miner.entity.SysMachineInfo;
+import com.mei.hui.miner.feign.vo.MachineInfoTypeCountVO;
 import com.mei.hui.miner.model.RequestMachineInfo;
 
 import java.util.List;
@@ -86,4 +87,16 @@ public interface ISysMachineInfoService
     * @version v1.4.0
     */
     public int insertSysMachineInfoList(List<RequestMachineInfo> requestMachineInfoList);
+
+    /**
+    * 查询各种矿机类型的数量
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/19 19:42
+    * @param [id]
+    * @return com.mei.hui.miner.feign.vo.MachineInfoTypeCountVO
+    * @version v1.4.1
+    */
+    public MachineInfoTypeCountVO selectMachineInfoTypeCountById(Long id);
 }

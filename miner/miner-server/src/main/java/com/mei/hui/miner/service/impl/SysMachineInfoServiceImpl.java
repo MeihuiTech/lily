@@ -1,9 +1,16 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.entity.SysMachineInfo;
+import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.MachineInfoTypeCountVO;
+import com.mei.hui.miner.feign.vo.MachineInfoTypeOnlineVO;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
+import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.RequestMachineInfo;
 import com.mei.hui.miner.service.ISysMachineInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +24,14 @@ import java.util.List;
  * @author ruoyi
  * @date 2021-03-02
  */
+@Slf4j
 @Service
 public class SysMachineInfoServiceImpl implements ISysMachineInfoService
 {
     @Autowired
     private SysMachineInfoMapper sysMachineInfoMapper;
+    @Autowired
+    private SysMinerInfoMapper sysMinerInfoMapper;
 
     /**
      * 查询矿机信息
@@ -135,8 +145,64 @@ public class SysMachineInfoServiceImpl implements ISysMachineInfoService
                 count += rows;
             }
         }
-
-
         return count;
     }
+
+    /*查询各种矿机类型的数量*/
+    @Override
+    public MachineInfoTypeCountVO selectMachineInfoTypeCountById(Long id) {
+        SysMinerInfo miner = sysMinerInfoMapper.selectSysMinerInfoById(id);
+        log.info("矿工信息：【{}】", JSON.toJSON(miner));
+        if (miner == null) {
+            return null;
+        }
+
+        MachineInfoTypeCountVO machineInfoTypeCountVO = new MachineInfoTypeCountVO();
+        List<MachineInfoTypeOnlineVO> machineInfoTypeOnlineVOList = sysMachineInfoMapper.selectMachineInfoTypeOnlineCountList(miner.getMinerId());
+        log.info("按照机器类型、是否在线分组查询矿机信息表的数量出参：【{}】", JSON.toJSON(machineInfoTypeOnlineVOList));
+
+        // 赋默认值
+        machineInfoTypeCountVO.setMinerOnlineMachineCount(0);
+        machineInfoTypeCountVO.setMinerOfflineMachineCount(0);
+        machineInfoTypeCountVO.setPostOnlineMachineCount(0);
+        machineInfoTypeCountVO.setPostOfflineMachineCount(0);
+        machineInfoTypeCountVO.setCtwoOnlineMachineCount(0);
+        machineInfoTypeCountVO.setCtwoOfflineMachineCount(0);
+        machineInfoTypeCountVO.setSealOnlineMachineCount(0);
+        machineInfoTypeCountVO.setSealOfflineMachineCount(0);
+
+        if (machineInfoTypeOnlineVOList != null && machineInfoTypeOnlineVOList.size() > 0) {
+            for (MachineInfoTypeOnlineVO machineInfoTypeOnlineVO : machineInfoTypeOnlineVOList) {
+                log.info("按照机器类型、是否在线分组查询矿机信息表的数量：【{}】", machineInfoTypeOnlineVO);
+                if (Constants.MACHINETYPEMINER.equals(machineInfoTypeOnlineVO.getMachineType())) {
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())) {
+                        machineInfoTypeCountVO.setMinerOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    } else {
+                        machineInfoTypeCountVO.setMinerOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    }
+                } else if (Constants.MACHINETYPEPOST.equals(machineInfoTypeOnlineVO.getMachineType())) {
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())) {
+                        machineInfoTypeCountVO.setPostOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    } else {
+                        machineInfoTypeCountVO.setPostOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    }
+                } else if (Constants.MACHINETYPECTWO.equals(machineInfoTypeOnlineVO.getMachineType())) {
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())) {
+                        machineInfoTypeCountVO.setCtwoOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    } else {
+                        machineInfoTypeCountVO.setCtwoOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    }
+                } else if (Constants.MACHINETYPESEAL.equals(machineInfoTypeOnlineVO.getMachineType())) {
+                    if (Constants.MACHINEONLINEZERO.equals(machineInfoTypeOnlineVO.getOnline())) {
+                        machineInfoTypeCountVO.setSealOfflineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    } else {
+                        machineInfoTypeCountVO.setSealOnlineMachineCount(machineInfoTypeOnlineVO.getCount());
+                    }
+                }
+            }
+        }
+        return machineInfoTypeCountVO;
+    }
+
+
 }
