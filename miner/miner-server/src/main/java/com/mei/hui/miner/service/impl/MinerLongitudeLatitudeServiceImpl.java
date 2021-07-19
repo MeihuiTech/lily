@@ -203,12 +203,11 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
      * @return
      */
     public Result initMinerIp(){
-        int pageNum = 1;
         int pageSize = 20;
         while (true) {
             LambdaQueryWrapper<MinerLongitudeLatitude> queryWrapper = new LambdaQueryWrapper();
             queryWrapper.isNull(MinerLongitudeLatitude::getAddress);
-            IPage<MinerLongitudeLatitude> page = this.page(new Page<>(pageNum, pageSize), queryWrapper);
+            IPage<MinerLongitudeLatitude> page = this.page(new Page<>(1, pageSize), queryWrapper);
 
             List<MinerLongitudeLatitude> batch = new ArrayList<>();
             for(MinerLongitudeLatitude v : page.getRecords()){
@@ -239,8 +238,6 @@ public class MinerLongitudeLatitudeServiceImpl extends ServiceImpl<MinerLongitud
             this.updateBatchById(batch);
             if (page.getRecords().size() < pageSize) {
                 break;
-            } else {
-                pageNum ++;
             }
         }
         return Result.OK;
