@@ -178,6 +178,9 @@ public class FilReportedController {
         if(bo.getSixtyFourPledge() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"64G矿工质押费用,不能为空");
         }
+        if(bo.getSixtyFourGas().doubleValue() == 0 || bo.getThirtyTwoGas().doubleValue() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"Gas费用,不能为零");
+        }
         return reportGasService.reportGas(bo);
     }
 
