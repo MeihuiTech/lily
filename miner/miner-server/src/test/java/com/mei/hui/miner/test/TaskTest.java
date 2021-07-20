@@ -19,9 +19,14 @@ public class TaskTest {
 
 
     @Test
-    public void swarmAggMapperTest(){
-
+    public void initSectorToRedis(){
         HttpUtil.doPost("http://10.10.15.2:8082/fil/reported/initSectorToRedis","");
+    }
+
+
+    @Test
+    public void initSectorDuration(){
+        HttpUtil.doPost("http://10.10.15.2:8082/fil/reported/initSectorDuration","");
     }
 
 
