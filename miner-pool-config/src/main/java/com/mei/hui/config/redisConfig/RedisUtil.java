@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -115,6 +116,38 @@ public class RedisUtil {
     public boolean exists(String key){
         return redisTemplate.hasKey(key);
     }
+
+    /**
+     * Hash结构:hmset 命令设置hash值
+     * @param key
+     * @param field
+     * @param value
+     */
+    public void hmset(String key,String field,String value){
+        redisTemplate.opsForHash().put(key,field,value);
+    }
+
+    /**
+     * Hash结构:hget命令,获取存储在哈希表中指定字段的值
+     * @param key
+     * @param field
+     * @return
+     */
+    public String hget(String key,String field){
+        Object value = redisTemplate.opsForHash().get(key, field);
+        return value == null ? null :String.valueOf(value);
+    }
+
+    /**
+     * Hash结构:hget命令,获取key对应的所有键值对
+     * @param key
+     * @return
+     */
+    public Map<String,String> hgetall(String key){
+        Map<String,String> value = redisTemplate.opsForHash().entries(key);
+        return value;
+    }
+
 
 
 }
