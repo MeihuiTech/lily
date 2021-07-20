@@ -36,4 +36,9 @@ public interface SystemConstants {
      */
     String APIKEY = "x-api-key";
 
+    /**
+     * redis保存的key：扇区状态持续时间
+     */
+    String SECTORDURATIONKEY = "fil:sectorduration:%s:%s";
+
 }

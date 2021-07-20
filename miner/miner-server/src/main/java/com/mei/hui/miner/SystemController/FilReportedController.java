@@ -237,4 +237,16 @@ public class FilReportedController {
         return minerLongitudeLatitudeService.initMinerIp();
     }
 
+    @ApiOperation(value = "扇区数据初始化-写入缓存")
+    @PostMapping("/initSectorToRedis")
+    public void initSectorToRedis(){
+        sysSectorsWrapService.initSectorToRedis();
+    }
+
+    @ApiOperation(value = "重新计算扇区封装总时长")
+    @PostMapping("/initSectorDuration")
+    public void initSectorDuration(){
+        sysSectorsWrapService.initSectorDuration();
+    }
+
 }
