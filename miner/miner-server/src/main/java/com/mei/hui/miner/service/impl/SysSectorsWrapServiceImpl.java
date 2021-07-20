@@ -343,7 +343,7 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
          * 将扇区封装时长写入到缓存
          */
         int pageNum = 1;
-        int pageSize = 1000;
+        int pageSize = 500;
         while (true) {
             LambdaQueryWrapper<SysSectorInfo> queryWrapper = new LambdaQueryWrapper();
             queryWrapper.lt(SysSectorInfo::getCreateTime,LocalDateTime.now());
@@ -374,7 +374,7 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
          * 重新计算扇区封装总时长
          */
         int pageNum = 1;
-        int pageSize = 1000;
+        int pageSize = 500;
         while (true) {
             LambdaQueryWrapper<SysSectorsWrap> queryWrapper = new LambdaQueryWrapper();
             IPage<SysSectorsWrap> page = sysSectorsWrapMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
