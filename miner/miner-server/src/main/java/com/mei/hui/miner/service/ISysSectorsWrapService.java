@@ -1,8 +1,10 @@
 package com.mei.hui.miner.service;
 
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.SysSectorsWrap;
 import com.mei.hui.miner.model.RequestSectorInfo;
+import com.mei.hui.util.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2021-03-04
  */
-public interface ISysSectorsWrapService 
+public interface ISysSectorsWrapService extends IService<SysSectorsWrap>
 {
     /**
      * 查询扇区信息聚合
@@ -88,4 +90,8 @@ public interface ISysSectorsWrapService
     public int addSector(RequestSectorInfo sysSectorInfo);
 
     public int testInsert(SysSectorsWrap sysSectorsWrap);
+
+    void initSectorToRedis();
+
+    void initSectorDuration();
 }

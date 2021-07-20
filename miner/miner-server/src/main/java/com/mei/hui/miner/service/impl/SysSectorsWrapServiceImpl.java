@@ -1,15 +1,24 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.HttpUtil;
+import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.MinerLongitudeLatitude;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.entity.SysSectorsWrap;
+import com.mei.hui.miner.mapper.SysSectorInfoMapper;
 import com.mei.hui.miner.mapper.SysSectorsWrapMapper;
 import com.mei.hui.miner.model.RequestSectorInfo;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -17,13 +26,16 @@ import com.mei.hui.miner.service.ISysSectorInfoService;
 import com.mei.hui.miner.service.ISysSectorsWrapService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,16 +49,20 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
+public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,SysSectorsWrap> implements ISysSectorsWrapService
 {
     @Autowired
     private SysSectorsWrapMapper sysSectorsWrapMapper;
 
     @Autowired
     private ISysSectorInfoService sysSectorInfoService;
+    @Autowired
+    private SysSectorInfoMapper sysSectorInfoMapper;
 
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 查询扇区信息聚合
@@ -317,5 +333,81 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
     @Override
     public int testInsert(SysSectorsWrap sysSectorsWrap) {
         return sysSectorsWrapMapper.insert(sysSectorsWrap);
+    }
+
+    /**
+     * 初始化扇区聚合表封装总时长
+     */
+    public void initSectorToRedis(){
+        /**
+         * 将扇区封装时长写入到缓存
+         */
+        int pageNum = 1;
+        int pageSize = 1000;
+        while (true) {
+            LambdaQueryWrapper<SysSectorInfo> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.lt(SysSectorInfo::getCreateTime,LocalDateTime.now());
+            IPage<SysSectorInfo> page = sysSectorInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
+            page.getRecords().stream().forEach(v->{
+                String minerId = v.getMinerId();
+                Long sectorNo = v.getSectorNo();
+                Integer sectorStatus = v.getSectorStatus();
+                Long sectorDuration = v.getSectorDuration();
+                //sector_{minerId}_{sectorNo}
+                //sector_{state}
+                String key = String.format("sector_%s_%s", minerId, sectorNo);
+                String field = String.format("sector_state_%s", sectorStatus);
+                redisUtil.hmset(key,field,sectorDuration+"",21600L);//有效期6个小时
+                log.info("key={},field={},value={}",key,field,sectorDuration);
+            });
+            if (page.getRecords().size() < pageSize) {
+                break;
+            } else {
+                pageNum ++;
+            }
+        }
+        log.info("写入缓村完成");
+    }
+
+    public void initSectorDuration(){
+        /**
+         * 重新计算扇区封装总时长
+         */
+        int pageNum = 1;
+        int pageSize = 1000;
+        while (true) {
+            LambdaQueryWrapper<SysSectorsWrap> queryWrapper = new LambdaQueryWrapper();
+            IPage<SysSectorsWrap> page = sysSectorsWrapMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
+
+            List<SysSectorsWrap> batch = page.getRecords().stream().map(v -> {
+                BigDecimal duration = new BigDecimal("0");
+                SysSectorsWrap wrap = new SysSectorsWrap();
+                wrap.setId(v.getId());
+                String key = String.format("sector_%s_%s", v.getMinerId(), v.getSectorNo());
+                Map<String, String> map = redisUtil.hgetall(key);
+                if (map != null && map.size() > 0) {
+                    for (String k : map.keySet()) {
+                        String value = map.get(key);
+                        duration.add(new BigDecimal(value));
+                    }
+                }
+                wrap.setSectorDuration(duration.longValue());
+                return wrap;
+
+            }).collect(Collectors.toList());
+
+            if(batch.size() == 0){
+                break;
+            }
+
+            this.updateBatchById(batch);
+
+            if (page.getRecords().size() < pageSize) {
+                break;
+            } else {
+                pageNum ++;
+            }
+        }
+        log.info("重新计算扇区封装总时长,完成");
     }
 }

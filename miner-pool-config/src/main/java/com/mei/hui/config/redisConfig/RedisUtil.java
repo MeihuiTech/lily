@@ -75,10 +75,13 @@ public class RedisUtil {
      * 将value加入到 Set 集合中
      * @param key
      * @param value
+     * @param time 设置key值删除时间，单位秒
      * @return
      */
-    public long sadd(String key,String... value){
-        return redisTemplate.opsForSet().add(key,value);
+    public long sadd(String key,String value,long time){
+        Long result = redisTemplate.opsForSet().add(key, value);
+        expire(key,time);
+        return result;
     }
 
     /**
@@ -122,9 +125,11 @@ public class RedisUtil {
      * @param key
      * @param field
      * @param value
+     * @param time 设置key值删除时间，单位秒
      */
-    public void hmset(String key,String field,String value){
+    public void hmset(String key,String field,String value,long time){
         redisTemplate.opsForHash().put(key,field,value);
+        expire(key,time);
     }
 
     /**
@@ -148,6 +153,16 @@ public class RedisUtil {
         return value;
     }
 
+    /**
+     * Hash结构:hget命令,获取key对应的所有键值对
+     * @param key
+     * @param map
+     * @param time 设置key值删除时间，单位秒
+     */
+    public void putall(String key,Map<String, String> map,long time){
+        redisTemplate.opsForHash().putAll(key,map);
+        expire(key,time);
+    }
 
 
 }
