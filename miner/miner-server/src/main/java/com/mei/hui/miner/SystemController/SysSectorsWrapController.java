@@ -59,6 +59,7 @@ public class SysSectorsWrapController
             "pageSize每页大小\n" +
             "sectorNo扇区编号\n" +
             "minerId矿工id\n" +
+            "sectorStatus扇区状态\n" +
             "beginTime开始时间，格式样例：2021-06-12\n" +
             "endTime开始时间，格式样例：2021-06-12\n" +
             "cloumName排序字段名称\n" +
