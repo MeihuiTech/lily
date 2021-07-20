@@ -384,11 +384,12 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
                 SysSectorsWrap wrap = new SysSectorsWrap();
                 wrap.setId(v.getId());
                 String key = String.format("sector_%s_%s", v.getMinerId(), v.getSectorNo());
+                log.info("key={}",key);
                 Map<String, String> map = redisUtil.hgetall(key);
                 if (map != null && map.size() > 0) {
                     for (String k : map.keySet()) {
                         String value = map.get(k);
-                        duration.add(new BigDecimal(value));
+                        duration = duration.add(new BigDecimal(value));
                     }
                 }
                 wrap.setSectorDuration(duration.longValue());
