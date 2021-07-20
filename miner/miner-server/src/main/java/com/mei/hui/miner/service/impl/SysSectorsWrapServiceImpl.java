@@ -387,7 +387,7 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
                 Map<String, String> map = redisUtil.hgetall(key);
                 if (map != null && map.size() > 0) {
                     for (String k : map.keySet()) {
-                        String value = map.get(key);
+                        String value = map.get(k);
                         duration.add(new BigDecimal(value));
                     }
                 }
