@@ -17,13 +17,16 @@ import java.util.Locale;
 @Slf4j
 public class TaskTest {
 
-    @Autowired
-    private UpdateNodeAddressTask updateNodeAddressTask;
 
     @Test
-    public void swarmAggMapperTest(){
+    public void initSectorToRedis(){
+        HttpUtil.doPost("http://10.10.15.2:8082/fil/reported/initSectorToRedis","");
+    }
 
-        updateNodeAddressTask.run();
+
+    @Test
+    public void initSectorDuration(){
+        HttpUtil.doPost("http://10.10.15.2:8082/fil/reported/initSectorDuration","");
     }
 
 
