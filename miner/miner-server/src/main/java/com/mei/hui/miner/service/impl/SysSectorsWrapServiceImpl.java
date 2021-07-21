@@ -1,15 +1,24 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.HttpUtil;
+import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.MinerLongitudeLatitude;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.entity.SysSectorsWrap;
+import com.mei.hui.miner.mapper.SysSectorInfoMapper;
 import com.mei.hui.miner.mapper.SysSectorsWrapMapper;
 import com.mei.hui.miner.model.RequestSectorInfo;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -17,13 +26,16 @@ import com.mei.hui.miner.service.ISysSectorInfoService;
 import com.mei.hui.miner.service.ISysSectorsWrapService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,16 +49,20 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
+public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,SysSectorsWrap> implements ISysSectorsWrapService
 {
     @Autowired
     private SysSectorsWrapMapper sysSectorsWrapMapper;
 
     @Autowired
     private ISysSectorInfoService sysSectorInfoService;
+    @Autowired
+    private SysSectorInfoMapper sysSectorInfoMapper;
 
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 查询扇区信息聚合
@@ -185,7 +201,7 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
 
     /**
     * 新增扇区信息
-     * 读数据库未提交的数据
+     * 事务级别：读数据库未提交的数据
      *
     * @description
     * @author shangbin
@@ -204,20 +220,23 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
             hostname = "";
         }*/
         sysSectorsWrapParam.setHostname(hostname);
-//        sysSectorsWrapParam.setSectorDuration(sysSectorInfo.getSectorDuration());
         sysSectorsWrapParam.setSectorSize(sysSectorInfo.getSectorSize());
         sysSectorsWrapParam.setSectorStatus(sysSectorInfo.getSectorStatus());
         sysSectorsWrapParam.setCreateTime(LocalDateTime.now());
         sysSectorsWrapParam.setUpdateTime(LocalDateTime.now());
 
         SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
-        log.info("查询扇区封装记录表 sys_sector_info里的扇区信息是否已存在出参：【{}】",JSON.toJSON(sysSectorInfo));
+        log.info("查询扇区封装记录表 sys_sector_info里的扇区信息是否已存在出参：【{}】",JSON.toJSON(sectorInfo));
 
         // 查询 扇区封装记录表sys_sector_info 中是否已存在该记录, 不存在插入，如果已存在则更新
         if (Constants.ACTIONSTART.equals(sysSectorInfo.getAction())){
             sysSectorInfo.setSectorStart(sysSectorInfo.getTime());
-            sysSectorInfo.setSectorDuration(0L);
-            sysSectorInfo.setStatus(0);
+            // 如果是同一条数据第一次传过来，扇区当前状态持续时间设置为0，如果是第二遍传过来，扇区当前状态持续时间不设置为0
+            if (sectorInfo == null){
+                sysSectorInfo.setSectorDuration(0L);
+                sysSectorInfo.setStatus(0);
+                log.info("第一次上传，扇区当前状态持续时间设置为0，状态设置为正在进行中");
+            }
             log.info("先传过来的开始，封装时间设置为0,sysSectorInfo为：【{}】",JSON.toJSON(sysSectorInfo));
         } else if (Constants.ACTIONSTOP.equals(sysSectorInfo.getAction())) {
             sysSectorInfo.setSectorEnd(sysSectorInfo.getTime());
@@ -240,6 +259,7 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
             }catch (DataIntegrityViolationException exception) {
                 // 通过唯一性判断该条数据如果已经存在，则直接丢弃，不用更新，返回成功提示
                 log.info("新增扇区信息表抛出异常：[{}]" , JSON.toJSONString(sysSectorInfo));
+                return 1;
             }
         } else {
             sysSectorInfo.setId(sectorInfo.getId());
@@ -259,6 +279,7 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
 
         // 如果是扇区开始封装，不插入/更新sys_sectors_wrap表，只有是扇区结束封装，才插入/更新sys_sectors_wrap表
         if (Constants.ACTIONSTART.equals(sysSectorInfo.getAction())){
+            log.info("扇区开始封装，不插入/更新sys_sectors_wrap表，直接结束：【{}】",JSON.toJSON(sysSectorInfo));
             return 1;
         }
 
@@ -272,15 +293,16 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
                 log.info("新增扇区信息聚合表入参:[{}]" , JSON.toJSONString(sysSectorsWrapParam));
                 rows = insertSysSectorsWrap(sysSectorsWrapParam);
             }catch (DataIntegrityViolationException exception) {
-                if (sysSectorInfo != null && sysSectorsWrap != null && sysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()) {
-                    log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表sysSectorsWrap:【{}】,sysSectorInfo:【{}】,sectorInfo:【{}】" ,
-                            JSON.toJSONString(sysSectorsWrap),JSON.toJSON(sysSectorInfo),JSON.toJSON(sectorInfo));
-                    rows = updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo, sectorInfo);
+                log.info("新增扇区信息聚合表抛出异常：【{}】",exception);
+                SysSectorsWrap dbSysSectorsWrap = selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrapParam);
+                log.info("抛出异常后，查询该扇区聚合信息是否已存在出参：【{}】",JSON.toJSON(dbSysSectorsWrap));
+                if (dbSysSectorsWrap != null && dbSysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()){
+                    log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表dbSysSectorsWrap:【{}】,sysSectorInfo:【{}】,sectorInfo:【{}】" ,
+                            JSON.toJSONString(dbSysSectorsWrap),JSON.toJSON(sysSectorInfo),JSON.toJSON(sectorInfo));
+                    rows = updateSysSectorsWrapAddSector(dbSysSectorsWrap, sysSectorInfo, sectorInfo);
                 }
-                log.info("新增扇区信息聚合表抛出异常");
             }
         } else {
-            // 状态不是按照顺序来的，可能先来2，再来1
             log.info("修改扇区信息聚合表sysSectorsWrap:【{}】,sysSectorInfo:【{}】,sectorInfo:【{}】" ,
                     JSON.toJSONString(sysSectorsWrap),JSON.toJSON(sysSectorInfo),JSON.toJSON(sectorInfo));
             rows = updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo, sectorInfo);
@@ -306,6 +328,7 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
                     sysSectorsWrap.getSectorDuration(),sysSectorInfo.getSectorDuration());
             sysSectorsWrap.setSectorDuration(sysSectorsWrap.getSectorDuration() + sysSectorInfo.getSectorDuration());
         } else {
+            // 状态不是按照顺序来的，可能先来2，再来1     或者先来2再来2
             log.info("updateSysSectorsWrapAddSector修改扇区信息聚合表sysSectorsWrap.getSectorDuration():【{}】,sectorInfo.getSectorDuration():【{}】,sysSectorInfo.getSectorDuration():【{}】",
                     sysSectorsWrap.getSectorDuration(),sectorInfo.getSectorDuration(),sysSectorInfo.getSectorDuration());
             sysSectorsWrap.setSectorDuration(sysSectorsWrap.getSectorDuration() - sectorInfo.getSectorDuration() + sysSectorInfo.getSectorDuration());
@@ -317,5 +340,82 @@ public class SysSectorsWrapServiceImpl implements ISysSectorsWrapService
     @Override
     public int testInsert(SysSectorsWrap sysSectorsWrap) {
         return sysSectorsWrapMapper.insert(sysSectorsWrap);
+    }
+
+    /**
+     * 初始化扇区聚合表封装总时长
+     */
+    public void initSectorToRedis(){
+        /**
+         * 将扇区封装时长写入到缓存
+         */
+        int pageNum = 1;
+        int pageSize = 500;
+        while (true) {
+            LambdaQueryWrapper<SysSectorInfo> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.lt(SysSectorInfo::getCreateTime,LocalDateTime.now());
+            IPage<SysSectorInfo> page = sysSectorInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
+            page.getRecords().stream().forEach(v->{
+                String minerId = v.getMinerId();
+                Long sectorNo = v.getSectorNo();
+                Integer sectorStatus = v.getSectorStatus();
+                Long sectorDuration = v.getSectorDuration();
+                //sector_{minerId}_{sectorNo}
+                //sector_{state}
+                String key = String.format("sector_%s_%s", minerId, sectorNo);
+                String field = String.format("sector_state_%s", sectorStatus);
+                redisUtil.hmset(key,field,sectorDuration+"",21600L);//有效期6个小时
+                log.info("key={},field={},value={}",key,field,sectorDuration);
+            });
+            if (page.getRecords().size() < pageSize) {
+                break;
+            } else {
+                pageNum ++;
+            }
+        }
+        log.info("写入缓村完成");
+    }
+
+    public void initSectorDuration(){
+        /**
+         * 重新计算扇区封装总时长
+         */
+        int pageNum = 1;
+        int pageSize = 500;
+        while (true) {
+            LambdaQueryWrapper<SysSectorsWrap> queryWrapper = new LambdaQueryWrapper();
+            IPage<SysSectorsWrap> page = sysSectorsWrapMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
+
+            List<SysSectorsWrap> batch = page.getRecords().stream().map(v -> {
+                BigDecimal duration = new BigDecimal("0");
+                SysSectorsWrap wrap = new SysSectorsWrap();
+                wrap.setId(v.getId());
+                String key = String.format("sector_%s_%s", v.getMinerId(), v.getSectorNo());
+                log.info("key={}",key);
+                Map<String, String> map = redisUtil.hgetall(key);
+                if (map != null && map.size() > 0) {
+                    for (String k : map.keySet()) {
+                        String value = map.get(k);
+                        duration = duration.add(new BigDecimal(value));
+                    }
+                }
+                wrap.setSectorDuration(duration.longValue());
+                return wrap;
+
+            }).collect(Collectors.toList());
+
+            if(batch.size() == 0){
+                break;
+            }
+
+            this.updateBatchById(batch);
+
+            if (page.getRecords().size() < pageSize) {
+                break;
+            } else {
+                pageNum ++;
+            }
+        }
+        log.info("重新计算扇区封装总时长,完成");
     }
 }
