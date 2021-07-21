@@ -11,11 +11,10 @@ import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
 import com.mei.hui.miner.entity.FilReportGas;
 import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
-import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
-import com.mei.hui.miner.service.FilReportGasService;
-import com.mei.hui.miner.service.ISysAggPowerDailyService;
-import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.miner.model.RequestSectorInfo;
+import com.mei.hui.miner.service.*;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.DateUtils;
@@ -195,6 +194,19 @@ public class MinerTest {
     public void testIpToAddress(){
         String rt = HttpUtil.doGet("https://restapi.amap.com/v5/ip?ip=193.118.43.158&key=a86d26bdd2ab3fcba6251ae6bb974c43&type=4","");
         System.out.println(rt);
+    }
+
+    @Autowired
+    private ISysSectorInfoService sysSectorInfoService;
+
+    @Test
+    public void testSectorDuration(){
+        RequestSectorInfo sysSectorInfo = new RequestSectorInfo();
+        sysSectorInfo.setMinerId("f01016365");
+        sysSectorInfo.setSectorNo(25631L);
+        sysSectorInfo.setSectorStatus(5);
+        SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
+        log.info("----------------------------【{}】",JSON.toJSON(sectorInfo));
     }
 
 }
