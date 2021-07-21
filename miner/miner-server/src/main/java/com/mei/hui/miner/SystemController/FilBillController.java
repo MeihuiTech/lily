@@ -33,7 +33,7 @@ public class FilBillController {
     }
 
     @ApiOperation("账单明细")
-    @RequestMapping("/pageList")
+    @RequestMapping("/detailList")
     public Result<List<FilBillDetailVO>> detail(@RequestBody FilBillDetailBO bo){
         return filBillService.detail(bo);
     }
