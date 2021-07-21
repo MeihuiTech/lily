@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
-import com.mei.hui.miner.entity.FilReportGas;
-import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.RequestSectorInfo;
@@ -52,6 +52,9 @@ public class MinerTest {
     private UserFeignClient userFeignClient;
     @Autowired
     private ISysAggPowerDailyService sysAggPowerDailyService;
+
+    @Autowired
+    private ISysSectorsWrapService sysSectorsWrapService;
 
     @Test
     public void entry(){
@@ -208,5 +211,16 @@ public class MinerTest {
         SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
         log.info("----------------------------【{}】",JSON.toJSON(sectorInfo));
     }
+
+    /**
+     * 测试mybatisplus分页限制500条数据
+     */
+    @Test
+    public void testMyBatisPlusPage(){
+        IPage page = sysSectorsWrapService.page(new Page(1,2000));
+        System.out.println(page.getRecords().size());
+    }
+
+
 
 }
