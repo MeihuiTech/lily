@@ -19,11 +19,10 @@ public class MqTest {
 
     @Test
     public void sendMsg(){
-        for(int i=0;i<100;i++){
+        String msg = "hello rabbit";
             //第一个参数为队列名称,第二个参数为要发送的消息对象,这里传的是一个字符串
-            log.info("hello rabbit {}",i);
-            rabbitTemplate.convertAndSend("test","hello rabbit"+i);
-        }
+            rabbitTemplate.convertAndSend("test",msg);
+            log.info("发送消息:{}",msg);
 
     }
 }
