@@ -349,11 +349,12 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
         /**
          * 将扇区封装时长写入到缓存
          */
+        LocalDateTime time = LocalDateTime.now();
         int pageNum = 1;
-        int pageSize = 500;
+        int pageSize = 5000;
         while (true) {
             LambdaQueryWrapper<SysSectorInfo> queryWrapper = new LambdaQueryWrapper();
-            queryWrapper.lt(SysSectorInfo::getCreateTime,LocalDateTime.now());
+            queryWrapper.lt(SysSectorInfo::getCreateTime,time);
             IPage<SysSectorInfo> page = sysSectorInfoMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
             page.getRecords().stream().forEach(v->{
                 String minerId = v.getMinerId();
@@ -381,7 +382,7 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
          * 重新计算扇区封装总时长
          */
         int pageNum = 1;
-        int pageSize = 500;
+        int pageSize = 5000;
         while (true) {
             LambdaQueryWrapper<SysSectorsWrap> queryWrapper = new LambdaQueryWrapper();
             IPage<SysSectorsWrap> page = sysSectorsWrapMapper.selectPage(new Page<>(pageNum, pageSize), queryWrapper);
