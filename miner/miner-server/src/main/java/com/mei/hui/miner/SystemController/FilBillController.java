@@ -1,10 +1,7 @@
 package com.mei.hui.miner.SystemController;
 
 
-import com.mei.hui.miner.feign.vo.FilBillDetailBO;
-import com.mei.hui.miner.feign.vo.FilBillDetailVO;
-import com.mei.hui.miner.feign.vo.FilBillPageListBO;
-import com.mei.hui.miner.feign.vo.FilBillPageListVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
@@ -29,7 +26,7 @@ public class FilBillController {
 
     @ApiOperation("账单分页列表")
     @PostMapping("/pageList")
-    public PageResult<FilBillPageListVO> pageList(@RequestBody FilBillPageListBO bo){
+    public Result<BillAggVO> pageList(@RequestBody FilBillPageListBO bo){
         return filBillService.pageList(bo);
     }
 

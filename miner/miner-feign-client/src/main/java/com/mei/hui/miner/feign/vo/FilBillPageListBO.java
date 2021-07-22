@@ -20,4 +20,10 @@ public class FilBillPageListBO  extends BasePage {
     @ApiModelProperty(value = "日期",required = true)
     private String date;
 
+    @ApiModelProperty("0-转出;1-转入")
+    private Integer type;
+
+    @ApiModelProperty("方法")
+    private String method;
+
 }
