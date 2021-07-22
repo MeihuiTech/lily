@@ -24,10 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.MonthDay;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -58,10 +63,15 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 Date dateTime = DateUtils.dateTime(DateUtils.YYYY_MM, bo.getDate());
                 yearMonth = DateUtils.parseDateToStr(DateUtils.YYYY_MM,dateTime);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"时间格式错误");
             }
         }
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");
+        DateTimeFormatter fmt = new DateTimeFormatterBuilder().appendPattern("yyyy-MM")
+                .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                .toFormatter();
         LocalDate date = LocalDate.parse(yearMonth, fmt);
         //本月第一天
         LocalDate firstday = LocalDate.of(date.getYear(), date.getMonthValue(), 1);
