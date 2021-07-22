@@ -78,6 +78,11 @@ public class SysSectorInfo {
     private Long sectorDuration;
 
     /**
+     * 上报接口传过来的time时间
+     */
+    private LocalDateTime time;
+
+    /**
      * 封装状态：0进行中，1已完成，默认0
      */
     private Integer status;
