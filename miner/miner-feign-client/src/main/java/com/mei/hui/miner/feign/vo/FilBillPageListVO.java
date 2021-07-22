@@ -13,6 +13,9 @@ import java.util.Date;
 @ApiModel
 public class FilBillPageListVO {
 
+    @ApiModelProperty("账单id,billId")
+    private Long id;
+
     @ApiModelProperty("旷工id")
     private String minerId;
 
