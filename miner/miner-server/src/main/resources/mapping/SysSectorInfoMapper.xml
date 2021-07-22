@@ -126,6 +126,40 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
 
+    <!--封装扇区有错误，重新封装时，删除以前的旧数据-->
+    <delete id="deleteSysSectorInfoOld">
+        DELETE
+        FROM
+            sys_sector_info
+        <where>
+            <if test="minerId != null and minerId != ''">
+                miner_id = #{minerId}
+            </if>
+            <if test="sectorNo != null and sectorNo != ''">
+                AND sector_no = #{sectorNo}
+            </if>
+            <if test="sectorStatus != null and sectorStatus != ''">
+                AND sector_status >= #{sectorStatus}
+            </if>
+            AND sector_end IS NOT NULL
+        </where>
+    </delete>
+
+    <!--查询sys_sector_info里的所有的封装时间总和-->
+    <select id="selectSysSectorInfoSumSectorDuration" resultType="java.lang.Long">
+        SELECT
+        SUM(s.sector_duration)
+        from
+        sys_sector_info  s
+        <where>
+            <if test="minerId != null and minerId != ''">
+                s.miner_id  = #{minerId}
+            </if>
+            <if test="sectorNo != null and sectorNo != ''">
+                and s.sector_no = #{sectorNo}
+            </if>
+        </where>
+    </select>
 
 
 </mapper>

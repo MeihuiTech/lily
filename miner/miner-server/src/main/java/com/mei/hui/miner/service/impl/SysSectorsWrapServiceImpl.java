@@ -210,20 +210,20 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
     * @version v1.0.0
     */
     @Override
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public int addSector(RequestSectorInfo sysSectorInfo) {
         SysSectorsWrap sysSectorsWrapParam = new SysSectorsWrap();
         sysSectorsWrapParam.setMinerId(sysSectorInfo.getMinerId()+"");
         sysSectorsWrapParam.setSectorNo(sysSectorInfo.getSectorNo());
         String hostname = sysSectorInfo.getHostname();
-        /*if("none".equalsIgnoreCase(hostname)){
-            hostname = "";
-        }*/
         sysSectorsWrapParam.setHostname(hostname);
         sysSectorsWrapParam.setSectorSize(sysSectorInfo.getSectorSize());
         sysSectorsWrapParam.setSectorStatus(sysSectorInfo.getSectorStatus());
         sysSectorsWrapParam.setCreateTime(LocalDateTime.now());
         sysSectorsWrapParam.setUpdateTime(LocalDateTime.now());
+
+        // 封装扇区有错误，重新封装时，删除以前的旧数据
+        Integer deleteCount = sysSectorInfoMapper.deleteSysSectorInfoOld(sysSectorInfo);
+        log.info("封装扇区有错误，重新封装时，删除以前的旧数据数量：【{}】",deleteCount);
 
         SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
         log.info("查询扇区封装记录表 sys_sector_info里的扇区信息是否已存在出参：【{}】",JSON.toJSON(sectorInfo));
@@ -243,12 +243,12 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
             sysSectorInfo.setStatus(1);
             if(sectorInfo != null && sectorInfo.getSectorStart() != null){
                 sysSectorInfo.setSectorDuration(Duration.between(sectorInfo.getSectorStart(),sysSectorInfo.getTime()).toMillis()/1000);
-                sysSectorsWrapParam.setSectorDuration(Duration.between(sectorInfo.getSectorStart(),sysSectorInfo.getTime()).toMillis()/1000);
+//                sysSectorsWrapParam.setSectorDuration(Duration.between(sectorInfo.getSectorStart(),sysSectorInfo.getTime()).toMillis()/1000);
                 log.info("后传过来的结束，sysSectorInfo为：【{}】",JSON.toJSON(sysSectorInfo));
             } else {
                 // 异常情况下，先传过来的结束，封装时间设置为0
                 sysSectorInfo.setSectorDuration(0L);
-                sysSectorsWrapParam.setSectorDuration(0L);
+//                sysSectorsWrapParam.setSectorDuration(0L);
                 log.info("异常情况下，先传过来的结束，封装时间设置为0,sysSectorInfo为：【{}】",JSON.toJSON(sysSectorInfo));
             }
         }
@@ -283,6 +283,10 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
             return 1;
         }
 
+        // 查询sys_sector_info里的所有的封装时间总和，更新sys_sectors_wrap表的封装时间
+        Long allSectorDuration = sysSectorInfoMapper.selectSysSectorInfoSumSectorDuration(sysSectorInfo.getMinerId(),sysSectorInfo.getSectorNo());
+        log.info("查询sys_sector_info里的所有的封装时间总和出参：【{}】",allSectorDuration);
+
         int rows = 0;
         // 查询该 扇区聚合信息表sys_sectors_wrap 是否已有该扇区, 没有则插入, 有则获取数据做聚合
         log.info("查询该扇区聚合信息是否已存在入参：【{}】",JSON.toJSON(sysSectorsWrapParam));
@@ -290,22 +294,25 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
         log.info("查询该扇区聚合信息是否已存在出参：【{}】",JSON.toJSON(sysSectorsWrap));
         if (sysSectorsWrap == null) {
             try {
+                sysSectorsWrapParam.setSectorDuration(allSectorDuration);
                 log.info("新增扇区信息聚合表入参:[{}]" , JSON.toJSONString(sysSectorsWrapParam));
                 rows = insertSysSectorsWrap(sysSectorsWrapParam);
             }catch (DataIntegrityViolationException exception) {
                 log.info("新增扇区信息聚合表抛出异常：【{}】",exception);
                 SysSectorsWrap dbSysSectorsWrap = selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrapParam);
                 log.info("抛出异常后，查询该扇区聚合信息是否已存在出参：【{}】",JSON.toJSON(dbSysSectorsWrap));
-                if (dbSysSectorsWrap != null && dbSysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()){
-                    log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表dbSysSectorsWrap:【{}】,sysSectorInfo:【{}】,sectorInfo:【{}】" ,
-                            JSON.toJSONString(dbSysSectorsWrap),JSON.toJSON(sysSectorInfo),JSON.toJSON(sectorInfo));
-                    rows = updateSysSectorsWrapAddSector(dbSysSectorsWrap, sysSectorInfo, sectorInfo);
+                if (dbSysSectorsWrap != null){//  && dbSysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()
+                    dbSysSectorsWrap.setSectorDuration(allSectorDuration);
+                    dbSysSectorsWrap.setSectorStatus(sysSectorInfo.getSectorStatus());
+                    log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表dbSysSectorsWrap:【{}】" , JSON.toJSONString(dbSysSectorsWrap));
+                    rows = updateSysSectorsWrap(dbSysSectorsWrap);
                 }
             }
         } else {
-            log.info("修改扇区信息聚合表sysSectorsWrap:【{}】,sysSectorInfo:【{}】,sectorInfo:【{}】" ,
-                    JSON.toJSONString(sysSectorsWrap),JSON.toJSON(sysSectorInfo),JSON.toJSON(sectorInfo));
-            rows = updateSysSectorsWrapAddSector(sysSectorsWrap, sysSectorInfo, sectorInfo);
+            sysSectorsWrap.setSectorDuration(allSectorDuration);
+            sysSectorsWrap.setSectorStatus(sysSectorInfo.getSectorStatus());
+            log.info("修改扇区信息聚合表sysSectorsWrap:【{}】" ,JSON.toJSONString(sysSectorsWrap));
+            rows = updateSysSectorsWrap(sysSectorsWrap);
         }
 
         return rows;
@@ -322,7 +329,7 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
     * @return int
     * @version v1.0.0
     */
-    public int updateSysSectorsWrapAddSector(SysSectorsWrap sysSectorsWrap,RequestSectorInfo sysSectorInfo,SysSectorInfo sectorInfo) {
+    /*public int updateSysSectorsWrapAddSector(SysSectorsWrap sysSectorsWrap,RequestSectorInfo sysSectorInfo,SysSectorInfo sectorInfo) {
         if(sectorInfo == null) {
             log.info("updateSysSectorsWrapAddSector修改扇区信息聚合表sysSectorsWrap.getSectorDuration():【{}】,sysSectorInfo.getSectorDuration():【{}】",
                     sysSectorsWrap.getSectorDuration(),sysSectorInfo.getSectorDuration());
@@ -335,7 +342,7 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
         }
         sysSectorsWrap.setSectorStatus(sysSectorInfo.getSectorStatus());
         return updateSysSectorsWrap(sysSectorsWrap);
-    }
+    }*/
 
     @Override
     public int testInsert(SysSectorsWrap sysSectorsWrap) {

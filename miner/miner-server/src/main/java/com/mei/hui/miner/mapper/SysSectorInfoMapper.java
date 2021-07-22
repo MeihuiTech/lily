@@ -2,6 +2,8 @@ package com.mei.hui.miner.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.miner.entity.SysSectorInfo;
+import com.mei.hui.miner.model.RequestSectorInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -82,4 +84,28 @@ public interface SysSectorInfoMapper extends BaseMapper<SysSectorInfo>
     * @version v1.4.1
     */
     public List<SysSectorInfo> selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(com.mei.hui.miner.entity.SysSectorInfo sectorInfo);
+
+    /**
+    * 封装扇区有错误，重新封装时，删除以前的旧数据
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/22 16:00
+    * @param [sysSectorInfo]
+    * @return java.lang.Integer
+    * @version v1.4.1
+    */
+    public Integer deleteSysSectorInfoOld(RequestSectorInfo sysSectorInfo);
+
+    /**
+    * 查询sys_sector_info里的所有的封装时间总和
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/22 16:25
+    * @param [minerId, sectorNo]
+    * @return java.lang.Long
+    * @version v1.4.1
+    */
+    public Long selectSysSectorInfoSumSectorDuration(@Param("minerId") String minerId,@Param("sectorNo") Long sectorNo);
 }

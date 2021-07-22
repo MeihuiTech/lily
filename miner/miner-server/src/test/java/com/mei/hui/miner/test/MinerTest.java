@@ -10,6 +10,7 @@ import com.mei.hui.config.AESUtil;
 import com.mei.hui.config.HttpUtil;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
+import com.mei.hui.miner.SystemController.FilReportedController;
 import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
@@ -34,7 +35,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MinerApplication .class)
@@ -221,6 +225,57 @@ public class MinerTest {
         System.out.println(page.getRecords().size());
     }
 
+    @Autowired
+    private FilReportedController filReportedController;
+
+    /**
+     * 调用上报fil新增扇区接口
+     */
+    @Test
+    public void testFilReportedSector(){
+        String url = "http://localhost:8082/fil/reported/sector";
+        Map<String,String> header = new HashMap<>();
+        header.put("x-api-key","97067dddaa11473bafb8dd8bded87ff9");
+        List<String> jsonList = new ArrayList<>();
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":1,\"time\":\"2021-07-18T17:52:02\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":1,\"time\":\"2021-07-18T17:52:53\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":2,\"time\":\"2021-07-19T07:12:23\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":2,\"time\":\"2021-07-19T13:10:15\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":3,\"time\":\"2021-07-19T15:12:41\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":3,\"time\":\"2021-07-19T15:33:00\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":4,\"time\":\"2021-07-19T15:36:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":4,\"time\":\"2021-07-19T15:51:30\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T15:51:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T15:51:33\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":6,\"time\":\"2021-07-19T15:51:33\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":6,\"time\":\"2021-07-19T17:01:20\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":7,\"time\":\"2021-07-19T17:04:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":7,\"time\":\"2021-07-19T17:07:47\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":8,\"time\":\"2021-07-19T17:04:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":8,\"time\":\"2021-07-19T17:07:49\"}");
+        /*jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":1,\"time\":\"2021-07-18T17:52:02\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":1,\"time\":\"2021-07-18T17:52:53\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":2,\"time\":\"2021-07-19T07:12:23\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":2,\"time\":\"2021-07-19T13:10:15\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":3,\"time\":\"2021-07-19T15:12:41\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":3,\"time\":\"2021-07-19T15:33:00\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":4,\"time\":\"2021-07-19T15:36:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":4,\"time\":\"2021-07-19T15:51:30\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T15:51:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T15:51:33\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":6,\"time\":\"2021-07-19T15:51:33\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":6,\"time\":\"2021-07-19T17:01:20\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":7,\"time\":\"2021-07-19T17:04:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":7,\"time\":\"2021-07-19T17:07:47\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T17:08:47\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T17:09:47\"}");
+        jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":8,\"time\":\"2021-07-19T17:10:30\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":8,\"time\":\"2021-07-19T17:11:49\"}");*/
+        for (String json : jsonList){
+            String result = HttpUtil.doPost(url,json,header);
+            System.out.println("------------"+result);
+        }
+    }
 
 
 }
