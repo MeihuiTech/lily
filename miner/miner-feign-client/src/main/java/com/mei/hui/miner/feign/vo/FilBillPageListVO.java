@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -48,5 +49,9 @@ public class FilBillPageListVO {
 
     @ApiModelProperty("账单产生时间")
     private Date dateTime;
+
+
+    @ApiModelProperty("账单明细")
+    private List<FilBillDetailVO> detailList;
 
 }

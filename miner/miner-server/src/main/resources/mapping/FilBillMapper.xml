@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.FilBillMapper">
+
+    <!--结果集一对多或多对多-->
+    <resultMap id="resultBillMap" type="com.mei.hui.miner.entity.FilBill">
+        <id column="id" property="id"/>
+        <result column="miner_id" property="minerId"/>
+        <result column="message_id" property="messageId"/>
+        <result column="block_height" property="blockHeight"/>
+        <result column="sender" property="sender"/>
+        <result column="receiver" property="receiver"/>
+        <result column="method" property="method"/>
+        <result column="money" property="money"/>
+        <result column="type" property="type"/>
+        <result column="state" property="state"/>
+        <result column="account_type" property="accountType"/>
+        <result column="date_time" property="dateTime"/>
+        <result column="create_time" property="createTime"/>
+        <collection property="detailList"
+                    ofType="com.mei.hui.miner.entity.FilBillDetail"
+                    fetchType="lazy" select="findBillDetailList"
+                    column="{billId = id}">
+        </collection>
+    </resultMap>
+
+    <resultMap id="billDetailMap" type="com.mei.hui.miner.entity.FilBillDetail">
+         <id column="id" property="id"/>
+         <result column="bill_id" property="billId"/>
+         <result column="sender" property="sender"/>
+         <result column="receiver" property="receiver"/>
+         <result column="money" property="money"/>
+         <result column="type" property="type"/>
+         <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="getBillPageList" resultMap="resultBillMap">
+      select * from fil_bill  ${ew.customSqlSegment}
+    </select>
+
+    <select id="findBillDetailList" resultMap="billDetailMap">
+      select * from fil_bill_detail d where d.bill_id = #{billId}
+    </select>
+
+</mapper>
