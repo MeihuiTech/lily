@@ -176,19 +176,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="pageMinerInfo" resultType="com.mei.hui.miner.model.SysMinerInfoVO">
         SELECT
-            mi.id,
-            mi.miner_id minerId,
-            mi.balance_miner_account balanceMinerAccount,
-            mi.balance_miner_available balanceMinerAvailable,
-            mi.sector_pledge sectorPledge,
-            mi.total_block_award totalBlockAward,
-            mi.power_available powerAvailable,
-            mi.total_blocks totalBlocks,
-            mi.balance_worker_account balanceWorkerAccount,
-            mi.sector_available sectorAvailable,
-            mi.sector_error sectorError
+        mi.id,
+        mi.user_id userId,
+        mi.miner_id minerId,
+        mi.balance_miner_account balanceMinerAccount,
+        mi.balance_miner_available balanceMinerAvailable,
+        mi.sector_pledge sectorPledge,
+        mi.total_block_award totalBlockAward,
+        mi.power_available powerAvailable,
+        mi.total_blocks totalBlocks,
+        mi.balance_worker_account balanceWorkerAccount,
+        mi.sector_available sectorAvailable,
+        mi.sector_error sectorError
         FROM
-            sys_miner_info mi
+        sys_miner_info mi
+        <where>
+            <if test="userId != null and userId != 1">
+                mi.user_id = #{userId}
+            </if>
+        </where>
         <choose>
             <when test="cloumName != null and cloumName != ''">
                 <if test="'powerAvailable' == cloumName">

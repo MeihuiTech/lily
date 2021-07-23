@@ -364,6 +364,14 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
                 }
             }
 
+            SysUserOut sysUserOut = new SysUserOut();
+            sysUserOut.setUserId(sysMinerInfoVO.getUserId());
+            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                sysMinerInfoVO.setUserName(sysUserOutResult.getData().getUserName());
+            }
         }
         Map<String,Object> map = new HashMap<>();
         map.put("code", ErrorCode.MYB_000000.getCode());
