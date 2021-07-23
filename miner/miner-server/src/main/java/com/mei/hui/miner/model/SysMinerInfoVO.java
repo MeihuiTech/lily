@@ -18,6 +18,12 @@ public class SysMinerInfoVO {
     @ApiModelProperty(value = "ID")
     private Long id;
 
+    @ApiModelProperty(value = "用户id")
+    private Long userId;
+
+    @ApiModelProperty(value = "用户姓名")
+    private String userName;
+
     @ApiModelProperty(value = "矿工ID")
     private String minerId;
 
