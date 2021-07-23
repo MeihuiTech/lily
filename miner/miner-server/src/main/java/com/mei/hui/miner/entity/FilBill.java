@@ -1,6 +1,7 @@
 package com.mei.hui.miner.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -9,7 +10,9 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -28,6 +31,9 @@ public class FilBill implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+   /* @TableField(exist = false)*/
+    private List<FilBillDetail> detailList;
 
     /**
      * 旷工id
@@ -82,12 +88,12 @@ public class FilBill implements Serializable {
     /**
      * 账单产生时间
      */
-    private Date dateTime;
+    private LocalDateTime dateTime;
 
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

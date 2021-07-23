@@ -48,23 +48,22 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> implements FilBillService {
-
     @Autowired
-    private FilBillDetailService billDetailService;
+    private FilBillMapper billMapper;
 
     public Result<BillAggVO> pageList(FilBillPageListBO bo){
-        LambdaQueryWrapper<FilBill> queryWrapper = new LambdaQueryWrapper();
+        QueryWrapper<FilBill> queryWrapper = new QueryWrapper();
         if(bo.getAccount_type() != null){
-            queryWrapper.eq(FilBill::getAccountType,bo.getAccount_type());
+            queryWrapper.eq("account_type",bo.getAccount_type());
         }
         if(StringUtils.isNotEmpty(bo.getMinerId())){
-            queryWrapper.eq(FilBill::getMinerId,bo.getMinerId());
+            queryWrapper.eq("miner_id",bo.getMinerId());
         }
         if(bo.getType() != null){
-            queryWrapper.eq(FilBill::getType,bo.getType());
+            queryWrapper.eq("type",bo.getType());
         }
         if(StringUtils.isNotEmpty(bo.getMethod())){
-            queryWrapper.eq(FilBill::getMethod,bo.getMethod());
+            queryWrapper.eq("method",bo.getMethod());
         }
         String yearMonth = DateUtils.dateTimeNow(DateUtils.YYYY_MM);
         if(StringUtils.isNotEmpty(bo.getDate())){
@@ -86,9 +85,10 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         LocalDate firstday = LocalDate.of(date.getYear(), date.getMonthValue(), 1);
         //本月的最后一天
         LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
-        queryWrapper.between(FilBill::getDateTime,firstday,lastDay);
-        queryWrapper.orderByDesc(FilBill::getDateTime);
-        IPage<FilBill> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), queryWrapper);
+        queryWrapper.between("date_time",firstday,lastDay);
+        queryWrapper.orderByDesc("date_time");
+
+        IPage<FilBill> page = billMapper.getBillPageList(new Page<>(bo.getPageNum(), bo.getPageSize()),queryWrapper);
         List<FilBillPageListVO> list = page.getRecords().stream().map(v -> {
             FilBillPageListVO vo = new FilBillPageListVO();
             BeanUtils.copyProperties(v, vo);
@@ -163,22 +163,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         vo.setOther(total);
         log.info("转入金额:{}",JSON.toJSONString(vo));
         return vo;
-    }
-
-    public Result<List<FilBillDetailVO>> detail(FilBillDetailBO bo){
-        if(bo.getBillId() == null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"账单id不能为空");
-        }
-        LambdaQueryWrapper<FilBillDetail> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(FilBillDetail::getBillId,bo.getBillId());
-        List<FilBillDetail> list = billDetailService.list(queryWrapper);
-
-        List<FilBillDetailVO> lt = list.stream().map(v -> {
-            FilBillDetailVO vo = new FilBillDetailVO();
-            BeanUtils.copyProperties(v, vo);
-            return vo;
-        }).collect(Collectors.toList());
-        return Result.success(lt);
     }
 
 }
