@@ -43,7 +43,7 @@ public class FilBillPageListVO {
     @ApiModelProperty("状态")
     private String state;
 
-    @ApiModelProperty("0-Owner；1-Worker；2-Controller")
+    @ApiModelProperty("0-Miner；1-Worker；2-Controller")
     private String accountType;
 
     @ApiModelProperty("账单产生时间")

@@ -75,7 +75,7 @@ public class FilBill implements Serializable {
     private String state;
 
     /**
-     * 0-Owner；1-Worker；2-Controller
+     * 0-Miner；1-Worker；2-Controller
      */
     private String accountType;
 
