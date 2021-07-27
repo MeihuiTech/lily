@@ -279,6 +279,7 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
         }
 
         // 查询sys_sector_info里的所有的封装时间总和，更新sys_sectors_wrap表的封装时间
+        log.info("查询sys_sector_info里的所有的封装时间总和入参MinerId：【{}】，SectorNo：【{}】",sysSectorInfo.getMinerId(),sysSectorInfo.getSectorNo());
         Long allSectorDuration = sysSectorInfoMapper.selectSysSectorInfoSumSectorDuration(sysSectorInfo.getMinerId(),sysSectorInfo.getSectorNo());
         log.info("查询sys_sector_info里的所有的封装时间总和出参：【{}】",allSectorDuration);
 

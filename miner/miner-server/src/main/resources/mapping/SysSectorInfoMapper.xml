@@ -52,54 +52,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSysSectorInfoVo"/>
         where miner_id = #{minerId} and sector_no = #{sectorNo} and sector_status = #{sectorStatus}
     </select>
-        
-    <!--<insert id="insertSysSectorInfo" parameterType="SysSectorInfo" useGeneratedKeys="true" keyProperty="id">
-        insert into sys_sector_info
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="minerId != null and minerId != ''">miner_id,</if>
-            <if test="hostname != null and hostname != ''">hostname,</if>
-            <if test="sectorNo != null">sector_no,</if>
-            <if test="sectorSize != null">sector_size,</if>
-            <if test="sectorStatus != null">sector_status,</if>
-            <if test="sectorStart != null">sector_start,</if>
-            <if test="sectorDuration != null">sector_duration,</if>
-            <if test="createBy != null">create_by,</if>
-            <if test="createTime != null">create_time,</if>
-            <if test="updateBy != null">update_by,</if>
-            <if test="updateTime != null">update_time,</if>
-         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="minerId != null and minerId != ''">#{minerId},</if>
-            <if test="hostname != null and hostname != ''">#{hostname},</if>
-            <if test="sectorNo != null">#{sectorNo},</if>
-            <if test="sectorSize != null">#{sectorSize},</if>
-            <if test="sectorStatus != null">#{sectorStatus},</if>
-            <if test="sectorStart != null">#{sectorStart},</if>
-            <if test="sectorDuration != null">#{sectorDuration},</if>
-            <if test="createBy != null">#{createBy},</if>
-            <if test="createTime != null">#{createTime},</if>
-            <if test="updateBy != null">#{updateBy},</if>
-            <if test="updateTime != null">#{updateTime},</if>
-         </trim>
-    </insert>-->
-
-    <!--<update id="updateSysSectorInfo" parameterType="SysSectorInfo">
-        update sys_sector_info
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="minerId != null and minerId != ''">miner_id = #{minerId},</if>
-            <if test="hostname != null and hostname != ''">hostname = #{hostname},</if>
-            <if test="sectorNo != null">sector_no = #{sectorNo},</if>
-            <if test="sectorSize != null">sector_size = #{sectorSize},</if>
-            <if test="sectorStatus != null">sector_status = #{sectorStatus},</if>
-            <if test="sectorStart != null">sector_start = #{sectorStart},</if>
-            <if test="sectorDuration != null">sector_duration = #{sectorDuration},</if>
-            <if test="createBy != null">create_by = #{createBy},</if>
-            <if test="createTime != null">create_time = #{createTime},</if>
-            <if test="updateBy != null">update_by = #{updateBy},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
-        </trim>
-        where id = #{id}
-    </update>-->
 
     <delete id="deleteSysSectorInfoById" parameterType="Long">
         delete from sys_sector_info where id = #{id}
@@ -120,10 +72,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="minerId != null and minerId != ''">
                 AND miner_id = #{minerId}
             </if>
-            <if test="sectorNo != null and sectorNo != ''">
+            <if test="sectorNo != null">
                 AND sector_no = #{sectorNo}
             </if>
-            <if test="sectorStatus != null and sectorStatus != ''">
+            <if test="sectorStatus != null ">
                 AND #{sectorStatus} > sector_status
             </if>
         </where>
@@ -138,10 +90,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="minerId != null and minerId != ''">
                 miner_id = #{minerId}
             </if>
-            <if test="sectorNo != null and sectorNo != ''">
+            <if test="sectorNo != null ">
                 AND sector_no = #{sectorNo}
             </if>
-            <if test="sectorStatus != null and sectorStatus != ''">
+            <if test="sectorStatus != null ">
                 AND sector_status > #{sectorStatus}
             </if>
             AND sector_end IS NOT NULL
@@ -158,7 +110,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="minerId != null and minerId != ''">
                 s.miner_id  = #{minerId}
             </if>
-            <if test="sectorNo != null and sectorNo != ''">
+            <if test="sectorNo != null ">
                 and s.sector_no = #{sectorNo}
             </if>
         </where>
@@ -173,10 +125,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="minerId != null and minerId != ''">
                 AND miner_id = #{minerId}
             </if>
-            <if test="sectorNo != null and sectorNo != ''">
+            <if test="sectorNo != null ">
                 AND sector_no = #{sectorNo}
             </if>
-            <if test="sectorStatus != null and sectorStatus != ''">
+            <if test="sectorStatus != null ">
                 AND #{sectorStatus} > sector_status
             </if>
         </where>

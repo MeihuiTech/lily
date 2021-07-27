@@ -153,6 +153,10 @@ public class FilReportedController {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"apiKey不存在");
         }
 
+        if (sysSectorInfo == null || StringUtils.isEmpty(sysSectorInfo.getMinerId()) || sysSectorInfo.getSectorNo() == null ){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"入参必填项为空");
+        }
+
         int rows = sysSectorsWrapService.addSector(sysSectorInfo);
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
