@@ -223,7 +223,11 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
 
         // 封装扇区有错误，重新封装时，删除以前的旧数据
         Integer deleteCount = sysSectorInfoMapper.deleteSysSectorInfoOld(sysSectorInfo);
-        log.info("封装扇区有错误，重新封装时，删除以前的旧数据数量：【{}】",deleteCount);
+        log.info("封装扇区有错误，重新封装时，删除以前的旧数据数量deleteCount：【{}】",deleteCount);
+
+        // 查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态，如果有，改成已完成
+        Integer updateCount = sysSectorInfoService.updateSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(sysSectorInfo);
+        log.info("查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态，如果有，改成已完成updateCount：【{}】",updateCount);
 
         SysSectorInfo sectorInfo = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndStatus(sysSectorInfo);
         log.info("查询扇区封装记录表 sys_sector_info里的扇区信息是否已存在出参：【{}】",JSON.toJSON(sectorInfo));
@@ -231,11 +235,15 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
         // 查询 扇区封装记录表sys_sector_info 中是否已存在该记录, 不存在插入，如果已存在则更新
         if (Constants.ACTIONSTART.equals(sysSectorInfo.getAction())){
             sysSectorInfo.setSectorStart(sysSectorInfo.getTime());
-            // 如果是同一条数据第一次传过来，扇区当前状态持续时间设置为0，如果是第二遍传过来，扇区当前状态持续时间不设置为0
-            if (sectorInfo == null){
+            // 如果数据库里已经存在数据，不管是第一次封装先传stop再传start，还是封装错误第二次封装，扇区当前状态持续时间重新计算
+            if (sectorInfo != null && sectorInfo.getSectorEnd() != null && sysSectorInfo.getTime().isBefore(sectorInfo.getSectorEnd())){
+                sysSectorInfo.setSectorDuration(Duration.between(sysSectorInfo.getTime(),sectorInfo.getSectorEnd()).toMillis()/1000);
+                log.info("扇区当前状态持续时间重新计算:【{}】",JSON.toJSON(sysSectorInfo));
+            } else {
+                // 第一次封装先传start 和 同一个状态第二次封装先传过来start，封装时间设置为0，状态正在进行中
                 sysSectorInfo.setSectorDuration(0L);
                 sysSectorInfo.setStatus(0);
-                log.info("第一次上传，扇区当前状态持续时间设置为0，状态设置为正在进行中");
+                log.info("封装时间设置为0:【{}】",JSON.toJSON(sysSectorInfo));
             }
             log.info("先传过来的开始，封装时间设置为0,sysSectorInfo为：【{}】",JSON.toJSON(sysSectorInfo));
         } else if (Constants.ACTIONSTOP.equals(sysSectorInfo.getAction())) {
@@ -243,44 +251,31 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
             sysSectorInfo.setStatus(1);
             if(sectorInfo != null && sectorInfo.getSectorStart() != null){
                 sysSectorInfo.setSectorDuration(Duration.between(sectorInfo.getSectorStart(),sysSectorInfo.getTime()).toMillis()/1000);
-//                sysSectorsWrapParam.setSectorDuration(Duration.between(sectorInfo.getSectorStart(),sysSectorInfo.getTime()).toMillis()/1000);
                 log.info("后传过来的结束，sysSectorInfo为：【{}】",JSON.toJSON(sysSectorInfo));
             } else {
                 // 异常情况下，先传过来的结束，封装时间设置为0
                 sysSectorInfo.setSectorDuration(0L);
-//                sysSectorsWrapParam.setSectorDuration(0L);
                 log.info("异常情况下，先传过来的结束，封装时间设置为0,sysSectorInfo为：【{}】",JSON.toJSON(sysSectorInfo));
             }
         }
         if (sectorInfo == null) {
-            try {
-                log.info("新增扇区信息表:[{}]" , JSON.toJSONString(sysSectorInfo));
-                sysSectorInfoService.insertSysSectorInfo(sysSectorInfo);
-            }catch (DataIntegrityViolationException exception) {
-                // 通过唯一性判断该条数据如果已经存在，则直接丢弃，不用更新，返回成功提示
-                log.info("新增扇区信息表抛出异常：[{}]" , JSON.toJSONString(sysSectorInfo));
-                return 1;
-            }
+            log.info("新增扇区信息表:[{}]" , JSON.toJSONString(sysSectorInfo));
+            sysSectorInfoService.insertSysSectorInfo(sysSectorInfo);
         } else {
             sysSectorInfo.setId(sectorInfo.getId());
             log.info("修改扇区信息表:[{}]" , JSON.toJSONString(sysSectorInfo));
             sysSectorInfoService.updateSysSectorInfo(sysSectorInfo);
         }
 
-        // 查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态，如果有，改成已完成
-        List<SysSectorInfo> dbSysSectorInfoList = sysSectorInfoService.selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(sysSectorInfo);
-        log.info("查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态出参：【{}】",JSON.toJSON(dbSysSectorInfoList));
-        if (dbSysSectorInfoList != null && dbSysSectorInfoList.size() > 0) {
-            for (SysSectorInfo dbSysSectorInfo:dbSysSectorInfoList){
-                dbSysSectorInfo.setStatus(1);
-                sysSectorInfoService.updateSysSectorInfo(dbSysSectorInfo);
-            }
-        }
-
         // 如果是扇区开始封装，不插入/更新sys_sectors_wrap表，只有是扇区结束封装，才插入/更新sys_sectors_wrap表
         if (Constants.ACTIONSTART.equals(sysSectorInfo.getAction())){
-            log.info("扇区开始封装，不插入/更新sys_sectors_wrap表，直接结束：【{}】",JSON.toJSON(sysSectorInfo));
-            return 1;
+            if (deleteCount <= 0){
+                log.info("扇区开始封装，不插入/更新sys_sectors_wrap表，直接结束：【{}】",JSON.toJSON(sysSectorInfo));
+                return 1;
+            } else if (sysSectorInfo.getSectorStatus() > 1){
+                sysSectorsWrapParam.setSectorStatus(sysSectorInfo.getSectorStatus() - 1);
+                log.info("start状态更新wrap表：【{}】",JSON.toJSON(sysSectorsWrapParam));
+            }
         }
 
         // 查询sys_sector_info里的所有的封装时间总和，更新sys_sectors_wrap表的封装时间
@@ -293,21 +288,9 @@ public class SysSectorsWrapServiceImpl extends ServiceImpl<SysSectorsWrapMapper,
         SysSectorsWrap sysSectorsWrap = selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrapParam);
         log.info("查询该扇区聚合信息是否已存在出参：【{}】",JSON.toJSON(sysSectorsWrap));
         if (sysSectorsWrap == null) {
-            try {
-                sysSectorsWrapParam.setSectorDuration(allSectorDuration);
-                log.info("新增扇区信息聚合表入参:[{}]" , JSON.toJSONString(sysSectorsWrapParam));
-                rows = insertSysSectorsWrap(sysSectorsWrapParam);
-            }catch (DataIntegrityViolationException exception) {
-                log.info("新增扇区信息聚合表抛出异常：【{}】",exception);
-                SysSectorsWrap dbSysSectorsWrap = selectSysSectorsWrapByMinerIdAndSectorNo(sysSectorsWrapParam);
-                log.info("抛出异常后，查询该扇区聚合信息是否已存在出参：【{}】",JSON.toJSON(dbSysSectorsWrap));
-                if (dbSysSectorsWrap != null){//  && dbSysSectorsWrap.getSectorStatus() < sysSectorInfo.getSectorStatus()
-                    dbSysSectorsWrap.setSectorDuration(allSectorDuration);
-                    dbSysSectorsWrap.setSectorStatus(sysSectorInfo.getSectorStatus());
-                    log.info("新增扇区信息聚合表抛出异常，修改扇区信息聚合表dbSysSectorsWrap:【{}】" , JSON.toJSONString(dbSysSectorsWrap));
-                    rows = updateSysSectorsWrap(dbSysSectorsWrap);
-                }
-            }
+            sysSectorsWrapParam.setSectorDuration(allSectorDuration);
+            log.info("新增扇区信息聚合表入参:[{}]" , JSON.toJSONString(sysSectorsWrapParam));
+            rows = insertSysSectorsWrap(sysSectorsWrapParam);
         } else {
             sysSectorsWrap.setSectorDuration(allSectorDuration);
             sysSectorsWrap.setSectorStatus(sysSectorInfo.getSectorStatus());

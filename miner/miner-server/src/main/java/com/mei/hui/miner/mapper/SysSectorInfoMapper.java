@@ -108,4 +108,16 @@ public interface SysSectorInfoMapper extends BaseMapper<SysSectorInfo>
     * @version v1.4.1
     */
     public Long selectSysSectorInfoSumSectorDuration(@Param("minerId") String minerId,@Param("sectorNo") Long sectorNo);
+
+    /**
+    * 查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态，如果有，改成已完成
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/7/27 10:40
+    * @param [sysSectorInfo]
+    * @return java.lang.Integer
+    * @version v1.4.1
+    */
+    public Integer updateSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(RequestSectorInfo sysSectorInfo);
 }

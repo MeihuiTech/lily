@@ -12,7 +12,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="sectorSize"    column="sector_size"    />
         <result property="sectorStatus"    column="sector_status"    />
         <result property="sectorStart"    column="sector_start"    />
+        <result property="sectorEnd" column="sector_end"/>
         <result property="sectorDuration"    column="sector_duration"    />
+        <result property="time" column="time"/>
+        <result property="status" column="status"/>
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -20,11 +23,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysSectorInfoVo">
-        select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_start, sector_duration, create_by, create_time, update_by, update_time from sys_sector_info
+        select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_start,sector_end, sector_duration,time,status, create_by, create_time, update_by, update_time from sys_sector_info
     </sql>
 
     <sql id="SysSectorInfoVo">
-        select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_start, sector_duration, create_by, create_time, update_by, update_time from sys_sector_info
+        select id, miner_id, hostname, sector_no, sector_size, sector_status, sector_start,sector_end, sector_duration,time,status, create_by, create_time, update_by, update_time from sys_sector_info
     </sql>
 
     <select id="selectSysSectorInfoList" parameterType="SysSectorInfo" resultMap="SysSectorInfoResult">
@@ -139,7 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 AND sector_no = #{sectorNo}
             </if>
             <if test="sectorStatus != null and sectorStatus != ''">
-                AND sector_status >= #{sectorStatus}
+                AND sector_status > #{sectorStatus}
             </if>
             AND sector_end IS NOT NULL
         </where>
@@ -160,6 +163,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
         </where>
     </select>
+
+    <!--查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态，如果有，改成已完成-->
+    <delete id="updateSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus">
+        UPDATE sys_sector_info
+        SET STATUS = 1
+        <where>
+            STATUS = 0
+            <if test="minerId != null and minerId != ''">
+                AND miner_id = #{minerId}
+            </if>
+            <if test="sectorNo != null and sectorNo != ''">
+                AND sector_no = #{sectorNo}
+            </if>
+            <if test="sectorStatus != null and sectorStatus != ''">
+                AND #{sectorStatus} > sector_status
+            </if>
+        </where>
+    </delete>
 
 
 </mapper>
