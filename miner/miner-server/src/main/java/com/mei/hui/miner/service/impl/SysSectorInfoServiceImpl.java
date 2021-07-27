@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.mapper.SysSectorInfoMapper;
+import com.mei.hui.miner.model.RequestSectorInfo;
 import com.mei.hui.miner.service.ISysSectorInfoService;
 import com.mei.hui.util.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,5 +136,11 @@ public class SysSectorInfoServiceImpl implements ISysSectorInfoService
     @Override
     public List<SysSectorInfo> selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(SysSectorInfo sectorInfo) {
         return sysSectorInfoMapper.selectSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(sectorInfo);
+    }
+
+    /*查询数据库里该miner_id、sector_no小于传过来的sector_status的值是否有进行中的状态，如果有，改成已完成*/
+    @Override
+    public Integer updateSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(RequestSectorInfo sysSectorInfo) {
+        return sysSectorInfoMapper.updateSysSectorInfoByMinerIdAndSectorNoAndSectorAndLtStatus(sysSectorInfo);
     }
 }

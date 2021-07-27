@@ -266,11 +266,11 @@ public class MinerTest {
         jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":6,\"time\":\"2021-07-19T15:51:33\"}");
         jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":6,\"time\":\"2021-07-19T17:01:20\"}");
         jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":7,\"time\":\"2021-07-19T17:04:30\"}");
-        /*jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":7,\"time\":\"2021-07-19T17:07:47\"}");
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":7,\"time\":\"2021-07-19T17:07:47\"}");
         jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T17:08:47\"}");
         jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":5,\"time\":\"2021-07-19T17:09:47\"}");
         jsonList.add("{\"action\":\"start\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":8,\"time\":\"2021-07-19T17:10:30\"}");
-        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":8,\"time\":\"2021-07-19T17:11:49\"}");*/
+        jsonList.add("{\"action\":\"stop\",\"hostname\":\"workerP-10-10-65-78\",\"minerId\":\"f01016365\",\"pageNum\":1,\"pageSize\":10,\"sectorNo\":25631,\"sectorSize\":68719476736,\"sectorStatus\":8,\"time\":\"2021-07-19T17:11:49\"}");
         for (String json : jsonList){
             String result = HttpUtil.doPost(url,json,header);
             System.out.println("------------"+result);
