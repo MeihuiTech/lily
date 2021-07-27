@@ -31,7 +31,7 @@ func (v *VerifiedRegistryVerifierEvent) Persist(ctx context.Context, s model.Sto
 }
 
 func (v VerifiedRegistryVerifierEventList) Persist(ctx context.Context, s model.StorageBatch, version model.Version) error {
-	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_verifier_event_list"))
+	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_verifier_event"))
 	stop := metrics.Timer(ctx, metrics.PersistDuration)
 	defer stop()
 
@@ -56,7 +56,7 @@ func (v *VerifiedRegistryClientEvent) Persist(ctx context.Context, s model.Stora
 }
 
 func (v VerifiedRegistryClientEventList) Persist(ctx context.Context, s model.StorageBatch, version model.Version) error {
-	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_client_event_list"))
+	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_client_event"))
 	stop := metrics.Timer(ctx, metrics.PersistDuration)
 	defer stop()
 
@@ -82,7 +82,7 @@ func (v *VerifiedRegistryVerifier) Persist(ctx context.Context, s model.StorageB
 }
 
 func (v VerifiedRegistryVerifiersList) Persist(ctx context.Context, s model.StorageBatch, version model.Version) error {
-	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_verifier_list"))
+	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_verifier"))
 	stop := metrics.Timer(ctx, metrics.PersistDuration)
 	defer stop()
 
@@ -108,7 +108,7 @@ func (v *VerifiedRegistryVerifiedClient) Persist(ctx context.Context, s model.St
 }
 
 func (v VerifiedRegistryVerifiedClientsList) Persist(ctx context.Context, s model.StorageBatch, version model.Version) error {
-	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_verified_client_list"))
+	ctx, _ = tag.New(ctx, tag.Upsert(metrics.Table, "verified_registry_verified_client"))
 	stop := metrics.Timer(ctx, metrics.PersistDuration)
 	defer stop()
 
