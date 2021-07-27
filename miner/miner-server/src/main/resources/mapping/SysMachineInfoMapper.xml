@@ -26,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysMachineInfoVo">
-        select id, miner_id, hostname, cpu_model, cpu_core, memory_used, memory_total, gpu_model, gpu_count, disk_used, disk_total, machine_type, worker_count, create_by, create_time, update_by, update_time, online from sys_machine_info
+        select id, miner_id, hostname, cpu_model, cpu_core, memory_used, memory_total, gpu_model, gpu_count, disk_used, disk_total, machine_type, worker_count, create_by, create_time, update_by, update_time, `online` from sys_machine_info
     </sql>
 
     <select id="selectSysMachineInfoList" parameterType="SysMachineInfo" resultMap="SysMachineInfoResult">

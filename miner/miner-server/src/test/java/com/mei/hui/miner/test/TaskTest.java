@@ -9,7 +9,9 @@ import com.mei.hui.config.HttpUtil;
 import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.common.task.UpdateNodeAddressTask;
 import com.mei.hui.miner.entity.SwarmOneDayAgg;
+import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.entity.SysSectorInfo;
+import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.mapper.SysSectorInfoMapper;
 import com.mei.hui.miner.service.SwarmOneDayAggService;
 import lombok.extern.slf4j.Slf4j;
@@ -54,69 +56,16 @@ public class TaskTest {
         HttpUtil.doPost("http://10.10.15.1:8082/fil/reported/initMinerIp","");
     }
 
-    /**
-     * 4取模
-     */
-    @Test
-    public void Uid(){
-        String[] array = {"f0693008","f0406475","f0460078","f022522","f054370","f01016365"};
 
-        for(int i=0;i<array.length;i++){
-            String str = array[i].substring(1);
-            Long intValue = Long.valueOf(str);
-            long id = intValue.longValue();
-            log.info("除2取模,哈希值:{}",id%2);
-        }
-
-        for(int i=0;i<array.length;i++){
-            String str = array[i].substring(1);
-            Long intValue = Long.valueOf(str);
-            long id = intValue.longValue();
-        /*    int id = Math.abs(("minerId:"+array[i]).hashCode());*/
-            log.info("除3取模,哈希值:{}",id%3);
-        }
-
-        for(int i=0;i<array.length;i++){
-            String str = array[i].substring(1);
-            Long intValue = Long.valueOf(str);
-            long id = intValue.longValue();
-            log.info("除4取模,哈希值:{}",id%4);
-        }
-
-        for(int i=0;i<array.length;i++){
-            String str = array[i].substring(1);
-            Long intValue = Long.valueOf(str);
-            long id = intValue.longValue();
-            log.info("除5取模,哈希值:{}",id%5);
-        }
-
-    }
 
 
     @Autowired
-    private SysSectorInfoMapper sectorInfoMapper;
-    @Test
-    public void findSector(){
-
-        LambdaQueryWrapper<SysSectorInfo> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SysSectorInfo::getSectorNo,52850);
-        IPage<SysSectorInfo> page = sectorInfoMapper.selectPage(new Page<>(0, 10), queryWrapper);
-        page.getRecords().stream().forEach(v->{
-            log.info(JSON.toJSONString(v));
-        });
-    }
-
-    @Autowired
-    private SwarmOneDayAggService swarmOneDayAggService;
+    private SysMachineInfoMapper sysMachineInfoMapper;
 
     @Test
     public void swarmOneDayAggService(){
-
-        LambdaQueryWrapper<SwarmOneDayAgg> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SwarmOneDayAgg::getId, 1916);
-        IPage<SwarmOneDayAgg> page = swarmOneDayAggService.page(new Page<>(0, 10), queryWrapper);
-        page.getRecords().stream().forEach(v->{
-            log.info("聚合数据:"+JSON.toJSONString(v));
-        });
+        SysMachineInfo vo = sysMachineInfoMapper.selectSysMachineInfoByMinerAndHostname("f01016365", "kminer7a-10-10-11-71");
+        log.info("结果:{}",JSON.toJSONString(vo));
+        
     }
 }
