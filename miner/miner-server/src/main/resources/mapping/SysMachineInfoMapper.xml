@@ -26,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysMachineInfoVo">
-        select id, miner_id, hostname, cpu_model, cpu_core, memory_used, memory_total, gpu_model, gpu_count, disk_used, disk_total, machine_type, worker_count, create_by, create_time, update_by, update_time, online from sys_machine_info
+        select id, miner_id, hostname, cpu_model, cpu_core, memory_used, memory_total, gpu_model, gpu_count, disk_used, disk_total, machine_type, worker_count, create_by, create_time, update_by, update_time, `online` from sys_machine_info
     </sql>
 
     <select id="selectSysMachineInfoList" parameterType="SysMachineInfo" resultMap="SysMachineInfoResult">
@@ -146,14 +146,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--根据矿工id查询矿机信息表的在线/离线矿机数量-->
     <select id="selectOnlineMachineCountVO" resultType="com.mei.hui.miner.feign.vo.OnlineMachineCountVO">
         SELECT
-            m. ONLINE,
+            m.online,
             count(m.miner_id) count
         FROM
             sys_machine_info m
         WHERE
             m.miner_id = #{minerId}
         GROUP BY
-            m. ONLINE
+            m.online
     </select>
 
     <!--按照机器类型、是否在线分组查询矿机信息表的数量-->
@@ -161,7 +161,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             resultType="com.mei.hui.miner.feign.vo.MachineInfoTypeOnlineVO">
         SELECT
             machine_type machineType,
-            ONLINE,
+            `online`,
             COUNT(machine_type) count
         FROM
             sys_machine_info
@@ -172,7 +172,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         GROUP BY
             machine_type,
-            ONLINE
+            online
     </select>
 
 </mapper>
