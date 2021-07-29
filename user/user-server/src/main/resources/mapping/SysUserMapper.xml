@@ -22,7 +22,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="updateBy"     column="update_by"    />
 		<result property="updateTime"   column="update_time"  />
 		<result property="remark"       column="remark"       />
-		<result property="feeRate"       column="fee_rate"       />
 		<result property="totalBlockAward"       column="total_block_award"       />
 		<result property="powerAvailable"       column="power_available"       />
 		<collection  property="roles"   javaType="java.util.List"        resultMap="RoleResult" />
@@ -39,14 +38,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<sql id="selectUserVo">
         select u.user_id, u.dept_id, u.user_name, u.nick_name, u.email, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark,
-        r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status, u.fee_rate
+        r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
         from sys_user u
 		    left join sys_user_role ur on u.user_id = ur.user_id
 		    left join sys_role r on r.role_id = ur.role_id
     </sql>
     
     <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
-		select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark,u.fee_rate,
+		select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark,
 		(select sum(total_block_award) from sys_miner_info where sys_miner_info.user_id = u.user_id) as total_block_award ,
 		(select sum(power_available) from sys_miner_info where sys_miner_info.user_id = u.user_id) as power_available
 		from sys_user u
@@ -60,12 +59,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="phonenumber != null and phonenumber != ''">
 			AND u.phonenumber like concat('%', #{phonenumber}, '%')
 		</if>
-	<!--	<if test="beginTime != null and beginTime != ''">&lt;!&ndash; 开始时间检索 &ndash;&gt;
-			AND date_format(u.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
-		</if>
-		<if test="endTime != null and endTime != ''">&lt;!&ndash; 结束时间检索 &ndash;&gt;
-			AND date_format(u.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
-		</if>-->
 	</select>
 	
 	<select id="selectUserByUserName" parameterType="String" resultMap="SysUserResult">
@@ -104,7 +97,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="status != null and status != ''">status,</if>
  			<if test="createBy != null and createBy != ''">create_by,</if>
  			<if test="remark != null and remark != ''">remark,</if>
-			<if test="feeRate != null">fee_rate,</if>
  			create_time
  		)values(
  			<if test="userId != null and userId != ''">#{userId},</if>
@@ -119,7 +111,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="status != null and status != ''">#{status},</if>
  			<if test="createBy != null and createBy != ''">#{createBy},</if>
  			<if test="remark != null and remark != ''">#{remark},</if>
-			<if test="feeRate != null ">#{feeRate},</if>
  			sysdate()
  		)
 	</insert>
@@ -139,7 +130,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="loginDate != null">login_date = #{loginDate},</if>
  			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
  			<if test="remark != null">remark = #{remark},</if>
-			<if test="feeRate != null">fee_rate = #{feeRate},</if>
  			update_time = sysdate()
  		</set>
  		where user_id = #{userId}
