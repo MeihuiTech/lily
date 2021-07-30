@@ -106,7 +106,5 @@ public class SysUser {
     @TableField(exist = false)
     @ApiModelProperty(value = "费率")
     private BigDecimal feeRate;
-
-    @ApiModelProperty(value = "api地址")
-    private String url;
+    
 }
