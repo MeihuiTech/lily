@@ -59,7 +59,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         /**
-         * 白名单不校验
+         * 白名单不校验，并且不需要token校验
          */
         if(isWhiteUrl(url)){
             return chain.filter(exchange);
