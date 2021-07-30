@@ -48,7 +48,7 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
             }
 
             @Override
-            public Result authority(String token) {
+            public Result authority(String token, String url) {
                 return null;
             }
 

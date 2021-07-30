@@ -8,11 +8,14 @@ import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
+import com.mei.hui.user.common.UserError;
+import com.mei.hui.user.mapper.WhiteUrlMapper;
 import com.mei.hui.user.model.ChangeCurrencyBO;
 import com.mei.hui.user.model.ChangeCurrencyVO;
 import com.mei.hui.user.model.LoginBody;
 import com.mei.hui.user.service.LoginService;
 import com.mei.hui.user.service.ISysUserService;
+import com.mei.hui.user.service.WhiteUrlService;
 import com.mei.hui.util.*;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
@@ -55,6 +58,8 @@ public class LoginController {
     private LoginService loginService;
     @Autowired
     private RuoYiConfig ruoYiConfig;
+    @Autowired
+    private WhiteUrlService whiteUrlService;
     /**
      * 登录方法
      * @param loginBody 登录信息
@@ -148,8 +153,8 @@ public class LoginController {
         return Result.OK;
     }
 
-    @PostMapping("/user/authority")
-    public Result authority(@RequestBody String token){
+    @GetMapping("/user/authority")
+    public Result authority(@RequestParam String token,@RequestParam String url){
         //token 验签，校验是否过期
         Claims claims = JwtUtil.parseToken(token);
         String platform = (String) claims.get(SystemConstants.PLATFORM);
@@ -166,6 +171,11 @@ public class LoginController {
                 throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());
             }
             redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
+
+           /* log.info("校验用户是否有请求地址的权限");
+            if(!whiteUrlService.checkAutoUrl(url,userId)){
+                throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
+            }*/
         }else if(PlatFormEnum.api.name().equals(platform)){
             if(!redisCache.exists(token)){
                 throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());

@@ -54,8 +54,8 @@ public interface UserFeignClient {
     @PostMapping("/findSysUsersByName")
     Result<List<FindSysUsersByNameVO>> findSysUsersByName(@RequestBody FindSysUsersByNameBO req);
 
-    @PostMapping("/authority")
-    Result authority(@RequestBody String token);
+    @GetMapping("/authority")
+    Result authority(@RequestParam String token,@RequestParam String url);
 
     /**
     * 根据apiKey查询用户的userId

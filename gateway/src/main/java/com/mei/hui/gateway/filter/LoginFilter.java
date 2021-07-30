@@ -68,7 +68,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         log.info("token = {}",token);
         //验签
         log.info("请求用户模块进行验签");
-        Result auth = userFeignClient.authority(token);
+        Result auth = userFeignClient.authority(token,url);
         log.info("验签结果:{}", JSON.toJSONString(auth));
         String code = auth.getCode();
         if(ErrorCode.MYB_111002.getCode().equals(code) || ErrorCode.MYB_111003.getCode().equals(code)

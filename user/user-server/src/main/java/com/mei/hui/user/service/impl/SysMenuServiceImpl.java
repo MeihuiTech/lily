@@ -94,6 +94,18 @@ public class SysMenuServiceImpl implements ISysMenuService{
     }
 
     /**
+     * 获取用户权限对应的url地址
+     * @param userId
+     * @return
+     */
+    public List<String> findAutoUrlByUserId(Long userId){
+        List<String> perms = menuMapper.findAutoUrlByUserId(userId);
+        perms.removeAll(Collections.singleton(null));
+        return perms;
+    }
+
+
+    /**
      * 根据用户ID查询菜单
      * 
      * @param userId 用户名称

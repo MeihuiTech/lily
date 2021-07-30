@@ -95,6 +95,16 @@ public class RedisUtil {
     }
 
     /**
+     * Set集合：返回集合中的所有的成员
+     * @param key
+     * @return
+     */
+    public Set<String> smembers(String key){
+        Set<String> set = redisTemplate.opsForSet().members(key);
+        return set == null ? null :set;
+    }
+
+    /**
      * 将 key对应的value中储存的数字值增一，然后返回。
      * @param key
      * @return

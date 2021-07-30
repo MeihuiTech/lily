@@ -2,7 +2,8 @@ package com.mei.hui.user.common;
 
 public enum UserError {
 
-    MYB_333333("333333", "错误");
+    MYB_333333("333333", "错误"),
+    MYB_333001("333001", "无权访问链接");
 
     private String code;
     private String msg;

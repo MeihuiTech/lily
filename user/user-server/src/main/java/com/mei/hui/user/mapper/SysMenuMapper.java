@@ -44,6 +44,8 @@ public interface SysMenuMapper
      */
     public List<String> selectMenuPermsByUserId(Long userId);
 
+    List<String> findAutoUrlByUserId(Long userId);
+
     /**
      * 根据用户ID查询菜单
      *
