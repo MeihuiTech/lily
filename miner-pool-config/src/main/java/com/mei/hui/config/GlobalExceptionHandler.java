@@ -2,6 +2,7 @@ package com.mei.hui.config;
 
 import com.alibaba.fastjson.JSON;
 import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.ExceptionUtil;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler
     public Object allExceptionHandler(HttpServletRequest request, HttpServletResponse response, Exception e) {
+        String exMsg = ExceptionUtil.getMessage(e);
         /**
          * 默认返回系统错误
          */
@@ -36,23 +38,13 @@ public class GlobalExceptionHandler {
             rs = new Result(myException.getCode(), myException.getMsg());
         }else{
             if("test".equals(env) || "dev".equals(env)){
-                String exMsg = getExceptionAllinformation(e);
                 rs.setMsg(exMsg);
             }
         }
-        log.error("全局异常统一处理:", e);
+        log.error("全局异常统一处理:{}",exMsg);
         log.info("@响应参数:{}",JSON.toJSONString(rs));
         log.error("@========================end-{}========================",projectName);
         return rs;
-    }
-
-    public static String getExceptionAllinformation(Exception ex){
-        String sOut = "";        sOut += ex.getMessage() + "\r\n";
-        StackTraceElement[] trace = ex.getStackTrace();
-        for (StackTraceElement s : trace) {
-            sOut += "\tat " + s + "\r\n";
-        }
-        return sOut;
     }
 
 }

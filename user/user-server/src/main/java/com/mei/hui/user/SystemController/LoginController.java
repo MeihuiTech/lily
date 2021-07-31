@@ -172,10 +172,11 @@ public class LoginController {
             }
             redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
 
-           /* log.info("校验用户是否有请求地址的权限");
+            log.info("校验用户是否有请求地址的权限");
             if(!whiteUrlService.checkAutoUrl(url,userId)){
-                throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
-            }*/
+                //throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
+                log.error("用户userId:{}无权访问:{}",userId,url);
+            }
         }else if(PlatFormEnum.api.name().equals(platform)){
             if(!redisCache.exists(token)){
                 throw MyException.fail(ErrorCode.MYB_111003.getCode(),ErrorCode.MYB_111003.getMsg());

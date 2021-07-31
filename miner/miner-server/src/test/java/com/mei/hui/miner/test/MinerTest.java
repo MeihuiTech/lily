@@ -18,10 +18,7 @@ import com.mei.hui.miner.model.RequestSectorInfo;
 import com.mei.hui.miner.service.*;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.util.DateUtils;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +36,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.checkerframework.checker.units.UnitsTools.m;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MinerApplication .class)
@@ -305,6 +304,22 @@ public class MinerTest {
             }
 
         }
+
+    }
+
+    @Test
+    public void logbackTest(){
+
+        try {
+            if(true){
+                int m =0;
+                int it = 6 / m;
+            }
+        } catch (Exception e) {
+            String exMsg = ExceptionUtil.getMessage(e);
+            log.error("测试异常:{}",exMsg);
+        }
+
 
     }
 
