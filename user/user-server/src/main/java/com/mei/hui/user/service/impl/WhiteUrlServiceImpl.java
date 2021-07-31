@@ -12,6 +12,8 @@ import com.mei.hui.user.service.WhiteUrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -70,9 +72,8 @@ public class WhiteUrlServiceImpl extends ServiceImpl<WhiteUrlMapper, WhiteUrl> i
     public boolean isWhiteUrl(String url,List<String> regex){
         boolean flag = false;
         for (String rg : regex){
-            Pattern pattern = Pattern.compile(rg);
-            Matcher matcher = pattern.matcher(url);
-            flag = matcher.find();
+            PathMatcher matcher = new AntPathMatcher();
+            flag = matcher.match(rg, url);
             if(flag){
                 log.info("匹配白名单地址:{}",rg);
                 break;

@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -107,9 +109,8 @@ public class LoginFilter  implements GlobalFilter, Ordered {
     public boolean isWhiteUrl(String url){
         boolean flag = false;
         for (String regex : gatewaySetting.getWhiteUrls()){
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(url);
-            flag = matcher.find();
+            PathMatcher matcher = new AntPathMatcher();
+            flag = matcher.match(regex, url);
             if(flag){
                 log.info("匹配的白名单数据:{}",regex);
                 break;
@@ -117,4 +118,5 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         }
         return flag;
     }
+
 }
