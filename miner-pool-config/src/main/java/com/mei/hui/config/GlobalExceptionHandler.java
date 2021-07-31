@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler
     public Object allExceptionHandler(HttpServletRequest request, HttpServletResponse response, Exception e) {
-        String exMsg = ExceptionUtil.getMessage(e);
+
         /**
          * 默认返回系统错误
          */
@@ -38,10 +38,11 @@ public class GlobalExceptionHandler {
             rs = new Result(myException.getCode(), myException.getMsg());
         }else{
             if("test".equals(env) || "dev".equals(env)){
+                String exMsg = ExceptionUtil.getMessage(e);
                 rs.setMsg(exMsg);
             }
         }
-        log.error("全局异常统一处理:{}",exMsg);
+        log.error("全局异常统一处理:{}",e);
         log.info("@响应参数:{}",JSON.toJSONString(rs));
         log.error("@========================end-{}========================",projectName);
         return rs;

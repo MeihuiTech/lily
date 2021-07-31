@@ -316,8 +316,8 @@ public class MinerTest {
                 int it = 6 / m;
             }
         } catch (Exception e) {
-            String exMsg = ExceptionUtil.getMessage(e);
-            log.error("测试异常:{}",exMsg);
+           // String exMsg = ExceptionUtil.getMessage(e);
+            log.error("测试异常:{}",e);
         }
 
 
