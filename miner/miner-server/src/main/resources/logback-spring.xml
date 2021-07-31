@@ -3,6 +3,8 @@
 
     <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
     <property name="LOG_HOME" value="/usr/local/miner_pool/logs" />
+    <!--读取application.yml配置文件-->
+    <springProperty scope="context" name="serviceName" source="spring.application.name" defaultValue="UnknownService"/>
     <property name="myFilePattern" value="%d{yyyy-MM-dd HH:mm:ss.CTT} %-5level [${serviceName},%X{X-B3-TraceId},%X{X-B3-SpanId}] %logger:%L:%msg%n"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
