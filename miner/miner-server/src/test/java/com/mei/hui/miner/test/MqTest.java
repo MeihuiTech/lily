@@ -25,11 +25,14 @@ public class MqTest {
 
     @Test
     public void sendMsg(){
-        String msg = "hello rabbit";
+        for (int i=0;i<20;i++) {
+//        String msg = "hello rabbit";
+            String msg = "[{\"miner\":\"f01016365\",\"cid\":\"bafy2bzaceat2c5e6fzajyvgdnlqcbraepbgaapcemiyotsikzcspgwffalvp"+i+"\",\"from\":\"f1qkhfbvhnzzwwcjrgb4yo3q3ctz6r5rrjzhwki2y\",\"to\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"sizeBytes\":104,\"nonce\":1,\"value\":\"4000000100000000000000\",\"gasFeeCap\":\"200695\",\"gasPremium\":\"200493\",\"gasLimit\":\"579664\",\"height\":808041,\"stateRoot\":\"bafy2bzacebzeo7kc4xedqdbmrs5yqfiarorz2eklg5veq7jbmhnutwbszwocq\",\"exitCode\":0,\"gasUsed\":526968,\"parentBaseFee\":\"107\",\"baseFeeBurn\":\"56385576\",\"overEstimationBurn\":\"5109631800\",\"minerPenalty\":\"1393379310\",\"minerTip\":\"116218574352\",\"refund\":\"60706552\",\"gasRefund\":52696,\"gasBurned\":2987698,\"method\":\"Send\",\"params\":\"asdfasdf\",\"timestamp\":1622547630}]\n";
             //第一个参数为队列名称,第二个参数为要发送的消息对象,这里传的是一个字符串
-//            rabbitTemplate.convertAndSend("fil.bill.queue",msg);
-            rabbitTemplate.convertAndSend("fil.reward.queue",msg);
+            rabbitTemplate.convertAndSend("fil.bill.queue", msg);
+//            rabbitTemplate.convertAndSend("fil.reward.queue",msg);
             log.info("发送消息:{}",msg);
+        }
 
     }
 

@@ -41,7 +41,7 @@ public class FilBillReportBO {
     private String to;
 
     /**
-     * 方法,method
+     * 方法
      */
     private String method;
 
