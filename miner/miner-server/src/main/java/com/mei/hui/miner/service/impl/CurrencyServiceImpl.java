@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.EnumCurrencyStatus;
 import com.mei.hui.miner.entity.Currency;
@@ -16,6 +17,7 @@ import com.mei.hui.miner.service.CurrencyRateService;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.util.CurrencyEnum;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
@@ -52,6 +54,9 @@ public class CurrencyServiceImpl extends ServiceImpl<SysCurrencyMapper, Currency
     public List<SysCurrencyVO> listCurrency() {
         LambdaQueryWrapper<Currency> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Currency::getStatus,EnumCurrencyStatus.available.getStatus());
+        if(HttpRequestUtil.isVisitor()){
+            queryWrapper.eq(Currency::getType, CurrencyEnum.FIL.name());
+        }
         List<Currency> sysCurrencyList = sysCurrencyMapper.selectList(queryWrapper);
         return sysCurrencyList.stream().map(v->{
             SysCurrencyVO vo = new SysCurrencyVO();

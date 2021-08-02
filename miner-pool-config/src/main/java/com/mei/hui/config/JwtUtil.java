@@ -38,7 +38,7 @@ public class JwtUtil {
      * @return
      * @throws JWTCreationException
      */
-    public static String createToken(Long userId,Long currencyId,String  platform) throws JWTCreationException {
+    public static String createToken(Long userId,Long currencyId,String  platform,boolean isVisitor) throws JWTCreationException {
         if(currencyId == null){
             throw MyException.fail(ErrorCode.MYB_111111.getCode(),"币种id 不能为空");
         }
@@ -49,6 +49,7 @@ public class JwtUtil {
         claims.put(SystemConstants.USERID,userId);
         claims.put(SystemConstants.CURRENCYID,currencyId);
         claims.put(SystemConstants.PLATFORM,platform);
+        claims.put(SystemConstants.ISVISITOR,isVisitor);
         String token = Jwts.builder().setClaims(claims).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
         return token;

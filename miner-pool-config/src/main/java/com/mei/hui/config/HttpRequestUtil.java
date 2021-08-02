@@ -38,6 +38,20 @@ public class HttpRequestUtil {
     }
 
     /**
+     * 获取是否是游客
+     * @return
+     */
+    public static boolean isVisitor(){
+        Claims claims = parseToken();
+        Object obj = claims.get(SystemConstants.ISVISITOR);
+        if(obj != null){
+            boolean isvisitor = (boolean) obj;
+            return isvisitor;
+        }
+        return false;
+    }
+
+    /**
      * 解析token
      * @return
      */

@@ -9,6 +9,7 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
+import com.mei.hui.user.feign.vo.VisitorLoginBO;
 import com.mei.hui.user.mapper.WhiteUrlMapper;
 import com.mei.hui.user.model.ChangeCurrencyBO;
 import com.mei.hui.user.model.ChangeCurrencyVO;
@@ -78,6 +79,15 @@ public class LoginController {
             throw new MyException(ErrorCode.MYB_111111.getMsg(),"请输入验证码");
         }
         return sysUserService.getSysUserByNameAndPass(loginBody);
+    }
+
+    /**
+     * 游客登陆
+     * @return
+     */
+    @PostMapping("/visitorLogin")
+    public Map<String,Object> visitorLogin(@RequestBody VisitorLoginBO bo){
+        return sysUserService.visitorLogin(bo);
     }
 
     @ApiOperation(value = "切换币种")

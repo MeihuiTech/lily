@@ -33,6 +33,26 @@ public class RuoYiConfig
     //sdk 私钥
     private String privateKey;
 
+    private Long visitorGeneralUserId;
+
+    private Long visitorGeneralAdminId;
+
+    public Long getVisitorGeneralUserId() {
+        return visitorGeneralUserId;
+    }
+
+    public void setVisitorGeneralUserId(Long visitorGeneralUserId) {
+        this.visitorGeneralUserId = visitorGeneralUserId;
+    }
+
+    public Long getVisitorGeneralAdminId() {
+        return visitorGeneralAdminId;
+    }
+
+    public void setVisitorGeneralAdminId(Long visitorGeneralAdminId) {
+        this.visitorGeneralAdminId = visitorGeneralAdminId;
+    }
+
     public String getPrivateKey() {
         return privateKey;
     }

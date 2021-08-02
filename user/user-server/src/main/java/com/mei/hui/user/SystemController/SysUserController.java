@@ -151,7 +151,7 @@ public class SysUserController{
         map.put("msg",ErrorCode.MYB_000000.getMsg());
 
         List<SysRole> roles = roleService.selectRoleAll();
-        map.put("roles", SysUser.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
+        map.put("roles",roles);
         map.put("posts", null);
         if (userId != null){
             List<Integer> roleIds = roleService.selectRoleListByUserId(userId);
@@ -206,9 +206,6 @@ public class SysUserController{
      */
     @PutMapping
     public Result edit(@Validated @RequestBody SysUser user){
-        if (user.getUserId() != null && user.isAdmin()){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"不允许操作超级管理员用户");
-        }
         if (StringUtils.isNotEmpty(user.getPhonenumber())
                 && "1".equals(userService.checkPhoneUnique(user))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
@@ -233,7 +230,6 @@ public class SysUserController{
      */
     @PutMapping("/resetPwd")
     public Result resetPwd(@RequestBody SysUser user){
-        userService.checkUserAllowed(user);
         /**
          * 校验是否包含中文，6到20个字符
          */
@@ -257,7 +253,6 @@ public class SysUserController{
     @PutMapping("/changeStatus")
     public Result changeStatus(@RequestBody SysUser user)
     {
-        userService.checkUserAllowed(user);
         SysUser sysUser = userService.getLoginUser();
         user.setUpdateBy(sysUser.getUserName());
         int rows = userService.updateUserStatus(user);

@@ -59,16 +59,16 @@ public class SysMenuServiceImpl implements ISysMenuService{
     {
         List<SysMenu> menuList = null;
         // 管理员显示所有菜单信息
-        if (SysUser.isAdmin(userId)){
+        /*if (SysUser.isAdmin(userId)){*/
             menuList = menuMapper.selectMenuList(menu);
-        }else{
+       /* }else{
             Map<String,Object> map = new HashMap();
             map.put("userId",userId);
             map.put("menuName",menu.getMenuName());
             map.put("visible",menu.getVisible());
             map.put("status",menu.getStatus());
             menuList = menuMapper.selectMenuListByUserId(map);
-        }
+        }*/
         return menuList;
     }
 

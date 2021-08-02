@@ -93,6 +93,16 @@ public class SysRole {
 
     private String updateBy;
 
+    private Integer type;
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     /** 请求参数 */
     @TableField(exist = false)
     private Map<String, Object> params;
