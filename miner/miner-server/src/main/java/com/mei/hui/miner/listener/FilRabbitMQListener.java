@@ -12,7 +12,6 @@ import com.mei.hui.miner.service.FilBillParamsService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.FilBlockAwardService;
 import com.rabbitmq.client.Channel;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Message;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -59,18 +57,21 @@ public class FilRabbitMQListener {
             log.info("filBillReportBO入参：【{}】",filBillReportBO);
             QueryWrapper<FilBill> queryWrapper = new QueryWrapper<>();
             FilBill dbFilBill = new FilBill();
-            dbFilBill.setMessageId(filBillReportBO.getCid());
+            String cid = filBillReportBO.getCid();
+            dbFilBill.setMessageId(cid);
             queryWrapper.setEntity(dbFilBill);
             List<FilBill> filBillList = filBillService.list(queryWrapper);
-            log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",filBillReportBO.getCid(),JSON.toJSON(filBillList));
+            log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(filBillList));
             if (filBillList != null && filBillList.size() > 0){
+                log.info("该条数据MessageId：【{}】数据库中已经存在，不插入，并且确认消息",cid);
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                 continue;
             }
 
             FilBill filBill = new FilBill();
             BeanUtils.copyProperties(filBillReportBO,filBill);
             filBill.setMinerId(filBillReportBO.getMiner());
-            filBill.setMessageId(filBillReportBO.getCid());
+            filBill.setMessageId(cid);
             filBill.setBlockHeight(filBillReportBO.getHeight());
             filBill.setSender(filBillReportBO.getFrom());
             filBill.setReceiver(filBillReportBO.getTo());
@@ -93,9 +94,8 @@ public class FilRabbitMQListener {
                 log.info("确认消息");
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             } catch (Exception e) {
-                log.info("接收到消息之后的处理发生异常：【{}】", e);
+                log.error("接收到消息之后的处理发生异常，异常后消息进入死信队列", e);
                 // 报错后直接拒绝，并设置requeue属性为false，这样被拒绝的消息就不会重新回到原始队列中而是转发到死信交换机
-                log.info("异常后消息进入死信队列");
                 channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
             }
         }
@@ -116,10 +116,24 @@ public class FilRabbitMQListener {
         log.info("FIL币区块奖励详情rabbitmq上报入参【{}】：" + messageStr);
         try {
             FilBlockAwardReportBO filBlockAwardReportBO = JSONObject.parseObject(messageStr,FilBlockAwardReportBO.class);
+            log.info("FilBlockAwardReportBO入参：【{}】",filBlockAwardReportBO);
+            QueryWrapper<FilBlockAward> queryWrapper = new QueryWrapper<>();
+            FilBlockAward dbFilBlockAward = new FilBlockAward();
+            String cid = filBlockAwardReportBO.getCid();
+            dbFilBlockAward.setMessageId(cid);
+            queryWrapper.setEntity(dbFilBlockAward);
+            List<FilBlockAward> filBlockAwardList = filBlockAwardService.list(queryWrapper);
+            log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(filBlockAwardList));
+            if (filBlockAwardList != null && filBlockAwardList.size() > 0){
+                log.info("该条数据MessageId：【{}】数据库中已经存在，不插入，并且确认消息",cid);
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+                return;
+            }
+
             FilBlockAward filBlockAward = new FilBlockAward();
             BeanUtils.copyProperties(filBlockAwardReportBO,filBlockAward);
             filBlockAward.setMinerId(filBlockAwardReportBO.getMiner());
-            filBlockAward.setMessageId(filBlockAwardReportBO.getCid());
+            filBlockAward.setMessageId(cid);
             filBlockAward.setDateTime(LocalDateTime.ofEpochSecond(filBlockAwardReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
             filBlockAward.setCreateTime(LocalDateTime.now());
             log.info("保存FIL币区块奖励详情入参：【{}】",filBlockAward);
@@ -127,7 +141,7 @@ public class FilRabbitMQListener {
             // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            log.info("接收到消息之后的处理发生异常：【{}】", e);
+            log.error("接收到消息之后的处理发生异常，异常后消息进入死信队列", e);
             // 报错后直接拒绝，并设置requeue属性为false，这样被拒绝的消息就不会重新回到原始队列中而是转发到死信交换机
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
         }
