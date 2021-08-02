@@ -35,6 +35,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -277,5 +278,15 @@ public class MinerTest {
         }
     }
 
+    @Test
+    public void localTimeTest1(){
+        // 获得当前时间
+        LocalDateTime localDateTime = LocalDateTime.now();
+        // 将当前时间转为时间戳
+        long second = localDateTime.toEpochSecond(ZoneOffset.ofHours(8));
+        // 1580706475
+        System.out.println(second);
+
+    }
 
 }

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
@@ -164,5 +165,28 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         log.info("转入金额:{}",JSON.toJSONString(vo));
         return vo;
     }
+
+    /*上报FIL币账单*/
+    /*@Override
+    public Integer reportFilBill(List<FilBillReportBO> filBillReportBOList) {
+        Integer count = 0;
+        for (FilBillReportBO filBillReportBO : filBillReportBOList){
+            FilBill filBill = new FilBill();
+            filBill.setMinerId(filBillReportBO.getMiner());
+            filBill.setMessageId(filBillReportBO.getCid());
+            filBill.setBlockHeight(filBillReportBO.getHeight());
+            filBill.setSender(filBillReportBO.getFrom());
+            filBill.setReceiver(filBillReportBO.getTo());
+            filBill.setMethod(filBillReportBO.getMethod());
+            filBill.setMoney(filBillReportBO.getValue());
+            filBill.setParams(filBillReportBO.getParams());
+            filBill.setDateTime(filBillReportBO.getTimestamp());
+            filBill.setCreateTime(LocalDateTime.now());
+            count += billMapper.insert(filBill);
+        }
+        return count;
+    }*/
+
+
 
 }

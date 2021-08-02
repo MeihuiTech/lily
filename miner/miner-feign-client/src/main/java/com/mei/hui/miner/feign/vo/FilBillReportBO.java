@@ -1,74 +1,54 @@
-package com.mei.hui.miner.entity;
+package com.mei.hui.miner.feign.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 /**
- * <p>
- * FIL币账单
- * </p>
- *
- * @author 鲍红建
- * @since 2021-07-21
- */
+ * FIL币账单上报入参
+ * @author shangbin
+ * @version v1.0.0
+ * @date 2021/7/30 19:08
+ **/
 @Data
-@Accessors(chain = true)
-@TableName("fil_bill")
-public class FilBill implements Serializable {
+public class FilBillReportBO {
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
-
-   /* @TableField(exist = false)*/
-//    private List<FilBillDetail> detailList;
 
     /**
-     * 矿工id
+     * 旷工id，minerId
      */
-    private String minerId;
+    private String miner;
 
     /**
-     * 消息id
+     * 消息id，messageId
      */
-    private String messageId;
+    private String cid;
 
     /**
-     * 区块高度
+     * 区块高度，blockHeight
      */
-    private Long blockHeight;
+    private Long height;
 
     /**
-     * 发送方
+     * 发送方，sender
      */
-    private String sender;
+    private String from;
 
     /**
-     * 接收方
+     * 接收方，receiver
      */
-    private String receiver;
+    private String to;
 
     /**
-     * 方法
+     * 方法,method
      */
     private String method;
 
     /**
-     * 金额
+     * 金额,money
      */
-    private BigDecimal money;
+    private BigDecimal value;
 
     /**
      * 字节大小
@@ -151,14 +131,14 @@ public class FilBill implements Serializable {
     private Long gasBurned;
 
     /**
-     * 账单产生时间
+     * 账单产生时间，dateTime
      */
-    private LocalDateTime dateTime;
+    private Long timestamp;
 
     /**
-     * 创建时间
+     * 参数，params
      */
-    private LocalDateTime createTime;
+    private String params;
 
 
 }
