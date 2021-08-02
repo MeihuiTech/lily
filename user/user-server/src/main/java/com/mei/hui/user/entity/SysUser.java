@@ -60,6 +60,7 @@ public class SysUser {
 
     private String remark;
 
+    @TableField(exist = false)
     private boolean admin;
 
     /** 角色组 */
