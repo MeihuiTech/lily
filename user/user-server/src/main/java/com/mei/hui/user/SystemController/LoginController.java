@@ -184,8 +184,8 @@ public class LoginController {
 
             log.info("校验用户是否有请求地址的权限");
             if(!whiteUrlService.checkAutoUrl(url,userId)){
-                //throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
                 log.error("用户userId:{}无权访问:{}",userId,url);
+                throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
             }
         }else if(PlatFormEnum.api.name().equals(platform)){
             if(!redisCache.exists(token)){
