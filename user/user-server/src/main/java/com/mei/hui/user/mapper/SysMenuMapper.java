@@ -1,6 +1,8 @@
 package com.mei.hui.user.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.user.entity.SysMenu;
+import com.mei.hui.user.entity.WhiteUrl;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.Map;
  * @author ruoyi
  */
 @Repository
-public interface SysMenuMapper
+public interface SysMenuMapper extends BaseMapper<SysMenu>
 {
     /**
      * 查询系统菜单列表

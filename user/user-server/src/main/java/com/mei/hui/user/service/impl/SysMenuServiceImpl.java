@@ -284,7 +284,7 @@ public class SysMenuServiceImpl implements ISysMenuService{
     @Override
     public int updateMenu(SysMenu menu)
     {
-        return menuMapper.updateMenu(menu);
+        return menuMapper.updateById(menu);
     }
 
     /**
