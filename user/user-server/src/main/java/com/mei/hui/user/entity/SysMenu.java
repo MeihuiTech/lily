@@ -1,8 +1,6 @@
 package com.mei.hui.user.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +30,7 @@ public class SysMenu{
     private String menuName;
 
     /** 父菜单名称 */
+    @TableField(exist = false)
     private String parentName;
 
     /** 父菜单ID */
@@ -68,6 +67,7 @@ public class SysMenu{
     private String icon;
 
     /** 子菜单 */
+    @TableField(exist = false)
     private List<SysMenu> children = new ArrayList<SysMenu>();
 
     /*币种类型，哪些币种显示这个菜单*/
@@ -86,6 +86,8 @@ public class SysMenu{
     /**
      * api地址
      */
+
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String url;
 
 }
