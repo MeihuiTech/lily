@@ -88,13 +88,13 @@ public class WhiteUrlServiceImpl extends ServiceImpl<WhiteUrlMapper, WhiteUrl> i
      * @return
      */
     public List<String> findWhiteUrls(){
-        Set<String> set = redisUtils.smembers(Constants.WhiteUrl);
+        /*Set<String> set = redisUtils.smembers(Constants.WhiteUrl);
         if(set != null && set.size() > 0){
             return new ArrayList(set);
-        }
+        }*/
         List<WhiteUrl> list = this.list();
         List<String> lt = list.stream().map(v -> {
-            redisUtils.sadd(Constants.WhiteUrl, v.getUrl(), 3600 * 8);
+            //redisUtils.sadd(Constants.WhiteUrl, v.getUrl(), 600);
             return v.getUrl();
         }).collect(Collectors.toList());
         return lt;
