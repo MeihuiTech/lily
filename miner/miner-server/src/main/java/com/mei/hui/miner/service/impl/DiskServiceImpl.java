@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -50,6 +51,8 @@ public class DiskServiceImpl implements DiskService {
     private QiniuOneDayAggService qiniuOneDayAggService;
     @Autowired
     private QiniuStoreConfigService qiniuStoreConfigService;
+    @Autowired
+    private ISysMinerInfoService sysMinerInfoService;
 
     /*获取七牛云集群硬盘容量和宽带信息*/
     @Override
@@ -94,7 +97,6 @@ public class DiskServiceImpl implements DiskService {
 
     /**
      * 获取七牛云集群硬盘容量
-     * @param sysMinerInfoList
      * @return
      */
     public DiskSizeVO diskSizeInfo(QiniuStoreConfig storeConfig){
@@ -109,14 +111,13 @@ public class DiskServiceImpl implements DiskService {
             BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
             log.info("获取磁盘剩余可用容量出参:{}",availDiskSize);
 
-            List<QiniuStoreConfig> qiniuStoreConfigList = selectQiniuStoreConfigListByIdcname(storeConfig.getIdcname());
+            List<QiniuStoreConfig> configs = selectQiniuStoreConfigListByUserId(storeConfig.getIdcname());
             List<MinerDiskSizeVO> minerUsedDiskSizeVOList = new ArrayList<>();
             // 循环获得每个矿工id
-            for (QiniuStoreConfig dbQiniuStoreConfig:qiniuStoreConfigList){
-                log.info("dbQiniuStoreConfig：【{}】",JSON.toJSON(dbQiniuStoreConfig));
-                String dbMinerId = dbQiniuStoreConfig.getMinerId();
-                QiniuStoreConfig qiniuStoreConfig = selectQiniuStoreConfigByMinerId(dbMinerId);
-                BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(qiniuStoreConfig);
+            for (QiniuStoreConfig config:configs){
+                log.info("dbQiniuStoreConfig：【{}】",JSON.toJSON(config));
+                String dbMinerId = config.getMinerId();
+                BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(config);
                 log.info("获取矿工为：【{}】  已用存储量:【{}】",dbMinerId,minerUsedDiskSize);
                 MinerDiskSizeVO minerDiskSizeVO = new MinerDiskSizeVO();
                 minerDiskSizeVO.setMinerId(dbMinerId);
@@ -125,23 +126,11 @@ public class DiskServiceImpl implements DiskService {
                 minerUsedDiskSizeVOList.add(minerDiskSizeVO);
             }
 
-        /*BigDecimal logicalAvailSize = miscconfigs(storeConfig);
-        log.info("剩余可写逻辑容量估算值:{}",logicalAvailSize);
-
-        BigDecimal usedSizeAvg = usedSizeAvg();
-        log.info("过去5天平均使用容量:{}",usedSizeAvg);
-
-        Integer days = days(storeConfig,logicalAvailSize,usedSizeAvg);
-        log.info("剩余使用天数:{}",days);*/
-
             DiskSizeVO diskSizeVO = new DiskSizeVO();
             diskSizeVO.setAllDiskSize(totalDiskSize);
             diskSizeVO.setAvailDiskSize(availDiskSize);
             diskSizeVO.setUsedDiskSize(totalDiskSize.subtract(availDiskSize));
             diskSizeVO.setMinerUsedDiskSizeVOList(minerUsedDiskSizeVOList);
-            // .setLogicalAvailSize(logicalAvailSize)
-            //  .setDays(days)
-            //  .setUsedSizeAvg(usedSizeAvg);
             return diskSizeVO;
         } catch (Exception e) {
             log.error("获取宽带信息报错",e);
@@ -165,16 +154,22 @@ public class DiskServiceImpl implements DiskService {
 
     /**
      * 根据idcname查询矿工存储服务配置表
-     * @param idcname
      * @return
      */
-    public List<QiniuStoreConfig> selectQiniuStoreConfigListByIdcname(String idcname){
-        log.info("根据idcname查询矿工存储服务配置表入参minerId:【{}】",idcname);
+    public List<QiniuStoreConfig> selectQiniuStoreConfigListByUserId(String idcname){
+        SysMinerInfo sysMinerInfo = new SysMinerInfo();
+        sysMinerInfo.setUserId( HttpRequestUtil.getUserId());
+        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.selectSysMinerInfoListBySysMinerInfo(sysMinerInfo);
+        List<String> minerIds = sysMinerInfoList.stream().map(v -> v.getMinerId()).collect(Collectors.toList());
+        if(minerIds.size() == 0){
+            return null;
+        }
         LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.in(QiniuStoreConfig::getMinerId,minerIds);
         queryWrapper.eq(QiniuStoreConfig::getIdcname,idcname);
-        List<QiniuStoreConfig> qiniuStoreConfigList = qiniuStoreConfigService.list(queryWrapper);
-        log.info("根据idcname查询矿工存储服务配置表出参:{}",JSON.toJSONString(qiniuStoreConfigList));
-        return qiniuStoreConfigList;
+        List<QiniuStoreConfig> list = qiniuStoreConfigService.list(queryWrapper);
+        log.info("根据minerId查询矿工存储服务配置表出参:{}",JSON.toJSONString(list));
+        return list;
     }
 
     /**
@@ -338,7 +333,6 @@ public class DiskServiceImpl implements DiskService {
 
     /**
      * 获取宽带信息
-     * @param sysMinerInfoList
      * @return
      */
     public BroadbandVO broadband(QiniuStoreConfig storeConfig) {

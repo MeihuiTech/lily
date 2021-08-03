@@ -50,25 +50,12 @@ public class AggregationFilTask {
             log.info("开发环境,不执行");
             return;
         }
-
-        SysMinerInfo sysMinerInfo = new SysMinerInfo();
-        int pageNum = 1;
-        int pageSize = 100;
-        while (true) {
-            PageHelper.startPage(pageNum,pageSize, "id");
-            log.info("获取矿工,入参: pageNum = {},pageSize = {}",pageNum,pageSize);
-            List<SysMinerInfo> list = sysMinerInfoService.findMinerInfoList(sysMinerInfo);
-            log.info("获取矿工,出参: {}", JSON.toJSONString(list));
-            for (SysMinerInfo info : list) {
-                log.info("矿工信息:{}",JSON.toJSONString(info));
-                insertAccount(info);
-                insertPower(info);
-            }
-            if (list.size() < pageSize) {
-                break;
-            } else {
-                pageNum ++;
-            }
+        List<SysMinerInfo> list = sysMinerInfoService.list();
+        log.info("获取矿工,出参: {}", JSON.toJSONString(list));
+        for (SysMinerInfo info : list) {
+            log.info("矿工信息:{}",JSON.toJSONString(info));
+            insertAccount(info);
+            insertPower(info);
         }
         log.info("======================fil币AggregationTask-end===================");
     }
