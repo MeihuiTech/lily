@@ -1,5 +1,6 @@
 package com.mei.hui.user.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.model.SmsSendBO;
 import com.mei.hui.user.service.SmsService;
@@ -29,6 +30,10 @@ public class SmsController {
     public Result send(@RequestBody SmsSendBO smsSendBO){
         if(smsSendBO == null || StringUtils.isEmpty(smsSendBO.getServiceName())){
             throw MyException.fail(UserError.MYB_333333.getCode(),"业务名称不能为空");
+        }
+        //如果是游客不允许修改头像
+        if(HttpRequestUtil.isVisitor()){
+            throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
         }
         return smsService.send(smsSendBO);
     }

@@ -11,10 +11,7 @@ import com.mei.hui.user.manager.FeeRateManager;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.model.SysUserBO;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.util.CurrencyEnum;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.NotAop;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import com.netflix.ribbon.proxy.annotation.Http;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +75,10 @@ public class SysProfileController{
     @NotAop
     public Map<String,Object> avatar(@RequestParam("avatarfile") MultipartFile file) throws IOException
     {
+        //如果是游客不允许修改头像
+        if(HttpRequestUtil.isVisitor()){
+            throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
+        }
         Map<String,Object> map = new HashMap<>();
         if (!file.isEmpty())
         {
@@ -111,6 +112,10 @@ public class SysProfileController{
     @PutMapping("/updatePwd")
     public Result updatePwd(String oldPassword, String newPassword)
     {
+        //如果是游客不允许修改头像
+        if(HttpRequestUtil.isVisitor()){
+            throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
+        }
         return userService.updatePwd(oldPassword,newPassword);
     }
 
