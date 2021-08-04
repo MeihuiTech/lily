@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.feign.vo.BillAggVO;
 import com.mei.hui.miner.feign.vo.FilBillPageListBO;
+import com.mei.hui.miner.feign.vo.FilBillReportBO;
 import com.mei.hui.util.Result;
+
+import java.util.List;
 
 /**
  * <p>
