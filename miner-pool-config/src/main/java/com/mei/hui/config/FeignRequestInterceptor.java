@@ -18,7 +18,7 @@ public class FeignRequestInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {
-        HttpServletRequest httpServletRequest =   CommonUtil.getHttpServletRequest();
+        HttpServletRequest httpServletRequest = CommonUtil.getHttpServletRequest();
         if(httpServletRequest!=null){
             Map<String, String> headers = CommonUtil.getHeaders(httpServletRequest);
             for (Map.Entry<String, String> entry : headers.entrySet()) {

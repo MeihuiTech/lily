@@ -18,10 +18,7 @@ import com.mei.hui.miner.model.RequestSectorInfo;
 import com.mei.hui.miner.service.*;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.util.DateUtils;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.checkerframework.checker.units.UnitsTools.m;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MinerApplication .class)
@@ -276,6 +275,53 @@ public class MinerTest {
             String result = HttpUtil.doPost(url,json,header);
             System.out.println("------------"+result);
         }
+    }
+
+    public static void main(String[] args) {
+        buy(new BigDecimal("67.05"),1,new BigDecimal("61.96"));
+    }
+
+
+    /**
+     *
+     * @param price 上次购买时的单价
+     * @param shou 上次购买手数
+     * @param currentPrice 当前单价
+     */
+    public static void buy(BigDecimal price,int shou,BigDecimal currentPrice){
+
+        for(int i=1;i<=10;i++){
+
+            //已买总额
+            BigDecimal p = price.multiply(new BigDecimal(shou * 100));
+            BigDecimal c = currentPrice.multiply(new BigDecimal(100 * i));
+
+            //购买后每股的价钱
+            BigDecimal houPrice = c.add(p).divide(new BigDecimal((shou + i) * 100),4, BigDecimal.ROUND_HALF_UP);
+
+            log.info("当前价钱:{},购买数量:{},需要花费:{},购买后股价:{}",currentPrice,100*i,c.toPlainString(),houPrice.toPlainString());
+            if(i == 10){
+                break;
+            }
+
+        }
+
+    }
+
+    @Test
+    public void logbackTest(){
+
+        try {
+            if(true){
+                int m =0;
+                int it = 6 / m;
+            }
+        } catch (Exception e) {
+           // String exMsg = ExceptionUtil.getMessage(e);
+            log.error("测试异常:{}",e);
+        }
+
+
     }
 
     @Test

@@ -15,17 +15,15 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.feign.feignClient.AggChiaMinerFeign;
 import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
 import com.mei.hui.miner.feign.feignClient.CurrencyRateFeign;
-import com.mei.hui.miner.feign.vo.*;
+import com.mei.hui.miner.feign.vo.CurrencyRateBO;
+import com.mei.hui.miner.feign.vo.FindUserRateVO;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysLogininfor;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.entity.SysUserRole;
-import com.mei.hui.user.feign.vo.FindSysUserListInput;
-import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
-import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
-import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.user.feign.vo.*;
 import com.mei.hui.user.manager.FeeRateManager;
 import com.mei.hui.user.mapper.SysLogininforMapper;
 import com.mei.hui.user.mapper.SysRoleMapper;
@@ -44,7 +42,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,18 +62,12 @@ public class SysUserServiceImpl implements ISysUserService {
     @Autowired
     private RedisUtil redisUtils;
     @Autowired
-    private AggMinerFeignClient aggMinerFeignClient;
-    @Autowired
-    private AggChiaMinerFeign aggChiaMinerFeign;
-    @Autowired
     private SysUserRoleMapper userRoleMapper;
     @Autowired
     private SysLogininforMapper sysLogininforMapper;
     @Autowired
     private FeeRateManager feeRateManager;
 
-    @Autowired
-    private CurrencyRateFeign currencyRateFeign;
 
     public Map<String,Object> getSysUserByNameAndPass(LoginBody loginBody){
 
@@ -113,10 +104,31 @@ public class SysUserServiceImpl implements ISysUserService {
         //默认当前币种时fil币
         Long currencyId = Constants.fileCurrencyId;
         //生成token
-        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name());
+        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name(),false);
         result.put(SystemConstants.TOKEN,token);
         redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         insertLoginInfo(sysUser);
+        return result;
+    }
+
+    /**
+     * 游客登陆
+     * @return
+     */
+    public Map<String,Object> visitorLogin(VisitorLoginBO bo){
+        Map<String,Object> result = new HashMap<>();
+        result.put("code",ErrorCode.MYB_000000.getCode());
+        result.put("msg",ErrorCode.MYB_000000.getMsg());
+        Long currencyId = Constants.fileCurrencyId;
+
+        Long userId = ruoYiConfig.getVisitorGeneralUserId();
+        if(bo.getVisitorType() == 1){
+            userId = ruoYiConfig.getVisitorGeneralAdminId();
+        }
+        //生成token
+        String token = JwtUtil.createToken(userId,currencyId,PlatFormEnum.web.name(),true);
+        result.put(SystemConstants.TOKEN,token);
+        redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         return result;
     }
 
@@ -419,25 +431,12 @@ public class SysUserServiceImpl implements ISysUserService {
         for (Long userId : userIds){
             SysUser sysUser = new SysUser();
             sysUser.setUserId(userId);
-            checkUserAllowed(sysUser);
         }
         // 删除用户与角色关联
         userRoleMapper.deleteUserRole(userIds);
         return sysUserMapper.deleteUserByIds(userIds);
     }
 
-    /**
-     * 校验用户是否允许操作
-     *
-     * @param user 用户信息
-     */
-    @Override
-    public void checkUserAllowed(SysUser user)
-    {
-        if (user.getUserId()!=null && user.isAdmin()){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"不允许操作超级管理员用户");
-        }
-    }
 
     /**
      * 重置用户密码
@@ -491,7 +490,7 @@ public class SysUserServiceImpl implements ISysUserService {
         //默认当前币种时fil币
         Long currencyId = Constants.fileCurrencyId;
         //生成token
-        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name());
+        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name(),false);
         /**
          * 组装响应数据
          */
@@ -506,7 +505,7 @@ public class SysUserServiceImpl implements ISysUserService {
     public Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO){
         Long currencyId = changeCurrencyBO.getCurrencyId();
         //生成token
-        String token = JwtUtil.createToken(HttpRequestUtil.getUserId(),currencyId,PlatFormEnum.web.name());
+        String token = JwtUtil.createToken(HttpRequestUtil.getUserId(),currencyId,PlatFormEnum.web.name(),false);
         redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         ChangeCurrencyVO changeCurrencyVO = new ChangeCurrencyVO();
         changeCurrencyVO.setToken(token);

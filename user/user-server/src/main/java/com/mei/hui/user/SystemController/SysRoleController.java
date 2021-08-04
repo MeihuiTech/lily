@@ -5,7 +5,6 @@ import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
-import com.mei.hui.user.service.impl.SysPermissionService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,6 @@ public class SysRoleController
     @Autowired
     private ISysRoleService roleService;
 
-    
-    @Autowired
-    private SysPermissionService permissionService;
     
     @Autowired
     private ISysUserService userService;
@@ -78,10 +74,6 @@ public class SysRoleController
         SysUser user = userService.getLoginUser();
         role.setUpdateBy(user.getUserName());
         if (roleService.updateRole(role) > 0){
-            // 更新缓存用户权限
-            if (user != null && !user.isAdmin()){
-                user.setPermissions(permissionService.getMenuPermission(user));
-            }
             return Result.OK;
         }
         return Result.fail(UserError.MYB_333333.getCode(),"请联系管理员");

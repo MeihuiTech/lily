@@ -64,5 +64,7 @@ public interface Constants extends SystemConstants {
      */
     Long fileCurrencyId = 1L;
 
+    String WhiteUrl = "white_url";
+
 
 }

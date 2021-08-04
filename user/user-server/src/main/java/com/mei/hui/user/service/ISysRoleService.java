@@ -20,13 +20,6 @@ public interface ISysRoleService
      */
     public Map<String,Object> selectRoleList(SysRole role);
 
-    /**
-     * 根据用户ID查询角色
-     * 
-     * @param userId 用户ID
-     * @return 权限列表
-     */
-    public Set<String> selectRolePermissionByUserId(Long userId);
 
     /**
      * 查询所有角色

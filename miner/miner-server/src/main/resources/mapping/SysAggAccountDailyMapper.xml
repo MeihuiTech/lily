@@ -19,7 +19,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysAggAccountDailyVo">
-        select id, date, miner_id, lock_award, sector_pledge, balance_account, balance_available, create_time, update_time, create_by,type from sys_agg_account_daily
+        select id, date, miner_id, lock_award, sector_pledge, balance_account, balance_available, create_time, update_time, create_by,type,
+         balance_post_account,balance_worker_account from sys_agg_account_daily
     </sql>
 
     <select id="selectSysAggAccountDailyList" parameterType="com.mei.hui.miner.entity.SysAggAccountDaily" resultMap="SysAggAccountDailyResult">
@@ -52,6 +53,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time,</if>
             <if test="createBy != null">create_by,</if>
             <if test="type != null">type,</if>
+            <if test="balancePostAccount != null">balance_post_account,</if>
+            <if test="balanceWorkerAccount != null">balance_worker_account,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="date != null">#{date},</if>
@@ -64,6 +67,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">#{updateTime},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="type != null">#{type},</if>
+            <if test="balancePostAccount != null">${balancePostAccount},</if>
+            <if test="balanceWorkerAccount != null">${balanceWorkerAccount},</if>
          </trim>
     </insert>
 

@@ -1,12 +1,15 @@
 package com.mei.hui.user.service.impl;
 
+import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.mapper.SysRoleMapper;
 import com.mei.hui.user.service.ISysMenuService;
 import com.mei.hui.user.service.ISysRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,28 +21,19 @@ public class SysPermissionServiceImpl {
 
     @Autowired
     private ISysRoleService roleService;
-
+    @Autowired
+    private SysRoleMapper roleMapper;
     @Autowired
     private ISysMenuService menuService;
 
     /**
      * 获取角色数据权限
      *
-     * @param user 用户信息
+     * @param userId 用户id
      * @return 角色权限信息
      */
-    public Set<String> getRolePermission(SysUser user)
-    {
-        Set<String> roles = new HashSet<String>();
-        // 管理员拥有所有权限
-        if (user.isAdmin())
-        {
-            roles.add("admin");
-        }
-        else
-        {
-            roles.addAll(roleService.selectRolePermissionByUserId(user.getUserId()));
-        }
+    public List<SysRole> getRolePermission(Long userId){
+        List<SysRole> roles = roleMapper.selectRolePermissionByUserId(userId);
         return roles;
     }
 
@@ -52,15 +46,15 @@ public class SysPermissionServiceImpl {
     public Set<String> getMenuPermission(SysUser user)
     {
         Set<String> perms = new HashSet<String>();
-        // 管理员拥有所有权限
+  /*      // 管理员拥有所有权限
         if (user.isAdmin())
         {
             perms.add("*:*:*");
         }
         else
-        {
+        {*/
             perms.addAll(menuService.selectMenuPermsByUserId(user.getUserId()));
-        }
+        //}
         return perms;
     }
 }

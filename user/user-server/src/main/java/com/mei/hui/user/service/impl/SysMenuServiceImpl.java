@@ -59,16 +59,16 @@ public class SysMenuServiceImpl implements ISysMenuService{
     {
         List<SysMenu> menuList = null;
         // 管理员显示所有菜单信息
-        if (SysUser.isAdmin(userId)){
+        /*if (SysUser.isAdmin(userId)){*/
             menuList = menuMapper.selectMenuList(menu);
-        }else{
+       /* }else{
             Map<String,Object> map = new HashMap();
             map.put("userId",userId);
             map.put("menuName",menu.getMenuName());
             map.put("visible",menu.getVisible());
             map.put("status",menu.getStatus());
             menuList = menuMapper.selectMenuListByUserId(map);
-        }
+        }*/
         return menuList;
     }
 
@@ -92,6 +92,18 @@ public class SysMenuServiceImpl implements ISysMenuService{
         }
         return permsSet;
     }
+
+    /**
+     * 获取用户权限对应的url地址
+     * @param userId
+     * @return
+     */
+    public List<String> findAutoUrlByUserId(Long userId){
+        List<String> perms = menuMapper.findAutoUrlByUserId(userId);
+        perms.removeAll(Collections.singleton(null));
+        return perms;
+    }
+
 
     /**
      * 根据用户ID查询菜单
@@ -272,7 +284,7 @@ public class SysMenuServiceImpl implements ISysMenuService{
     @Override
     public int updateMenu(SysMenu menu)
     {
-        return menuMapper.updateMenu(menu);
+        return menuMapper.updateById(menu);
     }
 
     /**

@@ -1,10 +1,14 @@
 package com.mei.hui.miner.common.task;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
+import com.mei.hui.miner.entity.FilMinerControlBalance;
 import com.mei.hui.miner.entity.SysAggAccountDaily;
 import com.mei.hui.miner.entity.SysAggPowerDaily;
 import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.mapper.FilMinerControlBalanceMapper;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -18,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -36,6 +41,8 @@ public class AggregationFilTask {
 
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
+    @Autowired
+    private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
 
     @Value("${spring.profiles.active}")
     private String env;
@@ -50,25 +57,12 @@ public class AggregationFilTask {
             log.info("开发环境,不执行");
             return;
         }
-
-        SysMinerInfo sysMinerInfo = new SysMinerInfo();
-        int pageNum = 1;
-        int pageSize = 100;
-        while (true) {
-            PageHelper.startPage(pageNum,pageSize, "id");
-            log.info("获取矿工,入参: pageNum = {},pageSize = {}",pageNum,pageSize);
-            List<SysMinerInfo> list = sysMinerInfoService.findMinerInfoList(sysMinerInfo);
-            log.info("获取矿工,出参: {}", JSON.toJSONString(list));
-            for (SysMinerInfo info : list) {
-                log.info("矿工信息:{}",JSON.toJSONString(info));
-                insertAccount(info);
-                insertPower(info);
-            }
-            if (list.size() < pageSize) {
-                break;
-            } else {
-                pageNum ++;
-            }
+        List<SysMinerInfo> list = sysMinerInfoService.list();
+        log.info("获取矿工,出参: {}", JSON.toJSONString(list));
+        for (SysMinerInfo info : list) {
+            log.info("矿工信息:{}",JSON.toJSONString(info));
+            insertAccount(info);
+            insertPower(info);
         }
         log.info("======================fil币AggregationTask-end===================");
     }
@@ -126,6 +120,13 @@ public class AggregationFilTask {
         SysAggAccountDaily data = sysAggAccountDailyService.selectSysAggAccountDailyByMinerIdAndDate(info.getMinerId(),date);
         log.info("查询账户聚合表,出参:",JSON.toJSONString(data));
         if (data == null) {
+
+            LambdaQueryWrapper<FilMinerControlBalance> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.eq(FilMinerControlBalance::getMinerId,info.getMinerId());
+            queryWrapper.eq(FilMinerControlBalance::getName,"control-0");
+            List<FilMinerControlBalance> controls = filMinerControlBalanceMapper.selectList(queryWrapper);
+            log.info("获取minerId:{}的control-0余额数据:{}",info.getMinerId(),JSON.toJSONString(controls));
+
             SysAggAccountDaily sysAggAccountDaily = new SysAggAccountDaily();
             sysAggAccountDaily.setMinerId(info.getMinerId());
             sysAggAccountDaily.setDate(date);
@@ -133,6 +134,8 @@ public class AggregationFilTask {
             sysAggAccountDaily.setBalanceAvailable(info.getBalanceMinerAvailable());
             sysAggAccountDaily.setSectorPledge(info.getSectorPledge());
             sysAggAccountDaily.setLockAward(info.getLockAward());
+            sysAggAccountDaily.setBalanceWorkerAccount(info.getBalanceWorkerAccount());
+            sysAggAccountDaily.setBalancePostAccount(controls.size() > 0 ? controls.get(0).getBalance() : new BigDecimal("0"));
             log.info("账户聚合表新增数据,入参:{}",JSON.toJSONString(sysAggAccountDaily));
             int result = sysAggAccountDailyService.insertSysAggAccountDaily(sysAggAccountDaily);
             log.info("账户聚合表新增数据,返回值:{}",result);

@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -59,7 +61,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         /**
-         * 白名单不校验
+         * 白名单不校验，并且不需要token校验
          */
         if(isWhiteUrl(url)){
             return chain.filter(exchange);
@@ -68,7 +70,7 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         log.info("token = {}",token);
         //验签
         log.info("请求用户模块进行验签");
-        Result auth = userFeignClient.authority(token);
+        Result auth = userFeignClient.authority(token,url);
         log.info("验签结果:{}", JSON.toJSONString(auth));
         String code = auth.getCode();
         if(ErrorCode.MYB_111002.getCode().equals(code) || ErrorCode.MYB_111003.getCode().equals(code)
@@ -107,9 +109,8 @@ public class LoginFilter  implements GlobalFilter, Ordered {
     public boolean isWhiteUrl(String url){
         boolean flag = false;
         for (String regex : gatewaySetting.getWhiteUrls()){
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(url);
-            flag = matcher.find();
+            PathMatcher matcher = new AntPathMatcher();
+            flag = matcher.match(regex, url);
             if(flag){
                 log.info("匹配的白名单数据:{}",regex);
                 break;
@@ -117,4 +118,5 @@ public class LoginFilter  implements GlobalFilter, Ordered {
         }
         return flag;
     }
+
 }

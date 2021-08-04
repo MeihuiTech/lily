@@ -1,10 +1,7 @@
 package com.mei.hui.user.service;
 
 import com.mei.hui.user.entity.SysUser;
-import com.mei.hui.user.feign.vo.FindSysUserListInput;
-import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
-import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
-import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.user.feign.vo.*;
 import com.mei.hui.user.model.*;
 import com.mei.hui.util.Result;
 
@@ -28,8 +25,6 @@ public interface ISysUserService {
 
     int insertUser(SysUser user);
     int updateUser(SysUser user);
-
-    void checkUserAllowed(SysUser user);
 
     int deleteUserByIds(Long[] userIds);
 
@@ -87,4 +82,6 @@ public interface ISysUserService {
     * @version v1.0.0
     */
     public Map<String,Object> selectUserPage(SelectUserListInput user);
+
+    Map<String,Object> visitorLogin(VisitorLoginBO bo);
 }

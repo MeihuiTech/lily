@@ -60,15 +60,8 @@ public class SysUser {
 
     private String remark;
 
-    public boolean isAdmin()
-    {
-        return isAdmin(this.userId);
-    }
-
-    public static boolean isAdmin(Long userId)
-    {
-        return userId != null && 1L == userId;
-    }
+    @TableField(exist = false)
+    private boolean admin;
 
     /** 角色组 */
 
@@ -106,4 +99,5 @@ public class SysUser {
     @TableField(exist = false)
     @ApiModelProperty(value = "费率")
     private BigDecimal feeRate;
+    
 }
