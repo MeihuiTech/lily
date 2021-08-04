@@ -74,6 +74,11 @@ public class SysMinerInfo
     private BigDecimal balanceMinerAccount;
 
     /**
+     * worker账户地址
+     */
+    private String balanceWorkerAddress;
+
+    /**
      * worker账户余额
      */
     private BigDecimal balanceWorkerAccount;

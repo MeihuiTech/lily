@@ -50,8 +50,9 @@ public class FilRabbitMQListener {
      * @param message
      * @throws IOException
      */
-    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
-    @RabbitHandler
+    // TODO 这个不要提交
+//    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
+//    @RabbitHandler
     public void processBill(Channel channel, Message message) throws IOException {
         byte[] body = message.getBody();
         String messageStr = new String(body,"UTF-8");
@@ -131,8 +132,9 @@ public class FilRabbitMQListener {
      * @param message
      * @throws IOException
      */
-    @RabbitListener(queues = {"fil.reward.queue"})//从哪个队列取消息
-    @RabbitHandler
+    // TODO 这个不要提交
+//    @RabbitListener(queues = {"fil.reward.queue"})//从哪个队列取消息
+//    @RabbitHandler
     public void processReward(Channel channel, Message message) throws IOException {
         byte[] body = message.getBody();
         String messageStr = new String(body,"UTF-8");

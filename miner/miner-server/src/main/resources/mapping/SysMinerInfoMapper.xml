@@ -25,6 +25,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
         <result property="balanceWorkerAccount"    column="balance_worker_account"    />
+        <result property="balanceWorkerAddress"    column="balance_worker_address"    />
+        <result property="storeType"    column="store_type"    />
     </resultMap>
 
     <resultMap id="SysTotalEarningResult" type="com.mei.hui.miner.entity.SysTotalEarning">
@@ -35,7 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectSysMinerInfoVo">
         select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available,
         sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account,
-        total_blocks, create_by, create_time, update_by, update_time,balance_worker_account
+        total_blocks, create_by, create_time, update_by, update_time,balance_worker_account,balance_worker_address,store_type
         from sys_miner_info
     </sql>
 
@@ -56,6 +58,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="balanceMinerAccount != null "> and balance_miner_account = #{balanceMinerAccount}</if>
             <if test="totalBlocks != null "> and total_blocks = #{totalBlocks}</if>
             <if test="balanceWorkerAccount != null "> and balance_worker_account = #{balanceWorkerAccount}</if>
+            <if test="balanceWorkerAddress != null "> and balance_worker_address = #{balanceWorkerAddress}</if>
+            <if test="storeType != null "> and store_type = #{storeType}</if>
         </where>
     </select>
     
@@ -63,7 +67,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, user_id, miner_id, power_available, sector_pledge, sector_size, sector_proving, sector_available,
         sector_error, lock_award, total_block_award, balance_miner_available, balance_miner_account,
         total_blocks, create_by, create_time, update_by, update_time,
-        balance_worker_account,sector_total
+        balance_worker_account,sector_total,balance_worker_address,store_type
         from sys_miner_info
         where id = #{id}
     </select>
@@ -109,6 +113,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time,</if>
             <if test="balanceWorkerAccount != null">balance_worker_account,</if>
             <if test="sectorTotal != null">sector_total,</if>
+            <if test="balanceWorkerAddress != null">balance_worker_address,</if>
+            <if test="storeType != null">store_type,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -130,6 +136,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">#{updateTime},</if>
             <if test="balanceWorkerAccount != null">#{balanceWorkerAccount},</if>
             <if test="sectorTotal != null">#{sectorTotal},</if>
+            <if test="balanceWorkerAddress != null">#{balanceWorkerAddress},</if>
+            <if test="storeType != null">#{storeType},</if>
          </trim>
     </insert>
 
@@ -155,6 +163,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="balanceWorkerAccount != null">balance_worker_account = #{balanceWorkerAccount},</if>
             <if test="sectorTotal != null">sector_total = #{sectorTotal},</if>
+            <if test="balanceWorkerAddress != null">balance_worker_address = #{balanceWorkerAddress},</if>
+            <if test="storeType != null">store_type = #{storeType},</if>
         </trim>
         where id = #{id}
     </update>
