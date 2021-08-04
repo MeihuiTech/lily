@@ -185,6 +185,7 @@ var DaemonCmd = &cli.Command{
 
 		// TODO: properly parse api endpoint (or make it a URL)
 		maxAPIRequestSize := int64(0)
+
 		return util.ServeRPC(api, stop, endpoint, shutdown, maxAPIRequestSize)
 	},
 }

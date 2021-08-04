@@ -17,9 +17,8 @@ type GapReport struct {
 	tableName struct{} `pg:"visor_gap_reports"`
 
 	Height int64  `pg:",pk,use_zero"`
-	TipSet string `pg:",pk"`
 	Task   string `pg:",pk"`
-	Status string `pg:",notnull"`
+	Status string `pg:",pk,notnull"`
 
 	// Reporter is the name of the instance that is reporting the result
 	Reporter   string    `pg:",notnull"`

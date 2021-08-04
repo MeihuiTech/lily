@@ -125,9 +125,10 @@ func (m *LilyNodeAPI) LilyGapFind(_ context.Context, cfg *LilyGapFindConfig) (sc
 		return schedule.InvalidJobID, err
 	}
 
+	name := fmt.Sprintf("%s_%d", cfg.Name, time.Now().UTC().Unix())
 	id := m.Scheduler.Submit(&schedule.JobConfig{
-		Name:                fmt.Sprintf("gapfind_%d", time.Now().UTC().Unix()),
-		Job:                 gap.NewGapIndexer(m, db),
+		Name:                name,
+		Job:                 gap.NewGapIndexer(m, db, name, cfg.MaxHeight, cfg.MinHeight),
 		RestartOnFailure:    cfg.RestartOnFailure,
 		RestartOnCompletion: cfg.RestartOnCompletion,
 		RestartDelay:        cfg.RestartDelay,
@@ -146,10 +147,11 @@ func (m *LilyNodeAPI) LilyGapFill(_ context.Context, cfg *LilyGapFillConfig) (sc
 		return schedule.InvalidJobID, err
 	}
 
+	name := fmt.Sprintf("%s_%d", cfg.Name, time.Now().UTC().Unix())
 	id := m.Scheduler.Submit(&schedule.JobConfig{
-		Name:                fmt.Sprintf("gapfill_%d", time.Now().UTC().Unix()),
+		Name:                name,
 		Tasks:               cfg.Tasks,
-		Job:                 gap.NewGapFiller(m, db, cfg.Tasks),
+		Job:                 gap.NewGapFiller(m, db, name, cfg.MaxHeight, cfg.MinHeight, cfg.Tasks),
 		RestartOnFailure:    cfg.RestartOnFailure,
 		RestartOnCompletion: cfg.RestartOnCompletion,
 		RestartDelay:        cfg.RestartDelay,

@@ -77,6 +77,9 @@ type LilyGapFindConfig struct {
 	RestartOnCompletion bool
 	RestartDelay        time.Duration
 	Storage             string // name of storage system to use, cannot be empty and must be Database storage.
+	Name                string
+	MaxHeight           uint64
+	MinHeight           uint64
 	// TODO we could have a read and a write storage, this would allow gaps to be written to a csv, although we lack the capability of gap filling from csv.
 }
 
@@ -84,6 +87,9 @@ type LilyGapFillConfig struct {
 	RestartOnFailure    bool
 	RestartOnCompletion bool
 	RestartDelay        time.Duration
-	Storage             string   // name of storage system to use, cannot be empty and must be Database storage.
+	Storage             string // name of storage system to use, cannot be empty and must be Database storage.
+	Name                string
+	MaxHeight           uint64
+	MinHeight           uint64
 	Tasks               []string // name of tasks to fill gaps for
 }

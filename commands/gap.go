@@ -16,6 +16,9 @@ type gapOps struct {
 	apiToken string
 	storage  string
 	tasks    string
+	name     string
+	min      uint64
+	max      uint64
 }
 
 var gapFlags gapOps
@@ -59,9 +62,28 @@ var GapFillCmd = &cli.Command{
 			Value:       "",
 			Destination: &gapFlags.tasks,
 		},
+		&cli.StringFlag{
+			Name:        "name",
+			Usage:       "name of instance performing find",
+			Value:       "gap_find",
+			Destination: &gapFlags.name,
+		},
+		&cli.Uint64Flag{
+			Name:        "max",
+			Usage:       "max epoch to search for gaps in",
+			Value:       1_000_000, // TODO some estimate of max chain height given the time,
+			Destination: &gapFlags.max,
+		},
+		&cli.Uint64Flag{
+			Name:        "min",
+			Usage:       "min epoch to search for gaps in",
+			Value:       0,
+			Destination: &gapFlags.min,
+		},
 	},
 	Action: func(cctx *cli.Context) error {
 		ctx := lotuscli.ReqContext(cctx)
+		fmt.Println(chain.AllTasks)
 
 		api, closer, err := GetAPI(ctx, gapFlags.apiAddr, gapFlags.apiToken)
 		if err != nil {
@@ -80,7 +102,10 @@ var GapFillCmd = &cli.Command{
 			RestartOnCompletion: false,
 			RestartDelay:        0,
 			Storage:             gapFlags.storage,
+			Name:                gapFlags.name,
 			Tasks:               tasks,
+			MaxHeight:           gapFlags.max,
+			MinHeight:           gapFlags.min,
 		})
 		if err != nil {
 			return err
@@ -116,6 +141,24 @@ var GapFindCmd = &cli.Command{
 			Value:       "",
 			Destination: &gapFlags.storage,
 		},
+		&cli.StringFlag{
+			Name:        "name",
+			Usage:       "name of instance performing find",
+			Value:       "gap_find",
+			Destination: &gapFlags.name,
+		},
+		&cli.Uint64Flag{
+			Name:        "max",
+			Usage:       "max epoch to search for gaps in",
+			Value:       1_000_000, // TODO some estimate of max chain height given the time,
+			Destination: &gapFlags.max,
+		},
+		&cli.Uint64Flag{
+			Name:        "min",
+			Usage:       "min epoch to search for gaps in",
+			Value:       0,
+			Destination: &gapFlags.min,
+		},
 	},
 	Action: func(cctx *cli.Context) error {
 		ctx := lotuscli.ReqContext(cctx)
@@ -131,6 +174,9 @@ var GapFindCmd = &cli.Command{
 			RestartOnCompletion: false,
 			RestartDelay:        0,
 			Storage:             gapFlags.storage,
+			Name:                gapFlags.name,
+			MaxHeight:           gapFlags.max,
+			MinHeight:           gapFlags.min,
 		})
 		if err != nil {
 			return err
