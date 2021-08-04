@@ -41,6 +41,11 @@ public class SysAggAccountDaily
 
     private String createBy;
 
+    //货比种类,XCH,BZZ,FIL
     private String type;
+
+    private BigDecimal balancePostAccount;
+
+    private BigDecimal balanceWorkerAccount;
 
 }
