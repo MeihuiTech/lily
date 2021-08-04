@@ -26,9 +26,9 @@ public class FilBlockAward {
     private String minerId;
 
     /**
-     * 消息id
+     * 区块id
      */
-    private String messageId;
+    private String cid;
 
     /**
      * 区块奖励

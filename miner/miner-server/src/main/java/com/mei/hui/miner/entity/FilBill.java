@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * <p>
- * FIL币账单
+ * FIL币账单消息详情表
  * </p>
  *
  * @author 鲍红建
@@ -43,12 +43,12 @@ public class FilBill implements Serializable {
     /**
      * 消息id
      */
-    private String messageId;
+    private String cid;
 
     /**
      * 区块高度
      */
-    private Long blockHeight;
+    private Long height;
 
     /**
      * 发送方

@@ -3,13 +3,17 @@ package com.mei.hui.miner.listener;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.entity.FilBillParams;
+import com.mei.hui.miner.entity.FilBillTransactions;
 import com.mei.hui.miner.entity.FilBlockAward;
 import com.mei.hui.miner.feign.vo.FilBillReportBO;
+import com.mei.hui.miner.feign.vo.FilBillTransactionsReportBO;
 import com.mei.hui.miner.feign.vo.FilBlockAwardReportBO;
 import com.mei.hui.miner.service.FilBillParamsService;
 import com.mei.hui.miner.service.FilBillService;
+import com.mei.hui.miner.service.FilBillTransactionsService;
 import com.mei.hui.miner.service.FilBlockAwardService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +40,8 @@ public class FilRabbitMQListener {
     private FilBlockAwardService filBlockAwardService;
     @Autowired
     private FilBillParamsService filBillParamsService;
+    @Autowired
+    private FilBillTransactionsService filBillTransactionsService;
 
 
     /**
@@ -52,13 +58,12 @@ public class FilRabbitMQListener {
         log.info("FIL币账单rabbitmq上报入参【{}】：" + messageStr);
         List<FilBillReportBO> filBillReportBOList = JSONObject.parseArray(messageStr,FilBillReportBO.class);
         log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",filBillReportBOList);
-//            Integer count = filBillService.reportFilBill(filBillReportBOList);
         for (FilBillReportBO filBillReportBO : filBillReportBOList){
             log.info("filBillReportBO入参：【{}】",filBillReportBO);
             QueryWrapper<FilBill> queryWrapper = new QueryWrapper<>();
             FilBill dbFilBill = new FilBill();
             String cid = filBillReportBO.getCid();
-            dbFilBill.setMessageId(cid);
+            dbFilBill.setCid(cid);
             queryWrapper.setEntity(dbFilBill);
             List<FilBill> filBillList = filBillService.list(queryWrapper);
             log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(filBillList));
@@ -71,8 +76,6 @@ public class FilRabbitMQListener {
             FilBill filBill = new FilBill();
             BeanUtils.copyProperties(filBillReportBO,filBill);
             filBill.setMinerId(filBillReportBO.getMiner());
-            filBill.setMessageId(cid);
-            filBill.setBlockHeight(filBillReportBO.getHeight());
             filBill.setSender(filBillReportBO.getFrom());
             filBill.setReceiver(filBillReportBO.getTo());
             filBill.setMoney(filBillReportBO.getValue());
@@ -82,14 +85,34 @@ public class FilRabbitMQListener {
                 log.info("保存FIL币账单入参：【{}】",filBill);
                 filBillService.save(filBill);
 
+                // FIL币账单参数表
                 String params = filBillReportBO.getParams();
                 if (StringUtils.isNotEmpty(params)){
                     FilBillParams filBillParams = new FilBillParams();
                     filBillParams.setFilBillId(filBill.getId());
                     filBillParams.setParams(filBillReportBO.getParams());
+                    filBillParams.setCreateTime(LocalDateTime.now());
                     log.info("保存FIL币账单参数入参：【{}】",filBillParams);
                     filBillParamsService.save(filBillParams);
                 }
+
+                // FIL币账单转账信息表
+                List<FilBillTransactionsReportBO> filBillTransactionsReportBOList = filBillReportBO.getTransaction();
+                if (filBillTransactionsReportBOList != null && filBillTransactionsReportBOList.size() > 0){
+                    for (FilBillTransactionsReportBO filBillTransactionsReportBO : filBillTransactionsReportBOList){
+                        log.info("filBillTransactionsReportBO:【{}】",JSON.toJSON(filBillTransactionsReportBO));
+                        FilBillTransactions filBillTransactions = new FilBillTransactions();
+                        BeanUtils.copyProperties(filBillTransactionsReportBO,filBillTransactions);
+                        filBillTransactions.setFilBillId(filBill.getId());
+                        filBillTransactions.setSender(filBillTransactionsReportBO.getFrom());
+                        filBillTransactions.setReceiver(filBillTransactionsReportBO.getTo());
+                        filBillTransactions.setMoney(filBillTransactionsReportBO.getValue());
+                        filBillTransactions.setCreateTime(LocalDateTime.now());
+                        log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
+                        filBillTransactionsService.save(filBillTransactions);
+                    }
+                }
+
                 // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
                 log.info("确认消息");
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
@@ -120,7 +143,7 @@ public class FilRabbitMQListener {
             QueryWrapper<FilBlockAward> queryWrapper = new QueryWrapper<>();
             FilBlockAward dbFilBlockAward = new FilBlockAward();
             String cid = filBlockAwardReportBO.getCid();
-            dbFilBlockAward.setMessageId(cid);
+            dbFilBlockAward.setCid(cid);
             queryWrapper.setEntity(dbFilBlockAward);
             List<FilBlockAward> filBlockAwardList = filBlockAwardService.list(queryWrapper);
             log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(filBlockAwardList));
@@ -133,7 +156,7 @@ public class FilRabbitMQListener {
             FilBlockAward filBlockAward = new FilBlockAward();
             BeanUtils.copyProperties(filBlockAwardReportBO,filBlockAward);
             filBlockAward.setMinerId(filBlockAwardReportBO.getMiner());
-            filBlockAward.setMessageId(cid);
+            filBlockAward.setCid(cid);
             filBlockAward.setDateTime(LocalDateTime.ofEpochSecond(filBlockAwardReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
             filBlockAward.setCreateTime(LocalDateTime.now());
             log.info("保存FIL币区块奖励详情入参：【{}】",filBlockAward);

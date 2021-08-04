@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * FIL币账单参数表
  */
@@ -24,5 +26,11 @@ public class FilBillParams {
      * 参数
      */
     private String params;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
 
 }

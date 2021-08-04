@@ -6,22 +6,35 @@
     <resultMap id="resultBillMap" type="com.mei.hui.miner.entity.FilBill">
         <id column="id" property="id"/>
         <result column="miner_id" property="minerId"/>
-        <result column="message_id" property="messageId"/>
-        <result column="block_height" property="blockHeight"/>
+        <result column="cid" property="cid"/>
+        <result column="height" property="height"/>
         <result column="sender" property="sender"/>
         <result column="receiver" property="receiver"/>
         <result column="method" property="method"/>
         <result column="money" property="money"/>
-        <result column="type" property="type"/>
-        <result column="state" property="state"/>
-        <result column="account_type" property="accountType"/>
+        <result column="size_bytes" property="sizeBytes"/>
+        <result column="nonce" property="nonce"/>
+        <result column="gas_fee_cap" property="gasFeeCap"/>
+        <result column="gas_premium" property="gasPremium"/>
+        <result column="gas_limit" property="gasLimit"/>
+        <result column="state_root" property="stateRoot"/>
+        <result column="exit_code" property="exitCode"/>
+        <result column="gas_used" property="gasUsed"/>
+        <result column="parent_base_fee" property="parentBaseFee"/>
+        <result column="base_fee_burn" property="baseFeeBurn"/>
+        <result column="over_estimation_burn" property="overEstimationBurn"/>
+        <result column="miner_penalty" property="minerPenalty"/>
+        <result column="miner_tip" property="minerTip"/>
+        <result column="refund" property="refund"/>
+        <result column="gas_refund" property="gasRefund"/>
+        <result column="gas_burned" property="gasBurned"/>
         <result column="date_time" property="dateTime"/>
         <result column="create_time" property="createTime"/>
-        <collection property="detailList"
+        <!--<collection property="detailList"
                     ofType="com.mei.hui.miner.entity.FilBillDetail"
                     fetchType="lazy" select="findBillDetailList"
                     column="{billId = id}">
-        </collection>
+        </collection>-->
     </resultMap>
 
     <resultMap id="billDetailMap" type="com.mei.hui.miner.entity.FilBillDetail">

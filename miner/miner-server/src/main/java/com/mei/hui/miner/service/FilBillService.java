@@ -21,15 +21,4 @@ public interface FilBillService extends IService<FilBill> {
 
     Result<BillAggVO> pageList(FilBillPageListBO bo);
 
-    /**
-    * 上报FIL币账单
-    *
-    * @description
-    * @author shangbin
-    * @date 2021/7/30 19:23
-    * @param [filBillReportBOList]
-    * @return java.lang.Integer
-    * @version v1.4.1
-    */
-//    public Integer reportFilBill(List<FilBillReportBO> filBillReportBOList);
 }

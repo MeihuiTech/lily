@@ -3,7 +3,7 @@ package com.mei.hui.miner.feign.vo;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * FIL币账单上报入参
@@ -21,12 +21,12 @@ public class FilBillReportBO {
     private String miner;
 
     /**
-     * 消息id，messageId
+     * 消息id
      */
     private String cid;
 
     /**
-     * 区块高度，blockHeight
+     * 区块高度
      */
     private Long height;
 
@@ -139,6 +139,11 @@ public class FilBillReportBO {
      * 参数，params
      */
     private String params;
+
+    /**
+     * FIL币账单转账信息表list
+     */
+    private List<FilBillTransactionsReportBO> transaction;
 
 
 }
