@@ -35,8 +35,8 @@ public class HttpRequestUtil {
         if(obj == null){
             throw MyException.fail(ErrorCode.MYB_111004.getCode(),ErrorCode.MYB_111004.getMsg());
         }
-        List<Long> userId = (List<Long>) obj;
-        return userId.get(0);
+        List<Integer> roleIds = (List<Integer>) obj;
+        return Long.valueOf(roleIds.get(0)+"");
     }
 
     /**
