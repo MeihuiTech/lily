@@ -477,10 +477,6 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         Date end = DateUtils.getNowDate();
         Date begin = DateUtils.addDays(end,-29);
         List<SysAggPowerDaily> list = sysAggPowerDailyService.selectSysAggAccountDailyByMinerId(miner.getMinerId(),  DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, begin), DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, end),CurrencyEnum.FIL.name());
-        list.stream().forEach(v->{
-            // v.setPowerAvailable(v.getPowerIncrease());
-            v.setPowerIncrease(v.getPowerAvailable());
-        });
         Map<String,Object> map = new HashMap<>();
         map.put("code",ErrorCode.MYB_000000.getCode());
         map.put("msg",ErrorCode.MYB_000000.getMsg());
@@ -545,6 +541,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
 
         list.stream().forEach(v->{
             v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));
+            v.setBalancePostAccount(BigDecimalUtil.formatFour(v.getBalancePostAccount()));
         });
         PageResult<SysAggAccountDaily> pageResult = new PageResult(list.size(), list);
         return pageResult;
