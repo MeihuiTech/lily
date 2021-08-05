@@ -1,17 +1,14 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilBill;
-import com.mei.hui.miner.entity.FilBillDetail;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.FilBillMapper;
-import com.mei.hui.miner.service.FilBillDetailService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.MyException;
@@ -25,16 +22,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.MonthDay;
-import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -50,7 +43,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> implements FilBillService {
     @Autowired
-    private FilBillMapper billMapper;
+    private FilBillMapper filBillMapper;
 
     public Result<BillAggVO> pageList(FilBillPageListBO bo){
         QueryWrapper<FilBill> queryWrapper = new QueryWrapper();
@@ -89,7 +82,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         queryWrapper.between("date_time",firstday,lastDay);
         queryWrapper.orderByDesc("date_time");
 
-        IPage<FilBill> page = billMapper.getBillPageList(new Page<>(bo.getPageNum(), bo.getPageSize()),queryWrapper);
+        IPage<FilBill> page = filBillMapper.getBillPageList(new Page<>(bo.getPageNum(), bo.getPageSize()),queryWrapper);
         List<FilBillPageListVO> list = page.getRecords().stream().map(v -> {
             FilBillPageListVO vo = new FilBillPageListVO();
             BeanUtils.copyProperties(v, vo);
@@ -164,6 +157,15 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         vo.setOther(total);
         log.info("转入金额:{}",JSON.toJSONString(vo));
         return vo;
+    }
+
+    /*账单方法下拉列表*/
+    @Override
+    public List<String> selectFilBillMethodList(FilBillMethodBO filBillMethodBO) {
+        String monthDate = filBillMethodBO.getMonthDate();
+        String startDate = monthDate + "-01 00:00:00";
+        String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,19);
+        return filBillMapper.selectFilBillMethodList(filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
     }
 
 

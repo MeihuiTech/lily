@@ -55,4 +55,30 @@
       select * from fil_bill_detail d where d.bill_id = #{billId}
     </select>
 
+    <!--账单方法下拉列表-->
+    <select id="selectFilBillMethodList" resultType="java.lang.String">
+        SELECT
+        b.method
+        FROM
+        fil_bill b
+        <where>
+            <if test="minerId != null and minerId != ''">
+                b.miner_id = #{minerId}
+            </if>
+            <if test="subAccount != null and subAccount != ''">
+                AND (
+                b.sender = #{subAccount}
+                OR b.receiver = #{subAccount}
+                )
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND b.date_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= b.date_time
+            </if>
+        </where>
+        GROUP BY b.method
+    </select>
+
 </mapper>

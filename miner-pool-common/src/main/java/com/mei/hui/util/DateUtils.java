@@ -272,6 +272,70 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return cal.getTime();
     }
 
+    /**
+    * 获取当前年份
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/4 19:33
+    * @param []
+    * @return java.lang.Integer
+    * @version v1.4.1
+    */
+    public static Integer getNowYear() {
+        Date date = new Date();
+        GregorianCalendar gc = (GregorianCalendar) Calendar.getInstance();
+        gc.setTime(date);
+        return Integer.valueOf(gc.get(1));
+    }
+
+    /**
+    * 获取当前月份
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/4 19:33
+    * @param []
+    * @return int
+    * @version v1.4.1
+    */
+    public static int getNowMonth() {
+        Date date = new Date();
+        GregorianCalendar gc = (GregorianCalendar) Calendar.getInstance();
+        gc.setTime(date);
+        return gc.get(2) + 1;
+    }
+
+    /**
+    * 获取本月的结束时间
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/4 19:32
+    * @param []
+    * @return java.util.Date
+    * @version v1.4.1
+    */
+    public static Date getEndDayOfMonth() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(getNowYear(), getNowMonth() - 1, 1);
+        int day = calendar.getActualMaximum(5);
+        calendar.set(getNowYear(), getNowMonth() - 1, day);
+        return getDayEndTime(calendar.getTime());
+    }
+
+    /**
+     * 根据入参年、月获取指定月的结束时间
+     * @return
+     */
+    public static Date getAssignEndDayOfMonth(Integer year,Integer month) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, 1);
+        int day = calendar.getActualMaximum(5);
+        calendar.set(year, month - 1, day);
+        return getDayEndTime(calendar.getTime());
+    }
+
     public static void main(String[] args) {
 //        System.out.println(getYesterDayDateYmd());
 
@@ -287,7 +351,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
 //        System.out.println(getBeginYesterdayDate());
 //        System.out.println(getBeginOfDayDate());
-        System.out.println(getYesterDayDateYmd());
+//        System.out.println(getYesterDayDateYmd());
+//        System.out.println(getEndDayOfMonth());
+//        System.out.println(getAssignEndDayOfMonth(2021,7));
+        String date = "2021-07-31 23:59:59.999";
+        System.out.println(getAssignEndDayOfMonth(Integer.valueOf(date.substring(0,4)),Integer.valueOf(date.substring(5,7))));
+        System.out.println(date.substring(0,4)+ "--------" +date.substring(5,7));
 
     }
 
