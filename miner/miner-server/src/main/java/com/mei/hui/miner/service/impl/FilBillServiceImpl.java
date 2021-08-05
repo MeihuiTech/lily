@@ -7,9 +7,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilBill;
+import com.mei.hui.miner.entity.FilMinerControlBalance;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.FilBillMapper;
+import com.mei.hui.miner.mapper.FilMinerControlBalanceMapper;
 import com.mei.hui.miner.service.FilBillService;
+import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.PageResult;
@@ -26,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +49,10 @@ import java.util.stream.Collectors;
 public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> implements FilBillService {
     @Autowired
     private FilBillMapper filBillMapper;
+    @Autowired
+    private ISysMinerInfoService sysMinerInfoService;
+    @Autowired
+    private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
 
     public Result<BillAggVO> pageList(FilBillPageListBO bo){
         QueryWrapper<FilBill> queryWrapper = new QueryWrapper();
@@ -168,6 +177,47 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         return filBillMapper.selectFilBillMethodList(filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
     }
 
+    /*矿工子账户下拉列表*/
+    @Override
+    public List<FilBillSubAccountVO> selectFilBillSubAccountList(FilBillMethodBO filBillMethodBO) {
+        String minerId = filBillMethodBO.getMinerId();
+        List<FilBillSubAccountVO> filBillSubAccountVOList = new ArrayList<>();
+        // Miner
+        FilBillSubAccountVO minerFilBillSubAccountVO = new FilBillSubAccountVO();
+        minerFilBillSubAccountVO.setName("Miner");
+        minerFilBillSubAccountVO.setAddress(minerId);
+        log.info("Miner账户：【{}】",JSON.toJSON(minerFilBillSubAccountVO));
+        filBillSubAccountVOList.add(minerFilBillSubAccountVO);
 
+        // Worker
+        QueryWrapper<SysMinerInfo> workerQueryWrapper = new QueryWrapper<>();
+        SysMinerInfo sysMinerInfo = new SysMinerInfo();
+        sysMinerInfo.setMinerId(minerId);
+        workerQueryWrapper.setEntity(sysMinerInfo);
+        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list(workerQueryWrapper);
+        log.info("矿工列表：【{}】",JSON.toJSON(sysMinerInfoList));
+        if (sysMinerInfoList != null && sysMinerInfoList.size() > 0){
+            FilBillSubAccountVO workerFilBillSubAccountVO = new FilBillSubAccountVO();
+            workerFilBillSubAccountVO.setName("Worker");
+            workerFilBillSubAccountVO.setAddress(sysMinerInfoList.get(0).getBalanceWorkerAddress());
+            log.info("Worker账户：【{}】",JSON.toJSON(workerFilBillSubAccountVO));
+            filBillSubAccountVOList.add(workerFilBillSubAccountVO);
+        }
 
+        // Controller
+        QueryWrapper<FilMinerControlBalance> filMinerControlBalanceQueryWrapper = new QueryWrapper<>();
+        FilMinerControlBalance qwFilMinerControlBalance = new FilMinerControlBalance();
+        qwFilMinerControlBalance.setMinerId(minerId);
+        filMinerControlBalanceQueryWrapper.setEntity(qwFilMinerControlBalance);
+        List<FilMinerControlBalance> filMinerControlBalanceList = filMinerControlBalanceMapper.selectList(filMinerControlBalanceQueryWrapper);
+        if (filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0){
+            for (FilMinerControlBalance filMinerControlBalance:filMinerControlBalanceList){
+                FilBillSubAccountVO controllerFilBillSubAccountVO = new FilBillSubAccountVO();
+                controllerFilBillSubAccountVO.setName(filMinerControlBalance.getName());
+                controllerFilBillSubAccountVO.setAddress(filMinerControlBalance.getAddress());
+                filBillSubAccountVOList.add(controllerFilBillSubAccountVO);
+            }
+        }
+        return filBillSubAccountVOList;
+    }
 }
