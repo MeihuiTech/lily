@@ -34,14 +34,14 @@ public class WhiteUrlServiceImpl extends ServiceImpl<WhiteUrlMapper, WhiteUrl> i
      * 1：先校验是否是白名单url,如果是则返回true;否则，校验是否拥有当前请求url的权限
      * @return
      */
-    public boolean checkAutoUrl(String url,List<Long> roleIds){
+    public boolean checkAutoUrl(String url,Long roleId){
         log.info("判断请求地址是否在白名单中");
         if(isWhiteUrl(url,findWhiteUrls())){
             return true;
         }
 
         log.info("请求地址不在白名单,进行权限校验");
-        List<String> urls = menuMapper.findAutoUrlByRoleId(roleIds.get(0));
+        List<String> urls = menuMapper.findAutoUrlByRoleId(roleId);
         urls.removeAll(Collections.singleton(null));
         if(urls == null || urls.size() == 0){
             log.info("用户还没有配置权限");

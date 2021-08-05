@@ -185,11 +185,11 @@ public class LoginController {
             redisUtils.set(token,null,ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
 
             log.info("校验用户是否有请求地址的权限");
-            List<Long> roleIds = (List<Long>) claims.get(SystemConstants.ROLEIDS);
+            List<Integer> roleIds = (List<Integer>) claims.get(SystemConstants.ROLEIDS);
             if(roleIds == null || roleIds.size() == 0){
                 throw MyException.fail(ErrorCode.MYB_111004.getCode(),ErrorCode.MYB_111004.getMsg());
             }
-            if(!whiteUrlService.checkAutoUrl(url,roleIds)){
+            if(!whiteUrlService.checkAutoUrl(url,Long.valueOf(roleIds.get(0)+""))){
                 log.error("用户userId:{}无权访问:{}",userId,url);
                 throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
             }
