@@ -1,8 +1,8 @@
 package com.mei.hui.miner.test;
 
+import com.mei.hui.config.MailUtil;
+import com.mei.hui.config.model.MailDO;
 import com.mei.hui.miner.MinerApplication;
-import com.mei.hui.miner.model.MailDO;
-import com.mei.hui.miner.service.MailServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +18,7 @@ import java.util.Map;
 @Slf4j
 public class MailTest {
 
-    @Autowired
-    private MailServiceImpl sendMailService;
+
 
     @Test
     public void sendTitleTest(){
@@ -27,7 +26,7 @@ public class MailTest {
         mail.setContent("发送了一段文本");
         mail.setEmail("baohongjian@meihuitech.com");
         mail.setTitle("你有一条新消息");
-        sendMailService.sendTextMail(mail);
+        MailUtil.sendTextMail(mail);
         log.info("发送完成");
     }
 
@@ -41,7 +40,7 @@ public class MailTest {
         mail.setEmail("baohongjian@meihuitech.com");
         mail.setTitle("你有一条新消息");
         mail.setAttachment(map);
-        sendMailService.sendHtmlMail(mail,true);
+        MailUtil.sendHtmlMail(mail,true);
         log.info("发送完成");
     }
 
@@ -55,7 +54,7 @@ public class MailTest {
         mail.setEmail("baohongjian@meihuitech.com");
         mail.setTitle("你有一条新消息");
         mail.setAttachment(map);
-        sendMailService.sendTemplateMail(mail);
+        MailUtil.sendTemplateMail(mail);
         log.info("发送完成");
     }
 

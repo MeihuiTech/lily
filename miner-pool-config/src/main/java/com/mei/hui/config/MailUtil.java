@@ -1,8 +1,7 @@
-package com.mei.hui.miner.service;
+package com.mei.hui.config;
 
-import com.mei.hui.miner.model.MailDO;
+import com.mei.hui.config.model.MailDO;
 import lombok.extern.slf4j.Slf4j;
-import org.omg.CORBA.SystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -10,33 +9,44 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 
-@Service
+@Component
 @Slf4j
-public class MailServiceImpl implements MailService{
+public class MailUtil {
 
-    //template模板引擎
+    private static TemplateEngine templateEngine;
+
+    private static JavaMailSender javaMailSender;
+
+    private static String from;
+
     @Autowired
-    private TemplateEngine templateEngine;
+    public void setTemplateEngine(TemplateEngine templateEngine) {
+        MailUtil.templateEngine = templateEngine;
+    }
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    public void setJavaMailSender(JavaMailSender javaMailSender) {
+        MailUtil.javaMailSender = javaMailSender;
+    }
 
-    @Value("${spring.mail.username}")
-    private String from;
+    @Value(value = "${spring.mail.username:meihui}")
+    public void setFrom(String from) {
+        MailUtil.from = from;
+    }
 
     /**
      * 纯文本邮件
      * @param mail
      */
-    @Override
-    public void sendTextMail(MailDO mail){
+    public static void sendTextMail(MailDO mail){
         //建立邮件消息
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from); // 发送人的邮箱
@@ -55,8 +65,7 @@ public class MailServiceImpl implements MailService{
      * @param mailDO
      * @param isShowHtml 是否解析html
      */
-    @Override
-    public void sendHtmlMail(MailDO mailDO, boolean isShowHtml) {
+    public static void sendHtmlMail(MailDO mailDO, boolean isShowHtml) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             //是否发送的邮件是富文本（附件，图片，html等）
@@ -93,8 +102,7 @@ public class MailServiceImpl implements MailService{
      *     String emailContent = FreeMarkerTemplateUtils.processTemplateIntoString(configuration.getTemplate("mail.ftl"), params);
      * @param mailDO
      */
-    @Override
-    public void sendTemplateMail(MailDO mailDO) {
+    public static void sendTemplateMail(MailDO mailDO) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage,true);

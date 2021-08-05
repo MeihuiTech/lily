@@ -1,4 +1,4 @@
-package com.mei.hui.miner.model;
+package com.mei.hui.config.model;
 
 import lombok.Data;
 
