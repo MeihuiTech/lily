@@ -10,6 +10,7 @@ import com.mei.hui.user.common.Base64;
 import com.mei.hui.user.common.Constants;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.feign.vo.VisitorLoginBO;
+import com.mei.hui.user.mapper.SysUserRoleMapper;
 import com.mei.hui.user.mapper.WhiteUrlMapper;
 import com.mei.hui.user.model.ChangeCurrencyBO;
 import com.mei.hui.user.model.ChangeCurrencyVO;
@@ -61,6 +62,7 @@ public class LoginController {
     private RuoYiConfig ruoYiConfig;
     @Autowired
     private WhiteUrlService whiteUrlService;
+
     /**
      * 登录方法
      * @param loginBody 登录信息
@@ -86,8 +88,8 @@ public class LoginController {
      * @return
      */
     @PostMapping("/visitorLogin")
-    public Map<String,Object> visitorLogin(@RequestBody VisitorLoginBO bo){
-        return sysUserService.visitorLogin(bo);
+    public Map<String,Object> visitorLogin(){
+        return sysUserService.visitorLogin();
     }
 
     @ApiOperation(value = "切换币种")

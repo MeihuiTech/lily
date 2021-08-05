@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
  * @author ruoyi
  */
 @Data
+@TableName("sys_user_role")
 public class SysUserRole
 {
     /** 用户ID */

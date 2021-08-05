@@ -83,5 +83,5 @@ public interface ISysUserService {
     */
     public Map<String,Object> selectUserPage(SelectUserListInput user);
 
-    Map<String,Object> visitorLogin(VisitorLoginBO bo);
+    Map<String,Object> visitorLogin();
 }

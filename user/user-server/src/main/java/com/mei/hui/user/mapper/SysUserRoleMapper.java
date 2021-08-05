@@ -1,5 +1,6 @@
 package com.mei.hui.user.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mei.hui.user.entity.SysUserRole;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.List;
  */
 
 @Repository
-public interface SysUserRoleMapper
+public interface SysUserRoleMapper extends BaseMapper<SysUserRole>
 {
     /**
      * 通过用户ID删除用户和角色关联
