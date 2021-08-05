@@ -72,4 +72,19 @@ public interface Constants extends SystemConstants {
      */
     Integer SECTORSTATUSONE = 1;
 
+    /**
+     * 类型：0Node Fee存储提供者手续费
+     */
+    String TYPENODEFEE = "Node Fee";
+
+    /**
+     * 类型：1Burn Fee销毁手续费
+     */
+    String TYPEBURNFEE = "Burn Fee";
+
+    /**
+     * 类型：2Transfer转账
+     */
+    String TYPETRANSFER = "Transfer";
+
 }
