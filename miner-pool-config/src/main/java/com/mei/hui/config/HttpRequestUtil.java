@@ -1,11 +1,13 @@
 package com.mei.hui.config;
 
-import com.mei.hui.util.SystemConstants;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.SystemConstants;
 import io.jsonwebtoken.Claims;
 import org.springframework.util.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public class HttpRequestUtil {
 
@@ -16,11 +18,25 @@ public class HttpRequestUtil {
     public static Long getUserId(){
         Claims claims = parseToken();
         Object obj = claims.get(SystemConstants.USERID);
-        if(obj != null){
-            Integer userId = (Integer) obj;
-            return Long.valueOf(userId);
+        if(obj == null){
+            throw MyException.fail(ErrorCode.MYB_111004.getCode(),ErrorCode.MYB_111004.getMsg());
         }
-        return null;
+        Integer userId = (Integer) obj;
+        return Long.valueOf(userId);
+    }
+
+    /**
+     * 获取当前用户的角色id
+     * @return
+     */
+    public static Long getRoleId(){
+        Claims claims = parseToken();
+        Object obj = claims.get(SystemConstants.ROLEIDS);
+        if(obj == null){
+            throw MyException.fail(ErrorCode.MYB_111004.getCode(),ErrorCode.MYB_111004.getMsg());
+        }
+        List<Long> userId = (List<Long>) obj;
+        return userId.get(0);
     }
 
     /**
@@ -30,11 +46,11 @@ public class HttpRequestUtil {
     public static Long getCurrencyId(){
         Claims claims = parseToken();
         Object currency = claims.get(SystemConstants.CURRENCYID);
-        if(currency != null){
-            Integer currencyId = (Integer) currency;
-            return Long.valueOf(currencyId);
+        if(currency == null){
+            throw MyException.fail(ErrorCode.MYB_111004.getCode(),ErrorCode.MYB_111004.getMsg());
         }
-        return null;
+        Integer currencyId = (Integer) currency;
+        return Long.valueOf(currencyId);
     }
 
     /**
@@ -43,12 +59,12 @@ public class HttpRequestUtil {
      */
     public static boolean isVisitor(){
         Claims claims = parseToken();
-        Object obj = claims.get(SystemConstants.ISVISITOR);
-        if(obj != null){
-            boolean isvisitor = (boolean) obj;
-            return isvisitor;
+        Object isVisitor = claims.get(SystemConstants.ISVISITOR);
+        if(isVisitor == null){
+            throw MyException.fail(ErrorCode.MYB_111004.getCode(),ErrorCode.MYB_111004.getMsg());
         }
-        return false;
+        boolean isvisitor = (boolean) isVisitor;
+        return isvisitor;
     }
 
     /**
