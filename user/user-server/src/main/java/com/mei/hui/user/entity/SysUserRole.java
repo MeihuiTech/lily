@@ -1,5 +1,6 @@
 package com.mei.hui.user.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
  * @author ruoyi
  */
 @Data
+@TableName("sys_user_role")
 public class SysUserRole
 {
     /** 用户ID */
@@ -21,7 +23,8 @@ public class SysUserRole
     /** 角色ID */
     private Long roleId;
 
+    @TableField(exist = false)
     private LocalDateTime createTime;
-
+    @TableField(exist = false)
     private LocalDateTime updateTime;
 }

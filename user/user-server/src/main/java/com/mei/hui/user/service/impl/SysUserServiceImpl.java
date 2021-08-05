@@ -11,6 +11,7 @@ import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.JwtUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
+import com.mei.hui.config.model.TokenBO;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.feign.feignClient.AggChiaMinerFeign;
 import com.mei.hui.miner.feign.feignClient.AggMinerFeignClient;
@@ -97,6 +98,15 @@ public class SysUserServiceImpl implements ISysUserService {
             throw new MyException(ErrorCode.MYB_111111.getCode(),"用户和或密码错误");
         }
         SysUser sysUser = sysUsers.get(0);
+        /**
+         * 获取用户角色信息
+         */
+        LambdaQueryWrapper<SysUserRole> query = new LambdaQueryWrapper();
+        query.eq(SysUserRole::getUserId,sysUser.getUserId());
+        List<SysUserRole> userRoles = userRoleMapper.selectList(query);
+        log.info("userId:{},权限信息:{}",sysUser.getUserId(),JSON.toJSONString(userRoles));
+        List<Long> roleIds = userRoles.stream().map(v -> v.getRoleId()).collect(Collectors.toList());
+
         Map<String,Object> result = new HashMap<>();
         result.put("code",ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
@@ -104,7 +114,9 @@ public class SysUserServiceImpl implements ISysUserService {
         //默认当前币种时fil币
         Long currencyId = Constants.fileCurrencyId;
         //生成token
-        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name(),false);
+        TokenBO tokenBO = new TokenBO().setCurrencyId(currencyId).setUserId(sysUser.getUserId())
+                .setPlatform(PlatFormEnum.web.name()).setVisitor(false).setRoleIds(roleIds);
+        String token = JwtUtil.createToken(tokenBO);
         result.put(SystemConstants.TOKEN,token);
         redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         insertLoginInfo(sysUser);
@@ -115,18 +127,20 @@ public class SysUserServiceImpl implements ISysUserService {
      * 游客登陆
      * @return
      */
-    public Map<String,Object> visitorLogin(VisitorLoginBO bo){
+    public Map<String,Object> visitorLogin(){
         Map<String,Object> result = new HashMap<>();
         result.put("code",ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         Long currencyId = Constants.fileCurrencyId;
 
-        Long userId = ruoYiConfig.getVisitorGeneralUserId();
-        if(bo.getVisitorType() == 1){
-            userId = ruoYiConfig.getVisitorGeneralAdminId();
-        }
+        Long userId = ruoYiConfig.getVisitorUserId();
+        Long roleId = ruoYiConfig.getVisitorUserRoleId();
+        List<Long> roleIds = new ArrayList<>();
+        roleIds.add(roleId);
         //生成token
-        String token = JwtUtil.createToken(userId,currencyId,PlatFormEnum.web.name(),true);
+        TokenBO tokenBO = new TokenBO().setCurrencyId(currencyId).setUserId(userId)
+                .setPlatform(PlatFormEnum.web.name()).setVisitor(true).setRoleIds(roleIds);
+        String token = JwtUtil.createToken(tokenBO);
         result.put(SystemConstants.TOKEN,token);
         redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         return result;
@@ -485,12 +499,22 @@ public class SysUserServiceImpl implements ISysUserService {
             throw MyException.fail(UserError.MYB_333333.getCode(),"userId 错误");
         }
         /**
+         * 获取用户角色信息
+         */
+        LambdaQueryWrapper<SysUserRole> query = new LambdaQueryWrapper();
+        query.eq(SysUserRole::getUserId,userId);
+        List<SysUserRole> userRoles = userRoleMapper.selectList(query);
+        log.info("userId:{},权限信息:{}",sysUser.getUserId(),JSON.toJSONString(userRoles));
+        List<Long> roleIds = userRoles.stream().map(v -> v.getRoleId()).collect(Collectors.toList());
+        /**
          * 生成token
          */
         //默认当前币种时fil币
         Long currencyId = Constants.fileCurrencyId;
         //生成token
-        String token = JwtUtil.createToken(sysUser.getUserId(),currencyId,PlatFormEnum.web.name(),false);
+        TokenBO tokenBO = new TokenBO().setCurrencyId(currencyId).setUserId(sysUser.getUserId())
+                .setPlatform(PlatFormEnum.web.name()).setVisitor(false).setRoleIds(roleIds);
+        String token = JwtUtil.createToken(tokenBO);
         /**
          * 组装响应数据
          */
@@ -504,8 +528,19 @@ public class SysUserServiceImpl implements ISysUserService {
 
     public Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO){
         Long currencyId = changeCurrencyBO.getCurrencyId();
+        Long userId = HttpRequestUtil.getUserId();
+        /**
+         * 获取用户角色信息
+         */
+        LambdaQueryWrapper<SysUserRole> query = new LambdaQueryWrapper();
+        query.eq(SysUserRole::getUserId,userId);
+        List<SysUserRole> userRoles = userRoleMapper.selectList(query);
+        log.info("userId:{},权限信息:{}",userId,JSON.toJSONString(userRoles));
+        List<Long> roleIds = userRoles.stream().map(v -> v.getRoleId()).collect(Collectors.toList());
         //生成token
-        String token = JwtUtil.createToken(HttpRequestUtil.getUserId(),currencyId,PlatFormEnum.web.name(),false);
+        TokenBO tokenBO = new TokenBO().setCurrencyId(currencyId).setUserId(HttpRequestUtil.getUserId())
+                .setPlatform(PlatFormEnum.web.name()).setVisitor(false).setRoleIds(roleIds);
+        String token = JwtUtil.createToken(tokenBO);
         redisUtils.set(token,currencyId+"",ruoYiConfig.getJwtMinutes(),TimeUnit.MINUTES);
         ChangeCurrencyVO changeCurrencyVO = new ChangeCurrencyVO();
         changeCurrencyVO.setToken(token);
