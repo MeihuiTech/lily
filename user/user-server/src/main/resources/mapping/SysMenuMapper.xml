@@ -78,10 +78,8 @@
 		select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.visible, m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time,m.currency_type
 		from sys_menu m
 			 left join sys_role_menu rm on m.menu_id = rm.menu_id
-			 left join sys_user_role ur on rm.role_id = ur.role_id
-			 left join sys_role ro on ur.role_id = ro.role_id
-			 left join sys_user u on ur.user_id = u.user_id
-		where u.user_id = #{userId} and m.menu_type in ('M', 'C') and m.status = 0  AND ro.status = 0
+			 left join sys_role ro on rm.role_id = ro.role_id
+		where ro.role_id = #{roleId} and m.menu_type in ('M', 'C') and m.status = 0  AND ro.status = 0
 		order by m.parent_id, m.order_num
 	</select>
 	
@@ -107,19 +105,17 @@
 		select distinct m.perms
 		from sys_menu m
 			 left join sys_role_menu rm on m.menu_id = rm.menu_id
-			 left join sys_user_role ur on rm.role_id = ur.role_id
-			 left join sys_role r on r.role_id = ur.role_id
-		where m.status = '0' and r.status = '0' and ur.user_id = #{userId}
+			 left join sys_role r on r.role_id = rm.role_id
+		where m.status = '0' and r.status = '0' and r.role_id = #{roleId}
 	</select>
 
 
-	<select id="findAutoUrlByUserId" parameterType="Long" resultType="String">
+	<select id="findAutoUrlByRoleId" parameterType="Long" resultType="String">
 		select distinct m.url
 		from sys_menu m
 			 left join sys_role_menu rm on m.menu_id = rm.menu_id
-			 left join sys_user_role ur on rm.role_id = ur.role_id
-			 left join sys_role r on r.role_id = ur.role_id
-		where m.status = '0' and r.status = '0' and ur.user_id = #{userId}
+			 left join sys_role r on r.role_id = rm.role_id
+		where m.status = '0' and r.status = '0' and r.role_id = #{roleId}
 	</select>
 	
 	<select id="selectMenuById" parameterType="Long" resultMap="SysMenuResult">

@@ -48,6 +48,8 @@ public class JwtUtil {
         claims.put(SystemConstants.CURRENCYID,tokenBO.getCurrencyId());
         claims.put(SystemConstants.PLATFORM,tokenBO.getPlatform());
         claims.put(SystemConstants.ISVISITOR,tokenBO.isVisitor());
+        claims.put(SystemConstants.ROLEIDS,tokenBO.getRoleIds());
+
         String token = Jwts.builder().setClaims(claims).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, staticRuoYiConfig.getJwtSecret()).compact();
         return token;

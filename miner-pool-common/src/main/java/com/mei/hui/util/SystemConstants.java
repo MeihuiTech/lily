@@ -15,6 +15,7 @@ public interface SystemConstants {
     String CURRENCYID = "currency_id";
     String PLATFORM = "platform";
     String ISVISITOR = "isVisitor";
+    String ROLEIDS = "RoleIds";
 
 
     String ACCESSKEY = "ACCESSKEY";

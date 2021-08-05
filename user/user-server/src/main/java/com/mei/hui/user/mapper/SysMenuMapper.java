@@ -46,7 +46,7 @@ public interface SysMenuMapper extends BaseMapper<SysMenu>
      */
     public List<String> selectMenuPermsByUserId(Long userId);
 
-    List<String> findAutoUrlByUserId(Long userId);
+    List<String> findAutoUrlByRoleId(Long roleId);
 
     /**
      * 根据用户ID查询菜单

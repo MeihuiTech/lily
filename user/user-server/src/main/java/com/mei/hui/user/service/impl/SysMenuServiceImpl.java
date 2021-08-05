@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SysMenuServiceImpl implements ISysMenuService{
-    public static final String PREMISSION_STRING = "perms[\"{0}\"]";
 
     @Autowired
     private SysMenuMapper menuMapper;
@@ -57,18 +56,7 @@ public class SysMenuServiceImpl implements ISysMenuService{
     @Override
     public List<SysMenu> selectMenuList(SysMenu menu, Long userId)
     {
-        List<SysMenu> menuList = null;
-        // 管理员显示所有菜单信息
-        /*if (SysUser.isAdmin(userId)){*/
-            menuList = menuMapper.selectMenuList(menu);
-       /* }else{
-            Map<String,Object> map = new HashMap();
-            map.put("userId",userId);
-            map.put("menuName",menu.getMenuName());
-            map.put("visible",menu.getVisible());
-            map.put("status",menu.getStatus());
-            menuList = menuMapper.selectMenuListByUserId(map);
-        }*/
+        List<SysMenu> menuList = menuMapper.selectMenuList(menu);
         return menuList;
     }
 
@@ -94,26 +82,14 @@ public class SysMenuServiceImpl implements ISysMenuService{
     }
 
     /**
-     * 获取用户权限对应的url地址
-     * @param userId
-     * @return
-     */
-    public List<String> findAutoUrlByUserId(Long userId){
-        List<String> perms = menuMapper.findAutoUrlByUserId(userId);
-        perms.removeAll(Collections.singleton(null));
-        return perms;
-    }
-
-
-    /**
      * 根据用户ID查询菜单
      * 
-     * @param userId 用户名称
+     * @param roleId 用户名称
      * @return 菜单列表
      */
     @Override
-    public List<SysMenu> selectMenuTreeByUserId(Long userId){
-        List<SysMenu> filteredMenus = menuMapper.selectMenuTreeByUserId(userId);
+    public List<SysMenu> selectMenuTreeByRoleId(Long roleId){
+        List<SysMenu> filteredMenus = menuMapper.selectMenuTreeByUserId(roleId);
         return getChildPerms(filteredMenus, 0);
     }
 

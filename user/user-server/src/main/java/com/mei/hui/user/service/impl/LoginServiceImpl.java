@@ -5,6 +5,7 @@ import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.user.entity.SysMenu;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.mapper.SysRoleMapper;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.model.RouterVo;
 import com.mei.hui.user.service.ISysMenuService;
@@ -29,22 +30,23 @@ public class LoginServiceImpl implements LoginService{
     @Autowired
     private SysUserMapper sysUserMapper;
     @Autowired
-    private SysPermissionServiceImpl permissionService;
-    @Autowired
     private ISysMenuService menuService;
     @Value("${server.port}")
     private String serverPort;
     @Autowired
     private RuoYiConfig ruoYiConfig;
+    @Autowired
+    private SysRoleMapper roleMapper;
 
     public Map<String,Object> getInfo(){
         Long userId = HttpRequestUtil.getUserId();
+        Long roleId = HttpRequestUtil.getRoleId();
         SysUser user = sysUserMapper.selectById(userId);
         user.setPassword(null);
         // 角色集合
-        List<SysRole> roles = permissionService.getRolePermission(userId);
+        List<SysRole> roles = roleMapper.selectRolePermissionByUserId(roleId);
         // 权限集合
-        Set<String> permissions = permissionService.getMenuPermission(user);
+        Set<String> permissions = menuService.selectMenuPermsByUserId(roleId);
         String avatar = user.getAvatar();
         if(StringUtils.isEmpty(user.getAvatar())){
             avatar = ruoYiConfig.getLogUrl();
@@ -80,7 +82,7 @@ public class LoginServiceImpl implements LoginService{
      * @return 路由信息
      */
     public Result<List<RouterVo>> getRouters(){
-        List<SysMenu> menus = menuService.selectMenuTreeByUserId(HttpRequestUtil.getUserId());
+        List<SysMenu> menus = menuService.selectMenuTreeByRoleId(HttpRequestUtil.getRoleId());
         List<RouterVo> list = menuService.buildMenus(menus);
         return Result.success(list);
     }
