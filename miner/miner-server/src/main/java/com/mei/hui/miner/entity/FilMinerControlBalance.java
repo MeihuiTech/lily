@@ -16,9 +16,20 @@ public class FilMinerControlBalance {
 
     private String minerId;
 
+    /**
+     * Post账户名称
+     */
     private String name;
 
+    /**
+     * Post账户余额
+     */
     private BigDecimal balance;
+
+    /**
+     * Post账户地址
+     */
+    private String address;
 
     private LocalDateTime createTime;
 
