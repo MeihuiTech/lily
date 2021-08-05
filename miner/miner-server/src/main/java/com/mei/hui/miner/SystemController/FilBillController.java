@@ -5,6 +5,7 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.feign.vo.BillAggVO;
 import com.mei.hui.miner.feign.vo.FilBillMethodBO;
 import com.mei.hui.miner.feign.vo.FilBillPageListBO;
+import com.mei.hui.miner.feign.vo.FilBillSubAccountVO;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
@@ -39,6 +40,16 @@ public class FilBillController {
         }
         List<String> billMethodList = filBillService.selectFilBillMethodList(filBillMethodBO);
         return Result.success(billMethodList);
+    }
+
+    @ApiOperation("矿工子账户下拉列表")
+    @PostMapping("/subAccountList")
+    public Result<List<FilBillSubAccountVO>> selectFilBillSubAccountList(@RequestBody FilBillMethodBO filBillMethodBO){
+        if (filBillMethodBO == null || StringUtils.isEmpty(filBillMethodBO.getMinerId())){
+            throw  MyException.fail(MinerError.MYB_222222.getCode(),"矿工id为空");
+        }
+        List<FilBillSubAccountVO> filBillSubAccountVOList = filBillService.selectFilBillSubAccountList(filBillMethodBO);
+        return Result.success(filBillSubAccountVOList);
     }
 
 }

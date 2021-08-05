@@ -2,10 +2,7 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBill;
-import com.mei.hui.miner.feign.vo.BillAggVO;
-import com.mei.hui.miner.feign.vo.FilBillMethodBO;
-import com.mei.hui.miner.feign.vo.FilBillPageListBO;
-import com.mei.hui.miner.feign.vo.FilBillReportBO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.Result;
 
 import java.util.List;
@@ -28,4 +25,16 @@ public interface FilBillService extends IService<FilBill> {
      * @return
      */
     public List<String> selectFilBillMethodList(FilBillMethodBO filBillMethodBO);
+
+    /**
+    * 矿工子账户下拉列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/5 13:58
+    * @param [filBillMethodBO]
+    * @return java.util.List<com.mei.hui.miner.feign.vo.FilBillSubAccountVO>
+    * @version v1.4.1
+    */
+    public List<FilBillSubAccountVO> selectFilBillSubAccountList(FilBillMethodBO filBillMethodBO);
 }
