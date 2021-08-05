@@ -41,6 +41,8 @@ public class SysProfileController{
     private String serverPort;
     @Autowired
     private FeeRateManager feeRateManager;
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
     /**
      * 查询当前登录人的个人详细信息
      */
@@ -59,6 +61,12 @@ public class SysProfileController{
         user.setPassword(null);
         user.setFeeRate(list.size() > 0 ? list.get(0).getFeeRate(): null);
         user.setAvatar("/user-server"+user.getAvatar());
+
+        if(HttpRequestUtil.isVisitor()){
+            user.setUserName(ruoYiConfig.getVisitorName());
+            user.setEmail(ruoYiConfig.getVisitorEmail());
+            user.setPhonenumber(ruoYiConfig.getVisitorMobile());
+        }
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());

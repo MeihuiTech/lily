@@ -13,6 +13,7 @@ import com.mei.hui.user.service.LoginService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.IpUtils;
 import com.mei.hui.util.Result;
+import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ public class LoginServiceImpl implements LoginService{
     public Map<String,Object> getInfo(){
         Long userId = HttpRequestUtil.getUserId();
         Long roleId = HttpRequestUtil.getRoleId();
+        boolean isVisitor = HttpRequestUtil.isVisitor();
         SysUser user = sysUserMapper.selectById(userId);
         user.setPassword(null);
         // 角色集合
@@ -59,6 +61,7 @@ public class LoginServiceImpl implements LoginService{
         result.put("user", user);
         result.put("roles",roles.stream().map(v -> v.getRoleName()).collect(Collectors.toList()));
         result.put("permissions", permissions);
+        result.put(SystemConstants.ISVISITOR,isVisitor);
         return result;
     }
 

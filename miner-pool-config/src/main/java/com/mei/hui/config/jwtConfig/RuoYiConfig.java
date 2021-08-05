@@ -35,6 +35,42 @@ public class RuoYiConfig
 
     private Long visitorUserId;
     private Long visitorUserRoleId;
+    private String visitorName;
+    private String visitorEmail;
+    private String visitorMobile;
+    private String visitorAddress;
+
+    public String getVisitorName() {
+        return visitorName;
+    }
+
+    public void setVisitorName(String visitorName) {
+        this.visitorName = visitorName;
+    }
+
+    public String getVisitorEmail() {
+        return visitorEmail;
+    }
+
+    public void setVisitorEmail(String visitorEmail) {
+        this.visitorEmail = visitorEmail;
+    }
+
+    public String getVisitorMobile() {
+        return visitorMobile;
+    }
+
+    public void setVisitorMobile(String visitorMobile) {
+        this.visitorMobile = visitorMobile;
+    }
+
+    public String getVisitorAddress() {
+        return visitorAddress;
+    }
+
+    public void setVisitorAddress(String visitorAddress) {
+        this.visitorAddress = visitorAddress;
+    }
 
     public Long getVisitorUserId() {
         return visitorUserId;
