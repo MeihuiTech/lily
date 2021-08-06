@@ -166,7 +166,7 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
         List<String> minerIds = miners.stream().map(v -> v.getMinerId()).collect(Collectors.toList());
 
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.select("isnull(sum(total_blocks),0) as total");
+        queryWrapper.select("coalesce(sum(total_blocks),0) as total");
         queryWrapper.eq("type",CurrencyEnum.FIL.name());
         queryWrapper.eq("date",yesterDayDate);
         queryWrapper.in("miner_id",minerIds);

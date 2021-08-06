@@ -581,7 +581,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     @Override
     public Long selectFilAllBlocksPerDay(List<Long> userIds) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.select("isnull(sum(total_blocks),0) as total");
+        queryWrapper.select("coalesce(sum(total_blocks),0) as total");
         queryWrapper.in("user_id",userIds);
         Map<String,Object> map = this.getMap(queryWrapper);
         return Long.valueOf(String.valueOf(map.get("total")));
@@ -590,7 +590,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     @Override
     public BigDecimal selectFilAllBalanceMinerAccount(List<Long> userIds) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.select("isnull(sum(balance_miner_account),0) as total");
+        queryWrapper.select("coalesce(sum(balance_miner_account),0) as total");
         queryWrapper.in("user_id",userIds);
         Map<String,Object> map = this.getMap(queryWrapper);
         return new BigDecimal(String.valueOf(map.get("total")));
@@ -599,7 +599,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     @Override
     public BigDecimal selectFilAllPowerAvailable(List<Long> userIds) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.select("isnull(sum(power_available),0) as total");
+        queryWrapper.select("coalesce(sum(power_available),0) as total");
         queryWrapper.in("user_id",userIds);
         Map<String,Object> map = this.getMap(queryWrapper);
         return new BigDecimal(String.valueOf(map.get("total")));
