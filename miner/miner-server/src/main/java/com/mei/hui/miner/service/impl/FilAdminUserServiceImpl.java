@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,25 +42,40 @@ public class FilAdminUserServiceImpl extends ServiceImpl<FilAdminUserMapper, Fil
 
     public PageResult<AdminUserPageBO> adminUserPage(BasePage basePage){
         PageResult<SysUserOut> page = userManager.findAllAdminUser(basePage);
-        log.info("查询管理员分页列表:{}", JSON.toJSONString(page.getRows()));
         List<Long> userIds = page.getRows().stream().map(v -> v.getUserId()).collect(Collectors.toList());
-        Map<Long,String> map = new HashMap<>();
-        page.getRows().stream().forEach(v->{
-            map.put(v.getUserId(),v.getUserName());
-        });
+        log.info("查询管理员分页列表:{}", JSON.toJSONString(userIds));
+
+        List<SysUserOut> allUser = userManager.findAllUser();
+        Map<Long,String> userMap = new HashMap<>();
+        allUser.stream().forEach(v->userMap.put(v.getUserId(),v.getUserName()));
+        log.info("查询所有用户:{}",JSON.toJSONString(userMap));
 
         LambdaQueryWrapper<FilAdminUser> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.in(FilAdminUser::getAdminId,userIds);
         List<FilAdminUser> list = this.list(queryWrapper);
-        List<AdminUserPageBO> lt = list.stream().map(v -> {
+
+        Map<Long,AdminUserPageBO> pageMap = new HashMap<>();
+        list.stream().forEach(v -> {
             AdminUserPageBO adminUserPageBO = new AdminUserPageBO();
             adminUserPageBO.setAdminId(v.getAdminId());
+            adminUserPageBO.setAdminName(userMap.get(v.getAdminId()));
             adminUserPageBO.setUserId(v.getUserId());
-            adminUserPageBO.setAdminName(map.get(v.getAdminId()));
-            adminUserPageBO.setUserName(map.get(v.getUserId()));
-            return adminUserPageBO;
-        }).collect(Collectors.toList());
-        return new PageResult(page.getTotal(),lt);
+            adminUserPageBO.setUserName(userMap.get(v.getUserId()));
+            pageMap.put(v.getAdminId(),adminUserPageBO);
+        });
+
+        List<AdminUserPageBO> resultList = new ArrayList<>();
+        //返回把没有分配矿工用户的管理员
+        page.getRows().stream().forEach(v->{
+            AdminUserPageBO vo = pageMap.get(v.getUserId());
+            if(vo == null){
+                AdminUserPageBO bo = new AdminUserPageBO().setAdminId(v.getUserId()).setAdminName(v.getUserName());
+                resultList.add(bo);
+            }else{
+                resultList.add(vo);
+            }
+        });
+        return new PageResult(page.getTotal(),resultList);
     }
 
     public Result saveOrUpdateAdmin(@RequestBody UpdateAdminUserBO bo){
