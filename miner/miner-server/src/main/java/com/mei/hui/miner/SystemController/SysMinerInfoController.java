@@ -10,6 +10,8 @@ import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.miner.service.ISysAggAccountDailyService;
 import com.mei.hui.miner.service.ISysAggPowerDailyService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.user.feign.feignClient.UserFeignClient;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,8 @@ public class SysMinerInfoController<ISysMachineInfoService> {
     private ISysAggAccountDailyService sysAggAccountDailyService;
     @Autowired
     private IChiaMinerService chiaMinerService;
+    @Autowired
+    private UserFeignClient userFeignClient;
 
     @ApiOperation(value = "根据矿工id查询账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
@@ -183,5 +187,13 @@ public class SysMinerInfoController<ISysMachineInfoService> {
         return null;
     }
 
+    /**
+     * 获取
+     * @return
+     */
+    @GetMapping("/findAllMiner")
+    public Result<List<FindAllMinerVO>> findAllMiner(){
+        return sysMinerInfoService.findAllMiner();
+    }
 
 }

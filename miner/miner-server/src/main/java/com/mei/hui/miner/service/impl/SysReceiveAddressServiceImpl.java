@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysReceiveAddress;
@@ -34,6 +35,8 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     private RedisUtil redisUtils;
     @Autowired
     private SysReceiveAddressMapper sysReceiveAddressMapper;
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
 
     /**
      * 新增收款地址
@@ -164,7 +167,6 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
     * @description
     * @author shangbin
     * @date 2021/5/21 18:52
-    * @param [currencyId]
     * @return com.mei.hui.util.Result<com.mei.hui.miner.model.SysReceiveAddressVO>
     * @version v1.0.0
     */
@@ -181,6 +183,10 @@ public class SysReceiveAddressServiceImpl implements ISysReceiveAddressService {
         if (sysReceiveAddressList != null && sysReceiveAddressList.size() > 0) {
             SysReceiveAddressVO sysReceiveAddressVO = new SysReceiveAddressVO();
             BeanUtils.copyProperties(sysReceiveAddressList.get(0),sysReceiveAddressVO);
+            //如果是游客账号，收款地址固定为：f13fmljcm2rsgoc3asjhsp55mmql3fwo3pktgj45y
+            if(HttpRequestUtil.isVisitor()){
+                sysReceiveAddressVO.setAddress(ruoYiConfig.getVisitorAddress());
+            }
             return Result.success(sysReceiveAddressVO);
         }
         return Result.OK;
