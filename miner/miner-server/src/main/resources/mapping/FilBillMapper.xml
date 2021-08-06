@@ -81,4 +81,9 @@
         GROUP BY b.method
     </select>
 
+    <!--分页查询账单消息列表-->
+    <select id="selectFilBillPage" resultType="com.mei.hui.miner.feign.vo.FilBillVO">
+
+    </select>
+
 </mapper>
