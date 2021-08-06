@@ -2,6 +2,8 @@ package com.mei.hui.user.feign.fallBackFactory;
 
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.*;
+import com.mei.hui.util.BasePage;
+import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,11 @@ public class UserFeignFallbackFactory implements FallbackFactory<UserFeignClient
 
             @Override
             public Result<List<SysUserOut>> findAllUser() {
+                return null;
+            }
+
+            @Override
+            public PageResult<SysUserOut> findAllAdminUser(BasePage page) {
                 return null;
             }
 

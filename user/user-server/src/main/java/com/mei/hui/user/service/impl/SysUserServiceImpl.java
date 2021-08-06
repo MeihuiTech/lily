@@ -228,6 +228,18 @@ public class SysUserServiceImpl implements ISysUserService {
     }
 
     /**
+     * 获取所有的管理员用户
+     * @return
+     */
+    public PageResult<SysUserOut> findAllAdminUser(BasePage basePage){
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("r.type",0);
+        IPage<SysUserOut> page=  sysUserMapper.findAllAdminUser(new Page(basePage.getPageNum(),basePage.getPageSize()),queryWrapper);
+        log.info("查询管理员用户分页列表:{}",JSON.toJSON(page.getRecords()));
+        return new PageResult(page.getTotal(),page.getRecords());
+    }
+
+    /**
      * 用户模糊查询
      * @param req
      * @return

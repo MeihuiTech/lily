@@ -103,6 +103,15 @@ public class SysUserController{
     }
 
     /**
+     * 获取所有的管理员用户
+     * @return
+     */
+    @PostMapping(value = "/findAllAdminUser")
+    public PageResult<SysUserOut> findAllAdminUser(@RequestBody BasePage page){
+        return userService.findAllAdminUser(page);
+    }
+
+    /**
      * 模糊查询
      * @param req
      * @return
