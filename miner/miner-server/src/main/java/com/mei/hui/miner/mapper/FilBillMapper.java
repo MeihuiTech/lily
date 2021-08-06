@@ -47,7 +47,7 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
     * @version v1.4.1
     */
     public IPage<FilBillVO> selectFilBillPage(Page<FilBillVO> page,@Param("minerId") String minerId,@Param("method") String method,
-                                              @Param("sender") String sender,@Param("receiver") String receiver,@Param("startDate") String startDate,@Param("endDate") String endDate);
+                                              @Param("type") Integer type,@Param("subAccount") String subAccount,@Param("startDate") String startDate,@Param("endDate") String endDate);
 
 
 }
