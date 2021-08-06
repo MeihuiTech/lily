@@ -128,9 +128,42 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,19);
         BillTotalVO billTotalVO = new BillTotalVO();
         BillMethodTotalVO in = new BillMethodTotalVO();
-        List<BillMethodMoneyVO> billMethodMoneyVOList = filBillMapper.selectBillMethodMoneyList("in",filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
+        List<BillMethodMoneyVO> billMethodMoneyVOInList = filBillMapper.selectBillMethodMoneyList("in",filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
+        log.info("查询收入方法、金额汇总信息list出参：",JSON.toJSON(billMethodMoneyVOInList));
 
-        return null;
+        BillMethodMoneyVO blockAwardBillMethodMoneyVO = new BillMethodMoneyVO();
+        blockAwardBillMethodMoneyVO.setMethod("FilBlockAward");
+        // TODO 区块奖励以后做
+        blockAwardBillMethodMoneyVO.setMoney(new BigDecimal("0"));
+        log.info("区块奖励:【{}】",JSON.toJSON(blockAwardBillMethodMoneyVO));
+        billMethodMoneyVOInList.add(blockAwardBillMethodMoneyVO);
+
+        BigDecimal totalMoneyIn = new BigDecimal("0");
+        if (billMethodMoneyVOInList != null && billMethodMoneyVOInList.size() > 0){
+            for (BillMethodMoneyVO billMethodMoneyVOIn : billMethodMoneyVOInList){
+                totalMoneyIn = totalMoneyIn.add(billMethodMoneyVOIn.getMoney());
+            }
+        }
+        log.info("收入总金额：【{}】",totalMoneyIn);
+        in.setTotal(totalMoneyIn);
+        in.setBillMethodMoneyVOList(billMethodMoneyVOInList);
+        billTotalVO.setIn(in);
+
+        BillMethodTotalVO out = new BillMethodTotalVO();
+        List<BillMethodMoneyVO> billMethodMoneyVOOutList = filBillMapper.selectBillMethodMoneyList("out",filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
+        log.info("查询支出方法、金额汇总信息list出参：",JSON.toJSON(billMethodMoneyVOOutList));
+        BigDecimal totalMoneyOut = new BigDecimal("0");
+        if (billMethodMoneyVOOutList != null && billMethodMoneyVOOutList.size() > 0){
+            for (BillMethodMoneyVO billMethodMoneyVOOut : billMethodMoneyVOOutList){
+                totalMoneyOut = totalMoneyOut.add(billMethodMoneyVOOut.getMoney());
+            }
+        }
+        log.info("支出总金额：【{}】",totalMoneyOut);
+        out.setTotal(totalMoneyOut);
+        out.setBillMethodMoneyVOList(billMethodMoneyVOOutList);
+        billTotalVO.setOut(out);
+
+        return billTotalVO;
     }
 
 
