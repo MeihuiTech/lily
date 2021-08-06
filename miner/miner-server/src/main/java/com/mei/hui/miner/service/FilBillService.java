@@ -18,7 +18,6 @@ import java.util.List;
  */
 public interface FilBillService extends IService<FilBill> {
 
-    Result<BillAggVO> pageList(FilBillPageListBO bo);
 
     /**
      * 账单方法下拉列表
@@ -50,4 +49,11 @@ public interface FilBillService extends IService<FilBill> {
     * @version v1.4.1
     */
     public IPage<FilBillVO> selectFilBillPage(FilBillMethodBO filBillMethodBO);
+
+    /**
+     * 查询账单汇总信息
+     * @param filBillMethodBO
+     * @return
+     */
+    public BillTotalVO selectFilBillTotal(FilBillMethodBO filBillMethodBO);
 }

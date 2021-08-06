@@ -47,13 +47,6 @@
          <result column="create_time" property="createTime"/>
     </resultMap>
 
-    <select id="getBillPageList" resultMap="resultBillMap">
-      select * from fil_bill  ${ew.customSqlSegment}
-    </select>
-
-    <select id="findBillDetailList" resultMap="billDetailMap">
-      select * from fil_bill_detail d where d.bill_id = #{billId}
-    </select>
 
     <!--账单方法下拉列表-->
     <select id="selectFilBillMethodList" resultType="java.lang.String">
@@ -117,6 +110,11 @@
                 </otherwise>
             </choose>
         </where>
+    </select>
+
+    <!--查询方法、金额汇总信息list-->
+    <select id="selectBillMethodMoneyList" resultType="com.mei.hui.miner.feign.vo.BillMethodMoneyVO">
+
     </select>
 
 </mapper>
