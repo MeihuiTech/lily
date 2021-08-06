@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class BillMethodMoneyVO {
 
 
-    @ApiModelProperty(value = "方法")
+    @ApiModelProperty(value = "方法：区块奖励FilBlockAward")
     private String method;
 
     @ApiModelProperty(value = "金额")
