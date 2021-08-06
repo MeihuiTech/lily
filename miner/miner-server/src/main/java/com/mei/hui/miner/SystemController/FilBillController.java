@@ -24,12 +24,6 @@ public class FilBillController {
     @Autowired
     private FilBillService filBillService;
 
-    @ApiOperation("账单分页列表")
-    @PostMapping("/pageList")
-    public Result<BillAggVO> pageList(@RequestBody FilBillPageListBO bo){
-        return filBillService.pageList(bo);
-    }
-
 
     @ApiOperation("账单方法下拉列表")
     @PostMapping("/methodList")
@@ -51,7 +45,7 @@ public class FilBillController {
         return Result.success(filBillSubAccountVOList);
     }
 
-    @ApiModelProperty("分页查询账单消息列表")
+    @ApiOperation("分页查询账单消息列表")
     @PostMapping("/page")
     public Result<IPage<FilBillVO>> selectFilBillPage(@RequestBody FilBillMethodBO filBillMethodBO){
         if (filBillMethodBO == null || StringUtils.isEmpty(filBillMethodBO.getMinerId()) || StringUtils.isEmpty(filBillMethodBO.getSubAccount()) || StringUtils.isEmpty(filBillMethodBO.getMonthDate())){
@@ -59,6 +53,17 @@ public class FilBillController {
         }
         IPage<FilBillVO> filBillVOIPage = filBillService.selectFilBillPage(filBillMethodBO);
         return Result.success(filBillVOIPage);
+    }
+
+
+    @ApiModelProperty("查询账单汇总信息")
+    @PostMapping("/total")
+    public Result<BillTotalVO> selectFilBillTotal(@RequestBody FilBillMethodBO filBillMethodBO){
+        if (filBillMethodBO == null || StringUtils.isEmpty(filBillMethodBO.getMinerId()) || StringUtils.isEmpty(filBillMethodBO.getSubAccount()) || StringUtils.isEmpty(filBillMethodBO.getMonthDate())){
+            throw  MyException.fail(MinerError.MYB_222222.getCode(),"入参为空");
+        }
+        BillTotalVO billTotalVO = filBillService.selectFilBillTotal(filBillMethodBO);
+        return Result.success(billTotalVO);
     }
 
 }

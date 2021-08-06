@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.FilBill;
+import com.mei.hui.miner.feign.vo.BillMethodMoneyVO;
 import com.mei.hui.miner.feign.vo.FilBillMethodBO;
 import com.mei.hui.miner.feign.vo.FilBillVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,7 +26,6 @@ import java.util.List;
 @Repository
 public interface FilBillMapper extends BaseMapper<FilBill> {
 
-    IPage<FilBill> getBillPageList(IPage<FilBill> page,@Param(Constants.WRAPPER) Wrapper queryWrapper);
 
     /**
      * 账单方法下拉列表
@@ -49,5 +49,15 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
     public IPage<FilBillVO> selectFilBillPage(Page<FilBillVO> page,@Param("minerId") String minerId,@Param("method") String method,
                                               @Param("type") Integer type,@Param("subAccount") String subAccount,@Param("startDate") String startDate,@Param("endDate") String endDate);
 
-
+    /**
+     * 查询方法、金额汇总信息list
+     * @param in
+     * @param minerId
+     * @param subAccount
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public List<BillMethodMoneyVO> selectBillMethodMoneyList(@Param("type") String type,@Param("minerId") String minerId,
+                                                             @Param("subAccount") String subAccount,@Param("startDate") String startDate,@Param("endDate") String endDate);
 }

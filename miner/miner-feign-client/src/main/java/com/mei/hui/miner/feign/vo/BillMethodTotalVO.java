@@ -6,18 +6,17 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
-@ApiModel
-public class BillInVO {
+@ApiModel("汇总")
+public class BillMethodTotalVO {
 
-    @ApiModelProperty("区块奖励")
-    private BigDecimal blockAward;
+    @ApiModelProperty("方法对应的金额实体List")
+    private List<BillMethodMoneyVO> billMethodMoneyVOList;
 
-    @ApiModelProperty("其他转入")
-    private BigDecimal other;
-
-    @ApiModelProperty("收入总额")
+    @ApiModelProperty("总额")
     private BigDecimal total;
 }

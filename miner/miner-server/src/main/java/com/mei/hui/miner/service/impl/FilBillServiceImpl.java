@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.entity.FilMinerControlBalance;
@@ -55,119 +54,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     @Autowired
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
 
-    public Result<BillAggVO> pageList(FilBillPageListBO bo){
-        QueryWrapper<FilBill> queryWrapper = new QueryWrapper();
-        if(bo.getAccount_type() != null){
-            queryWrapper.eq("account_type",bo.getAccount_type());
-        }
-        if(StringUtils.isNotEmpty(bo.getMinerId())){
-            queryWrapper.eq("miner_id",bo.getMinerId());
-        }
-        if(bo.getType() != null){
-            queryWrapper.eq("type",bo.getType());
-        }
-        if(StringUtils.isNotEmpty(bo.getMethod())){
-            queryWrapper.eq("method",bo.getMethod());
-        }
-        String yearMonth = DateUtils.dateTimeNow(DateUtils.YYYY_MM);
-        if(StringUtils.isNotEmpty(bo.getDate())){
-            try {
-                Date dateTime = DateUtils.dateTime(DateUtils.YYYY_MM, bo.getDate());
-                yearMonth = DateUtils.parseDateToStr(DateUtils.YYYY_MM,dateTime);
-            } catch (Exception e) {
-                throw MyException.fail(MinerError.MYB_222222.getCode(),"时间格式错误");
-            }
-        }
-        DateTimeFormatter fmt = new DateTimeFormatterBuilder().appendPattern("yyyy-MM")
-                .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
-                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-                .toFormatter();
-        LocalDate date = LocalDate.parse(yearMonth, fmt);
-        //本月第一天
-        LocalDate firstday = LocalDate.of(date.getYear(), date.getMonthValue(), 1);
-        //本月的最后一天
-        LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
-        queryWrapper.between("date_time",firstday,lastDay);
-        queryWrapper.orderByDesc("date_time");
-
-        IPage<FilBill> page = filBillMapper.getBillPageList(new Page<>(bo.getPageNum(), bo.getPageSize()),queryWrapper);
-        List<FilBillPageListVO> list = page.getRecords().stream().map(v -> {
-            FilBillPageListVO vo = new FilBillPageListVO();
-            BeanUtils.copyProperties(v, vo);
-            return vo;
-        }).collect(Collectors.toList());
-        log.info("数据条数:{}",page.getTotal());
-
-        //转入明细
-        BillInVO billInVo = getBillInVO(bo.getMinerId(), bo.getAccount_type(), firstday, lastDay);
-
-        //转出明细
-        BillOutVO billOutVo = getBillOutVO(bo.getMinerId(), bo.getAccount_type(), firstday, lastDay);
-
-        BillAggVO vo = new BillAggVO();
-        //分页列表数据
-        vo.setPage(new PageResult<>(page.getTotal(),list));
-        vo.setIn(billInVo);
-        vo.setOut(billOutVo);
-        return Result.success(vo);
-    }
-
-    /**
-     * 转出金额统计信息
-     * @param minerId 旷工id
-     * @param account_type 子账号类型
-     * @param firstday 月的第一天时间
-     * @param lastDay 月的最后一天时间
-     * @return
-     */
-    public BillOutVO getBillOutVO(String minerId,Integer account_type,LocalDate firstday,LocalDate lastDay){
-        QueryWrapper<FilBill> queryWrapper = new QueryWrapper();
-        if(account_type != null){
-            queryWrapper.eq("account_type",account_type);
-        }
-        if(StringUtils.isNotEmpty(minerId)){
-            queryWrapper.eq("miner_id",minerId);
-        }
-        queryWrapper.eq("type",0);
-        queryWrapper.between("date_time",firstday,lastDay);
-        queryWrapper.select("IFNULL(sum(money),0) as total,method");
-        queryWrapper.groupBy("method");
-        List<Map<String, Object>> list = this.listMaps(queryWrapper);
-        BillOutVO vo = new BillOutVO();
-        vo.setMap(list);
-        log.info("转出金额:{}",JSON.toJSONString(vo));
-        return vo;
-    }
-
-    /**
-     * 获取转入金额统计信息
-     * @param minerId 旷工id
-     * @param account_type 子账号类型
-     * @param firstday 月的第一天时间
-     * @param lastDay 月的最后一天时间
-     * @return
-     */
-    public BillInVO getBillInVO(String minerId,Integer account_type,LocalDate firstday,LocalDate lastDay){
-        QueryWrapper<FilBill> queryWrapper = new QueryWrapper();
-        if(account_type != null){
-            queryWrapper.eq("account_type",account_type);
-        }
-        if(StringUtils.isNotEmpty(minerId)){
-            queryWrapper.eq("miner_id",minerId);
-        }
-        queryWrapper.eq("type",1);
-        queryWrapper.between("date_time",firstday,lastDay);
-        queryWrapper.select("IFNULL(sum(money),0) as total ");
-        Map<String, Object> map = this.getMap(queryWrapper);
-        BigDecimal total = new BigDecimal(String.valueOf(map.get("total")));
-        BillInVO vo = new BillInVO();
-        vo.setTotal(total);
-        vo.setOther(total);
-        log.info("转入金额:{}",JSON.toJSONString(vo));
-        return vo;
-    }
 
     /*账单方法下拉列表*/
     @Override
@@ -231,10 +117,21 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         Page<FilBillVO> page = new Page<>(filBillMethodBO.getPageNum(),filBillMethodBO.getPageSize());
         IPage<FilBillVO> filBillVOIPage = filBillMapper.selectFilBillPage(page,
                 filBillMethodBO.getMinerId(),filBillMethodBO.getMethod(),filBillMethodBO.getType(),filBillMethodBO.getSubAccount(),startDate,endDate);
-
         return page;
     }
 
+    /*查询账单汇总信息*/
+    @Override
+    public BillTotalVO selectFilBillTotal(FilBillMethodBO filBillMethodBO) {
+        String monthDate = filBillMethodBO.getMonthDate();
+        String startDate = monthDate + "-01 00:00:00";
+        String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,19);
+        BillTotalVO billTotalVO = new BillTotalVO();
+        BillMethodTotalVO in = new BillMethodTotalVO();
+        List<BillMethodMoneyVO> billMethodMoneyVOList = filBillMapper.selectBillMethodMoneyList("in",filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
+
+        return null;
+    }
 
 
 
