@@ -782,7 +782,51 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         return sysMinerInfoList;
     }
 
+    /**
+     * 获取所有矿工信息
+     * @return
+     */
+    public Result<List<FindAllMinerVO>> findAllMiner(){
+        Result<List<SysUserOut>> result = userFeignClient.findAllUser();
+        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"查询用户失败");
+        }
+        List<SysUserOut> users = result.getData();
+        log.info("查询所有用户信息:{}",JSON.toJSONString(users));
+        List<Long> userIds = users.stream().map(v -> v.getUserId()).collect(Collectors.toList());
+        Map<Long, String> userMap = new HashMap<>();
+        users.stream().forEach(v ->userMap.put(v.getUserId(), v.getUserName()));
 
+        LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.in(SysMinerInfo::getUserId,userIds);
+        List<SysMinerInfo> list = this.list(queryWrapper);
+        log.info("查询所有矿工信息:{}",JSON.toJSONString(list));
+        /**
+         * 将用户和矿工信息存到map中，key是userid,value是minerId
+         */
+        Map<Long,List<String>> map = new HashMap<>();
+        for(SysMinerInfo minerInfo : list){
+            Long userId = minerInfo.getUserId();
+            String minerId = minerInfo.getMinerId();
+            List<String> values = map.get(userId);
+            if(values == null || values.size() == 0){
+                List<String> minerList = new ArrayList<>();
+                minerList.add(minerId);
+                map.put(userId,minerList);
+            }else{
+                values.add(minerId);
+            }
+        }
+        //组装响应数据
+        List<FindAllMinerVO> minerVos= new ArrayList<>();
+        for (Long userId : map.keySet()) {
+            List<String> value = map.get(userId);
+            String userName = userMap.get(userId);
+            FindAllMinerVO findAllMinerVO =new FindAllMinerVO().setUserId(userId).setMinerIds(value).setUserName(userName);
+            minerVos.add(findAllMinerVO);
+        }
+        return Result.success(minerVos);
+    }
 
 
 }

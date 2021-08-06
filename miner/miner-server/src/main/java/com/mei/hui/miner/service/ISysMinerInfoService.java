@@ -258,4 +258,5 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     public List<SysMinerInfo> selectSysMinerInfoListBySysMinerInfo(SysMinerInfo sysMinerInfo);
 
 
+    Result<List<FindAllMinerVO>> findAllMiner();
 }
