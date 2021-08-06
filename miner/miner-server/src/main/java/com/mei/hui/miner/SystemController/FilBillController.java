@@ -1,15 +1,14 @@
 package com.mei.hui.miner.SystemController;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.feign.vo.BillAggVO;
-import com.mei.hui.miner.feign.vo.FilBillMethodBO;
-import com.mei.hui.miner.feign.vo.FilBillPageListBO;
-import com.mei.hui.miner.feign.vo.FilBillSubAccountVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +49,16 @@ public class FilBillController {
         }
         List<FilBillSubAccountVO> filBillSubAccountVOList = filBillService.selectFilBillSubAccountList(filBillMethodBO);
         return Result.success(filBillSubAccountVOList);
+    }
+
+    @ApiModelProperty("分页查询账单消息列表")
+    @PostMapping("/page")
+    public Result<IPage<FilBillVO>> selectFilBillPage(@RequestBody FilBillMethodBO filBillMethodBO){
+        if (filBillMethodBO == null || StringUtils.isEmpty(filBillMethodBO.getMinerId()) || StringUtils.isEmpty(filBillMethodBO.getSubAccount()) || StringUtils.isEmpty(filBillMethodBO.getMonthDate())){
+            throw  MyException.fail(MinerError.MYB_222222.getCode(),"入参为空");
+        }
+        IPage<FilBillVO> filBillVOIPage = filBillService.selectFilBillPage(filBillMethodBO);
+        return Result.success(filBillVOIPage);
     }
 
 }

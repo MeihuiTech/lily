@@ -1,5 +1,6 @@
 package com.mei.hui.miner.feign.vo;
 
+import com.mei.hui.util.BasePage;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.Data;
  **/
 @Data
 @ApiModel(value = "账单管理入参")
-public class FilBillMethodBO {
+public class FilBillMethodBO extends BasePage {
 
     @ApiModelProperty(value = "矿工id")
     private String minerId;

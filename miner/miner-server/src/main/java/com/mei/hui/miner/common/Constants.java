@@ -87,4 +87,14 @@ public interface Constants extends SystemConstants {
      */
     String TYPETRANSFER = "Transfer";
 
+    /**
+     * 收支:0支出
+     */
+    Integer FILBILLOUT = 0;
+
+    /**
+     * 收支:1收入
+     */
+    Integer FILBILLIN = 1;
+
 }

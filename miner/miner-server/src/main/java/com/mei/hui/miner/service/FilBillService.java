@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.feign.vo.*;
@@ -37,4 +38,16 @@ public interface FilBillService extends IService<FilBill> {
     * @version v1.4.1
     */
     public List<FilBillSubAccountVO> selectFilBillSubAccountList(FilBillMethodBO filBillMethodBO);
+
+    /**
+    * 分页查询账单消息列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/5 18:59
+    * @param [filBillMethodBO]
+    * @return java.util.List<com.mei.hui.miner.feign.vo.FilBillVO>
+    * @version v1.4.1
+    */
+    public IPage<FilBillVO> selectFilBillPage(FilBillMethodBO filBillMethodBO);
 }

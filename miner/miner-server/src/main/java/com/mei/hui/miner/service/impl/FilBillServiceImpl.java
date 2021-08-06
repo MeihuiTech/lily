@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.entity.FilMinerControlBalance;
@@ -220,4 +221,29 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         }
         return filBillSubAccountVOList;
     }
+
+    /*分页查询账单消息列表*/
+    @Override
+    public IPage<FilBillVO> selectFilBillPage(FilBillMethodBO filBillMethodBO) {
+        String monthDate = filBillMethodBO.getMonthDate();
+        String startDate = monthDate + "-01 00:00:00";
+        String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,19);
+        /*String sender = "";// 支出
+        String receiver = "";// 收入
+        Integer type = filBillMethodBO.getType();
+        if (Constants.FILBILLOUT.equals(type)){
+            sender = filBillMethodBO.getSubAccount();
+        } else if (Constants.FILBILLIN.equals(type)){
+            receiver = filBillMethodBO.getSubAccount();
+        }*/
+        Page<FilBillVO> page = new Page<>(filBillMethodBO.getPageNum(),filBillMethodBO.getPageSize());
+        IPage<FilBillVO> filBillVOIPage = filBillMapper.selectFilBillPage(page,
+                filBillMethodBO.getMinerId(),filBillMethodBO.getMethod(),filBillMethodBO.getType(),filBillMethodBO.getSubAccount(),startDate,endDate);
+
+        return page;
+    }
+
+
+
+
 }
