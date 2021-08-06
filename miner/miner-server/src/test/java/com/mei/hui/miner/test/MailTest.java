@@ -47,7 +47,7 @@ public class MailTest {
     @Test
     public void sendTemplateTest(){
         Map<String,Object> map = new HashMap<>();
-        map.put("username","我变大了");
+        map.put("username","这是模板邮件");
 
         MailDO mail = new MailDO();
         mail.setContent("发送了一个模板邮件");
