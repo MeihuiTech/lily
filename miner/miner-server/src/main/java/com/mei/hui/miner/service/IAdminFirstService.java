@@ -41,7 +41,7 @@ public interface IAdminFirstService {
      * @return com.mei.hui.util.Result
      * @version v1.0.0
      */
-    public Map<String,Object> filPowerAvailablePage(String yesterDayDate, BasePage basePage);
+    //public Map<String,Object> filPowerAvailablePage(String yesterDayDate, BasePage basePage);
 
 
     /**

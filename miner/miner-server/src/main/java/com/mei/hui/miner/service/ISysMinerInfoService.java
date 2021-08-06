@@ -147,7 +147,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
      * @return void
      * @version v1.0.0
      */
-    public Long selectFilAllBlocksPerDay();
+    public Long selectFilAllBlocksPerDay(List<Long> userIds);
 
     /**
      * fil管理员首页-矿工统计数据-平台总资产
@@ -159,7 +159,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
      * @return java.math.BigDecimal
      * @version v1.0.0
      */
-    public BigDecimal selectFilAllBalanceMinerAccount();
+    public BigDecimal selectFilAllBalanceMinerAccount(List<Long> userIds);
 
     /**
      * fil管理员首页-矿工统计数据-平台有效算力
@@ -171,7 +171,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
      * @return java.math.BigDecimal
      * @version v1.0.0
      */
-    public BigDecimal selectFilAllPowerAvailable();
+    public BigDecimal selectFilAllPowerAvailable(List<Long> userIds);
 
     /**
      * fil管理员首页-矿工统计数据-活跃矿工
@@ -183,7 +183,7 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
      * @return java.lang.Long
      * @version v1.0.0
      */
-    public Long selectFilAllMinerIdCount();
+    public Long selectFilAllMinerIdCount(List<Long> userIds);
 
     /**
     * 根据userId查询fil币矿工信息表里的该用户所有的矿工ID

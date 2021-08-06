@@ -46,7 +46,7 @@ public class AdminFirstController {
         return Result.OK;
     }
 
-    @ApiOperation(value = "管理员首页-平台有效算力排行榜",notes = "管理员首页-平台有效算力排行榜出参：\n" +
+   /* @ApiOperation(value = "管理员首页-平台有效算力排行榜",notes = "管理员首页-平台有效算力排行榜出参：\n" +
             "\n" +
             "userId用户ID\n" +
             "powerAvailable有效算力, 单位B\n" +
@@ -68,7 +68,7 @@ public class AdminFirstController {
         }
         return null;
     }
-
+*/
 
 
 
