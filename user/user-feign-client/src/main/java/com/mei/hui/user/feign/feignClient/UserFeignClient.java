@@ -2,6 +2,8 @@ package com.mei.hui.user.feign.feignClient;
 
 import com.mei.hui.user.feign.fallBackFactory.UserFeignFallbackFactory;
 import com.mei.hui.user.feign.vo.*;
+import com.mei.hui.util.BasePage;
+import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 import feign.Param;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -39,6 +41,14 @@ public interface UserFeignClient {
      */
     @RequestMapping(value = "/findAllUser",method = RequestMethod.POST)
     Result<List<SysUserOut>> findAllUser();
+
+    /**
+     * 查询管理员用户分页列表
+     * @param page
+     * @return
+     */
+    @PostMapping(value = "/findAllAdminUser")
+    PageResult<SysUserOut> findAllAdminUser(@RequestBody BasePage page);
 
     /**
      * 获取当前登陆用户

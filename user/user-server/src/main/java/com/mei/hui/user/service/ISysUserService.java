@@ -3,6 +3,8 @@ package com.mei.hui.user.service;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.feign.vo.*;
 import com.mei.hui.user.model.*;
+import com.mei.hui.util.BasePage;
+import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 
 import java.util.List;
@@ -70,6 +72,7 @@ public interface ISysUserService {
     Result<ChangeCurrencyVO> changeCurrency(ChangeCurrencyBO changeCurrencyBO);
 
     Result<List<SysUserOut>> findAllUser();
+    PageResult<SysUserOut> findAllAdminUser(BasePage page);
 
     /**
     * 多条件分页查询用户列表

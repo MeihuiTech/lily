@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
-import com.mei.hui.util.ErrorCode;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -50,5 +50,19 @@ public class UserManager {
             throw MyException.fail(result.getCode(),result.getMsg());
         }
         return result.getData();
+    }
+
+    /**
+     * 查询管理员用户分页列表
+     * @param page
+     * @return
+     */
+    @PostMapping(value = "/findAllAdminUser")
+    public PageResult<SysUserOut> findAllAdminUser(BasePage page){
+        PageResult<SysUserOut> result = userFeignClient.findAllAdminUser(page);
+        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+            throw MyException.fail(result.getCode(),result.getMsg());
+        }
+        return result;
     }
 }

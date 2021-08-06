@@ -6,10 +6,7 @@ import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
-import com.mei.hui.miner.service.IChiaMinerService;
-import com.mei.hui.miner.service.ISysAggAccountDailyService;
-import com.mei.hui.miner.service.ISysAggPowerDailyService;
-import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.miner.service.*;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
@@ -17,6 +14,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.RegEx;
 import java.util.List;
 import java.util.Map;
 
@@ -29,18 +27,13 @@ import java.util.Map;
 @Api(tags = "矿工信息")
 @RestController
 @RequestMapping("/system/miner")
-public class SysMinerInfoController<ISysMachineInfoService> {
-
+public class SysMinerInfoController {
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
     @Autowired
-    private ISysAggPowerDailyService sysAggPowerDailyService;
-    @Autowired
-    private ISysAggAccountDailyService sysAggAccountDailyService;
-    @Autowired
     private IChiaMinerService chiaMinerService;
     @Autowired
-    private UserFeignClient userFeignClient;
+    private FilAdminUserService adminUserService;
 
     @ApiOperation(value = "根据矿工id查询账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
@@ -191,9 +184,19 @@ public class SysMinerInfoController<ISysMachineInfoService> {
      * 获取
      * @return
      */
-    @GetMapping("/findAllMiner")
+    @PostMapping("/findAllMiner")
     public Result<List<FindAllMinerVO>> findAllMiner(){
         return sysMinerInfoService.findAllMiner();
+    }
+
+    @PostMapping("/adminUserPage")
+    public PageResult<AdminUserPageBO> adminUserPage(@RequestBody BasePage basePage){
+        return adminUserService.adminUserPage(basePage);
+    }
+
+    @PostMapping("/saveOrUpdateAdmin")
+    public Result saveOrUpdateAdmin(@RequestBody UpdateAdminUserBO bo){
+        return adminUserService.saveOrUpdateAdmin(bo);
     }
 
 }

@@ -1,7 +1,11 @@
 package com.mei.hui.user.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.user.model.SelectUserListInput;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -69,4 +73,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return 结果
      */
     public int updateUserAvatar(@Param("userId") Long userId, @Param("avatar") String avatar);
+
+
+    IPage<SysUserOut> findAllAdminUser(IPage<SysUserOut> page, @Param(Constants.WRAPPER) Wrapper<SysUserOut> queryWrapper);
 }

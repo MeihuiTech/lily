@@ -11,6 +11,7 @@ import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
+import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.RequestMinerInfo;
 import com.mei.hui.miner.model.SysMinerInfoBO;
@@ -65,8 +66,9 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     @Autowired
     private CurrencyRateService currencyRateService;
     @Autowired
+    private UserManager userManager;
+    @Autowired
     private UserFeignClient userFeignClient;
-
     @Autowired
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
 
@@ -787,11 +789,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
      * @return
      */
     public Result<List<FindAllMinerVO>> findAllMiner(){
-        Result<List<SysUserOut>> result = userFeignClient.findAllUser();
-        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"查询用户失败");
-        }
-        List<SysUserOut> users = result.getData();
+        List<SysUserOut> users = userManager.findAllUser();
         log.info("查询所有用户信息:{}",JSON.toJSONString(users));
         List<Long> userIds = users.stream().map(v -> v.getUserId()).collect(Collectors.toList());
         Map<Long, String> userMap = new HashMap<>();
