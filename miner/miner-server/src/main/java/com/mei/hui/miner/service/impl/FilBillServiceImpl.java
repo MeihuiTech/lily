@@ -127,6 +127,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String startDate = monthDate + "-01 00:00:00";
         String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,19);
         BillTotalVO billTotalVO = new BillTotalVO();
+
+        // 收入
         BillMethodTotalVO in = new BillMethodTotalVO();
         List<BillMethodMoneyVO> billMethodMoneyVOInList = filBillMapper.selectBillMethodMoneyList("in",filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
         log.info("查询收入方法、金额汇总信息list出参：",JSON.toJSON(billMethodMoneyVOInList));
@@ -149,6 +151,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         in.setBillMethodMoneyVOList(billMethodMoneyVOInList);
         billTotalVO.setIn(in);
 
+        // 支出
         BillMethodTotalVO out = new BillMethodTotalVO();
         List<BillMethodMoneyVO> billMethodMoneyVOOutList = filBillMapper.selectBillMethodMoneyList("out",filBillMethodBO.getMinerId(),filBillMethodBO.getSubAccount(),startDate,endDate);
         log.info("查询支出方法、金额汇总信息list出参：",JSON.toJSON(billMethodMoneyVOOutList));
