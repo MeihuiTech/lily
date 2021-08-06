@@ -112,4 +112,6 @@ public interface ISysAggPowerDailyService
     * @version v1.4.0
     */
     public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String type, String minerId);
+
+    Long totalBlocksByMinerId(String yesterDayDate,List<Long> userIds);
 }

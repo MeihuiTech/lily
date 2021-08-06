@@ -184,16 +184,19 @@ public class SysMinerInfoController {
      * 获取
      * @return
      */
+    @ApiOperation("分配用户-获取用户、矿工")
     @PostMapping("/findAllMiner")
     public Result<List<FindAllMinerVO>> findAllMiner(){
         return sysMinerInfoService.findAllMiner();
     }
 
+    @ApiOperation("分配用户-分页列表")
     @PostMapping("/adminUserPage")
     public PageResult<AdminUserPageBO> adminUserPage(@RequestBody BasePage basePage){
         return adminUserService.adminUserPage(basePage);
     }
 
+    @ApiOperation("分配用户-编辑")
     @PostMapping("/saveOrUpdateAdmin")
     public Result saveOrUpdateAdmin(@RequestBody UpdateAdminUserBO bo){
         return adminUserService.saveOrUpdateAdmin(bo);

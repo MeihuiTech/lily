@@ -17,10 +17,7 @@ import com.mei.hui.miner.model.RequestMinerInfo;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.SysMinerInfoVO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
-import com.mei.hui.miner.service.CurrencyRateService;
-import com.mei.hui.miner.service.ISysAggAccountDailyService;
-import com.mei.hui.miner.service.ISysAggPowerDailyService;
-import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.miner.service.*;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
@@ -71,6 +68,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     private UserFeignClient userFeignClient;
     @Autowired
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
+
 
     /**
      * 查询矿工信息
@@ -580,25 +578,41 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         return pageResult;
     }
 
-
     @Override
-    public Long selectFilAllBlocksPerDay() {
-        return sysMinerInfoMapper.selectAllBlocksPerDay();
+    public Long selectFilAllBlocksPerDay(List<Long> userIds) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.select("isnull(sum(total_blocks),0) as total");
+        queryWrapper.in("user_id",userIds);
+        Map<String,Object> map = this.getMap(queryWrapper);
+        return Long.valueOf(String.valueOf(map.get("total")));
     }
 
     @Override
-    public BigDecimal selectFilAllBalanceMinerAccount() {
-        return sysMinerInfoMapper.selectAllBalanceMinerAccount();
+    public BigDecimal selectFilAllBalanceMinerAccount(List<Long> userIds) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.select("isnull(sum(balance_miner_account),0) as total");
+        queryWrapper.in("user_id",userIds);
+        Map<String,Object> map = this.getMap(queryWrapper);
+        return new BigDecimal(String.valueOf(map.get("total")));
     }
 
     @Override
-    public BigDecimal selectFilAllPowerAvailable() {
-        return sysMinerInfoMapper.selectAllPowerAvailable();
+    public BigDecimal selectFilAllPowerAvailable(List<Long> userIds) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.select("isnull(sum(power_available),0) as total");
+        queryWrapper.in("user_id",userIds);
+        Map<String,Object> map = this.getMap(queryWrapper);
+        return new BigDecimal(String.valueOf(map.get("total")));
     }
 
     @Override
-    public Long selectFilAllMinerIdCount() {
-        return sysMinerInfoMapper.selectAllMinerIdCount();
+    public Long selectFilAllMinerIdCount(List<Long> userIds) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.select("count(miner_id) as total");
+        queryWrapper.in("user_id",userIds);
+        queryWrapper.gt("power_available",0);
+        Map<String,Object> map = this.getMap(queryWrapper);
+        return Long.valueOf(String.valueOf(map.get("total")));
     }
 
     /**

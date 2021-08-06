@@ -1,16 +1,16 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.entity.FilAdminUser;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.AdminFirstCollectVO;
 import com.mei.hui.miner.model.PowerAvailableFilVO;
-import com.mei.hui.miner.service.IAdminFirstService;
-import com.mei.hui.miner.service.IChiaMinerService;
-import com.mei.hui.miner.service.ISysAggPowerDailyService;
-import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.miner.service.*;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
@@ -22,6 +22,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -44,6 +46,8 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
 
     @Autowired
     private ISysAggPowerDailyService sysAggPowerDailyService;
+    @Autowired
+    private FilAdminUserService adminUserService;
 
     /**
      * fil管理员首页-矿工统计数据
@@ -51,22 +55,28 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
      */
     @Override
     public AdminFirstCollectVO filAdminFirstAllCount() {
+        LambdaQueryWrapper<FilAdminUser> adminUserQuery = new LambdaQueryWrapper();
+        adminUserQuery.eq(FilAdminUser::getAdminId, HttpRequestUtil.getUserId());
+        List<FilAdminUser> admins = adminUserService.list(adminUserQuery);
+        log.info("管理员负责的矿工用户:{}",JSON.toJSONString(admins));
+        List<Long> userIds = admins.stream().map(v -> v.getUserId()).collect(Collectors.toList());
+
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
         // 管理员首页-矿工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
-        BigDecimal allBalanceMinerAccount = sysMinerInfoService.selectFilAllBalanceMinerAccount();
+        BigDecimal allBalanceMinerAccount = sysMinerInfoService.selectFilAllBalanceMinerAccount(userIds);
         adminFirstCollectVO.setAllBalanceMinerAccount(BigDecimalUtil.formatFour(allBalanceMinerAccount));
         // 管理员首页-矿工统计数据-平台有效算力
-        BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
+        BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable(userIds);
         adminFirstCollectVO.setAllPowerAvailable(allPowerAvailable);
         // 管理员首页-矿工统计数据-活跃矿工
-        Long allMinerCount = sysMinerInfoService.selectFilAllMinerIdCount();
+        Long allMinerCount = sysMinerInfoService.selectFilAllMinerIdCount(userIds);
         adminFirstCollectVO.setAllMinerCount(allMinerCount);
         // 管理员首页-矿工统计数据-当天出块份数
         // 查询FIL币矿工信息表里所有的累计出块份数
-        Long allTotalBlocks = sysMinerInfoService.selectFilAllBlocksPerDay();
+        Long allTotalBlocks = sysMinerInfoService.selectFilAllBlocksPerDay(userIds);
         // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
         String yesterDayDate = DateUtils.getYesterDayDateYmd();
-        Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),null);
+        Long yesterDayTotalBlocks = sysAggPowerDailyService.totalBlocksByMinerId(yesterDayDate,userIds);
         if (allTotalBlocks != null && yesterDayTotalBlocks != null) {
             adminFirstCollectVO.setAllBlocksPerDay(allTotalBlocks - yesterDayTotalBlocks);
         }else {
@@ -104,7 +114,7 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
      * @param basePage
      * @return
      */
-    @Override
+    /*@Override
     public Map<String,Object> filPowerAvailablePage(String yesterDayDate,BasePage basePage) {
         // 管理员首页-矿工统计数据-平台有效算力
         BigDecimal allPowerAvailable = sysMinerInfoService.selectFilAllPowerAvailable();
@@ -153,7 +163,7 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         map.put("rows",result.getRecords());
         map.put("total",result.getTotal());
         return map;
-    }
+    }*/
 
 
     /**
