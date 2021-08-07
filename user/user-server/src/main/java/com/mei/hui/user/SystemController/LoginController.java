@@ -70,11 +70,14 @@ public class LoginController {
      */
     @PostMapping("/login")
     public Map<String,Object> login(@RequestBody LoginBody loginBody){
-
-        if(StringUtils.isEmpty(loginBody.getUsername())){
+        String password = loginBody.getPassword();
+        String username = loginBody.getUsername();
+        loginBody.setPassword(password.trim());
+        loginBody.setUsername(username.trim());
+        if(StringUtils.isEmpty(username)){
             throw new MyException(ErrorCode.MYB_111111.getMsg(),"用户姓名不能为空");
         }
-        if(StringUtils.isEmpty(loginBody.getPassword())){
+        if(StringUtils.isEmpty(password)){
             throw new MyException(ErrorCode.MYB_111111.getMsg(),"用户密码不能为空");
         }
         if(StringUtils.isEmpty(loginBody.getCode())){
