@@ -181,6 +181,23 @@ public class SysMinerInfoController {
     }
 
     /**
+     * 管理员页面-平台概览-矿工列表
+     * @param sysMinerInfoBO
+     * @return
+     */
+    @ApiOperation("管理员页面-平台概览-矿工列表")
+    @GetMapping("/admin/minerPagelist")
+    public Map<String,Object> minerPagelist(SysMinerInfoBO sysMinerInfoBO){
+        Long currencyId = HttpRequestUtil.getCurrencyId();
+        if(CurrencyEnum.FIL.getCurrencyId() == currencyId){//fil 币
+            return sysMinerInfoService.minerPagelist(sysMinerInfoBO);
+        }else if(CurrencyEnum.XCH.getCurrencyId() == currencyId){//起亚币
+            return chiaMinerService.findChiaMinerPage(sysMinerInfoBO);
+        }
+        return null;
+    }
+
+    /**
      * 获取
      * @return
      */

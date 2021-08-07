@@ -68,6 +68,8 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     private UserFeignClient userFeignClient;
     @Autowired
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
+    @Autowired
+    private FilAdminUserService adminUserService;
 
 
     /**
@@ -636,43 +638,41 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     /*管理员-用户收益-分页查询用户收益列表*/
     @Override
     public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO) {
+        //查询当前管理员负责管理的普通用户
+        List<Long> userIds = adminUserService.findUserIdsByAdmin();
+        if(userIds.size() ==0){
+            return new PageResult(0,new ArrayList());
+        }
         //用于入参模块模糊查询，获取用户id的list
         String userName = filUserMoneyBO.getUserName();
-        List<Long> userIdList = new ArrayList<>();
         if (StringUtils.isNotEmpty(userName)) {
             FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
             bo.setName(userName);
-            log.info("模糊查询用户id集合");
             Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
             log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
-            List<Long> idList = new ArrayList<>();
-            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
-                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
-                // id去重
-                Set<Long> idsSet = new HashSet<>(idList);
-                userIdList = new ArrayList<Long>(idsSet);
-            } else {
+            if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
+               throw MyException.fail(userResult.getCode(),userResult.getMsg());
+            }
+            if(userResult.getData().size() ==0){
                 return new PageResult(0,new ArrayList());
             }
+            List<Long> idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+            userIds = userIds.stream().filter(item -> idList.contains(item)).collect(Collectors.toList());
         }
-
         Page<FilUserMoneyVO> page = new Page<FilUserMoneyVO>(filUserMoneyBO.getPageNum(),filUserMoneyBO.getPageSize());
-        log.info("多条件分页查询用户收益列表入参page：【{}】,filUserMoneyBO：【{}】,userIdList：【{}】",JSON.toJSON(page),JSON.toJSON(filUserMoneyBO),userIdList);
-        IPage<FilUserMoneyVO> result = sysMinerInfoMapper.selectUserMoneyList(page,filUserMoneyBO.getUserId(),filUserMoneyBO.getCloumName(),filUserMoneyBO.isAsc(),userIdList);
+        log.info("多条件分页查询用户收益列表入参page：【{}】,filUserMoneyBO：【{}】,userIdList：【{}】",JSON.toJSON(page),JSON.toJSON(filUserMoneyBO),userIds);
+        IPage<FilUserMoneyVO> result = sysMinerInfoMapper.selectUserMoneyList(page,filUserMoneyBO.getCloumName(),filUserMoneyBO.isAsc(),userIds);
         log.info("多条件分页查询用户收益列表出参：【{}】",JSON.toJSON(result));
         if (result == null){
             return new PageResult(0,new ArrayList());
         }
-        List<Long> dbUserIdList = result.getRecords().stream().map(v -> {
-            return v.getUserId();
-        }).collect(Collectors.toList());
+        List<Long> dbUserIdList = result.getRecords().stream().map(v ->v.getUserId()).collect(Collectors.toList());
         Map<Long,BigDecimal> rateMap = currencyRateService.getUserIdRateMapByUserIdList(dbUserIdList,"FIL");
 
         result.getRecords().stream().forEach(v -> {
             v.setPowerAvailable(BigDecimalUtil.formatTwo(v.getPowerAvailable()));
             v.setTotalBlockAward(BigDecimalUtil.formatFour(v.getTotalBlockAward()));
             v.setFeeRate(rateMap.get(v.getUserId()));
-
             SysUserOut sysUserOut = new SysUserOut();
             sysUserOut.setUserId(v.getUserId());
             log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
@@ -838,6 +838,110 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             minerVos.add(findAllMinerVO);
         }
         return Result.success(minerVos);
+    }
+
+    @Override
+    public Map<String,Object> minerPagelist(SysMinerInfoBO sysMinerInfoBO){
+        boolean isAsc = sysMinerInfoBO.isAsc();
+        String cloumName = sysMinerInfoBO.getCloumName();
+        //获取管理员管辖的用户id
+        List<Long> userIds = adminUserService.findUserIdsByAdmin();
+
+        LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper();
+        lambdaQueryWrapper.in(SysMinerInfo::getUserId,userIds);
+        if("powerAvailable".equals(cloumName)){
+            if(isAsc){
+                lambdaQueryWrapper.orderByAsc(SysMinerInfo::getPowerAvailable);
+            }else{
+                lambdaQueryWrapper.orderByDesc(SysMinerInfo::getPowerAvailable);
+            }
+        }
+        if("balanceMinerAvailable".equals(cloumName)){
+            if(isAsc){
+                lambdaQueryWrapper.orderByAsc(SysMinerInfo::getBalanceMinerAvailable);
+            }else{
+                lambdaQueryWrapper.orderByDesc(SysMinerInfo::getBalanceMinerAvailable);
+            }
+        }
+        if("balanceWorkerAccount".equals(cloumName)){
+            if(isAsc){
+                lambdaQueryWrapper.orderByAsc(SysMinerInfo::getBalanceWorkerAccount);
+            }else{
+                lambdaQueryWrapper.orderByDesc(SysMinerInfo::getBalanceWorkerAccount);
+            }
+        }
+        IPage<SysMinerInfo> page = sysMinerInfoMapper.selectPage(new Page<>(sysMinerInfoBO.getPageNum(), sysMinerInfoBO.getPageSize()), lambdaQueryWrapper);
+        log.info("分页查询矿工表:{}",JSON.toJSON(page.getRecords().size()));
+
+        List<SysMinerInfoVO> list = new ArrayList<>();
+        for (SysMinerInfo minerInfo:page.getRecords()) {
+            SysMinerInfoVO sysMinerInfoVO = new SysMinerInfoVO();
+            BeanUtils.copyProperties(minerInfo,sysMinerInfoVO);
+            // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
+            String yesterDayDate = DateUtils.getYesterDayDateYmd();
+            Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),sysMinerInfoVO.getMinerId());
+            log.info("查询算力按天聚合表里昨天所有的累计出块份数出参：【{}】",yesterDayTotalBlocks);
+            if (yesterDayTotalBlocks != null) {
+                sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks() - yesterDayTotalBlocks);
+            } else {
+                sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks());
+            }
+            // 查询FIL币算力按天聚合表里昨天所有的有效算力
+            BigDecimal yesterPowerIncrease = sysAggPowerDailyService.selectPowerIncreaseByDate(yesterDayDate,CurrencyEnum.FIL.name(),sysMinerInfoVO.getMinerId());
+            log.info("查询FIL币算力按天聚合表里昨天所有的有效算力出参：【{}】",yesterPowerIncrease);
+            if (yesterPowerIncrease != null) {
+                sysMinerInfoVO.setPowerIncreasePerDay(sysMinerInfoVO.getPowerAvailable().subtract(yesterPowerIncrease));
+            } else {
+                sysMinerInfoVO.setPowerIncreasePerDay(sysMinerInfoVO.getPowerAvailable());
+            }
+            sysMinerInfoVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAccount()));
+            sysMinerInfoVO.setBalanceMinerAvailable(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAvailable()));
+            sysMinerInfoVO.setSectorPledge(BigDecimalUtil.formatFour(sysMinerInfoVO.getSectorPledge()));
+            sysMinerInfoVO.setTotalBlockAward(BigDecimalUtil.formatFour(sysMinerInfoVO.getTotalBlockAward()));
+            sysMinerInfoVO.setPowerAvailable(BigDecimalUtil.formatTwo(sysMinerInfoVO.getPowerAvailable()));
+            sysMinerInfoVO.setBalanceWorkerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceWorkerAccount()));
+            // PoSt账户余额
+            QueryWrapper<FilMinerControlBalance> queryWrapper = new QueryWrapper<>();
+            FilMinerControlBalance filMinerControlBalance = new FilMinerControlBalance();
+            filMinerControlBalance.setMinerId(sysMinerInfoVO.getMinerId());
+            filMinerControlBalance.setName("control-0");
+            queryWrapper.setEntity(filMinerControlBalance);
+            List<FilMinerControlBalance> filMinerControlBalanceList = filMinerControlBalanceMapper.selectList(queryWrapper);
+            log.info("PoSt账户余额表出参：【{}】",JSON.toJSON(filMinerControlBalanceList));
+            if (filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0) {
+                sysMinerInfoVO.setPostBalance(BigDecimalUtil.formatFour(filMinerControlBalanceList.get(0).getBalance()));
+            } else {
+                sysMinerInfoVO.setPostBalance(BigDecimal.ZERO);
+            }
+            // 矿机数量
+            List<OnlineMachineCountVO> onlineMachineCountVOList = sysMachineInfoMapper.selectOnlineMachineCountVO(sysMinerInfoVO.getMinerId());
+            if(onlineMachineCountVOList == null || onlineMachineCountVOList.size() < 1){
+                sysMinerInfoVO.setOnlineMachineCount(0L);
+                sysMinerInfoVO.setOffMachineCount(0L);
+            }
+            for (OnlineMachineCountVO onlineMachineCountVO : onlineMachineCountVOList) {
+                if (onlineMachineCountVO.getOnline() == 1){
+                    sysMinerInfoVO.setOnlineMachineCount(onlineMachineCountVO.getCount());
+                } else {
+                    sysMinerInfoVO.setOffMachineCount(onlineMachineCountVO.getCount());
+                }
+            }
+            SysUserOut sysUserOut = new SysUserOut();
+            sysUserOut.setUserId(sysMinerInfoVO.getUserId());
+            log.info("查询用户姓名入参：【{}】",JSON.toJSON(sysUserOut));
+            Result<SysUserOut> sysUserOutResult = userFeignClient.getUserById(sysUserOut);
+            log.info("查询用户姓名出参：【{}】",JSON.toJSON(sysUserOutResult));
+            if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
+                sysMinerInfoVO.setUserName(sysUserOutResult.getData().getUserName());
+            }
+            list.add(sysMinerInfoVO);
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("code", ErrorCode.MYB_000000.getCode());
+        map.put("msg",ErrorCode.MYB_000000.getMsg());
+        map.put("rows",list);
+        map.put("total",page.getTotal());
+        return map;
     }
 
 

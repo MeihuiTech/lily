@@ -139,7 +139,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
             sys_transfer_record
         WHERE
-            STATUS = 1
+            STATUS = 1 and user_id in
+        <foreach collection="userIds"  item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
         GROUP BY type
     </select>
 
@@ -149,7 +152,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
             sys_transfer_record
         WHERE
-        STATUS = 1
+        STATUS = 1 and user_id in
+        <foreach collection="userIds"  item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
         <if test="todayBeginDate != null">
             and update_time >= #{todayBeginDate}
         </if>

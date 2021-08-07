@@ -259,4 +259,6 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
 
 
     Result<List<FindAllMinerVO>> findAllMiner();
+
+    Map<String,Object> minerPagelist(SysMinerInfoBO sysMinerInfoBO);
 }

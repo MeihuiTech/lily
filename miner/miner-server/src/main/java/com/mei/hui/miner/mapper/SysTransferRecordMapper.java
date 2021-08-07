@@ -76,9 +76,9 @@ public interface SysTransferRecordMapper extends BaseMapper<SysTransferRecord>
      */
     Double selectTotalWithdrawByUserId(@Param("userId") Long userId);
 
-    List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate);
+    List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate,List<Long> userIds);
 
-    List<TransferRecordFeeVO> selectTotalEarning();
+    List<TransferRecordFeeVO> selectTotalEarning(List<Long> userIds);
 
     /**
      * 查询系统划转记录列表,加UserName

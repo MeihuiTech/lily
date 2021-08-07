@@ -1,11 +1,14 @@
 package com.mei.hui.miner.SystemController;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.Currency;
+import com.mei.hui.miner.entity.FilAdminUser;
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.model.*;
+import com.mei.hui.miner.service.FilAdminUserService;
 import com.mei.hui.miner.service.ISysCurrencyService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.util.*;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 系统划转记录Controller
@@ -39,6 +43,8 @@ public class SysTransferRecordController
 
     @Autowired
     private ISysCurrencyService sysCurrencyService;
+    @Autowired
+    private FilAdminUserService adminUserService;
 
     /**
      * 查询系统划转记录列表,普通用户
@@ -126,10 +132,13 @@ public class SysTransferRecordController
             "name货比种类,FIL,CHIA")
     @GetMapping("/getPoolEarning")
     public Result getPoolEarning() {
-        List<TransferRecordFeeVO> allTransferRecordFeeVOList = sysTransferRecordService.selectTotalEarning();
+        //获取当前管理员负责管理的用户id 列表
+        List<Long> userIds = adminUserService.findUserIdsByAdmin();
+
+        List<TransferRecordFeeVO> allTransferRecordFeeVOList = sysTransferRecordService.selectTotalEarning(userIds);
         log.info("总手续费收益出参：【{}】",JSON.toJSON(allTransferRecordFeeVOList));
         Date todayBeginDate = DateUtils.getBeginOfDayDate();
-        List<TransferRecordFeeVO> todayTransferRecordFeeVOList = sysTransferRecordService.selectTodayEarning(todayBeginDate);
+        List<TransferRecordFeeVO> todayTransferRecordFeeVOList = sysTransferRecordService.selectTodayEarning(todayBeginDate,userIds);
         log.info("今日手续费收益出参：【{}】",JSON.toJSON(todayTransferRecordFeeVOList));
         List<TransferRecordFeeVO> resultAllTransferRecordFeeVOList = new ArrayList<>();
         List<TransferRecordFeeVO> resultTodayTransferRecordFeeVOList = new ArrayList<>();

@@ -3,6 +3,7 @@ package com.mei.hui.miner.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilAdminUser;
 import com.mei.hui.miner.feign.vo.AdminUserPageBO;
@@ -94,6 +95,20 @@ public class FilAdminUserServiceImpl extends ServiceImpl<FilAdminUserMapper, Fil
             this.removeById(list.get(0).getId());
         }
         return Result.OK;
+    }
+
+    /**
+     * 获取管理员负责管理的用户id 列表
+     * @return
+     */
+    public List<Long> findUserIdsByAdmin(){
+        Long userId = HttpRequestUtil.getUserId();
+        LambdaQueryWrapper<FilAdminUser> adminQuery = new LambdaQueryWrapper();
+        adminQuery.eq(FilAdminUser::getAdminId,userId);
+        List<FilAdminUser> admins = this.list(adminQuery);
+        List<Long> userIds = admins.stream().map(v -> v.getUserId()).collect(Collectors.toList());
+        log.info("管理员:{},负责的用户:{}",userId,JSON.toJSONString(userIds));
+        return userIds;
     }
 
 }

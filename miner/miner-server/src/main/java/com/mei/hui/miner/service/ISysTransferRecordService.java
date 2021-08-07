@@ -87,7 +87,7 @@ public interface ISysTransferRecordService
     * @return java.math.BigDecimal
     * @version v1.0.0
     */
-    List<TransferRecordFeeVO> selectTotalEarning();
+    List<TransferRecordFeeVO> selectTotalEarning(List<Long> userIds);
 
     /**
     * 今日手续费收益
@@ -99,7 +99,7 @@ public interface ISysTransferRecordService
     * @return java.math.BigDecimal
     * @version v1.0.0
     */
-    List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate);
+    List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate,List<Long> userIds);
 
     /**
      * 查询系统划转记录列表,加UserName
