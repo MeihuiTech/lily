@@ -53,15 +53,23 @@ public class LoginServiceImpl implements LoginService{
         if(StringUtils.isEmpty(user.getAvatar())){
             avatar = ruoYiConfig.getLogUrl();
         }
+
+
         user.setAdmin(isAdmin(roles));
         user.setAvatar("/user-server/"+avatar);
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         result.put("user", user);
-        result.put("roles",roles.stream().map(v -> v.getRoleName()).collect(Collectors.toList()));
         result.put("permissions", permissions);
-        result.put(SystemConstants.ISVISITOR,isVisitor);
+        List<String> roleKeys = new ArrayList<>();
+        if(isVisitor){
+            //如果是游客rolekey 返回 isVisitor
+            roleKeys.add("isVisitor");
+        }else{
+            roleKeys = roles.stream().map(v -> v.getRoleKey()).collect(Collectors.toList());
+        }
+        result.put("roles",roleKeys);
         return result;
     }
 
