@@ -134,6 +134,9 @@ public class SysTransferRecordController
     public Result getPoolEarning() {
         //获取当前管理员负责管理的用户id 列表
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
+        if(userIds.size() == 0){
+            return Result.OK;
+        }
 
         List<TransferRecordFeeVO> allTransferRecordFeeVOList = sysTransferRecordService.selectTotalEarning(userIds);
         log.info("总手续费收益出参：【{}】",JSON.toJSON(allTransferRecordFeeVOList));
