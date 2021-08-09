@@ -9,6 +9,8 @@ import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+
 /**
  * <p>
  * 管理员和用户对应关系 服务类
@@ -21,4 +23,5 @@ public interface FilAdminUserService extends IService<FilAdminUser> {
 
     PageResult<AdminUserPageBO> adminUserPage(BasePage basePage);
     Result saveOrUpdateAdmin(@RequestBody UpdateAdminUserBO bo);
+    List<Long> findUserIdsByAdmin();
 }

@@ -12,6 +12,7 @@ import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.*;
 import com.mei.hui.miner.service.CurrencyRateService;
+import com.mei.hui.miner.service.FilAdminUserService;
 import com.mei.hui.miner.service.ISysTransferRecordService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
@@ -54,7 +55,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     private SysReceiveAddressMapper sysReceiveAddressMapper;
     @Autowired
     private CurrencyRateService currencyRateService;
-
+    @Autowired
+    private FilAdminUserService adminUserService;
 
     /**
      * 查询系统划转记录
@@ -188,8 +190,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
      * @return
      */
     @Override
-    public List<TransferRecordFeeVO> selectTotalEarning() {
-        return sysTransferRecordMapper.selectTotalEarning();
+    public List<TransferRecordFeeVO> selectTotalEarning(List<Long> userIds) {
+        return sysTransferRecordMapper.selectTotalEarning(userIds);
     }
 
     /**
@@ -197,8 +199,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
      * @return
      */
     @Override
-    public List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate) {
-        return sysTransferRecordMapper.selectTodayEarning(todayBeginDate);
+    public List<TransferRecordFeeVO> selectTodayEarning(Date todayBeginDate,List<Long> userIds) {
+        return sysTransferRecordMapper.selectTodayEarning(todayBeginDate,userIds);
     }
 
     @Override
@@ -256,6 +258,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         return map;
     }
 
+    public Map<String,Object> DataNull(){
+        Map<String,Object> result = new HashMap<>();
+        result.put("code", ErrorCode.MYB_000000.getCode());
+        result.put("msg", ErrorCode.MYB_000000.getMsg());
+        result.put("rows", new ArrayList());
+        result.put("total", 0);
+        return result;
+    }
     /**
      * 查询系统划转记录列表,加UserName
      *系统划转记录
@@ -264,27 +274,27 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Override
     @Transactional
     public Map<String,Object> selectSysTransferRecordListUserName(AggWithdrawBO aggWithdrawBO){
+        //查询当前管理员负责管理的普通用户
+        List<Long> userIds = adminUserService.findUserIdsByAdmin();
+        if(userIds.size() ==0){
+            return DataNull();
+        }
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
         if("amount".equals(aggWithdrawBO.getCloumName())){
             if(aggWithdrawBO.isAsc()){
-                //true升序
                 queryWrapper.orderByAsc(SysTransferRecord::getAmount);
             }else {
-                //降序
                 queryWrapper.orderByDesc(SysTransferRecord::getAmount);
             }
         } else if("fee".equals(aggWithdrawBO.getCloumName())){
             if(aggWithdrawBO.isAsc()){
-                //true升序
                 queryWrapper.orderByAsc(SysTransferRecord::getFee);
             }else {
-                //降序
                 queryWrapper.orderByDesc(SysTransferRecord::getFee);
             }
         } else {
             queryWrapper.orderByDesc(SysTransferRecord::getCreateTime);
         }
-
         //用于入参模块模糊查询，获取用户id
         String userName = aggWithdrawBO.getUserName();
         if (StringUtils.isNotEmpty(userName)) {
@@ -293,22 +303,16 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             log.info("模糊查询用户id集合：【{}】",JSON.toJSON(bo));
             Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
             log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
-            List<Long> idList = new ArrayList<>();
-            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
-                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
-                // id去重
-                Set<Long> idsSet = new HashSet<>(idList);
-                queryWrapper.in(SysTransferRecord::getUserId,new ArrayList<Long>(idsSet));
-            } else {
-                Map<String,Object> result = new HashMap<>();
-                result.put("code", ErrorCode.MYB_000000.getCode());
-                result.put("msg", ErrorCode.MYB_000000.getMsg());
-                result.put("rows", new ArrayList());
-                result.put("total", 0);
-                return result;
+            if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
+                throw MyException.fail(userResult.getCode(),userResult.getMsg());
             }
+            if(userResult.getData().size() == 0){
+                return DataNull();
+            }
+            List<Long> idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+            userIds = userIds.stream().filter(item -> idList.contains(item)).collect(Collectors.toList());
         }
-
+        queryWrapper.in(SysTransferRecord::getUserId,userIds);
         // 查询条件币种
         Long currencyId = aggWithdrawBO.getCurrencyId();
         if (currencyId != null) {
@@ -319,17 +323,12 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             String currencyType = currencyEnum.name();
             queryWrapper.eq(SysTransferRecord::getType,currencyType);
         }
-
         if (aggWithdrawBO.getStatus() != null){
             queryWrapper.eq(SysTransferRecord::getStatus,aggWithdrawBO.getStatus());
         }
-
         log.info("根据 entity 条件，查询全部记录（并翻页）入参：【{}】",JSON.toJSON(queryWrapper));
         IPage<SysTransferRecord> page = sysTransferRecordMapper.selectPage(new Page<>(aggWithdrawBO.getPageNum(), aggWithdrawBO.getPageSize()), queryWrapper);
         List<Long> ids = page.getRecords().stream().map(v -> v.getUserId()).collect(Collectors.toList());
-        page.getRecords().stream().filter(v-> page.getRecords() != null && page.getRecords().size() > 0).forEach(v->{
-            v.setType(v.getType());
-        });
         /**
          * 查询用户
          */
@@ -342,19 +341,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             log.info("批量获取用户出参：【{}】",JSON.toJSON(users));
             users.getData().stream().forEach(v->map.put(v.getUserId(),v));
         }
-        /**
-         * 组装返回信息
-         */
+        //组装返回信息
         if(map.size() > 0){
-            page.getRecords().stream().forEach(
-                    v->{
+            page.getRecords().stream().forEach(v->{
                         v.setUserName(map.get(v.getUserId()).getUserName());
                         v.setAmount(BigDecimalUtil.formatFour(v.getAmount()));
                         v.setFee(BigDecimalUtil.formatFour(v.getFee()));
-                    }
-            );
+                    });
         }
-
         Map<String,Object> result = new HashMap<>();
         result.put("code", ErrorCode.MYB_000000.getCode());
         result.put("msg", ErrorCode.MYB_000000.getMsg());

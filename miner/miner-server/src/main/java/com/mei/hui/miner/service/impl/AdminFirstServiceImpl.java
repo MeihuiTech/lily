@@ -55,13 +55,15 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
      */
     @Override
     public AdminFirstCollectVO filAdminFirstAllCount() {
-        LambdaQueryWrapper<FilAdminUser> adminUserQuery = new LambdaQueryWrapper();
-        adminUserQuery.eq(FilAdminUser::getAdminId, HttpRequestUtil.getUserId());
-        List<FilAdminUser> admins = adminUserService.list(adminUserQuery);
-        log.info("管理员负责的矿工用户:{}",JSON.toJSONString(admins));
-        List<Long> userIds = admins.stream().map(v -> v.getUserId()).collect(Collectors.toList());
-
         AdminFirstCollectVO adminFirstCollectVO = new AdminFirstCollectVO();
+
+        //获取当前管理员负责管理的用户id 列表
+        List<Long> userIds = adminUserService.findUserIdsByAdmin();
+        if(userIds.size() == 0){
+            log.info("此管理员没有配置管理的矿工用户");
+            return adminFirstCollectVO;
+        }
+
         // 管理员首页-矿工统计数据-平台总资产，用的字段：挖矿账户余额, 单位FIL
         BigDecimal allBalanceMinerAccount = sysMinerInfoService.selectFilAllBalanceMinerAccount(userIds);
         adminFirstCollectVO.setAllBalanceMinerAccount(BigDecimalUtil.formatFour(allBalanceMinerAccount));

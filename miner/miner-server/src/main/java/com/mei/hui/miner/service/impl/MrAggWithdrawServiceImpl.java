@@ -9,6 +9,7 @@ import com.mei.hui.miner.entity.MrAggWithdraw;
 import com.mei.hui.miner.mapper.MrAggWithdrawMapper;
 import com.mei.hui.miner.model.AggWithdrawBO;
 import com.mei.hui.miner.model.AggWithdrawVO;
+import com.mei.hui.miner.service.FilAdminUserService;
 import com.mei.hui.miner.service.MrAggWithdrawService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.FindSysUserListInput;
@@ -33,7 +34,8 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
     private UserFeignClient userFeignClient;
     @Autowired
     private MrAggWithdrawMapper mrAggWithdrawMapper;
-
+    @Autowired
+    private FilAdminUserService adminUserService;
 
     /**
     * 用户收益提现汇总分页查询
@@ -41,62 +43,57 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
     * @description
     * @author shangbin
     * @date 2021/6/4 16:50
-    * @param [input]
     * @return com.mei.hui.util.PageResult<com.mei.hui.miner.model.AggWithdrawVO>
     * @version v1.0.0
     */
     @Override
     public PageResult<AggWithdrawVO> pageList(AggWithdrawBO input){
+        //查询当前管理员负责管理的普通用户
+        List<Long> userIds = adminUserService.findUserIdsByAdmin();
+        if(userIds.size() ==0){
+            return new PageResult<>(0,new ArrayList<>());
+        }
         //查询用户收益提现分页列表
         LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
         //排序
         if("totalFee".equals(input.getCloumName())){
             if(input.isAsc()){
-                //true升序
                 queryWrapper.orderByAsc(MrAggWithdraw::getTotalFee);
             }else {
-                //降序
                 queryWrapper.orderByDesc(MrAggWithdraw::getTotalFee);
             }
         } else if("tatalCount".equals(input.getCloumName())){
             if(input.isAsc()){
-                //true升序
                 queryWrapper.orderByAsc(MrAggWithdraw::getTatalCount);
             }else {
-                //降序
                 queryWrapper.orderByDesc(MrAggWithdraw::getTatalCount);
             }
         } else if("takeTotalMony".equals(input.getCloumName())){
             if(input.isAsc()){
-                //true升序
                 queryWrapper.orderByAsc(MrAggWithdraw::getTakeTotalMony);
             }else {
-                //降序
                 queryWrapper.orderByDesc(MrAggWithdraw::getTakeTotalMony);
             }
         } else {
             queryWrapper.orderByDesc(MrAggWithdraw::getTakeTotalMony);
         }
-
         //用于入参模块模糊查询，获取用户id
         String userName = input.getUserName();
         if (StringUtils.isNotEmpty(userName)) {
             FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
             bo.setName(input.getUserName());
-            log.info("模糊查询用户id集合");
             Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
             log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
-            List<Long> idList = new ArrayList<>();
-            if(ErrorCode.MYB_000000.getCode().equals(userResult.getCode()) && userResult.getData().size() > 0){
-                idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
-                // id去重
-                Set<Long> idsSet = new HashSet<>(idList);
-                queryWrapper.in(MrAggWithdraw::getSysUserId,new ArrayList<Long>(idsSet));
-            } else {
+            if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
+                throw MyException.fail(userResult.getCode(),userResult.getMsg());
+            }
+            if(userResult.getData().size() == 0){
                 return new PageResult(0,new ArrayList());
             }
+            List<Long> idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
+            userIds = userIds.stream().filter(item -> idList.contains(item)).collect(Collectors.toList());
         }
-
+        queryWrapper.in(MrAggWithdraw::getSysUserId,userIds);
         // 查询条件币种
         Long currencyId = input.getCurrencyId();
         if (currencyId != null) {
@@ -107,13 +104,10 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
             String currencyType = currencyEnum.name();
             queryWrapper.eq(MrAggWithdraw::getType,currencyType);
         }
-
-        IPage<MrAggWithdraw> page = mrAggWithdrawMapper
-                .selectPage(new Page<>(input.getPageNum(), input.getPageSize()), queryWrapper);
+        IPage<MrAggWithdraw> page = mrAggWithdrawMapper.selectPage(new Page<>(input.getPageNum(), input.getPageSize()), queryWrapper);
         /**
          * 获取列表后，得到 userId的集合,然后去获取用户 组装到响应中
          */
-        List<Long> userIds = page.getRecords().stream().map(v ->v.getSysUserId()).collect(Collectors.toList());
         Map<Long,String> maps = new HashMap<>();
         if(userIds.size() > 0){
             FindSysUserListInput findSysUserListInput = new FindSysUserListInput();
