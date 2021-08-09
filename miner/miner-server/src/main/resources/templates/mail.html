@@ -17,11 +17,11 @@
             <th align="center" valign="middle">数学</th>
         </tr>
 
-        <p th:each="user:${list}">
+        <p th:each="item:${list}">
             <tr>
-                <td align="center" valign="middle" th:text="${user.userName}"></td>
-                <td align="center" valign="middle" th:text="${user.userId}"></td>
-                <td align="center" valign="middle" th:text="${user.email}"></td>
+                <td align="center" valign="middle" th:text="${item.userName}"></td>
+                <td align="center" valign="middle" th:text="${item.userId}"></td>
+                <td align="center" valign="middle" th:text="${item.email}"></td>
             </tr>
         </p>
     </table>
