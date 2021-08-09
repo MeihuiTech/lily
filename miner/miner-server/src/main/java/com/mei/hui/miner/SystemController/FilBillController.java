@@ -2,6 +2,7 @@ package com.mei.hui.miner.SystemController;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMinerInfo;
@@ -20,10 +21,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 
 import java.util.List;
 
@@ -71,11 +70,19 @@ public class FilBillController {
 
     @ApiModelProperty("查询账单汇总信息")
     @PostMapping("/total")
-    public Result<BillTotalVO> selectFilBillTotal(@RequestBody FilBillMethodBO filBillMethodBO){
-        if (StringUtils.isEmpty(filBillMethodBO.getMinerId()) && StringUtils.isEmpty(filBillMethodBO.getSubAccount()) && StringUtils.isEmpty(filBillMethodBO.getMonthDate())){
-            filBillMethodBO = filBillMethodBOIsNull(filBillMethodBO);
+    public Result<BillTotalVO> selectFilBillTotal(@RequestBody(required = false) String filBillMethodBO){
+        FilBillMethodBO filBillMethodBOEntity = new FilBillMethodBO();
+        // 页面初始化的时候这3个字段都不传，后端增加默认值
+        if (StringUtils.isNotEmpty(filBillMethodBO)){
+            JSONObject jsonObject = JSONObject.parseObject(filBillMethodBO);
+            filBillMethodBOEntity = jsonObject.toJavaObject(FilBillMethodBO.class);
+            log.info("账单管理入参实体为：【{}】",JSON.toJSON(filBillMethodBOEntity));
         }
-        BillTotalVO billTotalVO = filBillService.selectFilBillTotal(filBillMethodBO);
+        if (StringUtils.isEmpty(filBillMethodBOEntity.getMinerId()) && StringUtils.isEmpty(filBillMethodBOEntity.getSubAccount()) && StringUtils.isEmpty(filBillMethodBOEntity.getMonthDate())){
+            filBillMethodBOEntity = filBillMethodBOIsNull(filBillMethodBOEntity);
+            log.info("账单管理入参实体设置默认值为：【{}】",JSON.toJSON(filBillMethodBOEntity));
+        }
+        BillTotalVO billTotalVO = filBillService.selectFilBillTotal(filBillMethodBOEntity);
         return Result.success(billTotalVO);
     }
 
