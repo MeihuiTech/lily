@@ -18,7 +18,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 
-@ConditionalOnProperty("spring.mail")
 @Component
 @Slf4j
 public class MailUtil {
