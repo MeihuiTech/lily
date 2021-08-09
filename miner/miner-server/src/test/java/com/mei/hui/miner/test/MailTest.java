@@ -1,13 +1,12 @@
 package com.mei.hui.miner.test;
 
-import com.mei.hui.config.MailUtil;
 import com.mei.hui.config.model.MailDO;
 import com.mei.hui.miner.MinerApplication;
+import com.mei.hui.miner.common.MailUtil;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
