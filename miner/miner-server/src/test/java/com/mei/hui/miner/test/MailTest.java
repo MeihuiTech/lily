@@ -3,6 +3,7 @@ package com.mei.hui.miner.test;
 import com.mei.hui.config.MailUtil;
 import com.mei.hui.config.model.MailDO;
 import com.mei.hui.miner.MinerApplication;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(SpringRunner.class)
@@ -46,8 +49,17 @@ public class MailTest {
 
     @Test
     public void sendTemplateTest(){
+
+        List<SysUserOut> list = new ArrayList<>();
+
+        SysUserOut sysUserOut = new SysUserOut();
+        sysUserOut.setUserName("鲍红建");
+        sysUserOut.setUserId(1L);
+        sysUserOut.setEmail("834953332@.com");
+        list.add(sysUserOut);
+
         Map<String,Object> map = new HashMap<>();
-        map.put("username","这是模板邮件");
+        map.put("list",list);
 
         MailDO mail = new MailDO();
         mail.setContent("发送了一个模板邮件");
