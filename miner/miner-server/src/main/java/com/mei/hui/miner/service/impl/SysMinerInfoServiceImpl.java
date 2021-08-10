@@ -544,6 +544,8 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         list.stream().forEach(v->{
             v.setBalanceAccount(BigDecimalUtil.formatFour(v.getBalanceAccount()));
             v.setBalancePostAccount(BigDecimalUtil.formatFour(v.getBalancePostAccount()));
+            v.setBalanceWorkerAccount(BigDecimalUtil.formatFour(v.getBalanceWorkerAccount()));
+            v.setBalanceAvailable(BigDecimalUtil.formatFour(v.getBalanceAvailable()));
         });
         PageResult<SysAggAccountDaily> pageResult = new PageResult(list.size(), list);
         return pageResult;
