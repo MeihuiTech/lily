@@ -67,12 +67,17 @@ public class FilAdminUserServiceImpl extends ServiceImpl<FilAdminUserMapper, Fil
 
         Map<Long,AdminUserPageBO> pageMap = new HashMap<>();
         list.stream().forEach(v -> {
-            AdminUserPageBO adminUserPageBO = new AdminUserPageBO();
-            adminUserPageBO.setAdminId(v.getAdminId());
-            adminUserPageBO.setAdminName(userMap.get(v.getAdminId()));
             GeneralUserBO generalUserBO = new GeneralUserBO().setUserId(v.getUserId()).setUserName(userMap.get(v.getUserId()));
-            adminUserPageBO.getList().add(generalUserBO);
-            pageMap.put(v.getAdminId(),adminUserPageBO);
+            AdminUserPageBO admin = pageMap.get(v.getAdminId());
+            if(admin == null){
+                AdminUserPageBO adminUserPageBO = new AdminUserPageBO();
+                adminUserPageBO.setAdminId(v.getAdminId());
+                adminUserPageBO.setAdminName(userMap.get(v.getAdminId()));
+                adminUserPageBO.getList().add(generalUserBO);
+                pageMap.put(v.getAdminId(),adminUserPageBO);
+            }else {
+                admin.getList().add(generalUserBO);
+            }
         });
 
         /**
