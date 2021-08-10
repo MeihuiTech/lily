@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @ApiModel
-public class AdminUserPageBO extends BasePage {
+public class AdminUserPageBO {
 
     @ApiModelProperty("管理员id")
     private Long adminId;
