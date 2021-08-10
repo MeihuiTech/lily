@@ -7,6 +7,7 @@ import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilAdminUser;
 import com.mei.hui.miner.feign.vo.AdminUserPageBO;
+import com.mei.hui.miner.feign.vo.GeneralUserBO;
 import com.mei.hui.miner.feign.vo.UpdateAdminUserBO;
 import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.mapper.FilAdminUserMapper;
@@ -42,15 +43,24 @@ public class FilAdminUserServiceImpl extends ServiceImpl<FilAdminUserMapper, Fil
     private UserManager userManager;
 
     public PageResult<AdminUserPageBO> adminUserPage(BasePage basePage){
+        /**
+         * 分页查询管理员用户
+         */
         PageResult<SysUserOut> page = userManager.findAllAdminUser(basePage);
         List<Long> userIds = page.getRows().stream().map(v -> v.getUserId()).collect(Collectors.toList());
         log.info("查询管理员分页列表:{}", JSON.toJSONString(userIds));
 
+        /**
+         *查询所有用户
+         */
         List<SysUserOut> allUser = userManager.findAllUser();
         Map<Long,String> userMap = new HashMap<>();
         allUser.stream().forEach(v->userMap.put(v.getUserId(),v.getUserName()));
         log.info("查询所有用户:{}",JSON.toJSONString(userMap));
 
+        /**
+         * 查询管理员负责的矿工用户
+         */
         LambdaQueryWrapper<FilAdminUser> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.in(FilAdminUser::getAdminId,userIds);
         List<FilAdminUser> list = this.list(queryWrapper);
@@ -60,11 +70,14 @@ public class FilAdminUserServiceImpl extends ServiceImpl<FilAdminUserMapper, Fil
             AdminUserPageBO adminUserPageBO = new AdminUserPageBO();
             adminUserPageBO.setAdminId(v.getAdminId());
             adminUserPageBO.setAdminName(userMap.get(v.getAdminId()));
-            adminUserPageBO.setUserId(v.getUserId());
-            adminUserPageBO.setUserName(userMap.get(v.getUserId()));
+            GeneralUserBO generalUserBO = new GeneralUserBO().setUserId(v.getUserId()).setUserName(userMap.get(v.getUserId()));
+            adminUserPageBO.getList().add(generalUserBO);
             pageMap.put(v.getAdminId(),adminUserPageBO);
         });
 
+        /**
+         * 没有分配矿工用户的管理员也要返回
+         */
         List<AdminUserPageBO> resultList = new ArrayList<>();
         //返回把没有分配矿工用户的管理员
         page.getRows().stream().forEach(v->{
