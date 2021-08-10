@@ -848,6 +848,14 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         String cloumName = sysMinerInfoBO.getCloumName();
         //获取管理员管辖的用户id
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
+        if(userIds.size() == 0){
+            log.info("此管理员没有配置管理的矿工用户");
+            Map<String,Object> map = new HashMap<>();
+            map.put("code", ErrorCode.MYB_000000.getCode());
+            map.put("msg",ErrorCode.MYB_000000.getMsg());
+            map.put("rows",new ArrayList<SysMinerInfoVO>());
+            map.put("total",0);
+        }
 
         LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.in(SysMinerInfo::getUserId,userIds);
