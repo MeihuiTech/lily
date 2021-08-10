@@ -6,10 +6,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Accessors(chain = true)
 @ApiModel
-public class AdminUserPageBO extends BasePage {
+public class AdminUserPageBO {
 
     @ApiModelProperty("管理员id")
     private Long adminId;
@@ -17,10 +20,8 @@ public class AdminUserPageBO extends BasePage {
     @ApiModelProperty("管理员名称")
     private String adminName;
 
-    @ApiModelProperty("用户id")
-    private Long userId;
 
-    @ApiModelProperty("用户名称")
-    private String userName;
+    @ApiModelProperty("矿工用户列表")
+    List<GeneralUserBO> list = new ArrayList<>();
 
 }

@@ -111,6 +111,10 @@ public class SysProfileController{
      */
     @PutMapping
     public Map<String,Object> updateProfile(@RequestBody SysUserBO user){
+        //如果是游客不允许修改
+        if(HttpRequestUtil.isVisitor()){
+            throw MyException.fail(UserError.MYB_333001.getCode(),UserError.MYB_333001.getMsg());
+        }
        return userService.updateProfile(user);
     }
 
