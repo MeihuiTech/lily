@@ -9,7 +9,8 @@ public enum ErrorCode {
 	 */
 	MYB_111002("111002", "token过期"),
 	MYB_111003("111003", "token失效"),
-	MYB_111004("111004", "token验签错误");
+	MYB_111004("111004", "token验签错误"),
+	MYB_111005("111005", "权限不足");
 
 	private String code;
 	private String msg;

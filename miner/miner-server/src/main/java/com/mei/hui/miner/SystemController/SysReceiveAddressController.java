@@ -1,9 +1,13 @@
 package com.mei.hui.miner.SystemController;
 
+import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.model.SysReceiveAddressBO;
 import com.mei.hui.miner.model.SysReceiveAddressVO;
 import com.mei.hui.miner.model.UpdateReceiveAddressBO;
 import com.mei.hui.miner.service.ISysReceiveAddressService;
+import com.mei.hui.util.ErrorCode;
+import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,6 +27,10 @@ public class SysReceiveAddressController {
     @ApiOperation(value = "新增收款地址【鲍红建】")
     @PostMapping("/add")
     public Result addReceiveAddress(@RequestBody SysReceiveAddressBO sysReceiveAddress) {
+        //如果是游客不允许修改头像
+        if(HttpRequestUtil.isVisitor()){
+            throw MyException.fail(ErrorCode.MYB_111005.getCode(),ErrorCode.MYB_111005.getMsg());
+        }
         return sysReceiveAddressService.addReceiveAddress(sysReceiveAddress);
     }
 
@@ -37,6 +45,10 @@ public class SysReceiveAddressController {
     @ApiOperation(value = "编辑收款地址")
     @PostMapping("/update")
     public Result updateReceiveAddress(@RequestBody UpdateReceiveAddressBO bo) {
+        //如果是游客不允许修改头像
+        if(HttpRequestUtil.isVisitor()){
+            throw MyException.fail(ErrorCode.MYB_111005.getCode(),ErrorCode.MYB_111005.getMsg());
+        }
         return sysReceiveAddressService.updateReceiveAddress(bo);
     }
 
@@ -61,7 +73,6 @@ public class SysReceiveAddressController {
     * @description
     * @author shangbin
     * @date 2021/5/21 18:50
-    * @param [currencyId]
     * @return com.mei.hui.util.Result<com.mei.hui.miner.model.SysReceiveAddressVO>
     * @version v1.0.0
     */
