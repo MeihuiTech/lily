@@ -23,6 +23,7 @@ import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
+import jdk.nashorn.internal.ir.ReturnNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -308,7 +309,14 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     {
         boolean isAsc = sysMinerInfoBO.isAsc();
         String cloumName = sysMinerInfoBO.getCloumName();
-        Long userId = HttpRequestUtil.getUserId();
+        Long userId = null;
+        try {
+            userId = HttpRequestUtil.getUserId();
+            log.info("userId从token中获取：【{}】",userId);
+        }catch (Exception e){
+            userId = sysMinerInfoBO.getUserId();
+            log.info("userId从入参中获取：【{}】",userId);
+        }
 
         Page<SysMinerInfo> minerInfoPage = new Page<>(sysMinerInfoBO.getPageNum(),sysMinerInfoBO.getPageSize());
         IPage<SysMinerInfoVO> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,userId,isAsc,cloumName);
@@ -381,6 +389,45 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         map.put("rows",minerInfoPage.getRecords());
         map.put("total",minerInfoPage.getTotal());
         return map;
+    }
+
+    /*矿工有效算力单位换算*/
+    @Override
+    public FilMinerPowerAvailableUnitVO powerAvailableUnit(BigDecimal powerAvailable){
+        FilMinerPowerAvailableUnitVO filMinerPowerAvailableUnitVO = new FilMinerPowerAvailableUnitVO();
+        if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024*1024*1024*1024*1024*1024*1024*1024*1024)));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("BiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("YiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("ZiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("EiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("PiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("TiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("GiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("MiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024)) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024)));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("KiB");
+        } else {
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable);
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("B");
+        }
+        filMinerPowerAvailableUnitVO.setPowerAvailable(BigDecimalUtil.formatTwo(filMinerPowerAvailableUnitVO.getPowerAvailable()));
+        return filMinerPowerAvailableUnitVO;
     }
 
     @Override

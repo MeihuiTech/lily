@@ -52,9 +52,9 @@ public class MailTest {
         List<SysUserOut> list = new ArrayList<>();
 
         SysUserOut sysUserOut = new SysUserOut();
-        sysUserOut.setUserName("鲍红建");
+        sysUserOut.setUserName("张三");
         sysUserOut.setUserId(1L);
-        sysUserOut.setEmail("834953332@.com");
+        sysUserOut.setEmail("daffadsfasd@.com");
         list.add(sysUserOut);
 
         Map<String,Object> map = new HashMap<>();
@@ -62,7 +62,7 @@ public class MailTest {
 
         MailDO mail = new MailDO();
         mail.setContent("发送了一个模板邮件");
-        mail.setEmail("baohongjian@meihuitech.com");
+        mail.setEmail("shangbin@meihuitech.com");
         mail.setTitle("你有一条新消息");
         mail.setAttachment(map);
         MailUtil.sendTemplateMail(mail);
