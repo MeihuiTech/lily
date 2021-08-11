@@ -12,16 +12,26 @@
 <body>
     <table>
         <tr>
-            <th align="center" valign="middle">姓名</th>
-            <th align="center" valign="middle">语文</th>
-            <th align="center" valign="middle">数学</th>
+            <th align="center" valign="middle">矿工ID</th>
+            <th align="center" valign="middle">有效算力</th>
+            <th align="center" valign="middle">算力增速</th>
+            <th align="center" valign="middle">今日已出块份数</th>
+            <th align="center" valign="middle">可用余额(FIL)</th>
+            <th align="center" valign="middle">Worker账户余额(FIL)</th>
+            <th align="center" valign="middle">PoSt账户余额(FIL)</th>
+            <th align="center" valign="middle">有效/错误扇区</th>
         </tr>
 
         <p th:each="item:${list}">
             <tr>
-                <td align="center" valign="middle" th:text="${item.userName}"></td>
-                <td align="center" valign="middle" th:text="${item.userId}"></td>
-                <td align="center" valign="middle" th:text="${item.email}"></td>
+                <td align="center" valign="middle" th:text="${item.minerId}"></td>
+                <td align="center" valign="middle" th:text="${item.powerAvailable} + ${item.powerAvailableUnit}"></td>
+                <td align="center" valign="middle" th:text="${item.powerIncreasePerDay}"></td>
+                <td align="center" valign="middle" th:text="${item.blocksPerDay}"></td>
+                <td align="center" valign="middle" th:text="${item.balanceMinerAvailable}"></td>
+                <td align="center" valign="middle" th:text="${item.balanceWorkerAccount}"></td>
+                <td align="center" valign="middle" th:text="${item.postBalance}"></td>
+                <td align="center" valign="middle" th:text="${item.sectorAvailable} + '/' + ${item.sectorError}"></td>
             </tr>
         </p>
     </table>

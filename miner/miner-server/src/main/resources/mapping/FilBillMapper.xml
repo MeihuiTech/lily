@@ -76,7 +76,7 @@
 
     <!--分页查询账单消息列表-->
     <select id="selectFilBillPage" resultType="com.mei.hui.miner.feign.vo.FilBillVO">
-        select b.date_time dateTime,b.cid,b.method,t.money,t.type
+        select b.date_time dateTime,b.cid,b.method,t.money,t.type,t.sender,t.receiver
         from
         fil_bill_transactions t
         LEFT JOIN

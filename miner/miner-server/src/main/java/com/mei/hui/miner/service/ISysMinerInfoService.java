@@ -99,6 +99,18 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     */
     Map<String,Object> findPage(SysMinerInfoBO sysMinerInfoBO);
 
+    /**
+    * 矿工有效算力单位换算
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/10 16:37
+    * @param [powerAvailable]
+    * @return com.mei.hui.miner.feign.vo.FilMinerPowerAvailableUnitVO
+    * @version v1.4.1
+    */
+    public FilMinerPowerAvailableUnitVO powerAvailableUnit(BigDecimal powerAvailable);
+
     public Map<String,Object> machines(Long id,int pageNum,int pageSize,Integer online,String machineType);
 
     public List<SysMinerInfo> findMinerInfoList(SysMinerInfo sysMinerInfo);
@@ -261,4 +273,10 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     Result<List<FindAllMinerVO>> findAllMiner();
 
     Map<String,Object> minerPagelist(SysMinerInfoBO sysMinerInfoBO);
+
+    /**
+     * 矿工列表导出excel
+     * @return
+     */
+    public List<MinerInfoExportExcelVO> exportMinerInfoExcel();
 }

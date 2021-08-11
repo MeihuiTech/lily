@@ -23,7 +23,7 @@ public class FilBillVO {
     @ApiModelProperty(value = "消息id")
     private String cid;
 
-    @ApiModelProperty(value = "收支:in收入，out支出")
+    @ApiModelProperty(value = "收支：0支出，1收入")
     private Integer inOrOut;
 
     @ApiModelProperty(value = "金额")
@@ -34,6 +34,12 @@ public class FilBillVO {
 
     @ApiModelProperty(value = "类型：Node Fee节点手续费，Burn Fee销毁手续费，Transfer转账")
     private String type;
+
+    @ApiModelProperty(value = "发送方")
+    private String sender;
+
+    @ApiModelProperty(value = "接收方")
+    private String receiver;
 
 
 }

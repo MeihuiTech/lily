@@ -1,20 +1,26 @@
 package com.mei.hui.miner.SystemController;
 
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.metadata.Sheet;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.*;
+import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
-import com.mei.hui.miner.service.*;
-import com.mei.hui.user.feign.feignClient.UserFeignClient;
-import com.mei.hui.user.feign.vo.SysUserOut;
+import com.mei.hui.miner.service.FilAdminUserService;
+import com.mei.hui.miner.service.IChiaMinerService;
+import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.*;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.RegEx;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -217,6 +223,41 @@ public class SysMinerInfoController {
     @PostMapping("/saveOrUpdateAdmin")
     public Result saveOrUpdateAdmin(@RequestBody UpdateAdminUserBO bo){
         return adminUserService.saveOrUpdateAdmin(bo);
+    }
+
+    @NotAop
+    @ApiOperation("矿工列表导出excel")
+    @GetMapping("/exportMinerInfoExcel")
+    public void exportMinerInfoExcel(HttpServletResponse response){
+        ExcelWriter writer = null;
+        OutputStream out = null;
+        try {
+            List<MinerInfoExportExcelVO> minerInfoExportExcelVOList = sysMinerInfoService.exportMinerInfoExcel();
+            out = response.getOutputStream();
+            writer = new ExcelWriter(out, ExcelTypeEnum.XLSX);
+            String fileName = "矿工列表表格";
+            Sheet sheet = new Sheet(1, 0, MinerInfoExportExcelVO.class);
+            sheet.setSheetName("矿工列表");
+            writer.write(minerInfoExportExcelVOList, sheet);
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + new String((fileName + ".xlsx").getBytes(), "ISO8859-1"));
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (writer != null) {
+                writer.finish();
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 
 }

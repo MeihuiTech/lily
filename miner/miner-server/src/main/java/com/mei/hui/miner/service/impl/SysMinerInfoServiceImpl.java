@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -23,6 +24,7 @@ import com.mei.hui.user.feign.vo.FindSysUsersByNameBO;
 import com.mei.hui.user.feign.vo.FindSysUsersByNameVO;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
+import jdk.nashorn.internal.ir.ReturnNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -308,7 +310,14 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     {
         boolean isAsc = sysMinerInfoBO.isAsc();
         String cloumName = sysMinerInfoBO.getCloumName();
-        Long userId = HttpRequestUtil.getUserId();
+        Long userId = null;
+        try {
+            userId = HttpRequestUtil.getUserId();
+            log.info("userId从token中获取：【{}】",userId);
+        }catch (Exception e){
+            userId = sysMinerInfoBO.getUserId();
+            log.info("userId从入参中获取：【{}】",userId);
+        }
 
         Page<SysMinerInfo> minerInfoPage = new Page<>(sysMinerInfoBO.getPageNum(),sysMinerInfoBO.getPageSize());
         IPage<SysMinerInfoVO> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,userId,isAsc,cloumName);
@@ -381,6 +390,45 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         map.put("rows",minerInfoPage.getRecords());
         map.put("total",minerInfoPage.getTotal());
         return map;
+    }
+
+    /*矿工有效算力单位换算*/
+    @Override
+    public FilMinerPowerAvailableUnitVO powerAvailableUnit(BigDecimal powerAvailable){
+        FilMinerPowerAvailableUnitVO filMinerPowerAvailableUnitVO = new FilMinerPowerAvailableUnitVO();
+        if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024*1024*1024*1024*1024*1024*1024*1024*1024)));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("BiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("YiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("ZiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("EiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("PiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("TiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("GiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024))) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024).multiply(new BigDecimal(1024))));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("MiB");
+        } else if (powerAvailable.compareTo(new BigDecimal(1024)) > 0){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024)));
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("KiB");
+        } else {
+            filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable);
+            filMinerPowerAvailableUnitVO.setPowerAvailableUnit("B");
+        }
+        filMinerPowerAvailableUnitVO.setPowerAvailable(BigDecimalUtil.formatTwo(filMinerPowerAvailableUnitVO.getPowerAvailable()));
+        return filMinerPowerAvailableUnitVO;
     }
 
     @Override
@@ -953,6 +1001,41 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         map.put("total",page.getTotal());
         return map;
     }
+
+    /*矿工列表导出excel*/
+    @Override
+    public List<MinerInfoExportExcelVO> exportMinerInfoExcel() {
+        SysMinerInfoBO sysMinerInfoBO = new SysMinerInfoBO();
+        sysMinerInfoBO.setPageNum(1);
+        sysMinerInfoBO.setPageSize(500);
+        Map<String,Object> sysMinerInfoPageMap = findPage(sysMinerInfoBO);
+        log.info("分页查询矿工信息列表出参：【{}】",JSON.toJSON(sysMinerInfoPageMap));
+        List<SysMinerInfoVO> sysMinerInfoVOList = (List<SysMinerInfoVO>)sysMinerInfoPageMap.get("rows");
+
+        if (sysMinerInfoVOList == null || sysMinerInfoVOList.size() < 1){
+            log.info("用户矿工信息列表为空");
+            return null;
+        }
+
+        List<MinerInfoExportExcelVO> minerInfoExportExcelVOList = new ArrayList<>();
+        for (SysMinerInfoVO sysMinerInfoVO : sysMinerInfoVOList){
+            log.info("矿工列表出参：【{}】",JSON.toJSON(sysMinerInfoVO));
+            MinerInfoExportExcelVO minerInfoExportExcelVO = new MinerInfoExportExcelVO();
+            BeanUtils.copyProperties(sysMinerInfoVO,minerInfoExportExcelVO);
+
+            // 有效算力页面带i的用1024换算，不带i的用1000换算，有效算力, 单位B
+            BigDecimal powerAvailable = sysMinerInfoVO.getPowerAvailable();
+            FilMinerPowerAvailableUnitVO filMinerPowerAvailableUnitVO = powerAvailableUnit(powerAvailable);
+            log.info("矿工有效算力单位换算出参：【{}】",JSON.toJSON(filMinerPowerAvailableUnitVO));
+            minerInfoExportExcelVO.setPowerAvailableAndUnit(filMinerPowerAvailableUnitVO.getPowerAvailable() + " " + filMinerPowerAvailableUnitVO.getPowerAvailableUnit());
+            minerInfoExportExcelVO.setSectorAvailableAndError(sysMinerInfoVO.getSectorAvailable() + "/" + sysMinerInfoVO.getSectorError());
+            minerInfoExportExcelVO.setOnlineMachineCountAndOff(sysMinerInfoVO.getOnlineMachineCount() + "/" + sysMinerInfoVO.getOffMachineCount());
+            minerInfoExportExcelVOList.add(minerInfoExportExcelVO);
+        }
+        log.info("矿工列表导出excel：【{}】",JSON.toJSON(minerInfoExportExcelVOList));
+        return minerInfoExportExcelVOList;
+    }
+
 
 
 }

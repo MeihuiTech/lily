@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.entity.FilMinerControlBalance;
@@ -117,6 +118,13 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         Page<FilBillVO> page = new Page<>(filBillMethodBO.getPageNum(),filBillMethodBO.getPageSize());
         IPage<FilBillVO> filBillVOIPage = filBillMapper.selectFilBillPage(page,
                 filBillMethodBO.getMinerId(),filBillMethodBO.getMethod(),filBillMethodBO.getType(),filBillMethodBO.getSubAccount(),startDate,endDate);
+        filBillVOIPage.getRecords().stream().forEach(v -> {
+            if (v.getSender().equals(filBillMethodBO.getSubAccount())){
+                v.setInOrOut(Constants.FILBILLOUT);
+            } else if (v.getReceiver().equals(filBillMethodBO.getSubAccount())){
+                v.setInOrOut(Constants.FILBILLIN);
+            }
+        });
         return page;
     }
 
