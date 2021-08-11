@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -1000,6 +1001,41 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         map.put("total",page.getTotal());
         return map;
     }
+
+    /*矿工列表导出excel*/
+    @Override
+    public List<MinerInfoExportExcelVO> exportMinerInfoExcel() {
+        SysMinerInfoBO sysMinerInfoBO = new SysMinerInfoBO();
+        sysMinerInfoBO.setPageNum(1);
+        sysMinerInfoBO.setPageSize(500);
+        Map<String,Object> sysMinerInfoPageMap = findPage(sysMinerInfoBO);
+        log.info("分页查询矿工信息列表出参：【{}】",JSON.toJSON(sysMinerInfoPageMap));
+        List<SysMinerInfoVO> sysMinerInfoVOList = (List<SysMinerInfoVO>)sysMinerInfoPageMap.get("rows");
+
+        if (sysMinerInfoVOList == null || sysMinerInfoVOList.size() < 1){
+            log.info("用户矿工信息列表为空");
+            return null;
+        }
+
+        List<MinerInfoExportExcelVO> minerInfoExportExcelVOList = new ArrayList<>();
+        for (SysMinerInfoVO sysMinerInfoVO : sysMinerInfoVOList){
+            log.info("矿工列表出参：【{}】",JSON.toJSON(sysMinerInfoVO));
+            MinerInfoExportExcelVO minerInfoExportExcelVO = new MinerInfoExportExcelVO();
+            BeanUtils.copyProperties(sysMinerInfoVO,minerInfoExportExcelVO);
+
+            // 有效算力页面带i的用1024换算，不带i的用1000换算，有效算力, 单位B
+            BigDecimal powerAvailable = sysMinerInfoVO.getPowerAvailable();
+            FilMinerPowerAvailableUnitVO filMinerPowerAvailableUnitVO = powerAvailableUnit(powerAvailable);
+            log.info("矿工有效算力单位换算出参：【{}】",JSON.toJSON(filMinerPowerAvailableUnitVO));
+            minerInfoExportExcelVO.setPowerAvailableAndUnit(filMinerPowerAvailableUnitVO.getPowerAvailable() + " " + filMinerPowerAvailableUnitVO.getPowerAvailableUnit());
+            minerInfoExportExcelVO.setSectorAvailableAndError(sysMinerInfoVO.getSectorAvailable() + "/" + sysMinerInfoVO.getSectorError());
+            minerInfoExportExcelVO.setOnlineMachineCountAndOff(sysMinerInfoVO.getOnlineMachineCount() + "/" + sysMinerInfoVO.getOffMachineCount());
+            minerInfoExportExcelVOList.add(minerInfoExportExcelVO);
+        }
+        log.info("矿工列表导出excel：【{}】",JSON.toJSON(minerInfoExportExcelVOList));
+        return minerInfoExportExcelVOList;
+    }
+
 
 
 }

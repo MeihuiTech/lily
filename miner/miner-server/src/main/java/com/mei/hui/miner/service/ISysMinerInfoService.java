@@ -273,4 +273,10 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     Result<List<FindAllMinerVO>> findAllMiner();
 
     Map<String,Object> minerPagelist(SysMinerInfoBO sysMinerInfoBO);
+
+    /**
+     * 矿工列表导出excel
+     * @return
+     */
+    public List<MinerInfoExportExcelVO> exportMinerInfoExcel();
 }
