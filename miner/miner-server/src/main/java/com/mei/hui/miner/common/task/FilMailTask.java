@@ -11,6 +11,7 @@ import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.user.feign.feignClient.UserFeignClient;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.BigDecimalUtil;
+import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,10 @@ public class FilMailTask {
             }
             Long userId = sysUserOut.getUserId();
             log.info("userId：【{}】,email：【{}】",userId,email);
+            if (userId.equals(1L)){
+                log.info("超级管理员不发，跳过该条，执行下一条");
+                continue;
+            }
 
             SysMinerInfoBO sysMinerInfoBO = new SysMinerInfoBO();
             sysMinerInfoBO.setUserId(userId);
@@ -103,16 +108,25 @@ public class FilMailTask {
                 log.info("矿工有效算力单位换算出参：【{}】",JSON.toJSON(filMinerPowerAvailableUnitVO));
                 sysMinerInfoVO.setPowerAvailable(filMinerPowerAvailableUnitVO.getPowerAvailable());
                 sysMinerInfoVO.setPowerAvailableUnit(filMinerPowerAvailableUnitVO.getPowerAvailableUnit());
+
+                // 算力增速
+                BigDecimal powerIncreasePerDay = sysMinerInfoVO.getPowerIncreasePerDay();
+                FilMinerPowerAvailableUnitVO filMinerPowerIncreasePerDayUnitVO = sysMinerInfoService.powerAvailableUnit(powerIncreasePerDay);
+                log.info("矿工算力增速单位换算出参：【{}】",JSON.toJSON(filMinerPowerIncreasePerDayUnitVO));
+                sysMinerInfoVO.setPowerIncreasePerDay(filMinerPowerIncreasePerDayUnitVO.getPowerAvailable());
+                sysMinerInfoVO.setPowerIncreasePerDayUnit(filMinerPowerIncreasePerDayUnitVO.getPowerAvailableUnit());
             }
             log.info("矿工信息列表：【{}】",JSON.toJSON(sysMinerInfoVOList));
 
             Map<String,Object> map = new HashMap<>();
             map.put("list",sysMinerInfoVOList);
 
+            String yesterDayDateYmd = DateUtils.getYesterDayDateYmd();
+
             MailDO mail = new MailDO();
             mail.setContent("矿工列表");
             mail.setEmail(email);
-            mail.setTitle("你有一条新消息");
+            mail.setTitle("数据统计的日期为" + yesterDayDateYmd.substring(0,4) + "年" + yesterDayDateYmd.substring(5,7) + "月" + yesterDayDateYmd.substring(8,10) + "日23时59分");
             mail.setAttachment(map);
             MailUtil.sendTemplateMail(mail);
             log.info("userId：【{}】，email：【{}】，map：【{}】发送完成",userId,email,JSON.toJSON(map));

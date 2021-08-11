@@ -1028,6 +1028,13 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             FilMinerPowerAvailableUnitVO filMinerPowerAvailableUnitVO = powerAvailableUnit(powerAvailable);
             log.info("矿工有效算力单位换算出参：【{}】",JSON.toJSON(filMinerPowerAvailableUnitVO));
             minerInfoExportExcelVO.setPowerAvailableAndUnit(filMinerPowerAvailableUnitVO.getPowerAvailable() + " " + filMinerPowerAvailableUnitVO.getPowerAvailableUnit());
+
+            // 算力增速
+            BigDecimal powerIncreasePerDay = sysMinerInfoVO.getPowerIncreasePerDay();
+            FilMinerPowerAvailableUnitVO filMinerPowerIncreasePerDayUnitVO = powerAvailableUnit(powerIncreasePerDay);
+            log.info("矿工算力增速单位换算出参：【{}】",JSON.toJSON(filMinerPowerIncreasePerDayUnitVO));
+            minerInfoExportExcelVO.setPowerIncreasePerDayAndUnit(filMinerPowerIncreasePerDayUnitVO.getPowerAvailable() + " " + filMinerPowerIncreasePerDayUnitVO.getPowerAvailableUnit());
+
             minerInfoExportExcelVO.setSectorAvailableAndError(sysMinerInfoVO.getSectorAvailable() + "/" + sysMinerInfoVO.getSectorError());
             minerInfoExportExcelVO.setOnlineMachineCountAndOff(sysMinerInfoVO.getOnlineMachineCount() + "/" + sysMinerInfoVO.getOffMachineCount());
             minerInfoExportExcelVOList.add(minerInfoExportExcelVO);

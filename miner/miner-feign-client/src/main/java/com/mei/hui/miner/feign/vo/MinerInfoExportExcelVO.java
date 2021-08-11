@@ -2,6 +2,7 @@ package com.mei.hui.miner.feign.vo;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.metadata.BaseRowModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -38,7 +39,10 @@ public class MinerInfoExportExcelVO extends BaseRowModel implements Serializable
      * 算力增速, 单位B
      */
     @ExcelProperty(value = "算力增速",index = 2)
-    private BigDecimal powerIncreasePerDay;
+    private String powerIncreasePerDayAndUnit;
+
+//    @ApiModelProperty(value = "算力增速单位")
+//    private String powerIncreasePerDayUnit;
 
     /**
      * 当天出块份数

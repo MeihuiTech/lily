@@ -54,6 +54,9 @@ public class SysMinerInfoVO {
     @ApiModelProperty(value = "算力增速, 单位B")
     private BigDecimal powerIncreasePerDay;
 
+    @ApiModelProperty(value = "算力增速单位")
+    private String powerIncreasePerDayUnit;
+
     @ApiModelProperty(value = "累计出块份数")
     private Long totalBlocks;
 
