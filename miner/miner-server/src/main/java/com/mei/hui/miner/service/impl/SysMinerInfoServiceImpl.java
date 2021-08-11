@@ -904,6 +904,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             map.put("msg",ErrorCode.MYB_000000.getMsg());
             map.put("rows",new ArrayList<SysMinerInfoVO>());
             map.put("total",0);
+            return map;
         }
         LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.in(SysMinerInfo::getUserId,userIds);
