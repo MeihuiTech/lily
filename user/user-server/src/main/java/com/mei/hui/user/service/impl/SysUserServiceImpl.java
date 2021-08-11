@@ -252,7 +252,7 @@ public class SysUserServiceImpl implements ISysUserService {
         if(StringUtils.isNotEmpty(req.getName())){
             queryWrapper.like(SysUser::getUserName,req.getName());
         }
-        if(req.getUserId() != null){
+        if(req.getUserId() != null && req.getUserId() > 0){
             queryWrapper.eq(SysUser::getUserId,req.getUserId());
         }
         List<SysUser> users = sysUserMapper.selectList(queryWrapper);
