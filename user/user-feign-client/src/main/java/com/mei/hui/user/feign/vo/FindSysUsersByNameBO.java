@@ -10,4 +10,7 @@ import lombok.Data;
 public class FindSysUsersByNameBO {
     @ApiModelProperty("用户名称")
     private String name;
+
+    @ApiModelProperty(value = "用户Id")
+    private Long userId;
 }

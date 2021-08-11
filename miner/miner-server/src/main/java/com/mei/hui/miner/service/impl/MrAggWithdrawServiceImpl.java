@@ -50,9 +50,7 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
     public PageResult<AggWithdrawVO> pageList(AggWithdrawBO input){
         //查询当前管理员负责管理的普通用户
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
-        if(userIds.size() ==0){
-            return new PageResult<>(0,new ArrayList<>());
-        }
+
         //查询用户收益提现分页列表
         LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
         //排序
@@ -92,6 +90,9 @@ public class MrAggWithdrawServiceImpl implements MrAggWithdrawService {
             }
             List<Long> idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
             userIds = userIds.stream().filter(item -> idList.contains(item)).collect(Collectors.toList());
+        }
+        if(userIds.size() ==0){
+            return new PageResult<>(0,new ArrayList<>());
         }
         queryWrapper.in(MrAggWithdraw::getSysUserId,userIds);
         // 查询条件币种

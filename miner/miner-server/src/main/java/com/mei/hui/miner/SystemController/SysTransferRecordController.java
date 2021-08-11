@@ -137,7 +137,6 @@ public class SysTransferRecordController
         if(userIds.size() == 0){
             return Result.OK;
         }
-
         List<TransferRecordFeeVO> allTransferRecordFeeVOList = sysTransferRecordService.selectTotalEarning(userIds);
         log.info("总手续费收益出参：【{}】",JSON.toJSON(allTransferRecordFeeVOList));
         Date todayBeginDate = DateUtils.getBeginOfDayDate();

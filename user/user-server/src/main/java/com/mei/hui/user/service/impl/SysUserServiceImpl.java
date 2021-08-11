@@ -249,7 +249,12 @@ public class SysUserServiceImpl implements ISysUserService {
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysUser::getStatus,0);
         queryWrapper.eq(SysUser::getDelFlag,0);
-        queryWrapper.like(SysUser::getUserName,req.getName());
+        if(StringUtils.isNotEmpty(req.getName())){
+            queryWrapper.like(SysUser::getUserName,req.getName());
+        }
+        if(req.getUserId() != null && req.getUserId() > 0){
+            queryWrapper.eq(SysUser::getUserId,req.getUserId());
+        }
         List<SysUser> users = sysUserMapper.selectList(queryWrapper);
         List<FindSysUsersByNameVO> list = users.stream().map(v -> {
             FindSysUsersByNameVO vo = new FindSysUsersByNameVO();
