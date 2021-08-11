@@ -642,14 +642,12 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO) {
         //查询当前管理员负责管理的普通用户
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
-        if(userIds.size() ==0){
-            return new PageResult(0,new ArrayList());
-        }
         //用于入参模块模糊查询，获取用户id的list
         String userName = filUserMoneyBO.getUserName();
-        if (StringUtils.isNotEmpty(userName)) {
+        if (StringUtils.isNotEmpty(userName) || filUserMoneyBO.getUserId() != null) {
             FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
-            bo.setName(userName);
+            bo.setName(StringUtils.isNotEmpty(userName) ? userName : null);
+            bo.setUserId(filUserMoneyBO.getUserId() != null ? filUserMoneyBO.getUserId() : null);
             Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
             log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
             if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){
@@ -660,6 +658,9 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             }
             List<Long> idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
             userIds = userIds.stream().filter(item -> idList.contains(item)).collect(Collectors.toList());
+        }
+        if(userIds.size() ==0){
+            return new PageResult(0,new ArrayList());
         }
         Page<FilUserMoneyVO> page = new Page<FilUserMoneyVO>(filUserMoneyBO.getPageNum(),filUserMoneyBO.getPageSize());
         log.info("多条件分页查询用户收益列表入参page：【{}】,filUserMoneyBO：【{}】,userIdList：【{}】",JSON.toJSON(page),JSON.toJSON(filUserMoneyBO),userIds);
@@ -856,7 +857,6 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             map.put("rows",new ArrayList<SysMinerInfoVO>());
             map.put("total",0);
         }
-
         LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.in(SysMinerInfo::getUserId,userIds);
         if("powerAvailable".equals(cloumName)){

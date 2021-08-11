@@ -276,9 +276,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     public Map<String,Object> selectSysTransferRecordListUserName(AggWithdrawBO aggWithdrawBO){
         //查询当前管理员负责管理的普通用户
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
-        if(userIds.size() ==0){
-            return DataNull();
-        }
+
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper<>();
         if("amount".equals(aggWithdrawBO.getCloumName())){
             if(aggWithdrawBO.isAsc()){
@@ -311,6 +309,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             }
             List<Long> idList = userResult.getData().stream().map(v ->v.getUserId()).collect(Collectors.toList());
             userIds = userIds.stream().filter(item -> idList.contains(item)).collect(Collectors.toList());
+        }
+        if(userIds.size() ==0){
+            return DataNull();
         }
         queryWrapper.in(SysTransferRecord::getUserId,userIds);
         // 查询条件币种
