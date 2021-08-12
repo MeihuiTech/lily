@@ -234,6 +234,10 @@ public class SysUserServiceImpl implements ISysUserService {
     public PageResult<SysUserOut> findAllAdminUser(BasePage basePage){
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("r.type",0);
+        queryWrapper.eq("r.status",0);
+        queryWrapper.eq("r.del_flag",0);
+        queryWrapper.eq("u.status",0);
+        queryWrapper.eq("u.del_flag",0);
         IPage<SysUserOut> page=  sysUserMapper.findAllAdminUser(new Page(basePage.getPageNum(),basePage.getPageSize()),queryWrapper);
         log.info("查询管理员用户分页列表:{}",JSON.toJSON(page.getRecords()));
         return new PageResult(page.getTotal(),page.getRecords());
