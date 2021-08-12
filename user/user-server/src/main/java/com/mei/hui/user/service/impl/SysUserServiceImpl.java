@@ -95,7 +95,7 @@ public class SysUserServiceImpl implements ISysUserService {
         queryWrapper.eq(SysUser::getDelFlag,0);
         List<SysUser> sysUsers = sysUserMapper.selectList(queryWrapper);
         if(sysUsers.size() == 0){
-            throw new MyException(ErrorCode.MYB_111111.getCode(),"用户和或密码错误");
+            throw new MyException(ErrorCode.MYB_111111.getCode(),"用户或密码错误");
         }
         SysUser sysUser = sysUsers.get(0);
         /**
