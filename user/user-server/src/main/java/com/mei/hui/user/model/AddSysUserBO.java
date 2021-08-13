@@ -38,4 +38,7 @@ public class AddSysUserBO {
 
     @ApiModelProperty(value = "币种费率集合",required = true)
     List<CurrencyRateBO> rats = new ArrayList<>();
+
+    @ApiModelProperty(value = "邮箱")
+    private String email;
 }

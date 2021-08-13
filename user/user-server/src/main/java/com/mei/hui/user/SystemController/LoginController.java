@@ -1,5 +1,6 @@
 package com.mei.hui.user.SystemController;
 
+import com.alibaba.fastjson.JSON;
 import com.google.code.kaptcha.Producer;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
@@ -189,6 +190,7 @@ public class LoginController {
 
             log.info("校验用户是否有请求地址的权限");
             List<Integer> roleIds = (List<Integer>) claims.get(SystemConstants.ROLEIDS);
+            log.info("角色:{}", JSON.toJSONString(roleIds));
             if(roleIds == null || roleIds.size() == 0){
                 throw MyException.fail(ErrorCode.MYB_111004.getCode(),ErrorCode.MYB_111004.getMsg());
             }
