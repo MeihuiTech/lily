@@ -13,6 +13,8 @@ import com.mei.hui.user.model.SysUserBO;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.*;
 import com.netflix.ribbon.proxy.annotation.Http;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +34,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/system/user/profile")
+@Api(tags = "SysProfileController")
 public class SysProfileController{
     @Autowired
     private ISysUserService userService;
@@ -46,6 +49,7 @@ public class SysProfileController{
     /**
      * 查询当前登录人的个人详细信息
      */
+    @ApiOperation(value = "查询当前登录人的个人详细信息")
     @GetMapping
     public Map<String,Object> profile(){
         Long userId = HttpRequestUtil.getUserId();
