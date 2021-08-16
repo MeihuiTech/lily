@@ -32,7 +32,7 @@ public class FilBillVO {
     @ApiModelProperty(value = "方法")
     private String method;
 
-    @ApiModelProperty(value = "类型：Node Fee节点手续费，Burn Fee销毁手续费，Transfer转账")
+    @ApiModelProperty(value = "类型：0Node Fee节点手续费，1Burn Fee销毁手续费，2Transfer转账")
     private String type;
 
     @ApiModelProperty(value = "发送方")

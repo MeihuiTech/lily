@@ -38,10 +38,7 @@ public class FilRabbitMQListener {
     private FilBillService filBillService;
     @Autowired
     private FilBlockAwardService filBlockAwardService;
-    @Autowired
-    private FilBillParamsService filBillParamsService;
-    @Autowired
-    private FilBillTransactionsService filBillTransactionsService;
+
 
 
     /**
@@ -50,10 +47,10 @@ public class FilRabbitMQListener {
      * @param message
      * @throws IOException
      */
-    // TODO 这个不要提交
+    // TODO 开发环境注释，测试环境暂时注释，正式环境发版的时候不要注释
 //    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
 //    @RabbitHandler
-    public void processBill(Channel channel, Message message) throws IOException {
+    public void reportBillMq(Channel channel, Message message) throws IOException {
         byte[] body = message.getBody();
         String messageStr = new String(body,"UTF-8");
         log.info("FIL币账单rabbitmq上报入参【{}】：" + messageStr);
@@ -74,45 +71,8 @@ public class FilRabbitMQListener {
                 continue;
             }
 
-            FilBill filBill = new FilBill();
-            BeanUtils.copyProperties(filBillReportBO,filBill);
-            filBill.setMinerId(filBillReportBO.getMiner());
-            filBill.setSender(filBillReportBO.getFrom());
-            filBill.setReceiver(filBillReportBO.getTo());
-            filBill.setMoney(filBillReportBO.getValue());
-            filBill.setDateTime(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
-            filBill.setCreateTime(LocalDateTime.now());
             try {
-                log.info("保存FIL币账单入参：【{}】",filBill);
-                filBillService.save(filBill);
-
-                // FIL币账单参数表
-                String params = filBillReportBO.getParams();
-                if (StringUtils.isNotEmpty(params)){
-                    FilBillParams filBillParams = new FilBillParams();
-                    filBillParams.setFilBillId(filBill.getId());
-                    filBillParams.setParams(filBillReportBO.getParams());
-                    filBillParams.setCreateTime(LocalDateTime.now());
-                    log.info("保存FIL币账单参数入参：【{}】",filBillParams);
-                    filBillParamsService.save(filBillParams);
-                }
-
-                // FIL币账单转账信息表
-                List<FilBillTransactionsReportBO> filBillTransactionsReportBOList = filBillReportBO.getTransaction();
-                if (filBillTransactionsReportBOList != null && filBillTransactionsReportBOList.size() > 0){
-                    for (FilBillTransactionsReportBO filBillTransactionsReportBO : filBillTransactionsReportBOList){
-                        log.info("filBillTransactionsReportBO:【{}】",JSON.toJSON(filBillTransactionsReportBO));
-                        FilBillTransactions filBillTransactions = new FilBillTransactions();
-                        BeanUtils.copyProperties(filBillTransactionsReportBO,filBillTransactions);
-                        filBillTransactions.setFilBillId(filBill.getId());
-                        filBillTransactions.setSender(filBillTransactionsReportBO.getFrom());
-                        filBillTransactions.setReceiver(filBillTransactionsReportBO.getTo());
-                        filBillTransactions.setMoney(filBillTransactionsReportBO.getValue());
-                        filBillTransactions.setCreateTime(LocalDateTime.now());
-                        log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
-                        filBillTransactionsService.save(filBillTransactions);
-                    }
-                }
+                filBillService.reportBillMq(filBillReportBO);
 
                 // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
                 log.info("确认消息");

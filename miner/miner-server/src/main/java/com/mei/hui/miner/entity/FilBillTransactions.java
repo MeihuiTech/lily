@@ -43,9 +43,9 @@ public class FilBillTransactions {
     private BigDecimal money;
 
     /**
-     * 类型：Node Fee节点手续费，Burn Fee销毁手续费，Transfer转账
+     * 类型：0Node Fee节点手续费，1Burn Fee销毁手续费，2Transfer转账
      */
-    private String type;
+    private Integer type;
 
     /**
      * 创建时间

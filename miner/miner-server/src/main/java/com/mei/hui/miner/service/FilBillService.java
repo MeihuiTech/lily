@@ -56,4 +56,16 @@ public interface FilBillService extends IService<FilBill> {
      * @return
      */
     public BillTotalVO selectFilBillTotal(FilBillMethodBO filBillMethodBO);
+
+    /**
+    * 保存上报FIL币账单
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/16 15:14
+    * @param [filBillReportBO]
+    * @return void
+    * @version v1.4.1
+    */
+    public void reportBillMq(FilBillReportBO filBillReportBO);
 }

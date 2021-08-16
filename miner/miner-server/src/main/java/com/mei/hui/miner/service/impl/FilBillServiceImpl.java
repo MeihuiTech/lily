@@ -7,13 +7,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.FilBill;
-import com.mei.hui.miner.entity.FilMinerControlBalance;
-import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.FilBillMapper;
 import com.mei.hui.miner.mapper.FilMinerControlBalanceMapper;
+import com.mei.hui.miner.service.FilBillParamsService;
 import com.mei.hui.miner.service.FilBillService;
+import com.mei.hui.miner.service.FilBillTransactionsService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.MyException;
@@ -24,9 +24,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -54,7 +57,10 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     private ISysMinerInfoService sysMinerInfoService;
     @Autowired
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
-
+    @Autowired
+    private FilBillParamsService filBillParamsService;
+    @Autowired
+    private FilBillTransactionsService filBillTransactionsService;
 
     /*账单方法下拉列表*/
     @Override
@@ -124,6 +130,13 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             } else if (v.getReceiver().equals(filBillMethodBO.getSubAccount())){
                 v.setInOrOut(Constants.FILBILLIN);
             }
+            if ("0".equals(v.getType())){
+                v.setType(Constants.TYPENODEFEE);
+            } else if ("1".equals(v.getType())){
+                v.setType(Constants.TYPEBURNFEE);
+            } else if ("2".equals(v.getType())){
+                v.setType(Constants.TYPETRANSFER);
+            }
         });
         return page;
     }
@@ -175,6 +188,57 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         billTotalVO.setOut(out);
 
         return billTotalVO;
+    }
+
+    /*上报FIL币账单*/
+    @Override
+    @Transactional
+    public void reportBillMq(FilBillReportBO filBillReportBO) {
+        FilBill filBill = new FilBill();
+        BeanUtils.copyProperties(filBillReportBO,filBill);
+        filBill.setMinerId(filBillReportBO.getMiner());
+        filBill.setSender(filBillReportBO.getFrom());
+        filBill.setReceiver(filBillReportBO.getTo());
+        filBill.setMoney(filBillReportBO.getValue());
+        filBill.setDateTime(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
+        filBill.setCreateTime(LocalDateTime.now());
+        log.info("保存FIL币账单入参：【{}】",filBill);
+        filBillMapper.insert(filBill);
+
+        // FIL币账单参数表
+        String params = filBillReportBO.getParams();
+        if (StringUtils.isNotEmpty(params)){
+            FilBillParams filBillParams = new FilBillParams();
+            filBillParams.setFilBillId(filBill.getId());
+            filBillParams.setParams(params);
+            filBillParams.setCreateTime(LocalDateTime.now());
+            log.info("保存FIL币账单参数入参：【{}】",filBillParams);
+            filBillParamsService.save(filBillParams);
+        }
+
+        // FIL币账单转账信息表
+        List<FilBillTransactionsReportBO> filBillTransactionsReportBOList = filBillReportBO.getTransaction();
+        if (filBillTransactionsReportBOList != null && filBillTransactionsReportBOList.size() > 0){
+            for (FilBillTransactionsReportBO filBillTransactionsReportBO : filBillTransactionsReportBOList){
+                log.info("filBillTransactionsReportBO:【{}】",JSON.toJSON(filBillTransactionsReportBO));
+                FilBillTransactions filBillTransactions = new FilBillTransactions();
+                BeanUtils.copyProperties(filBillTransactionsReportBO,filBillTransactions);
+                filBillTransactions.setFilBillId(filBill.getId());
+                filBillTransactions.setSender(filBillTransactionsReportBO.getFrom());
+                filBillTransactions.setReceiver(filBillTransactionsReportBO.getTo());
+                filBillTransactions.setMoney(filBillTransactionsReportBO.getValue());
+                filBillTransactions.setCreateTime(LocalDateTime.now());
+                if(Constants.TYPENODEFEE.equals(filBillTransactionsReportBO.getType())){
+                    filBillTransactions.setType(0);
+                } else if (Constants.TYPEBURNFEE.equals(filBillTransactionsReportBO.getType())){
+                    filBillTransactions.setType(1);
+                } else if (Constants.TYPETRANSFER.equals(filBillTransactionsReportBO.getType())){
+                    filBillTransactions.setType(2);
+                }
+                log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
+                filBillTransactionsService.save(filBillTransactions);
+            }
+        }
     }
 
 
