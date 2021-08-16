@@ -115,7 +115,7 @@ public class MailUtil {
             //定义模板数据
             context.setVariables(mailDO.getAttachment());
             //获取thymeleaf的html模板
-            String emailContent = templateEngine.process("/mail",context); //指定模板路径
+            String emailContent = templateEngine.process("mail",context); //指定模板路径
             messageHelper.setText(emailContent,true);
             //发送邮件
             javaMailSender.send(mimeMessage);

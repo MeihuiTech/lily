@@ -54,7 +54,9 @@ public class FilMailTask {
     * @return void
     * @version v1.4.1
     */
-    @Scheduled(cron = "0 0 6 * * ?")
+    // TODO 提交代码的时候记得修改定时器时间
+//    @Scheduled(cron = "0 0 6 * * ?")
+    @Scheduled(cron = "0 58 16 * * ?")
 //    @Scheduled(cron = "* */5 * * * ?")
     public void selectSysMinerInfoList(){
         log.info("======================fil币定时器selectSysMinerInfoList-start===================");
