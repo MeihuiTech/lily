@@ -92,7 +92,7 @@ public class FilRabbitMQListener {
      * @param message
      * @throws IOException
      */
-    // TODO 这个不要提交
+    // TODO 开发环境注释，测试环境暂时注释，正式环境发版的时候不要注释
 //    @RabbitListener(queues = {"fil.reward.queue"})//从哪个队列取消息
 //    @RabbitHandler
     public void processReward(Channel channel, Message message) throws IOException {
