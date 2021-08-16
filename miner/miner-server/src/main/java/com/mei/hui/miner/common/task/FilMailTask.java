@@ -56,7 +56,7 @@ public class FilMailTask {
     */
     // TODO 提交代码的时候记得修改定时器时间
 //    @Scheduled(cron = "0 0 6 * * ?")
-    @Scheduled(cron = "0 35 19 * * ?")
+    @Scheduled(cron = "0 44 19 * * ?")
 //    @Scheduled(cron = "* */5 * * * ?")
     public void selectSysMinerInfoList(){
         log.info("======================fil币定时器selectSysMinerInfoList-start===================");
@@ -122,7 +122,7 @@ public class FilMailTask {
             map.put("list",sysMinerInfoVOList);
 
             String yesterDayDateYmd = DateUtils.getYesterDayDateYmd();
-            String title = "数据统计的日期为" + yesterDayDateYmd.substring(0,4) + "年" + yesterDayDateYmd.substring(5,7) + "月" + yesterDayDateYmd.substring(8,10) + "日23时59分";
+            String title = "数据统计的日期为" + yesterDayDateYmd.substring(0,4) + "年" + yesterDayDateYmd.substring(5,7) + "月" + yesterDayDateYmd.substring(8,10) + "日";
             MailDO mail = new MailDO();
             mail.setContent("矿工列表");
             mail.setEmail(email);
