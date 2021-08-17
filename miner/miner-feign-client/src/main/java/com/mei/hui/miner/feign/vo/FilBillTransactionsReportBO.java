@@ -29,7 +29,7 @@ public class FilBillTransactionsReportBO {
     private BigDecimal value;
 
     /**
-     * 类型：0Node Fee节点手续费，1Burn Fee销毁手续费，2Transfer转账
+     * 类型：0Node Fee矿工手续费，1Burn Fee燃烧手续费，2Transfer转账，3BlockAward区块奖励
      */
     private String type;
 

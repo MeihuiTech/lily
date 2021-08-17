@@ -5,11 +5,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.FilBillParams;
 import com.mei.hui.miner.entity.SysMinerInfo;
-import com.mei.hui.miner.feign.vo.BillTotalVO;
-import com.mei.hui.miner.feign.vo.FilBillMethodBO;
-import com.mei.hui.miner.feign.vo.FilBillSubAccountVO;
-import com.mei.hui.miner.feign.vo.FilBillVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.DateUtils;
@@ -38,6 +36,42 @@ public class FilBillController {
     private ISysMinerInfoService sysMinerInfoService;
 
 
+    @ApiOperation("分页查询日账单列表")
+    @PostMapping("/dayAggPage")
+    public Result<IPage<FilBillDayAggVO>> selectFilBillDayAggPage(@RequestBody FilBillMonthBO filBillMonthBO){
+        IPage<FilBillDayAggVO> filBillDayAggVOIPage = null;
+
+        return Result.success(filBillDayAggVOIPage);
+    }
+
+    @ApiOperation("月汇总")
+    @PostMapping("/monthAgg")
+    public Result<BillTotalVO> selectFilBillmonthAgg(@RequestBody FilBillMonthBO filBillMonthBO){
+        BillTotalVO billTotalVO = new BillTotalVO();
+
+        return Result.success(billTotalVO);
+    }
+
+
+    @ApiOperation("日账单详情")
+    @PostMapping("/transaction")
+    public Result<IPage<FilBillVO>> selectFilBillTransactionsPage(@RequestBody FilBillMonthBO filBillMonthBO){
+        IPage<FilBillVO> filBillVOIPage = null;
+
+        return Result.success(filBillVOIPage);
+    }
+
+
+
+
+
+
+
+    /**
+     * 账单方法下拉列表，20210817废弃，方法保留，以后备用
+     * @param filBillMethodBO
+     * @return
+     */
     @ApiOperation("账单方法下拉列表")
     @PostMapping("/methodList")
     public Result<List<String>> selectFilBillMethodList(@RequestBody FilBillMethodBO filBillMethodBO){
@@ -48,6 +82,11 @@ public class FilBillController {
         return Result.success(billMethodList);
     }
 
+    /**
+     * 矿工子账户下拉列表，20210817废弃，方法保留，以后备用
+     * @param filBillMethodBO
+     * @return
+     */
     @ApiOperation("矿工子账户下拉列表")
     @PostMapping("/subAccountList")
     public Result<List<FilBillSubAccountVO>> selectFilBillSubAccountList(@RequestBody FilBillMethodBO filBillMethodBO){
@@ -58,6 +97,11 @@ public class FilBillController {
         return Result.success(filBillSubAccountVOList);
     }
 
+    /**
+     * 分页查询账单消息列表，20210817废弃，方法保留，以后备用
+     * @param filBillMethodBO
+     * @return
+     */
     @ApiOperation("分页查询账单消息列表")
     @PostMapping("/page")
     public Result<IPage<FilBillVO>> selectFilBillPage(@RequestBody FilBillMethodBO filBillMethodBO){
@@ -68,6 +112,11 @@ public class FilBillController {
         return Result.success(filBillVOIPage);
     }
 
+    /**
+     * 查询账单汇总信息，20210817废弃，方法保留，以后备用
+     * @param filBillMethodBO
+     * @return
+     */
     @ApiModelProperty("查询账单汇总信息")
     @PostMapping("/total")
     public Result<BillTotalVO> selectFilBillTotal(@RequestBody(required = false) String filBillMethodBO){

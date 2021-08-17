@@ -194,9 +194,10 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     @Override
     @Transactional
     public void reportBillMq(FilBillReportBO filBillReportBO) {
+        String minerId = filBillReportBO.getMiner();
         FilBill filBill = new FilBill();
         BeanUtils.copyProperties(filBillReportBO,filBill);
-        filBill.setMinerId(filBillReportBO.getMiner());
+        filBill.setMinerId(minerId);
         filBill.setSender(filBillReportBO.getFrom());
         filBill.setReceiver(filBillReportBO.getTo());
         filBill.setMoney(filBillReportBO.getValue());
@@ -224,17 +225,38 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 FilBillTransactions filBillTransactions = new FilBillTransactions();
                 BeanUtils.copyProperties(filBillTransactionsReportBO,filBillTransactions);
                 filBillTransactions.setFilBillId(filBill.getId());
-                filBillTransactions.setSender(filBillTransactionsReportBO.getFrom());
-                filBillTransactions.setReceiver(filBillTransactionsReportBO.getTo());
+                String from = filBillTransactionsReportBO.getFrom();
+                filBillTransactions.setSender(from);
+                String to = filBillTransactionsReportBO.getTo();
+                filBillTransactions.setReceiver(to);
                 filBillTransactions.setMoney(filBillTransactionsReportBO.getValue());
                 filBillTransactions.setCreateTime(LocalDateTime.now());
-                if(Constants.TYPENODEFEE.equals(filBillTransactionsReportBO.getType())){
+                String type = filBillTransactionsReportBO.getType();
+                log.info("type：【{}】",type);
+                if(Constants.TYPENODEFEE.equals(type)){
                     filBillTransactions.setType(0);
-                } else if (Constants.TYPEBURNFEE.equals(filBillTransactionsReportBO.getType())){
+                } else if (Constants.TYPEBURNFEE.equals(type)){
                     filBillTransactions.setType(1);
-                } else if (Constants.TYPETRANSFER.equals(filBillTransactionsReportBO.getType())){
+                } else if (Constants.TYPETRANSFER.equals(type)){
                     filBillTransactions.setType(2);
                 }
+
+                FilBillMethodBO filBillMethodBO = new FilBillMethodBO();
+                filBillMethodBO.setMinerId(minerId);
+                List<FilBillSubAccountVO> filBillSubAccountVOList = selectFilBillSubAccountList(filBillMethodBO);
+                log.info("矿工子账户下拉列表：【{}】",JSON.toJSON(filBillSubAccountVOList));
+                log.info("from：【{}】,to：【{}】",from,to);
+                if (filBillSubAccountVOList.contains(from) && filBillSubAccountVOList.contains(to)){
+                    filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
+                } else {
+                    filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
+                    if (filBillSubAccountVOList.contains(from)){
+                        filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
+                    } else {
+                        filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
+                    }
+                }
+
                 log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
                 filBillTransactionsService.save(filBillTransactions);
             }

@@ -73,12 +73,12 @@ public interface Constants extends SystemConstants {
     Integer SECTORSTATUSONE = 1;
 
     /**
-     * FIL币账单转账类型：0Node Fee存储提供者手续费
+     * FIL币账单转账类型：0Node Fee矿工手续费
      */
     String TYPENODEFEE = "Node Fee";
 
     /**
-     * FIL币账单转账类型：1Burn Fee销毁手续费
+     * FIL币账单转账类型：1Burn Fee燃烧手续费
      */
     String TYPEBURNFEE = "Burn Fee";
 
@@ -96,5 +96,25 @@ public interface Constants extends SystemConstants {
      * 收支:1收入
      */
     Integer FILBILLIN = 1;
+
+    /**
+     * FIL币账单转账信息表外部交易的收支:0支出
+     */
+    Integer OUTSIDETYPEOUT = 0;
+
+    /**
+     * FIL币账单转账信息表外部交易的收支:1收入
+     */
+    Integer OUTSIDETYPEIN = 1;
+
+    /**
+     * 交易类型：0内部交易
+     */
+    Integer TRANSACTIONTYPEINSIDE = 0;
+
+    /**
+     * 交易类型：1外部交易
+     */
+    Integer TRANSACTIONTYPEOUTSIDE = 1;
 
 }

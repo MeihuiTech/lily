@@ -43,9 +43,19 @@ public class FilBillTransactions {
     private BigDecimal money;
 
     /**
-     * 类型：0Node Fee节点手续费，1Burn Fee销毁手续费，2Transfer转账
+     * 类型：0Node Fee矿工手续费，1Burn Fee燃烧手续费，2Transfer转账，3BlockAward区块奖励
      */
     private Integer type;
+
+    /**
+     * 交易类型：0内部交易，1外部交易
+     */
+    private Integer transactionType;
+
+    /**
+     * 外部交易的收支：0支出，1收入
+     */
+    private Integer outsideType;
 
     /**
      * 创建时间
