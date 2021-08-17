@@ -384,7 +384,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getYesterdayTotalBlocksCount" parameterType="String" resultType="long">
         SELECT
-            SUM(total_blocks) yesterdayTotalBlocks
+            coalesce(sum(total_blocks),0) yesterdayTotalBlocks
         FROM
             sys_agg_power_daily
         WHERE
