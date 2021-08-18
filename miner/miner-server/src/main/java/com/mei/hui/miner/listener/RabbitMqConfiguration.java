@@ -17,10 +17,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfiguration {
 
-//    @Bean
-//    public MessageConverter messageConverter(){
-//        return new Jackson2JsonMessageConverter();
-//    }
 
     @Bean
     public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(ConnectionFactory connectionFactory){

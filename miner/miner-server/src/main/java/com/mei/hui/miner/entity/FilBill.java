@@ -151,6 +151,11 @@ public class FilBill implements Serializable {
     private Long gasBurned;
 
     /**
+     * 类型：0账单消息，1区块奖励
+     */
+    private Integer type;
+
+    /**
      * 账单产生时间
      */
     private LocalDateTime dateTime;

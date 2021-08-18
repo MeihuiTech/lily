@@ -43,7 +43,7 @@ public class FilBlockAward {
     /**
      * 权重
      */
-    private Long parentweight;
+    private Long parentWeight;
 
     private String parentStateRoot;
 

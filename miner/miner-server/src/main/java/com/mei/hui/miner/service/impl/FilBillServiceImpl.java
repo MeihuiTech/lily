@@ -192,7 +192,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
     /*上报FIL币账单*/
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void reportBillMq(FilBillReportBO filBillReportBO) {
         String minerId = filBillReportBO.getMiner();
         FilBill filBill = new FilBill();
@@ -201,6 +201,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBill.setSender(filBillReportBO.getFrom());
         filBill.setReceiver(filBillReportBO.getTo());
         filBill.setMoney(filBillReportBO.getValue());
+        filBill.setType(Constants.FILBILLTYPEBILL);
         filBill.setDateTime(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
         filBill.setCreateTime(LocalDateTime.now());
         log.info("保存FIL币账单入参：【{}】",filBill);
@@ -262,6 +263,36 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             }
         }
     }
+
+    /*在FIL币账单消息详情表里手动插入一条区块奖励数据*/
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void insertFilBillBlockAward(FilBlockAwardReportBO filBlockAwardReportBO) {
+        String minerId = filBlockAwardReportBO.getMiner();
+        FilBill filBill = new FilBill();
+        filBill.setMinerId(minerId);
+        filBill.setHeight(filBlockAwardReportBO.getHeight());
+        filBill.setParentBaseFee(filBlockAwardReportBO.getParentBaseFee());
+        filBill.setType(Constants.FILBILLTYPEBLOCKAWARD);
+        filBill.setDateTime(LocalDateTime.ofEpochSecond(filBlockAwardReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
+        filBill.setCreateTime(LocalDateTime.now());
+        log.info("保存FIL币账单入参：【{}】",filBill);
+        filBillMapper.insert(filBill);
+
+        // FIL币账单转账信息表
+        FilBillTransactions filBillTransactions = new FilBillTransactions();
+        filBillTransactions.setFilBillId(filBill.getId());
+        filBillTransactions.setSender(Constants.BLOCKAWARDSEND);
+        filBillTransactions.setReceiver(minerId);
+        filBillTransactions.setMoney(filBlockAwardReportBO.getMinerFee().add(filBlockAwardReportBO.getBlockReward()));
+        filBillTransactions.setType(Constants.TYPEBLOCKAWARDTHREE);
+        filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
+        filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
+        filBillTransactions.setCreateTime(LocalDateTime.now());
+        log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
+        filBillTransactionsService.save(filBillTransactions);
+    }
+
 
 
 

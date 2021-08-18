@@ -95,7 +95,7 @@ public class FilRabbitMQListener {
     // TODO 开发环境注释，测试环境暂时注释，正式环境发版的时候不要注释
 //    @RabbitListener(queues = {"fil.reward.queue"})//从哪个队列取消息
 //    @RabbitHandler
-    public void processReward(Channel channel, Message message) throws IOException {
+    public void reportFilBlockAwardMq(Channel channel, Message message) throws IOException {
         byte[] body = message.getBody();
         String messageStr = new String(body,"UTF-8");
         log.info("FIL币区块奖励详情rabbitmq上报入参【{}】：" + messageStr);
@@ -115,14 +115,8 @@ public class FilRabbitMQListener {
                 return;
             }
 
-            FilBlockAward filBlockAward = new FilBlockAward();
-            BeanUtils.copyProperties(filBlockAwardReportBO,filBlockAward);
-            filBlockAward.setMinerId(filBlockAwardReportBO.getMiner());
-            filBlockAward.setCid(cid);
-            filBlockAward.setDateTime(LocalDateTime.ofEpochSecond(filBlockAwardReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
-            filBlockAward.setCreateTime(LocalDateTime.now());
-            log.info("保存FIL币区块奖励详情入参：【{}】",filBlockAward);
-            filBlockAwardService.save(filBlockAward);
+            filBlockAwardService.reportFilBlockAwardMq(filBlockAwardReportBO);
+
             // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {

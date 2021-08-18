@@ -78,14 +78,39 @@ public interface Constants extends SystemConstants {
     String TYPENODEFEE = "Node Fee";
 
     /**
+     * FIL币账单转账类型：0Node Fee矿工手续费
+     */
+    Integer TYPENODEFEEZERO = 0;
+
+    /**
      * FIL币账单转账类型：1Burn Fee燃烧手续费
      */
     String TYPEBURNFEE = "Burn Fee";
 
     /**
+     * FIL币账单转账类型：1Burn Fee燃烧手续费
+     */
+    Integer TYPEBURNFEEONE = 1;
+
+    /**
      * FIL币账单转账类型：2Transfer转账
      */
     String TYPETRANSFER = "Transfer";
+
+    /**
+     * FIL币账单转账类型：2Transfer转账
+     */
+    Integer TYPETRANSFERTWO = 2;
+
+    /**
+     * FIL币账单转账类型：3BlockAward区块奖励
+     */
+    String TYPEBlockAward = "BlockAward";
+
+    /**
+     * FIL币账单转账类型：3BlockAward区块奖励
+     */
+    Integer TYPEBLOCKAWARDTHREE = 3;
 
     /**
      * 收支:0支出
@@ -116,5 +141,20 @@ public interface Constants extends SystemConstants {
      * 交易类型：1外部交易
      */
     Integer TRANSACTIONTYPEOUTSIDE = 1;
+
+    /**
+     * FIL币账单消息详情表类型：0账单消息
+     */
+    Integer FILBILLTYPEBILL = 0;
+
+    /**
+     * FIL币账单消息详情表类型：1区块奖励
+     */
+    Integer FILBILLTYPEBLOCKAWARD = 1;
+
+    /**
+     * 账单-区块奖励的发送地址：f02
+     */
+    String BLOCKAWARDSEND = "f02";
 
 }

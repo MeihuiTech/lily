@@ -68,4 +68,16 @@ public interface FilBillService extends IService<FilBill> {
     * @version v1.4.1
     */
     public void reportBillMq(FilBillReportBO filBillReportBO);
+
+    /**
+    * 在FIL币账单消息详情表里手动插入一条区块奖励数据
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/18 14:43
+    * @param [filBlockAwardReportBO]
+    * @return void
+    * @version v1.4.1
+    */
+    public void insertFilBillBlockAward(FilBlockAwardReportBO filBlockAwardReportBO);
 }
