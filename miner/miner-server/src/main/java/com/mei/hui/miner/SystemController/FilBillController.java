@@ -39,7 +39,10 @@ public class FilBillController {
     @ApiOperation("分页查询日账单列表")
     @PostMapping("/dayAggPage")
     public Result<IPage<FilBillDayAggVO>> selectFilBillDayAggPage(@RequestBody FilBillMonthBO filBillMonthBO){
-        IPage<FilBillDayAggVO> filBillDayAggVOIPage = null;
+        if (StringUtils.isEmpty(filBillMonthBO.getMinerId()) && StringUtils.isEmpty(filBillMonthBO.getMonthDate())){
+            filBillMonthBO = filBillMonthBOIsNull(filBillMonthBO);
+        }
+        IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillService.selectFilBillDayAggPage(filBillMonthBO);
 
         return Result.success(filBillDayAggVOIPage);
     }
@@ -62,6 +65,20 @@ public class FilBillController {
     }
 
 
+    /**
+     * filBillMethodBO为空时设置默认值
+     * @param filBillMethodBO
+     */
+    public FilBillMonthBO filBillMonthBOIsNull(FilBillMonthBO filBillMonthBO){
+        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.selectSysMinerInfoList(new SysMinerInfo());
+        log.info("查询矿工信息列表：【{}】",JSON.toJSON(sysMinerInfoList));
+        if (sysMinerInfoList == null || sysMinerInfoList.size() < 1){
+            throw  MyException.fail(MinerError.MYB_222222.getCode(),"该用户没有矿工");
+        }
+        filBillMonthBO.setMinerId(sysMinerInfoList.get(0).getMinerId());
+        filBillMonthBO.setMonthDate(DateUtils.getDate().substring(0,7));
+        return filBillMonthBO;
+    }
 
 
 

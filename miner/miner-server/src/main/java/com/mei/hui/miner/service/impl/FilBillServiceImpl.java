@@ -11,6 +11,7 @@ import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.FilBillMapper;
 import com.mei.hui.miner.mapper.FilMinerControlBalanceMapper;
+import com.mei.hui.miner.model.SysMinerInfoVO;
 import com.mei.hui.miner.service.FilBillParamsService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.FilBillTransactionsService;
@@ -291,6 +292,20 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillTransactions.setCreateTime(LocalDateTime.now());
         log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
         filBillTransactionsService.save(filBillTransactions);
+    }
+
+    /*分页查询日账单列表*/
+    @Override
+    public IPage<FilBillDayAggVO> selectFilBillDayAggPage(FilBillMonthBO filBillMonthBO) {
+        String monthDate = filBillMonthBO.getMonthDate();
+        String startDate = monthDate + "-01";
+        String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,10);
+        Page<FilBillDayAggVO> page = new Page<>(filBillMonthBO.getPageNum(),filBillMonthBO.getPageSize());
+        IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillMapper.selectFilBillDayAggPage(page,filBillMonthBO.getMinerId(),startDate,endDate);
+        filBillDayAggVOIPage.getRecords().stream().forEach(v->{
+            v.setDate((v.getDate()+"").substring(0,10));
+        });
+        return filBillDayAggVOIPage;
     }
 
 

@@ -143,4 +143,24 @@
             b.method
     </select>
 
+    <!--分页查询日账单列表-->
+    <select id="selectFilBillDayAggPage" resultType="com.mei.hui.miner.feign.vo.FilBillDayAggVO">
+        SELECT
+        id,date,in_money inMoney,out_money outMoney,balance
+        FROM
+        fil_bill_day_agg
+        <where>
+            <if test="minerId != null and minerId != ''">
+              miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= date
+            </if>
+        </where>
+        ORDER BY date DESC
+    </select>
+
 </mapper>

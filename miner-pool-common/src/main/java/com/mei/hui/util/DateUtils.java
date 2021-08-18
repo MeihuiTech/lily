@@ -358,6 +358,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 //        System.out.println(getAssignEndDayOfMonth(Integer.valueOf(date.substring(0,4)),Integer.valueOf(date.substring(5,7))));
         String yesterDayDateYmd = getYesterDayDateYmd();
         System.out.println(yesterDayDateYmd.substring(0,4)+ "--------" +yesterDayDateYmd.substring(5,7)+ "--------" +yesterDayDateYmd.substring(8,10));
+        System.out.println(yesterDayDateYmd.substring(0,10));
 
     }
 

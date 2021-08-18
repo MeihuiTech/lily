@@ -80,4 +80,16 @@ public interface FilBillService extends IService<FilBill> {
     * @version v1.4.1
     */
     public void insertFilBillBlockAward(FilBlockAwardReportBO filBlockAwardReportBO);
+
+    /**
+    * 分页查询日账单列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/18 15:50
+    * @param [filBillMonthBO]
+    * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.FilBillDayAggVO>
+    * @version v1.4.1
+    */
+    public IPage<FilBillDayAggVO> selectFilBillDayAggPage(FilBillMonthBO filBillMonthBO);
 }

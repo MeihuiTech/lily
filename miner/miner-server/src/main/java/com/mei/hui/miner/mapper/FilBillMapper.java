@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.feign.vo.BillMethodMoneyVO;
+import com.mei.hui.miner.feign.vo.FilBillDayAggVO;
 import com.mei.hui.miner.feign.vo.FilBillMethodBO;
 import com.mei.hui.miner.feign.vo.FilBillVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -60,4 +61,16 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
      */
     public List<BillMethodMoneyVO> selectBillMethodMoneyList(@Param("type") String type,@Param("minerId") String minerId,
                                                              @Param("subAccount") String subAccount,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
+    /**
+    * 分页查询日账单列表
+    *
+    * @description
+    * @author shangbin
+    * @date 2021/8/18 15:54
+    * @param [page, minerId, startDate, endDate]
+    * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.FilBillVO>
+    * @version v1.4.1
+    */
+    public IPage<FilBillDayAggVO> selectFilBillDayAggPage(Page<FilBillDayAggVO> page,@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
 }

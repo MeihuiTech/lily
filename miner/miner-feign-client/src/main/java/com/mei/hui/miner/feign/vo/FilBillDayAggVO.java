@@ -22,7 +22,7 @@ public class FilBillDayAggVO {
     private Integer id;
 
     @ApiModelProperty(value = "日期")
-    private LocalDateTime date;
+    private String date;
 
     @ApiModelProperty(value = "收入")
     private BigDecimal inMoney;
