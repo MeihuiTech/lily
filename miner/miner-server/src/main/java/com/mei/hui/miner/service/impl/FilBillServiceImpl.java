@@ -9,6 +9,7 @@ import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
+import com.mei.hui.miner.mapper.FilBillDayAggMapper;
 import com.mei.hui.miner.mapper.FilBillMapper;
 import com.mei.hui.miner.mapper.FilMinerControlBalanceMapper;
 import com.mei.hui.miner.model.SysMinerInfoVO;
@@ -62,6 +63,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     private FilBillParamsService filBillParamsService;
     @Autowired
     private FilBillTransactionsService filBillTransactionsService;
+    @Autowired
+    private FilBillDayAggMapper filBillDayAggMapper;
 
 
     /*上报FIL币账单*/
@@ -121,11 +124,11 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 List<FilBillSubAccountVO> filBillSubAccountVOList = selectFilBillSubAccountList(filBillMethodBO);
                 log.info("矿工子账户下拉列表：【{}】",JSON.toJSON(filBillSubAccountVOList));
                 log.info("from：【{}】,to：【{}】",from,to);
-                if (filBillSubAccountVOList.contains(from) && filBillSubAccountVOList.contains(to)){
+                if (filBillSubAccountVOList.contains(from) && filBillSubAccountVOList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
                     filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
                 } else {
                     filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
-                    if (filBillSubAccountVOList.contains(from)){
+                    if (filBillSubAccountVOList.contains(from) || Constants.TYPENODEFEE.equals(type) || Constants.TYPEBURNFEE.equals(type)){
                         filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
                     } else {
                         filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
@@ -273,6 +276,22 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         return billTotalVO;
     }
 
+    /*日账单详情列表*/
+    @Override
+    public IPage<FilBillVO> selectFilBillTransactionsPage(FilBillMonthBO filBillMonthBO) {
+        FilBillDayAgg filBillDayAgg = filBillDayAggMapper.selectById(filBillMonthBO.getId());
+        if (filBillDayAgg == null){
+            throw  MyException.fail(MinerError.MYB_222222.getCode(),"id不存在");
+        }
+        String minerId = filBillDayAgg.getMinerId();
+        LocalDateTime date = filBillDayAgg.getDate();
+        String dateStr = date.toString().substring(0,10);
+        String startDate = dateStr + "-01 00:00:00";
+        String endDate = dateStr + "-01 23:59:59";
+
+
+        return null;
+    }
 
     /*账单方法下拉列表*/
     @Override

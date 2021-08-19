@@ -66,11 +66,10 @@ public class FilBillController {
     }
 
 
-    @ApiOperation("日账单详情")
+    @ApiOperation("日账单详情列表")
     @PostMapping("/transaction")
     public Result<IPage<FilBillVO>> selectFilBillTransactionsPage(@RequestBody FilBillMonthBO filBillMonthBO){
-        IPage<FilBillVO> filBillVOIPage = null;
-
+        IPage<FilBillVO> filBillVOIPage = filBillService.selectFilBillTransactionsPage(filBillMonthBO);
         return Result.success(filBillVOIPage);
     }
 
