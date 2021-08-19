@@ -258,4 +258,49 @@
         </where>
     </select>
 
+    <!--分页查询日账单详情列表-->
+    <select id="selectFilBillTransactionsPage" resultType="com.mei.hui.miner.feign.vo.FilBillVO">
+        SELECT
+        b.date_time,b.cid,t.sender,t.receiver,t.money,t.type,t.outside_type
+        FROM
+        fil_bill_transactions t
+        LEFT JOIN fil_bill b ON t.fil_bill_id = b.id
+        <where>
+            <if test="minerId != null and minerId != ''">
+                b.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND b.date_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= b.date_time
+            </if>
+            <if test="outsideType != null">
+                and t.outside_type = #{outsideType}
+            </if>
+            <choose>
+                <when test="type != null">
+                    <if test="type == 0">
+                        and b.type = 0 and t.type = 0
+                    </if>
+                    <if test="type == 1">
+                        and b.type = 0 and t.type = 1
+                    </if>
+                    <if test="type == 2">
+                        and b.type = 0 and t.type = 2 and t.transaction_type = 1
+                    </if>
+                    <if test="type == 3">
+                        and b.type = 1 and t.type = 3 and t.transaction_type = 1
+                    </if>
+                    <if test="type == 4">
+                        and b.type = 0 and t.type = 4 and t.transaction_type = 1
+                    </if>
+                </when>
+                <otherwise>
+
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
 </mapper>

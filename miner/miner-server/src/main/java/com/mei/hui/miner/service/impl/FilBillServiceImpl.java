@@ -72,6 +72,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     @Transactional(rollbackFor = Exception.class)
     public void reportBillMq(FilBillReportBO filBillReportBO) {
         String minerId = filBillReportBO.getMiner();
+        String method = filBillReportBO.getMethod();
         FilBill filBill = new FilBill();
         BeanUtils.copyProperties(filBillReportBO,filBill);
         filBill.setMinerId(minerId);
@@ -112,11 +113,17 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 String type = filBillTransactionsReportBO.getType();
                 log.info("type：【{}】",type);
                 if(Constants.TYPENODEFEE.equals(type)){
-                    filBillTransactions.setType(0);
+                    filBillTransactions.setType(Constants.TYPENODEFEEZERO);
                 } else if (Constants.TYPEBURNFEE.equals(type)){
-                    filBillTransactions.setType(1);
+                    filBillTransactions.setType(Constants.TYPEBURNFEEONE);
                 } else if (Constants.TYPETRANSFER.equals(type)){
-                    filBillTransactions.setType(2);
+                    // 转账
+                    if (Constants.FILBILLMETHODSEND.equals(method) || Constants.FILBILLMETHODPROPOSE.equals(method) || Constants.FILBILLMETHODREPORTCONSENSUSFAULT.equals(method)){
+                        filBillTransactions.setType(Constants.TYPETRANSFERTWO);
+                    } else {
+                        // 其它
+                        filBillTransactions.setType(Constants.TYPEOTHERFOUR);
+                    }
                 }
 
                 FilBillMethodBO filBillMethodBO = new FilBillMethodBO();
@@ -178,6 +185,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,10);
         Page<FilBillDayAggVO> page = new Page<>(filBillMonthBO.getPageNum(),filBillMonthBO.getPageSize());
         IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillMapper.selectFilBillDayAggPage(page,filBillMonthBO.getMinerId(),startDate,endDate);
+        log.info("分页查询日账单列表出参：【{}】",JSON.toJSON(filBillDayAggVOIPage));
         filBillDayAggVOIPage.getRecords().stream().forEach(v->{
             v.setDate((v.getDate()+"").substring(0,10));
         });
@@ -276,7 +284,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         return billTotalVO;
     }
 
-    /*日账单详情列表*/
+    /*分页查询日账单详情列表*/
     @Override
     public IPage<FilBillVO> selectFilBillTransactionsPage(FilBillMonthBO filBillMonthBO) {
         FilBillDayAgg filBillDayAgg = filBillDayAggMapper.selectById(filBillMonthBO.getId());
@@ -286,12 +294,39 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String minerId = filBillDayAgg.getMinerId();
         LocalDateTime date = filBillDayAgg.getDate();
         String dateStr = date.toString().substring(0,10);
-        String startDate = dateStr + "-01 00:00:00";
-        String endDate = dateStr + "-01 23:59:59";
-
-
-        return null;
+        String startDate = dateStr + " 00:00:00";
+        String endDate = dateStr + " 23:59:59";
+        Page<FilBillVO> page = new Page<>(filBillMonthBO.getPageNum(),filBillMonthBO.getPageSize());
+        log.info("分页查询日账单详情列表入参page：【{}】，minerId：【{}】，startDate：【{}】，endDate：【{}】",JSON.toJSON(page),minerId,startDate,endDate);
+        IPage<FilBillVO> filBillVOIPage = filBillMapper.selectFilBillTransactionsPage(page,minerId,startDate,endDate,filBillMonthBO.getType(),filBillMonthBO.getOutsideType());
+        log.info("分页查询日账单详情列表出参：【{}】",JSON.toJSON(filBillVOIPage));
+        filBillVOIPage.getRecords().stream().forEach(v->{
+            if (Constants.FILBILLOUT.equals(v.getInOrOut())){
+                v.setInOrOut("支出");
+            }else {
+                v.setInOrOut("收入");
+            }
+            String type = v.getType();
+            if (Constants.TYPENODEFEEZERO.toString().equals(type)){
+                v.setType("矿工手续费");
+            } else if (Constants.TYPEBURNFEEONE.toString().equals(type)){
+                v.setType("燃烧手续费");
+            } else if (Constants.TYPETRANSFERTWO.toString().equals(type)){
+                v.setType("转账");
+            } else if (Constants.TYPEBLOCKAWARDTHREE.toString().equals(type)){
+                v.setType("区块奖励");
+            } else if (Constants.TYPEOTHERFOUR.toString().equals(type)){
+                v.setType("其它");
+            }
+        });
+        return filBillVOIPage;
     }
+
+
+
+
+
+
 
     /*账单方法下拉列表*/
     @Override
@@ -357,9 +392,9 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 filBillMethodBO.getMinerId(),filBillMethodBO.getMethod(),filBillMethodBO.getType(),filBillMethodBO.getSubAccount(),startDate,endDate);
         filBillVOIPage.getRecords().stream().forEach(v -> {
             if (v.getSender().equals(filBillMethodBO.getSubAccount())){
-                v.setInOrOut(Constants.FILBILLOUT);
+                v.setInOrOut(Constants.FILBILLOUT.toString());
             } else if (v.getReceiver().equals(filBillMethodBO.getSubAccount())){
-                v.setInOrOut(Constants.FILBILLIN);
+                v.setInOrOut(Constants.FILBILLIN.toString());
             }
             if ("0".equals(v.getType())){
                 v.setType(Constants.TYPENODEFEE);

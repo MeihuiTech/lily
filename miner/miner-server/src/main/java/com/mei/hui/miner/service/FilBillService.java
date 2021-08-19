@@ -101,7 +101,7 @@ public interface FilBillService extends IService<FilBill> {
     public BillTotalVO selectFilBillmonthAgg(FilBillMonthBO filBillMonthBO);
 
     /**
-     * 日账单详情列表
+     * 分页查询日账单详情列表
      * @param filBillMonthBO
      * @return
      */

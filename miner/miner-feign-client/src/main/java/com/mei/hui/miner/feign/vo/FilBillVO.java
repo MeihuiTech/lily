@@ -24,7 +24,7 @@ public class FilBillVO {
     private String cid;
 
     @ApiModelProperty(value = "收支：0支出，1收入")
-    private Integer inOrOut;
+    private String inOrOut;
 
     @ApiModelProperty(value = "金额")
     private BigDecimal money;
@@ -32,7 +32,7 @@ public class FilBillVO {
     @ApiModelProperty(value = "方法")
     private String method;
 
-    @ApiModelProperty(value = "类型：0Node Fee矿工手续费，1Burn Fee燃烧手续费，2Transfer转账，3BlockAward区块奖励")
+    @ApiModelProperty(value = "类型：0Node Fee矿工手续费，1Burn Fee燃烧手续费，2Transfer转账，3BlockAward区块奖励，4Other其它")
     private String type;
 
     @ApiModelProperty(value = "发送方")

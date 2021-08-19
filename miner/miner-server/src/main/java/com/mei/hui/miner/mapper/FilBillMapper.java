@@ -87,7 +87,7 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
 
     /**
      * 查询账单按照日期范围汇总矿工手续费、燃烧手续费支出
-     * @param type 类型：0Node Fee矿工手续费，1Burn Fee燃烧手续费，2Transfer转账，3BlockAward区块奖励
+     * @param type 类型：0Node Fee矿工手续费，1Burn Fee燃烧手续费，2Transfer转账，3BlockAward区块奖励，4Other其它
      * @param minerId
      * @param startDate
      * @param endDate
@@ -112,4 +112,15 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
      * @return
      */
     public BigDecimal selectFilBillinBlockAwardDateAgg(@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
+    /**
+     * 分页查询日账单详情列表
+     * @param page
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public IPage<FilBillVO> selectFilBillTransactionsPage(Page<com.mei.hui.miner.feign.vo.FilBillVO> page,@Param("minerId") String minerId,@Param("startDate") String startDate,
+                                                          @Param("endDate") String endDate,@Param("type") Integer type,@Param("outsideType") Integer outsideType);
 }

@@ -73,6 +73,21 @@ public interface Constants extends SystemConstants {
     Integer SECTORSTATUSONE = 1;
 
     /**
+     * FIL币账单消息详情表方法:Send
+     */
+    String FILBILLMETHODSEND = "Send";
+
+    /**
+     * FIL币账单消息详情表方法:Propose
+     */
+    String FILBILLMETHODPROPOSE = "Propose";
+
+    /**
+     * FIL币账单消息详情表方法:ReportConsensusFault
+     */
+    String FILBILLMETHODREPORTCONSENSUSFAULT = "ReportConsensusFault";
+
+    /**
      * FIL币账单转账类型：0Node Fee矿工手续费
      */
     String TYPENODEFEE = "Node Fee";
@@ -105,12 +120,22 @@ public interface Constants extends SystemConstants {
     /**
      * FIL币账单转账类型：3BlockAward区块奖励
      */
-    String TYPEBlockAward = "BlockAward";
+    String TYPEBLOCKAWARD = "BlockAward";
 
     /**
      * FIL币账单转账类型：3BlockAward区块奖励
      */
     Integer TYPEBLOCKAWARDTHREE = 3;
+
+    /**
+     * FIL币账单转账类型：4Other其它
+     */
+    String TYPEOTHER = "Other";
+
+    /**
+     * FIL币账单转账类型：4Other其它
+     */
+    Integer TYPEOTHERFOUR = 4;
 
     /**
      * 收支:0支出
