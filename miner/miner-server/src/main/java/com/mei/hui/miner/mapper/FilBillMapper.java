@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -73,4 +74,42 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
     * @version v1.4.1
     */
     public IPage<FilBillDayAggVO> selectFilBillDayAggPage(Page<FilBillDayAggVO> page,@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
+    /**
+     * 查询账单按照日期范围汇总转账收支
+     * @param outsideType 外部交易的收支：0支出，1收入
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public BigDecimal selectFilBillTransferDateAgg(@Param("outsideType") Integer outsideType,@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
+    /**
+     * 查询账单按照日期范围汇总矿工手续费、燃烧手续费支出
+     * @param type 类型：0Node Fee矿工手续费，1Burn Fee燃烧手续费，2Transfer转账，3BlockAward区块奖励
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public BigDecimal selectFilBillOutFeeDateAgg(@Param("type") Integer type,@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
+    /**
+     * 查询账单按照日期范围汇总所有外部交易支出
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public BigDecimal selectFilBillOutAllDateAgg(@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
+    /**
+     * 查询账单月汇总区块奖励收入
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public BigDecimal selectFilBillinBlockAwardDateAgg(@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
 }

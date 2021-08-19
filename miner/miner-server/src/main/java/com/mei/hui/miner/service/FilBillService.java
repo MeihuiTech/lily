@@ -92,4 +92,11 @@ public interface FilBillService extends IService<FilBill> {
     * @version v1.4.1
     */
     public IPage<FilBillDayAggVO> selectFilBillDayAggPage(FilBillMonthBO filBillMonthBO);
+
+    /**
+     * 账单月汇总
+     * @param filBillMonthBO
+     * @return
+     */
+    public BillTotalVO selectFilBillmonthAgg(FilBillMonthBO filBillMonthBO);
 }

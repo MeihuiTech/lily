@@ -356,9 +356,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 //        System.out.println(getAssignEndDayOfMonth(2021,7));
 //        String date = "2021-07-31 23:59:59.999";
 //        System.out.println(getAssignEndDayOfMonth(Integer.valueOf(date.substring(0,4)),Integer.valueOf(date.substring(5,7))));
-        String yesterDayDateYmd = getYesterDayDateYmd();
-        System.out.println(yesterDayDateYmd.substring(0,4)+ "--------" +yesterDayDateYmd.substring(5,7)+ "--------" +yesterDayDateYmd.substring(8,10));
-        System.out.println(yesterDayDateYmd.substring(0,10));
+//        String yesterDayDateYmd = getYesterDayDateYmd();
+//        System.out.println(yesterDayDateYmd.substring(0,4)+ "--------" +yesterDayDateYmd.substring(5,7)+ "--------" +yesterDayDateYmd.substring(8,10));
+//        System.out.println(yesterDayDateYmd.substring(0,10));
+
+//        System.out.println(getEndYesterdayDate());
+        System.out.println(getYesterDayDateYmd()+" 23:59:59");
 
     }
 

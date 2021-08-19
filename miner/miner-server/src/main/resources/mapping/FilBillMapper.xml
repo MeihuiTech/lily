@@ -163,4 +163,99 @@
         ORDER BY date DESC
     </select>
 
+    <!--查询账单月汇总转账收支-->
+    <select id="selectFilBillTransferDateAgg" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(t.money)
+        FROM
+        fil_bill_transactions t
+        LEFT JOIN fil_bill b ON t.fil_bill_id = b.id
+        <where>
+            <if test="minerId != null and minerId != ''">
+                b.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND b.date_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= b.date_time
+            </if>
+            <if test="outsideType != null">
+                and t.outside_type = #{outsideType}
+            </if>
+            and b.method in ('Send','Propose','ReportConsensusFault')
+            and b.type = 0
+            and t.type = 2
+            and t.transaction_type = 1
+        </where>
+    </select>
+
+    <!--查询账单按照日期范围汇总矿工手续费、燃烧手续费支出-->
+    <select id="selectFilBillOutFeeDateAgg" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(t.money)
+        FROM
+        fil_bill_transactions t
+        LEFT JOIN fil_bill b ON t.fil_bill_id = b.id
+        <where>
+            <if test="minerId != null and minerId != ''">
+                b.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND b.date_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= b.date_time
+            </if>
+            <if test="type != null">
+                and t.type = #{type}
+            </if>
+            and b.type = 0
+        </where>
+    </select>
+
+    <!--查询账单按照日期范围汇总所有外部交易支出-->
+    <select id="selectFilBillOutAllDateAgg" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(t.money)
+        FROM
+        fil_bill_transactions t
+        LEFT JOIN fil_bill b ON t.fil_bill_id = b.id
+        <where>
+            <if test="minerId != null and minerId != ''">
+                b.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND b.date_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= b.date_time
+            </if>
+            and b.type = 0
+            and t.transaction_type = 1
+            and t.outside_type = 0
+        </where>
+    </select>
+
+    <!--查询账单月汇总区块奖励收入-->
+    <select id="selectFilBillinBlockAwardDateAgg" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(t.money)
+        FROM
+        fil_bill_transactions t
+        LEFT JOIN fil_bill b ON t.fil_bill_id = b.id
+        <where>
+            <if test="minerId != null and minerId != ''">
+                b.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND b.date_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= b.date_time
+            </if>
+            and b.type = 1
+        </where>
+    </select>
+
 </mapper>
