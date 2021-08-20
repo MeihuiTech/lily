@@ -232,8 +232,7 @@
                 AND #{endDate} >= b.date_time
             </if>
             and b.type = 0
-            and t.transaction_type = 1
-            and t.outside_type = 0
+            and t.type = 4
         </where>
     </select>
 

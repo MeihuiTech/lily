@@ -269,8 +269,9 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         BillMethodMoneyVO outOtherBillMethodMoneyVO = new BillMethodMoneyVO();
         outOtherBillMethodMoneyVO.setMethod("其它");
         BigDecimal outAllMoney = filBillMapper.selectFilBillOutAllDateAgg(minerId,startDate,endDate);
-        outAllMoney = outAllMoney == null?BigDecimal.ZERO:outAllMoney;
         log.info("查询账单按照日期范围汇总所有外部交易支出出参：【{}】",outAllMoney);
+        outAllMoney = outAllMoney == null?BigDecimal.ZERO:outAllMoney;
+        log.info("查询账单按照日期范围汇总所有外部交易支出出参2：【{}】",outAllMoney);
         log.info("outTransferMoney：【{}】",outTransferMoney);
         BigDecimal outOtherMoney = outAllMoney.subtract(outTransferMoney);
         log.info("支出-其它：【{}】",outOtherMoney);
