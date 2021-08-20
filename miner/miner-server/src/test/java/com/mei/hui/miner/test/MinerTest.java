@@ -341,4 +341,10 @@ public class MinerTest {
         System.out.println(new BigDecimal("-1".replace("-","")));
     }
 
+
+    @Test
+    public void testBigdecimal2(){
+        System.out.println(new BigDecimal(""));
+    }
+
 }

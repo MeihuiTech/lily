@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -40,6 +41,9 @@ public class FilBlockAwardServiceImpl extends ServiceImpl<FilBlockAwardMapper,Fi
         BeanUtils.copyProperties(filBlockAwardReportBO,filBlockAward);
         filBlockAward.setMinerId(filBlockAwardReportBO.getMiner());
         filBlockAward.setCid(filBlockAwardReportBO.getCid());
+        if (filBlockAwardReportBO.getMinerFee() == null){
+            filBlockAward.setMinerFee(BigDecimal.ZERO);
+        }
         filBlockAward.setParentWeight(filBlockAwardReportBO.getParentweight());
         filBlockAward.setDateTime(LocalDateTime.ofEpochSecond(filBlockAwardReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
         filBlockAward.setCreateTime(LocalDateTime.now());
