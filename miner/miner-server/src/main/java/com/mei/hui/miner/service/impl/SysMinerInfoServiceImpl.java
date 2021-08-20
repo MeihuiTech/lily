@@ -395,6 +395,14 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     /*矿工有效算力单位换算*/
     @Override
     public FilMinerPowerAvailableUnitVO powerAvailableUnit(BigDecimal powerAvailable){
+        log.info("矿工有效算力单位换算入参：【{}】",powerAvailable);
+        // 是否为负数，默认false不是，true是
+        boolean isminusFlag = false;
+        if(powerAvailable.compareTo(BigDecimal.ZERO)<0){
+            isminusFlag = true;
+            powerAvailable = new BigDecimal(powerAvailable.toString().replace("-",""));
+        }
+        log.info("是否为负数，默认false不是，true是，isminusFlag：【{}】",isminusFlag);
         FilMinerPowerAvailableUnitVO filMinerPowerAvailableUnitVO = new FilMinerPowerAvailableUnitVO();
         if (powerAvailable.compareTo(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024))) > 0){
             filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable.divide(new BigDecimal(1024*1024*1024*1024*1024*1024*1024*1024*1024)));
@@ -427,7 +435,11 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             filMinerPowerAvailableUnitVO.setPowerAvailable(powerAvailable);
             filMinerPowerAvailableUnitVO.setPowerAvailableUnit("B");
         }
-        filMinerPowerAvailableUnitVO.setPowerAvailable(BigDecimalUtil.formatTwo(filMinerPowerAvailableUnitVO.getPowerAvailable()));
+        if (isminusFlag){
+            filMinerPowerAvailableUnitVO.setPowerAvailable(BigDecimalUtil.formatTwo(filMinerPowerAvailableUnitVO.getPowerAvailable()).negate());
+        } else {
+            filMinerPowerAvailableUnitVO.setPowerAvailable(BigDecimalUtil.formatTwo(filMinerPowerAvailableUnitVO.getPowerAvailable()));
+        }
         return filMinerPowerAvailableUnitVO;
     }
 

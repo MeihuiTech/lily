@@ -335,4 +335,10 @@ public class MinerTest {
 
     }
 
+    @Test
+    public void testBigdecimal(){
+        System.out.println(BigDecimal.ONE.negate());// -1
+        System.out.println(new BigDecimal("-1".replace("-","")));
+    }
+
 }
