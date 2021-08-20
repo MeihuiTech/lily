@@ -301,25 +301,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         log.info("分页查询日账单详情列表入参page：【{}】，minerId：【{}】，startDate：【{}】，endDate：【{}】",JSON.toJSON(page),minerId,startDate,endDate);
         IPage<FilBillVO> filBillVOIPage = filBillMapper.selectFilBillTransactionsPage(page,minerId,startDate,endDate,filBillMonthBO.getType(),filBillMonthBO.getOutsideType());
         log.info("分页查询日账单详情列表出参：【{}】",JSON.toJSON(filBillVOIPage));
-//        filBillVOIPage.getRecords().stream().forEach(v->{
-//            if (Constants.FILBILLOUT.equals(v.getInOrOut())){
-//                v.setInOrOut("支出");
-//            }else {
-//                v.setInOrOut("收入");
-//            }
-//            String type = v.getType();
-//            if (Constants.TYPENODEFEEZERO.toString().equals(type)){
-//                v.setType("存储手续费");
-//            } else if (Constants.TYPEBURNFEEONE.toString().equals(type)){
-//                v.setType("燃烧手续费");
-//            } else if (Constants.TYPETRANSFERTWO.toString().equals(type)){
-//                v.setType("转账");
-//            } else if (Constants.TYPEBLOCKAWARDTHREE.toString().equals(type)){
-//                v.setType("区块奖励");
-//            } else if (Constants.TYPEOTHERFOUR.toString().equals(type)){
-//                v.setType("其它");
-//            }
-//        });
         return filBillVOIPage;
     }
 
