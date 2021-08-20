@@ -130,12 +130,16 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 filBillMethodBO.setMinerId(minerId);
                 List<FilBillSubAccountVO> filBillSubAccountVOList = selectFilBillSubAccountList(filBillMethodBO);
                 log.info("矿工子账户下拉列表：【{}】",JSON.toJSON(filBillSubAccountVOList));
-                log.info("from：【{}】,to：【{}】",from,to);
-                if (filBillSubAccountVOList.contains(from) && filBillSubAccountVOList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
+                List<String> addressList = new ArrayList<>();
+                filBillSubAccountVOList.stream().forEach(v->{
+                    addressList.add(v.getAddress());
+                });
+                log.info("from：【{}】,to：【{}】,addressList：【{}】",from,to,addressList);
+                if (addressList.contains(from) && addressList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
                     filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
                 } else {
                     filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
-                    if (filBillSubAccountVOList.contains(from) || Constants.TYPENODEFEE.equals(type) || Constants.TYPEBURNFEE.equals(type)){
+                    if (addressList.contains(from) || Constants.TYPENODEFEE.equals(type) || Constants.TYPEBURNFEE.equals(type)){
                         filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
                     } else {
                         filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
