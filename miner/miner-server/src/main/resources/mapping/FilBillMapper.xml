@@ -299,6 +299,7 @@
 
                 </otherwise>
             </choose>
+            ORDER BY b.date_time
         </where>
     </select>
 
