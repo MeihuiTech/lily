@@ -6,6 +6,8 @@ import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.Result;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -106,4 +108,13 @@ public interface FilBillService extends IService<FilBill> {
      * @return
      */
     public IPage<FilBillVO> selectFilBillTransactionsPage(FilBillMonthBO filBillMonthBO);
+
+    /**
+     * 新增FIL币账单消息每天汇总表
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public Integer insertFilBillDayAgg(String minerId, String startDate, String endDate,LocalDate date);
 }

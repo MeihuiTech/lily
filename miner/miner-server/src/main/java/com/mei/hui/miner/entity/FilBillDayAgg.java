@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -27,7 +28,7 @@ public class FilBillDayAgg {
     /**
      * 日期
      */
-    private LocalDateTime date;
+    private LocalDate date;
 
     /**
      * 收入

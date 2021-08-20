@@ -249,7 +249,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
         // 支出-矿工手续费
         BillMethodMoneyVO outNodeFeeBillMethodMoneyVO = new BillMethodMoneyVO();
-        outNodeFeeBillMethodMoneyVO.setMethod("矿工手续费");
+        outNodeFeeBillMethodMoneyVO.setMethod("存储手续费");
         BigDecimal outNodeFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(0,minerId,startDate,endDate);
         outNodeFeeMoney = outNodeFeeMoney == null?BigDecimal.ZERO:outNodeFeeMoney;
         log.info("查询账单按照日期范围汇总矿工手续费支出出参：【{}】",outNodeFeeMoney);
@@ -258,7 +258,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
         // 支出-燃烧手续费
         BillMethodMoneyVO outBurnFeeBillMethodMoneyVO = new BillMethodMoneyVO();
-        outBurnFeeBillMethodMoneyVO.setMethod("矿工手续费");
+        outBurnFeeBillMethodMoneyVO.setMethod("存储手续费");
         BigDecimal outBurnFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(1,minerId,startDate,endDate);
         outBurnFeeMoney = outBurnFeeMoney == null?BigDecimal.ZERO:outBurnFeeMoney;
         log.info("查询账单按照日期范围汇总燃烧手续费支出出参：【{}】",outBurnFeeMoney);
@@ -292,8 +292,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             throw  MyException.fail(MinerError.MYB_222222.getCode(),"id不存在");
         }
         String minerId = filBillDayAgg.getMinerId();
-        LocalDateTime date = filBillDayAgg.getDate();
-        String dateStr = date.toString().substring(0,10);
+        LocalDate date = filBillDayAgg.getDate();
+        String dateStr = date.toString();// .substring(0,10)
         String startDate = dateStr + " 00:00:00";
         String endDate = dateStr + " 23:59:59";
         Page<FilBillVO> page = new Page<>(filBillMonthBO.getPageNum(),filBillMonthBO.getPageSize());
@@ -308,7 +308,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             }
             String type = v.getType();
             if (Constants.TYPENODEFEEZERO.toString().equals(type)){
-                v.setType("矿工手续费");
+                v.setType("存储手续费");
             } else if (Constants.TYPEBURNFEEONE.toString().equals(type)){
                 v.setType("燃烧手续费");
             } else if (Constants.TYPETRANSFERTWO.toString().equals(type)){
@@ -322,11 +322,35 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         return filBillVOIPage;
     }
 
-
-
-
-
-
+    /*新增FIL币账单消息每天汇总表*/
+    @Override
+    public Integer insertFilBillDayAgg(String minerId, String startDate, String endDate,LocalDate date) {
+        FilBillDayAgg filBillDayAgg = new FilBillDayAgg();
+        filBillDayAgg.setMinerId(minerId);
+        filBillDayAgg.setDate(date);
+        filBillDayAgg.setCreateTime(LocalDateTime.now());
+        List<FilBillTransactions> filBillTransactionsList = filBillMapper.selectFilBillTransactionsMoney(minerId, startDate, endDate);
+        log.info("FIL币账单消息每天汇总收支：【{}】",JSON.toJSON(filBillTransactionsList));
+        if (filBillTransactionsList != null && filBillTransactionsList.size() > 0){
+            for (FilBillTransactions filBillTransactions:filBillTransactionsList){
+                Integer outsideType = filBillTransactions.getOutsideType();
+                BigDecimal money = filBillTransactions.getMoney();
+                money = money == null?BigDecimal.ZERO:money;
+                if (Constants.FILBILLIN.equals(outsideType)){
+                    filBillDayAgg.setInMoney(money);
+                } else {
+                    filBillDayAgg.setOutMoney(money);
+                }
+            }
+            filBillDayAgg.setBalance((filBillDayAgg.getInMoney() == null?BigDecimal.ZERO:filBillDayAgg.getInMoney()).subtract(filBillDayAgg.getOutMoney() == null?BigDecimal.ZERO:filBillDayAgg.getOutMoney()));
+        } else {
+            filBillDayAgg.setInMoney(BigDecimal.ZERO);
+            filBillDayAgg.setOutMoney(BigDecimal.ZERO);
+            filBillDayAgg.setBalance(BigDecimal.ZERO);
+        }
+        Integer count = filBillDayAggMapper.insert(filBillDayAgg);
+        return count;
+    }
 
     /*账单方法下拉列表*/
     @Override

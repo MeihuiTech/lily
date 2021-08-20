@@ -6,7 +6,9 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -361,7 +363,16 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 //        System.out.println(yesterDayDateYmd.substring(0,10));
 
 //        System.out.println(getEndYesterdayDate());
-        System.out.println(getYesterDayDateYmd()+" 23:59:59");
+//        System.out.println(getYesterDayDateYmd()+" 23:59:59");
+
+//        System.out.println(getBeginOfDayDate());// 2021-08-20 00:00:00.0
+//        System.out.println(getEndOfDayDate());// 2021-08-20 23:59:59.999
+        System.out.println(getDate());//2021-08-20
+//        System.out.println(LocalDateTime.now());//2021-08-20T14:53:57.306
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDateTime = LocalDate.parse(DateUtils.getDate(), dateTimeFormatter);
+        System.out.println(localDateTime);
 
     }
 

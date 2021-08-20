@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.miner.entity.FilBill;
+import com.mei.hui.miner.entity.FilBillTransactions;
 import com.mei.hui.miner.feign.vo.BillMethodMoneyVO;
 import com.mei.hui.miner.feign.vo.FilBillDayAggVO;
 import com.mei.hui.miner.feign.vo.FilBillMethodBO;
@@ -15,6 +16,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -123,4 +125,13 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
      */
     public IPage<FilBillVO> selectFilBillTransactionsPage(Page<com.mei.hui.miner.feign.vo.FilBillVO> page,@Param("minerId") String minerId,@Param("startDate") String startDate,
                                                           @Param("endDate") String endDate,@Param("type") Integer type,@Param("outsideType") Integer outsideType);
+
+    /**
+     * FIL币账单消息每天汇总收支
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public List<FilBillTransactions> selectFilBillTransactionsMoney(@Param("minerId") String minerId,@Param("startDate") String startDate,@Param("endDate") String endDate);
 }
