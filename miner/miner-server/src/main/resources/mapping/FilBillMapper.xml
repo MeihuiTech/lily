@@ -233,6 +233,8 @@
             </if>
             and b.type = 0
             and t.type = 4
+            and t.transaction_type = 1
+            and t.outside_type = 0
         </where>
     </select>
 
