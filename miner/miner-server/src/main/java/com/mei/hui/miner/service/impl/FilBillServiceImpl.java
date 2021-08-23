@@ -262,7 +262,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
         // 支出-燃烧手续费
         BillMethodMoneyVO outBurnFeeBillMethodMoneyVO = new BillMethodMoneyVO();
-        outBurnFeeBillMethodMoneyVO.setMethod("存储手续费");
+        outBurnFeeBillMethodMoneyVO.setMethod("燃烧手续费");
         BigDecimal outBurnFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(1,minerId,startDate,endDate);
         outBurnFeeMoney = outBurnFeeMoney == null?BigDecimal.ZERO:outBurnFeeMoney;
         log.info("查询账单按照日期范围汇总燃烧手续费支出出参：【{}】",outBurnFeeMoney);
