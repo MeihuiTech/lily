@@ -274,7 +274,7 @@ public class SysMinerInfoController {
      * 获取
      * @return
      */
-    @ApiOperation("分配用户-获取用户、矿工")
+    @ApiOperation("给游客设置userId,获取用户列表")
     @PostMapping("/findAllUserAndMiner")
     public Result<AllUserAndMinerBO> findAllUserAndMiner(){
         Result<List<FindAllMinerVO>> allUserAndMiner = sysMinerInfoService.findAllMiner();
