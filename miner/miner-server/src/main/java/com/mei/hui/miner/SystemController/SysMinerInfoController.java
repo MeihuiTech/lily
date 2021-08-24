@@ -3,7 +3,11 @@ package com.mei.hui.miner.SystemController;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
+import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
@@ -15,6 +19,8 @@ import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +39,7 @@ import java.util.Map;
 @Api(tags = "矿工信息")
 @RestController
 @RequestMapping("/system/miner")
+@Slf4j
 public class SysMinerInfoController {
     @Autowired
     private ISysMinerInfoService sysMinerInfoService;
@@ -40,6 +47,10 @@ public class SysMinerInfoController {
     private IChiaMinerService chiaMinerService;
     @Autowired
     private FilAdminUserService adminUserService;
+    @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
 
     @ApiOperation(value = "根据矿工id查询账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
@@ -257,7 +268,42 @@ public class SysMinerInfoController {
                 }
             }
         }
+    }
 
+    /**
+     * 获取
+     * @return
+     */
+    @ApiOperation("分配用户-获取用户、矿工")
+    @PostMapping("/findAllUserAndMiner")
+    public Result<AllUserAndMinerBO> findAllUserAndMiner(){
+        Result<List<FindAllMinerVO>> allUserAndMiner = sysMinerInfoService.findAllMiner();
+        List<FindAllMinerVO> users = allUserAndMiner.getData();
+        log.info("用户和拥有的矿工:{}", JSON.toJSONString(users));
+
+        /**
+         * 如果没有缓存游客的登陆userId，则从配置用取
+         */
+        String visitorUserId = redisUtil.get(Constants.visitorKey);
+        log.info("游客用户id:{}",visitorUserId);
+        if(StringUtils.isEmpty(visitorUserId)){
+            visitorUserId = ruoYiConfig.getVisitorUserId()+"";
+        }
+        AllUserAndMinerBO bo = new AllUserAndMinerBO().setUsers(users).setVisitorUserId(Long.valueOf(visitorUserId));
+        return Result.success(bo);
+    }
+
+    /**
+     * 获取
+     * @return
+     */
+    @ApiOperation("设置游客登陆使用的userId")
+    @PostMapping("/setVisitorUserId")
+    public Result setVisitorUserId(@RequestBody SetVisitorUserIdBO bo){
+        if(bo.getUserId() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"userId不能为空");
+        }
+        return sysMinerInfoService.setVisitorUserId(bo);
     }
 
 }

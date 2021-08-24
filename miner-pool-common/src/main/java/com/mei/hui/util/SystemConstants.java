@@ -44,4 +44,9 @@ public interface SystemConstants {
      */
     String SECTORDURATIONKEY = "fil:sectorduration:%s:%s";
 
+    /**
+     * 游客客户id
+     */
+    String visitorKey = "visitorKey";
+
 }

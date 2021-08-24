@@ -133,7 +133,13 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         Long currencyId = Constants.fileCurrencyId;
 
-        Long userId = ruoYiConfig.getVisitorUserId();
+        //查询游客登陆需要用到的userId
+        String visitorUserId = redisUtils.get(Constants.visitorKey);
+        log.info("redis游客用户id:{}",visitorUserId);
+        if(StringUtils.isEmpty(visitorUserId)){
+            visitorUserId = ruoYiConfig.getVisitorUserId()+"";
+        }
+        Long userId = Long.valueOf(visitorUserId);
         Long roleId = ruoYiConfig.getVisitorUserRoleId();
 
         SysRole role = roleMapper.selectRoleById(roleId);

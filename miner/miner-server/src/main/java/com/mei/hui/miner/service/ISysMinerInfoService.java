@@ -9,6 +9,7 @@ import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -279,4 +280,6 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
      * @return
      */
     public List<MinerInfoExportExcelVO> exportMinerInfoExcel();
+
+    Result setVisitorUserId(@RequestBody SetVisitorUserIdBO bo);
 }
