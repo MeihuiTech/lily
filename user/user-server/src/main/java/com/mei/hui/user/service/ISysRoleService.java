@@ -1,6 +1,8 @@
 package com.mei.hui.user.service;
 
 import com.mei.hui.user.entity.SysRole;
+import com.mei.hui.user.feign.vo.VisitRoleBO;
+import com.mei.hui.util.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -122,4 +124,6 @@ public interface ISysRoleService
      * @return 结果
      */
     public int deleteRoleByIds(Long[] roleIds);
+
+    Result<VisitRoleBO> getVisitRoleState();
 }

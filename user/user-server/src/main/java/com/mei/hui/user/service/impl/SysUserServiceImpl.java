@@ -135,6 +135,12 @@ public class SysUserServiceImpl implements ISysUserService {
 
         Long userId = ruoYiConfig.getVisitorUserId();
         Long roleId = ruoYiConfig.getVisitorUserRoleId();
+
+        SysRole role = roleMapper.selectRoleById(roleId);
+        log.info("角色:{}", JSON.toJSONString(role));
+        if("1".equals(role.getStatus())|| "2".equals(role.getDelFlag())){
+            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"游客角色不可用");
+        }
         List<Long> roleIds = new ArrayList<>();
         roleIds.add(roleId);
         //生成token
