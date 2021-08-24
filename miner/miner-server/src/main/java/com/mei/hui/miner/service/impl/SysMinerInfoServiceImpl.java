@@ -1065,6 +1065,11 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
      * @return
      */
     public Result setVisitorUserId(SetVisitorUserIdBO bo){
+        if(bo.getUserId() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"userId不能为空");
+        }
+        userManager.checkUserIsExist(bo.getUserId());
+
         redisUtil.set(Constants.visitorKey,bo.getUserId()+"");
         return Result.OK;
     }

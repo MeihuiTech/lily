@@ -300,9 +300,6 @@ public class SysMinerInfoController {
     @ApiOperation("设置游客登陆使用的userId")
     @PostMapping("/setVisitorUserId")
     public Result setVisitorUserId(@RequestBody SetVisitorUserIdBO bo){
-        if(bo.getUserId() == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"userId不能为空");
-        }
         return sysMinerInfoService.setVisitorUserId(bo);
     }
 
