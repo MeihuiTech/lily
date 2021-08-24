@@ -65,4 +65,19 @@ public class UserManager {
         }
         return result;
     }
+
+    /**
+     * 通过userId 获取用户信息
+     * @param userId
+     * @return
+     */
+    public SysUserOut  getUserById(Long userId){
+        SysUserOut sysUserOut = new SysUserOut();
+        sysUserOut.setUserId(userId);
+        Result<SysUserOut> result = userFeignClient.getUserById(sysUserOut);
+        if(!ErrorCode.MYB_000000.getCode().equals(result.getCode())){
+            throw MyException.fail(result.getCode(),result.getMsg());
+        }
+        return result.getData();
+    }
 }

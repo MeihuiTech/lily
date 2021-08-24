@@ -17,4 +17,7 @@ public class AllUserAndMinerBO {
 
     @ApiModelProperty("游客所使用的userId")
     private Long visitorUserId;
+
+    @ApiModelProperty("游客所使用的userId,对应的用户名称")
+    private String userName;
 }

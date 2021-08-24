@@ -11,11 +11,13 @@ import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
+import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.model.SysMinerInfoBO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.miner.service.FilAdminUserService;
 import com.mei.hui.miner.service.IChiaMinerService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +53,8 @@ public class SysMinerInfoController {
     private RedisUtil redisUtil;
     @Autowired
     private RuoYiConfig ruoYiConfig;
+    @Autowired
+    private UserManager userManager;
 
     @ApiOperation(value = "根据矿工id查询账户按天聚合信息")
     @GetMapping(value = "/{id}/dailyAccount")
@@ -289,7 +293,8 @@ public class SysMinerInfoController {
         if(StringUtils.isEmpty(visitorUserId)){
             visitorUserId = ruoYiConfig.getVisitorUserId()+"";
         }
-        AllUserAndMinerBO bo = new AllUserAndMinerBO().setUsers(users).setVisitorUserId(Long.valueOf(visitorUserId));
+        SysUserOut user = userManager.getUserById(Long.valueOf(visitorUserId));
+        AllUserAndMinerBO bo = new AllUserAndMinerBO().setUsers(users).setVisitorUserId(user.getUserId()).setUserName(user.getUserName());
         return Result.success(bo);
     }
 
