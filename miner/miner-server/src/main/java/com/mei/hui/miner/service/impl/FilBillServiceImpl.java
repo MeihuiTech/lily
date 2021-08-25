@@ -172,7 +172,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillTransactions.setFilBillId(filBill.getId());
         filBillTransactions.setSender(Constants.BLOCKAWARDSEND);
         filBillTransactions.setReceiver(minerId);
-        filBillTransactions.setMoney(filBlockAwardReportBO.getMinerFee().add(filBlockAwardReportBO.getBlockReward()));
+        filBillTransactions.setMoney((filBlockAwardReportBO.getMinerFee() == null ? BigDecimal.ZERO:filBlockAwardReportBO.getMinerFee()).add(filBlockAwardReportBO.getBlockReward()));
         filBillTransactions.setType(Constants.TYPEBLOCKAWARDTHREE);
         filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
         filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
