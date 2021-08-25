@@ -53,7 +53,7 @@ public class FilRabbitMQListener {
     public void reportBillMq(Channel channel, Message message) throws IOException {
         byte[] body = message.getBody();
         String messageStr = new String(body,"UTF-8");
-        log.info("FIL币账单rabbitmq上报入参【{}】：" + messageStr);
+        log.info("FIL币账单rabbitmq上报入参【{}】：" , messageStr);
         List<FilBillReportBO> filBillReportBOList = JSONObject.parseArray(messageStr,FilBillReportBO.class);
         log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
         for (FilBillReportBO filBillReportBO : filBillReportBOList){
