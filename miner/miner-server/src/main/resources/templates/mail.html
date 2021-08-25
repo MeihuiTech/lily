@@ -1,39 +1,86 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"/>
-    <title>用户列表</title>
+    <meta charset="UTF-8" />
+    <title>存储池数据详情</title>
     <style>
-        table { border-collapse: collapse;}
-        table,table tr th, table tr td { border:1px solid #000000; }
+        body {
+            display: grid;
+            place-content: center;
+        }
+
+        table {
+            margin-top: 20px;
+            font-size: 12px;
+            border-spacing: 0;
+            box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+        }
+
+        th,
+        td {
+            padding: 17px 15px;
+        }
+
+        th {
+            color: #909399;
+            background-color: #f8f8f9;
+            font-weight: 400;
+        }
+
+        td {
+            background-color: #FFFFFF;
+            color: #313131;
+            font-weight: bold;
+            border-top: 1px solid #dfe6ec;
+        }
+
+        tbody tr:nth-child(even) td {
+            background: #FAFAFA;
+        }
+
+        tbody tr:hover td {
+            background: #f2f7fa;
+        }
+
+        .notice {
+            color: red;
+        }
     </style>
 </head>
+
 <body>
     <table>
-        <tr>
-            <th align="center" valign="middle">矿工ID</th>
-            <th align="center" valign="middle">有效算力</th>
-            <th align="center" valign="middle">算力增速</th>
-            <th align="center" valign="middle">今日已出块份数</th>
-            <th align="center" valign="middle">可用余额(FIL)</th>
-            <th align="center" valign="middle">Worker账户余额(FIL)</th>
-            <th align="center" valign="middle">PoSt账户余额(FIL)</th>
-            <th align="center" valign="middle">有效/错误扇区</th>
-        </tr>
-
-        <p th:each="item:${list}">
+        <thead>
             <tr>
+                <th align="center" valign="middle">存储ID</th>
+                <th align="center" valign="middle">有效算力</th>
+                <th align="center" valign="middle">算力增速</th>
+                <th align="center" valign="middle">今日出块</th>
+                <th align="center" valign="middle">可用余额</th>
+                <th align="center" valign="middle">Worker余额</th>
+                <th align="center" valign="middle">PoSt余额</th>
+                <th align="center" valign="middle">有效/错误扇区</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item:${list}">
                 <td align="center" valign="middle" th:text="${item.minerId}"></td>
                 <td align="center" valign="middle" th:text="${item.powerAvailable} + ${item.powerAvailableUnit}"></td>
-                <td align="center" valign="middle" th:text="${item.powerIncreasePerDay} + ${item.powerIncreasePerDayUnit}"></td>
+                <td align="center" valign="middle"
+                    th:text="${item.powerIncreasePerDay} + ${item.powerIncreasePerDayUnit}"></td>
                 <td align="center" valign="middle" th:text="${item.blocksPerDay}"></td>
-                <td align="center" valign="middle" th:text="${item.balanceMinerAvailable}"></td>
-                <td align="center" valign="middle" th:text="${item.balanceWorkerAccount}"></td>
-                <td align="center" valign="middle" th:text="${item.postBalance}"></td>
-                <td align="center" valign="middle" th:text="${item.sectorAvailable} + '/' + ${item.sectorError}"></td>
+                <td align="center" valign="middle">[[${item.balanceMinerAvailable}]] FIL</td>
+                <td align="center" valign="middle" th:class="${item.balanceWorkerAccount < 50}? 'notice'">
+                    [[${item.balanceWorkerAccount}]] FIL</td>
+                <td align="center" valign="middle">[[${item.postBalance}]] FIL</td>
+                <td align="center" valign="middle">
+                    <span th:text="${item.sectorAvailable}"></span><span>/</span><span th:text="${item.sectorError}"
+                        th:class="${item.sectorError > 0}? 'notice'"></span>
+                </td>
             </tr>
-        </p>
+        </tbody>
     </table>
 </body>
+
 </html>
