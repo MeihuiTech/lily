@@ -24,6 +24,15 @@ public class MqTest {
     private RabbitTemplate rabbitTemplate;
 
     @Test
+    public void sendMsgOne(){
+        String msg = "{\"cid\":\"bafy2bzacecibocqlrxvmxbkvknk2rhfbjvukq5lvyihc6kjw5vc75a7aste72\",\"parentWeight\":\"18780757156\",\"parentStateRoot\":\"bafy2bzaceaaewmx23fa3wgkdvvm6vl3rqg56w75i5mtzw7yrywpzfxuv2rt4c\",\"height\":838078,\"miner\":\"f01016365\",\"timestamp\":1623448740,\"winCount\":1,\"parentBaseFee\":\"844619673\",\"forkSignaling\":0,\"blockReward\":\"25341634802560555632\",\"minerFee\":\"\",\"messageCount\":248}\n";
+        //第一个参数为队列名称,第二个参数为要发送的消息对象,这里传的是一个字符串
+        rabbitTemplate.convertAndSend("fil.bill.queue", msg);
+//            rabbitTemplate.convertAndSend("fil.reward.queue",msg);
+        log.info("发送消息:{}",msg);
+    }
+
+    @Test
     public void sendMsg(){
         for (int i=0;i<20;i++) {
 //        String msg = "hello rabbit";
@@ -33,7 +42,6 @@ public class MqTest {
 //            rabbitTemplate.convertAndSend("fil.reward.queue",msg);
             log.info("发送消息:{}",msg);
         }
-
     }
 
 

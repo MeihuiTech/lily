@@ -347,4 +347,9 @@ public class MinerTest {
         System.out.println(new BigDecimal(""));
     }
 
+    @Test
+    public void testBigdecimalNull(){
+        System.out.println((null == null ? BigDecimal.ZERO: BigDecimal.ONE).add(BigDecimal.TEN));
+    }
+
 }
