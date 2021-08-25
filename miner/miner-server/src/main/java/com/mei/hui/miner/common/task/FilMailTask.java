@@ -121,7 +121,7 @@ public class FilMailTask {
             map.put("list",sysMinerInfoVOList);
 
             String yesterDayDateYmd = DateUtils.getYesterDayDateYmd();
-            String title = "数据统计的日期为" + yesterDayDateYmd.substring(0,4) + "年" + yesterDayDateYmd.substring(5,7) + "月" + yesterDayDateYmd.substring(8,10) + "日";
+            String title = "存储池数据详情-" + yesterDayDateYmd.substring(0,4) + "年" + yesterDayDateYmd.substring(5,7) + "月" + yesterDayDateYmd.substring(8,10) + "日";
             MailDO mail = new MailDO();
             mail.setContent("矿工列表");
             mail.setEmail(email);
