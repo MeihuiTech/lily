@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
@@ -30,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -73,6 +75,8 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
     @Autowired
     private FilAdminUserService adminUserService;
+    @Autowired
+    private RedisUtil redisUtil;
     @Autowired
     private FilReportNetworkDataServiceImpl reportNetworkDataService;
 
@@ -1105,6 +1109,18 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         return minerInfoExportExcelVOList;
     }
 
+    /**
+     * 设置游客登陆使用的userId
+     * @param bo
+     * @return
+     */
+    public Result setVisitorUserId(SetVisitorUserIdBO bo){
+        if(bo.getUserId() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"userId不能为空");
+        }
+        userManager.checkUserIsExist(bo.getUserId());
 
-
+        redisUtil.set(Constants.visitorKey,bo.getUserId()+"");
+        return Result.OK;
+    }
 }

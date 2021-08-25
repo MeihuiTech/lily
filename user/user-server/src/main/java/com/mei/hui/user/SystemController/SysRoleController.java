@@ -3,10 +3,12 @@ package com.mei.hui.user.SystemController;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysUser;
+import com.mei.hui.user.feign.vo.VisitRoleBO;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.Result;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -119,5 +121,12 @@ public class SysRoleController
     public Result optionselect()
     {
         return Result.success(roleService.selectRoleAll());
+    }
+
+
+    @ApiOperation(value = "查询游客角色状态")
+    @PostMapping("/getVisitRoleState")
+    public Result<VisitRoleBO> getVisitRoleState(){
+        return roleService.getVisitRoleState();
     }
 }

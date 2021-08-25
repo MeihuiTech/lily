@@ -133,8 +133,20 @@ public class SysUserServiceImpl implements ISysUserService {
         result.put("msg",ErrorCode.MYB_000000.getMsg());
         Long currencyId = Constants.fileCurrencyId;
 
-        Long userId = ruoYiConfig.getVisitorUserId();
+        //查询游客登陆需要用到的userId
+        String visitorUserId = redisUtils.get(Constants.visitorKey);
+        log.info("redis游客用户id:{}",visitorUserId);
+        if(StringUtils.isEmpty(visitorUserId)){
+            visitorUserId = ruoYiConfig.getVisitorUserId()+"";
+        }
+        Long userId = Long.valueOf(visitorUserId);
         Long roleId = ruoYiConfig.getVisitorUserRoleId();
+
+        SysRole role = roleMapper.selectRoleById(roleId);
+        log.info("角色:{}", JSON.toJSONString(role));
+        if("1".equals(role.getStatus())|| "2".equals(role.getDelFlag())){
+            throw MyException.fail(ErrorCode.MYB_111111.getCode(),"游客角色不可用");
+        }
         List<Long> roleIds = new ArrayList<>();
         roleIds.add(roleId);
         //生成token

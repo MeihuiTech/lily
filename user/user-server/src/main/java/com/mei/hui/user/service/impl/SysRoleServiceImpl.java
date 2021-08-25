@@ -1,19 +1,24 @@
 package com.mei.hui.user.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.user.common.UserError;
 import com.mei.hui.user.entity.SysRole;
 import com.mei.hui.user.entity.SysRoleMenu;
+import com.mei.hui.user.feign.vo.VisitRoleBO;
 import com.mei.hui.user.mapper.SysRoleMapper;
 import com.mei.hui.user.mapper.SysRoleMenuMapper;
 import com.mei.hui.user.mapper.SysUserRoleMapper;
 import com.mei.hui.user.service.ISysRoleService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +32,7 @@ import java.util.*;
  * @author ruoyi
  */
 @Service
+@Slf4j
 public class SysRoleServiceImpl implements ISysRoleService{
     @Autowired
     private SysRoleMapper roleMapper;
@@ -36,6 +42,8 @@ public class SysRoleServiceImpl implements ISysRoleService{
 
     @Autowired
     private SysUserRoleMapper userRoleMapper;
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
 
     /**
      * 根据条件分页查询角色数据
@@ -277,7 +285,22 @@ public class SysRoleServiceImpl implements ISysRoleService{
         roleMenuMapper.deleteRoleMenu(roleIds);
         return roleMapper.deleteBatchIds(Arrays.asList(roleIds));
     }
+    
+    /**
+     * 获取游客角色的状态
+     * @return
+     */
+    public Result<VisitRoleBO> getVisitRoleState(){
+        Long visitorRoleId = ruoYiConfig.getVisitorUserRoleId();
 
-
+        SysRole role = roleMapper.selectRoleById(visitorRoleId);
+        log.info("角色:{}", JSON.toJSONString(role));
+        Integer state = 0;
+        if("1".equals(role.getStatus())|| "2".equals(role.getDelFlag())){
+            state = 1;
+        }
+        VisitRoleBO visitRoleBO = new VisitRoleBO().setState(state);
+        return Result.success(visitRoleBO);
+    }
 
 }
