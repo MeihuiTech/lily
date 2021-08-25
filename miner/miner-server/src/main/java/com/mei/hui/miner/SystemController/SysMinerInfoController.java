@@ -284,17 +284,16 @@ public class SysMinerInfoController {
         Result<List<FindAllMinerVO>> allUserAndMiner = sysMinerInfoService.findAllMiner();
         List<FindAllMinerVO> users = allUserAndMiner.getData();
         log.info("用户和拥有的矿工:{}", JSON.toJSONString(users));
-
+        AllUserAndMinerBO bo = new AllUserAndMinerBO().setUsers(users);
         /**
          * 如果没有缓存游客的登陆userId，则从配置用取
          */
         String visitorUserId = redisUtil.get(Constants.visitorKey);
         log.info("游客用户id:{}",visitorUserId);
-        if(StringUtils.isEmpty(visitorUserId)){
-            visitorUserId = ruoYiConfig.getVisitorUserId()+"";
+        if(StringUtils.isNotEmpty(visitorUserId)){
+            SysUserOut user = userManager.getUserById(Long.valueOf(visitorUserId));
+            bo.setVisitorUserId(user.getUserId()).setUserName(user.getUserName());
         }
-        SysUserOut user = userManager.getUserById(Long.valueOf(visitorUserId));
-        AllUserAndMinerBO bo = new AllUserAndMinerBO().setUsers(users).setVisitorUserId(user.getUserId()).setUserName(user.getUserName());
         return Result.success(bo);
     }
 

@@ -33,7 +33,6 @@ public class RuoYiConfig
     //sdk 私钥
     private String privateKey;
 
-    private Long visitorUserId;
     private Long visitorUserRoleId;
     private String visitorName;
     private String visitorEmail;
@@ -70,14 +69,6 @@ public class RuoYiConfig
 
     public void setVisitorAddress(String visitorAddress) {
         this.visitorAddress = visitorAddress;
-    }
-
-    public Long getVisitorUserId() {
-        return visitorUserId;
-    }
-
-    public void setVisitorUserId(Long visitorUserId) {
-        this.visitorUserId = visitorUserId;
     }
 
     public Long getVisitorUserRoleId() {
