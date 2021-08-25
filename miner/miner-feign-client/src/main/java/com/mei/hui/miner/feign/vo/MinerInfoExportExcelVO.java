@@ -67,8 +67,8 @@ public class MinerInfoExportExcelVO extends BaseRowModel implements Serializable
 //    @ExcelProperty(value = "错误状态扇区数量",index = 0)
 //    private Integer sectorError;
 
-    @ExcelProperty(value = "在线/离线设备",index = 8)
-    private String onlineMachineCountAndOff;
+//    @ExcelProperty(value = "在线/离线设备",index = 8)
+//    private String onlineMachineCountAndOff;
 
 //    @ExcelProperty(value = "离线矿机数量",index = 0)
 //    private Long offMachineCount;

@@ -1102,7 +1102,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             minerInfoExportExcelVO.setPowerIncreasePerDayAndUnit(filMinerPowerIncreasePerDayUnitVO.getPowerAvailable() + " " + filMinerPowerIncreasePerDayUnitVO.getPowerAvailableUnit());
 
             minerInfoExportExcelVO.setSectorAvailableAndError(sysMinerInfoVO.getSectorAvailable() + "/" + sysMinerInfoVO.getSectorError());
-            minerInfoExportExcelVO.setOnlineMachineCountAndOff((sysMinerInfoVO.getOnlineMachineCount() == null?"0":sysMinerInfoVO.getOnlineMachineCount()) + "/" + (sysMinerInfoVO.getOffMachineCount() == null?"0":sysMinerInfoVO.getOffMachineCount()));
+//            minerInfoExportExcelVO.setOnlineMachineCountAndOff((sysMinerInfoVO.getOnlineMachineCount() == null?"0":sysMinerInfoVO.getOnlineMachineCount()) + "/" + (sysMinerInfoVO.getOffMachineCount() == null?"0":sysMinerInfoVO.getOffMachineCount()));
             minerInfoExportExcelVOList.add(minerInfoExportExcelVO);
         }
         log.info("矿工列表导出excel：【{}】",JSON.toJSON(minerInfoExportExcelVOList));
