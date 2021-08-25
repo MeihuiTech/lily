@@ -157,6 +157,12 @@ public class SysAggPowerDailyServiceImpl implements ISysAggPowerDailyService
         return sysAggPowerDailyMapper.selectPowerIncreaseByDate(yesterDayDate, type, minerId);
     }
 
+    /*查询FIL币算力按天聚合表里昨天所有的累计出块奖励*/
+    @Override
+    public BigDecimal selectTotalBlockAwardByDate(String yesterDayDate, String type, String minerId) {
+        return sysAggPowerDailyMapper.selectTotalBlockAwardByDate(yesterDayDate, type, minerId);
+    }
+
     @Override
     public Long totalBlocksByMinerId(String yesterDayDate,List<Long> userIds) {
         LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper<>();

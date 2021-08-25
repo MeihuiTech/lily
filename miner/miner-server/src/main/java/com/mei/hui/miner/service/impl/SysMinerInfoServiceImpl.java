@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,7 +73,8 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
     @Autowired
     private FilAdminUserService adminUserService;
-
+    @Autowired
+    private FilReportNetworkDataServiceImpl reportNetworkDataService;
 
     /**
      * 查询矿工信息
@@ -231,6 +233,53 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             miner.setAllOnlineMachineCount(allOnlineMachineCount);
             miner.setAllOfflineMachineCount(allOfflineMachineCount);
         }
+
+        // 效率，单位：FIL/TiB，时间段内，该矿工当天出块奖励（单位FIL）/该矿工当天总有效算力（单位TB）
+        // 查询FIL币算力按天聚合表里昨天所有的累计出块奖励
+        BigDecimal yesterTotalBlockAward = sysAggPowerDailyService.selectTotalBlockAwardByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
+        log.info("查询FIL币算力按天聚合表里昨天所有的累计出块奖励出参：【{}】",yesterTotalBlockAward);
+        if (yesterTotalBlockAward != null || miner.getPowerAvailable().compareTo(BigDecimal.ZERO) != 0) {
+            BigDecimal todayTotalBlockAward =miner.getTotalBlockAward().subtract(yesterTotalBlockAward);
+            log.info("今天的出块奖励todayTotalBlockAward：【{}】，今天累计出块奖励：【{}】",todayTotalBlockAward,miner.getTotalBlockAward());
+            BigDecimal powerAvailableTib = miner.getPowerAvailable().divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)));
+            log.info("今天的有效算力miner.getPowerAvailable()，单位B：【{}】，今天的有效算力powerAvailableTib，单位TiB：【{}】",miner.getPowerAvailable(),powerAvailableTib);
+            // BigDecimal.ROUND_UP向远离0的方向舍入
+            miner.setEfficiency(todayTotalBlockAward.divide(powerAvailableTib,4, BigDecimal.ROUND_UP));
+        } else {
+            miner.setEfficiency(BigDecimal.ZERO);
+        }
+
+        // 当天实际出块数量/(30秒一个高度，一个高度出5个块，1分钟出10个块，一天出14400个块，（该矿工平台总算力/全网总算力）*（10*当天已经过几个小时的分钟数）)
+        Long blocksPerDay = miner.getBlocksPerDay();
+        log.info("当天出块份数：【{}】",blocksPerDay);
+        // 平台有效算力
+        BigDecimal powerAvailable = miner.getPowerAvailable();
+        log.info("有效算力：【{}】",powerAvailable);
+
+        // 全网数据:累计出块奖励,全网算力,全网出块份数,全网活跃矿工
+        List<FilReportNetworkData> filReportNetworkDataList = reportNetworkDataService.list();
+        log.info("全网出块奖励,全网算力,全网出块份数,全网活跃矿工:{}", JSON.toJSONString(filReportNetworkDataList));
+        // 全网有效算力
+        BigDecimal power = BigDecimal.ZERO;
+        if (filReportNetworkDataList != null && filReportNetworkDataList.size() > 0){
+            power = filReportNetworkDataList.get(0).getPower();
+        }
+        log.info("全网有效算力：【{}】",power);
+
+        //获取这会的秒数
+        Long nowSecond = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        log.info("获取这会的秒数：【{}】",nowSecond);
+        //  获取昨天24点的秒数
+        Long yesterdaySecond = DateUtils.getEndYesterdayDate().getTime()/1000;
+        log.info("获取昨天24点的秒数：【{}】",yesterdaySecond);
+        // 当天已经过去了多少个30秒
+        BigDecimal secondCount = (new BigDecimal(nowSecond - yesterdaySecond)).divide(new BigDecimal(30),4, BigDecimal.ROUND_UP);
+        log.info("当天已经过去了多少个30秒：【{}】",secondCount);
+        // 当天理论上一共出了多少个块
+        BigDecimal blockCount = (new BigDecimal(5)).multiply(secondCount);
+        log.info("当天理论上一共出了多少个块：【{}】",blockCount);
+        // 2/(2.53/9811.1488）*14400
+        miner.setLuckyValue((new BigDecimal(blocksPerDay)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(blockCount),5, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
 
         return miner;
     }

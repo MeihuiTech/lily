@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -367,13 +368,23 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
 //        System.out.println(getBeginOfDayDate());// 2021-08-20 00:00:00.0
 //        System.out.println(getEndOfDayDate());// 2021-08-20 23:59:59.999
-        System.out.println(getDate());//2021-08-20
+//        System.out.println(getDate());//2021-08-20
 //        System.out.println(LocalDateTime.now());//2021-08-20T14:53:57.306
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate localDateTime = LocalDate.parse(DateUtils.getDate(), dateTimeFormatter);
-        System.out.println(localDateTime);
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        LocalDate localDateTime = LocalDate.parse(DateUtils.getDate(), dateTimeFormatter);
+//        System.out.println(localDateTime);
 
+//        System.out.println((new Date()).getTime());// 1629797079401
+//        System.out.println(new Date());// Tue Aug 24 17:24:04 CST 2021
+
+        //获取秒数
+        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        System.out.println(second);//1629797079
+        System.out.println(getEndYesterdayDate().getTime()/1000);
+        //获取毫秒数
+//        Long milliSecond = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli();
+//        System.out.println(milliSecond);// 1629797079500
     }
 
 }

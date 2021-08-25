@@ -2,7 +2,6 @@ package com.mei.hui.miner.feign.vo;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.metadata.BaseRowModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -23,7 +22,7 @@ public class MinerInfoExportExcelVO extends BaseRowModel implements Serializable
      * value: 表头名称
      * index: 列的号, 0表示第一列
      */
-    @ExcelProperty(value = "矿工ID",index = 0)
+    @ExcelProperty(value = "存储ID",index = 0)
     private String minerId;
 
     /**
@@ -47,19 +46,19 @@ public class MinerInfoExportExcelVO extends BaseRowModel implements Serializable
     /**
      * 当天出块份数
      */
-    @ExcelProperty(value = "今日已出块份数",index = 3)
+    @ExcelProperty(value = "今日出块",index = 3)
     private Long blocksPerDay;
 
     /**
      * 矿工可用余额,单位FIL
      */
-    @ExcelProperty(value = "可用余额(FIL)",index = 4)
+    @ExcelProperty(value = "可用余额",index = 4)
     private BigDecimal balanceMinerAvailable;
 
-    @ExcelProperty(value = "Worker账户余额(FIL)",index = 5)
+    @ExcelProperty(value = "Worker余额",index = 5)
     private BigDecimal balanceWorkerAccount;
 
-    @ExcelProperty(value = "PoSt账户余额(FIL)",index = 6)
+    @ExcelProperty(value = "PoSt余额",index = 6)
     private BigDecimal postBalance;
 
     @ExcelProperty(value = "有效/错误扇区",index = 7)
@@ -68,7 +67,7 @@ public class MinerInfoExportExcelVO extends BaseRowModel implements Serializable
 //    @ExcelProperty(value = "错误状态扇区数量",index = 0)
 //    private Integer sectorError;
 
-    @ExcelProperty(value = "矿机数量(在线/离线)",index = 8)
+    @ExcelProperty(value = "在线/离线设备",index = 8)
     private String onlineMachineCountAndOff;
 
 //    @ExcelProperty(value = "离线矿机数量",index = 0)

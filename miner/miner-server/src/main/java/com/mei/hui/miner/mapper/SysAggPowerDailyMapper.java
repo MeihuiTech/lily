@@ -104,4 +104,13 @@ public interface SysAggPowerDailyMapper extends BaseMapper<SysAggPowerDaily>
     * @version v1.4.0
     */
     public BigDecimal selectPowerIncreaseByDate(@Param("yesterDayDate") String yesterDayDate,@Param("type")  String type,@Param("minerId")  String minerId);
+
+    /**
+     * 查询FIL币算力按天聚合表里昨天所有的累计出块奖励
+     * @param yesterDayDate
+     * @param name
+     * @param minerId
+     * @return
+     */
+    public BigDecimal selectTotalBlockAwardByDate(@Param("yesterDayDate") String yesterDayDate, @Param("type")  String type,@Param("minerId")   String minerId);
 }

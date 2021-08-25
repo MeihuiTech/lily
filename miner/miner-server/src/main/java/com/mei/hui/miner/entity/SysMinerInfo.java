@@ -187,5 +187,16 @@ public class SysMinerInfo
     //qiniu-七牛云;gpfs-GPFS
     private String storeType;
 
+    /**
+     * 效率，单位：FIL/TiB，选定周期内，节点累计出块奖励与有效算 力的比值
+     */
+    @TableField(exist = false)
+    private BigDecimal efficiency;
+
+    /**
+     * 幸运值，单位： %，实际爆块数量和理论爆块数量的比值。若有效算力低于1PiB，则该值存在较大随机性， 仅供参考。
+     */
+    @TableField(exist = false)
+    private BigDecimal luckyValue;
 
 }

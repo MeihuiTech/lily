@@ -114,4 +114,13 @@ public interface ISysAggPowerDailyService
     public BigDecimal selectPowerIncreaseByDate(String yesterDayDate, String type, String minerId);
 
     Long totalBlocksByMinerId(String yesterDayDate,List<Long> userIds);
+
+    /**
+     * 查询FIL币算力按天聚合表里昨天所有的累计出块奖励
+     * @param yesterDayDate
+     * @param type
+     * @param minerId
+     * @return
+     */
+    public BigDecimal selectTotalBlockAwardByDate(String yesterDayDate, String type, String minerId);
 }

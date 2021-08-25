@@ -46,10 +46,10 @@ public class FilBillTask {
 
 
     /**
-     * fil币账单按天聚合，每天晚上23点59分0秒执行
+     * fil币账单按天聚合，每天晚上23点59分40秒执行
      */
     // TODO 提交代码时记得修改
-    @Scheduled(cron = "0 59 23 */1 * ?")
+    @Scheduled(cron = "40 59 23 */1 * ?")
 //    @Scheduled(cron = "* */5 * * * ?")
     public void insertFilBillDayAggTask() {
         log.info("======================fil币定时器insertFilBillDayAggTask-start===================");
