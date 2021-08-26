@@ -243,7 +243,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         BigDecimal yesterTotalBlockAward = sysAggPowerDailyService.selectTotalBlockAwardByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
         log.info("查询FIL币算力按天聚合表里昨天所有的累计出块奖励出参：【{}】",yesterTotalBlockAward);
         if (yesterTotalBlockAward != null || miner.getPowerAvailable().compareTo(BigDecimal.ZERO) != 0) {
-            BigDecimal todayTotalBlockAward =miner.getTotalBlockAward().subtract(yesterTotalBlockAward);
+            BigDecimal todayTotalBlockAward =miner.getTotalBlockAward().subtract(BigDecimalUtil.formatFour(yesterTotalBlockAward));
             log.info("今天的出块奖励todayTotalBlockAward：【{}】，今天累计出块奖励：【{}】",todayTotalBlockAward,miner.getTotalBlockAward());
             BigDecimal powerAvailableTib = miner.getPowerAvailable().divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)));
             log.info("今天的有效算力miner.getPowerAvailable()，单位B：【{}】，今天的有效算力powerAvailableTib，单位TiB：【{}】",miner.getPowerAvailable(),powerAvailableTib);
