@@ -99,6 +99,17 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         // FIL币账单转账信息表
         List<FilBillTransactionsReportBO> filBillTransactionsReportBOList = filBillReportBO.getTransaction();
         if (filBillTransactionsReportBOList != null && filBillTransactionsReportBOList.size() > 0){
+
+            FilBillMethodBO filBillMethodBO = new FilBillMethodBO();
+            filBillMethodBO.setMinerId(minerId);
+            List<FilBillSubAccountVO> filBillSubAccountVOList = selectFilBillSubAccountList(filBillMethodBO);
+            log.info("矿工子账户下拉列表：【{}】",JSON.toJSON(filBillSubAccountVOList));
+            List<String> addressList = new ArrayList<>();
+            filBillSubAccountVOList.stream().forEach(v->{
+                addressList.add(v.getAddress());
+            });
+            log.info("矿工子账户地址列表addressList：【{}】",addressList);
+
             for (FilBillTransactionsReportBO filBillTransactionsReportBO : filBillTransactionsReportBOList){
                 log.info("filBillTransactionsReportBO:【{}】",JSON.toJSON(filBillTransactionsReportBO));
                 FilBillTransactions filBillTransactions = new FilBillTransactions();
@@ -126,15 +137,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                     }
                 }
 
-                FilBillMethodBO filBillMethodBO = new FilBillMethodBO();
-                filBillMethodBO.setMinerId(minerId);
-                List<FilBillSubAccountVO> filBillSubAccountVOList = selectFilBillSubAccountList(filBillMethodBO);
-                log.info("矿工子账户下拉列表：【{}】",JSON.toJSON(filBillSubAccountVOList));
-                List<String> addressList = new ArrayList<>();
-                filBillSubAccountVOList.stream().forEach(v->{
-                    addressList.add(v.getAddress());
-                });
-                log.info("from：【{}】,to：【{}】,addressList：【{}】",from,to,addressList);
+                log.info("from：【{}】,to：【{}】",from,to);
                 if (addressList.contains(from) && addressList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
                     filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
                 } else {
@@ -276,14 +279,14 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         log.info("查询账单按照日期范围汇总所有外部交易支出出参：【{}】",outAllMoney);
         outAllMoney = outAllMoney == null?BigDecimal.ZERO:outAllMoney;
         log.info("查询账单按照日期范围汇总所有外部交易支出出参2：【{}】",outAllMoney);
-        log.info("outTransferMoney：【{}】",outTransferMoney);
-        BigDecimal outOtherMoney = outAllMoney.subtract(outTransferMoney);
-        log.info("支出-其它：【{}】",outOtherMoney);
-        outOtherBillMethodMoneyVO.setMoney(outOtherMoney);
+//        log.info("outTransferMoney：【{}】",outTransferMoney);
+//        BigDecimal outOtherMoney = outAllMoney.subtract(outTransferMoney);
+//        log.info("支出-其它：【{}】",outOtherMoney);
+        outOtherBillMethodMoneyVO.setMoney(outAllMoney);
         outBillMethodMoneyVOList.add(outOtherBillMethodMoneyVO);
 
         out.setBillMethodMoneyVOList(outBillMethodMoneyVOList);
-        out.setTotal(outTransferMoney.add(outNodeFeeMoney).add(outBurnFeeMoney).add(outOtherMoney));
+        out.setTotal(outTransferMoney.add(outNodeFeeMoney).add(outBurnFeeMoney).add(outAllMoney));
         billTotalVO.setOut(out);
 
         return billTotalVO;
