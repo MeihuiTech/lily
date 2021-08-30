@@ -12,23 +12,20 @@ import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.service.FilBillDayAggService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
-import com.mei.hui.util.DateUtils;
-import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
+import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Api(tags = "fil币账单相关")
@@ -226,6 +223,25 @@ public class FilBillController {
         filBillMethodBO.setSubAccount(sysMinerInfoList.get(0).getMinerId());
         filBillMethodBO.setMonthDate(DateUtils.getDate().substring(0,7));
         return filBillMethodBO;
+    }
+
+    @NotAop
+    @ApiOperation(value = "账单列表导出excel",produces="application/octet-stream")
+    @PostMapping("/export")
+    public void export(HttpServletResponse response,@RequestBody ExportBillBO exportBillBO){
+        FilBillMonthBO filBillMonthBO = new FilBillMonthBO();
+        filBillMonthBO.setMinerId(exportBillBO.getMinerId());
+        filBillMonthBO.setMonthDate(exportBillBO.getMonthDate());
+        filBillMonthBO.setPageNum(1);
+        filBillMonthBO.setPageSize(31);
+        IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillService.selectFilBillDayAggPage(filBillMonthBO);
+        List<ExportBillVO> list = filBillDayAggVOIPage.getRecords().stream().map(v -> {
+            ExportBillVO vo = new ExportBillVO().setBalance(v.getBalance())
+                    .setDate(v.getDate()).setInMoney(v.getInMoney())
+                    .setOutMoney(v.getOutMoney());
+            return vo;
+        }).collect(Collectors.toList());
+        ExcelUtils.export(response, list, exportBillBO.getMonthDate()+"账单信息", ExportBillVO.class);
     }
 
 }
