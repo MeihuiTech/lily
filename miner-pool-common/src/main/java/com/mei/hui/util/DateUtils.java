@@ -339,6 +339,107 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return getDayEndTime(calendar.getTime());
     }
 
+
+    //------------------------------------       LocalDateTime              ---------------------------------------
+
+    /**
+     * LocalDateTime获取当前时间YYYY_MM_DD_HH_MM_SS格式的字符串
+     * @return
+     */
+    public static String lDTLocalDateTimeNow(){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String  format = lDTToStringFormat( localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+    /**
+     * LocalDateTime格式化localDateTime时间为YYYY_MM_DD_HH_MM_SS，返回字符串类型
+     * @param localDateTime  时间
+     * @return
+     */
+    public static String lDTToStringFormatYMDHMS(LocalDateTime localDateTime){
+        // 指定模式
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS);
+        // 将 LocalDateTime 格式化为字符串
+        String format = localDateTime.format(dateTimeFormatter);
+        // 2020/02/03 14/38/54
+        return format;
+    }
+
+    /**
+     * LocalDateTime根据入参要格式化成的样式 格式化localDateTime时间，返回字符串类型
+     * @param localDateTime  时间
+     * @param formatStr   要格式化成的样式
+     * @return
+     */
+    public static String lDTToStringFormat(LocalDateTime localDateTime,String formatStr){
+        // 指定模式
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(formatStr);
+        // 将 LocalDateTime 格式化为字符串
+        String format = localDateTime.format(dateTimeFormatter);
+        // 2020/02/03 14/38/54
+        return format;
+    }
+
+    /**
+     * LocalDateTime获取今天上一个时间点,如现在为：2021-08-30 15:30:00,上一个整点时间点为：2021-08-30 15:00:00
+     * @return
+     */
+    public static LocalDateTime lDTBeforeLocalDateTimeHourDate(){
+        LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+        return localDateTime;
+    }
+
+    /**
+     * LocalDateTime获取今天上一个时间点,如现在为：2021-08-30 15:30:00,上一个整点时间点为：2021-08-30 15:00:00
+     * @return
+     */
+    public static String lDTBeforeLocalDateTimeHour(){
+        LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+        String format = lDTToStringFormat(localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+    /**
+     * LocalDateTime获取昨天的上一个时间点,如现在为2021-08-30 15:30:00,上一个整点时间点为，2021-08-29 15:00:00
+     * @return
+     */
+    public static String lDTYesterdayBeforeLocalDateTimeHour(){
+        LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1);
+        String format = lDTToStringFormat(localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+    /**
+     * LocalDateTime获取今天的上上一个时间点,如现在为2021-08-30 15:30:00,上上一个整点时间点为，2021-08-30 14:00:00
+     * @return
+     */
+    public static LocalDateTime lDTBeforeBeforeLocalDateTimeHourDate(){
+        LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusHours(-1);
+        return localDateTime;
+    }
+
+    /**
+     * LocalDateTime获取今天的上上一个时间点,如现在为2021-08-30 15:30:00,上上一个整点时间点为，2021-08-30 14:00:00
+     * @return
+     */
+    public static String lDTBeforeBeforeLocalDateTimeHour(){
+        LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusHours(-1);
+        String format = lDTToStringFormat(localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+    /**
+     * LocalDateTime获取今天下一个时间点,如现在为2021-08-30 15:30:00,上一个整点时间点为，2021-08-30 16:00:00
+     * @return
+     */
+    public static String lDTNextLocalDateTimeHour(){
+        LocalDateTime localDateTime = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusHours(1);
+        String format = lDTToStringFormat(localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+
+
     public static void main(String[] args) {
 //        System.out.println(getYesterDayDateYmd());
 
@@ -381,16 +482,30 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         //获取秒数
 //        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
 //        System.out.println(second);//1629797079
-        System.out.println(getEndYesterdayDate().getTime()/1000);
+//        System.out.println(getEndYesterdayDate().getTime()/1000);
         //获取毫秒数
 //        Long milliSecond = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli();
 //        System.out.println(milliSecond);// 1629797079500
 
         // 时间戳转成datetime
-        String beginDate = "1630252650";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
-        System.out.println(sd);
+//        String beginDate = "1630252650";
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
+//        System.out.println(sd);
+
+        //获取上一个时间点,如现在为15:30,上一个整点时间点为，15:00
+        System.out.println(lDTBeforeLocalDateTimeHour());
+        //获取下一个时间点,如现在为15:30,上一个整点时间点为，16:00
+        System.out.println(lDTNextLocalDateTimeHour());
+
+        // 获得 localDateTime
+        System.out.println(lDTLocalDateTimeNow());
+
+        System.out.println(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1).plusHours(-1));
+
+        System.out.println(lDTYesterdayBeforeLocalDateTimeHour());
+        System.out.println(lDTBeforeBeforeLocalDateTimeHour());
+
 
     }
 
