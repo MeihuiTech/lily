@@ -502,6 +502,19 @@ public class SysUserServiceImpl implements ISysUserService {
      */
     public int updateUserStatus(SysUser user)
     {
+        //校验是否有同名且状态是正常的用户，如果有则不允许将状态改成可用
+        String status = user.getStatus();
+        if("0".equals(status)){
+            SysUser sysUser = sysUserMapper.selectById(user.getUserId());
+            LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.eq(SysUser::getUserName,sysUser.getUserName());
+            queryWrapper.eq(SysUser::getStatus,0);
+            queryWrapper.eq(SysUser::getDelFlag,0);
+            List<SysUser> list = sysUserMapper.selectList(queryWrapper);
+            if(list.size() > 0){
+                throw MyException.fail(UserError.MYB_333333.getCode(),"已经有同名用户");
+            }
+        }
         return sysUserMapper.updateUser(user);
     }
     /**
