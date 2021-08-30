@@ -224,7 +224,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         inTransferBillMethodMoneyVO.setMethod("转账");
         BigDecimal inTransferMoney = filBillMapper.selectFilBillTransferDateAgg(1,minerId,startDate,endDate);
         inTransferMoney = inTransferMoney == null?BigDecimal.ZERO:inTransferMoney;
-        log.info("查询账单月汇总转账收入出参：",inTransferMoney);
+        log.info("查询账单月汇总转账收入出参：【{}】",inTransferMoney);
         inTransferBillMethodMoneyVO.setMoney(inTransferMoney);
         inBillMethodMoneyVOList.add(inTransferBillMethodMoneyVO);
 
@@ -327,7 +327,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 money = money == null?BigDecimal.ZERO:money;
                 if (Constants.FILBILLIN.equals(outsideType)){
                     filBillDayAgg.setInMoney(money);
-                } else {
+                } else if (Constants.FILBILLOUT.equals(outsideType)) {
                     filBillDayAgg.setOutMoney(money);
                 }
             }
