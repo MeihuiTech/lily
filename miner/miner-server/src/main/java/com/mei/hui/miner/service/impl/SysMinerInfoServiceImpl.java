@@ -285,8 +285,10 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         BigDecimal blockCount = (new BigDecimal(5)).multiply(secondCount);
         log.info("当天理论上一共出了多少个块：【{}】",blockCount);
         // 2/(2.53/9811.1488）*14400
-        miner.setLuckyValue((new BigDecimal(blocksPerDay)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(blockCount),5, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+        if(powerAvailable != null && powerAvailable.intValue() > 0){
+            miner.setLuckyValue((new BigDecimal(blocksPerDay)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(blockCount),5, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
 
+        }
         return miner;
     }
 
