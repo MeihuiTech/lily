@@ -379,12 +379,19 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 //        System.out.println(new Date());// Tue Aug 24 17:24:04 CST 2021
 
         //获取秒数
-        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-        System.out.println(second);//1629797079
+//        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+//        System.out.println(second);//1629797079
         System.out.println(getEndYesterdayDate().getTime()/1000);
         //获取毫秒数
 //        Long milliSecond = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli();
 //        System.out.println(milliSecond);// 1629797079500
+
+        // 时间戳转成datetime
+        String beginDate = "1630252650";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
+        System.out.println(sd);
+
     }
 
 }
