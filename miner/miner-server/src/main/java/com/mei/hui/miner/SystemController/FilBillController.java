@@ -226,7 +226,7 @@ public class FilBillController {
     }
 
     @NotAop
-    @ApiOperation("账单列表导出excel")
+    @ApiOperation(value = "账单列表导出excel",produces="application/octet-stream")
     @PostMapping("/export")
     public void export(HttpServletResponse response,@RequestBody ExportBillBO exportBillBO){
         FilBillMonthBO filBillMonthBO = new FilBillMonthBO();
@@ -241,7 +241,7 @@ public class FilBillController {
                     .setOutMoney(v.getOutMoney());
             return vo;
         }).collect(Collectors.toList());
-        ExcelUtils.export(response, list, exportBillBO.getMonthDate(), ExportBillVO.class);
+        ExcelUtils.export(response, list, exportBillBO.getMonthDate()+"账单信息", ExportBillVO.class);
     }
 
 }
