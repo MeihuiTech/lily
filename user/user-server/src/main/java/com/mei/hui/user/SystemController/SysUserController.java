@@ -188,12 +188,8 @@ public class SysUserController{
         if (!CommonUtil.isMobile(phonenumber)){
             throw MyException.fail(UserError.MYB_333333.getCode(),"手机号格式不正确");
         }
-
         if ("1".equals(userService.checkUserNameUnique(user.getUserName()))){
             throw MyException.fail(UserError.MYB_333333.getCode(),"登录账号已存在");
-        }else if (StringUtils.isNotEmpty(user.getPhonenumber())
-                && "1".equals(userService.checkPhoneUnique(user))){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
         }
         /**
          * 校验是否包含中文，6到20个字符
@@ -215,10 +211,6 @@ public class SysUserController{
      */
     @PutMapping
     public Result edit(@Validated @RequestBody SysUser user){
-        if (StringUtils.isNotEmpty(user.getPhonenumber())
-                && "1".equals(userService.checkPhoneUnique(user))){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
-        }
         SysUser userOut = userService.getLoginUser();
         user.setUpdateBy(userOut.getUserName());
         int rows = userService.updateUser(user);
