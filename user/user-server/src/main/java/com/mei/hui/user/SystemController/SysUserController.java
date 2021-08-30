@@ -211,9 +211,6 @@ public class SysUserController{
      */
     @PutMapping
     public Result edit(@Validated @RequestBody SysUser user){
-        if (StringUtils.isNotEmpty(user.getPhonenumber())){
-            throw MyException.fail(UserError.MYB_333333.getCode(),"手机号码已存在");
-        }
         SysUser userOut = userService.getLoginUser();
         user.setUpdateBy(userOut.getUserName());
         int rows = userService.updateUser(user);
