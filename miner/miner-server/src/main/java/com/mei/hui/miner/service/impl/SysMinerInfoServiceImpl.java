@@ -245,10 +245,12 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         if (yesterTotalBlockAward != null || miner.getPowerAvailable().compareTo(BigDecimal.ZERO) != 0) {
             BigDecimal todayTotalBlockAward =miner.getTotalBlockAward().subtract(BigDecimalUtil.formatFour(yesterTotalBlockAward));
             log.info("今天的出块奖励todayTotalBlockAward：【{}】，今天累计出块奖励：【{}】",todayTotalBlockAward,miner.getTotalBlockAward());
-            BigDecimal powerAvailableTib = miner.getPowerAvailable().divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)));
+            BigDecimal powerAvailableTib = miner.getPowerAvailable().divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)),4, BigDecimal.ROUND_UP);
             log.info("今天的有效算力miner.getPowerAvailable()，单位B：【{}】，今天的有效算力powerAvailableTib，单位TiB：【{}】",miner.getPowerAvailable(),powerAvailableTib);
             // BigDecimal.ROUND_UP向远离0的方向舍入
-            miner.setEfficiency(todayTotalBlockAward.divide(powerAvailableTib,4, BigDecimal.ROUND_UP));
+            if(powerAvailableTib != null && powerAvailableTib.intValue() != 0){
+                miner.setEfficiency(todayTotalBlockAward.divide(powerAvailableTib,4, BigDecimal.ROUND_UP));
+            }
         } else {
             miner.setEfficiency(BigDecimal.ZERO);
         }
