@@ -4,5 +4,103 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mei.hui.miner.mapper.SysAggPowerHourMapper">
 
+    <!--查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和-->
+    <select id="selectTwentyFourTotalBlocks" resultType="java.lang.Long">
+        SELECT
+        SUM(h.blocks_per_day)
+        from
+        sys_agg_power_hour h
+        <where>
+            <if test="type != null and type != ''">
+                h.type = #{type}
+            </if>
+            <if test="minerId != null and minerId != ''">
+                and h.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and h.date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and #{endDate} >= h.date
+            </if>
+        </where>
+    </select>
+
+    <!--查询FIL币算力按小时聚合表里近24小时所有的每小时算力增长总和-->
+    <select id="selectTwentyFourPowerIncrease" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(h.power_increase)
+        from
+        sys_agg_power_hour h
+        <where>
+            <if test="type != null and type != ''">
+                h.type = #{type}
+            </if>
+            <if test="minerId != null and minerId != ''">
+                and h.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and h.date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and #{endDate} >= h.date
+            </if>
+        </where>
+    </select>
+
+    <!--查询FIL币算力按小时聚合表里近24小时所有的每小时新增出块奖励总和-->
+    <select id="selectTwentyFourTotalBlockAward" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(h.block_award_increase)
+        from
+        sys_agg_power_hour h
+        <where>
+            <if test="type != null and type != ''">
+                h.type = #{type}
+            </if>
+            <if test="minerId != null and minerId != ''">
+                and h.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and h.date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and #{endDate} >= h.date
+            </if>
+        </where>
+    </select>
+
+    <!--查询近24小时内上一个小时：根据minerId、date查询算力按小时聚合表list-->
+    <select id="selectLastSysAggPowerHourByMinerIdDate" resultType="com.mei.hui.miner.entity.SysAggPowerHour">
+        SELECT
+        h.id,
+        h.miner_id minerId,
+        h.date,
+        h.power_available powerAvailable,
+        h.power_increase powerIncrease,
+        h.total_block_award totalBlockAward,
+        h.block_award_increase blockAwardIncrease,
+        h.total_blocks totalBlocks,
+        h.blocks_per_day blocksPerDay,
+        h.type
+        FROM
+        sys_agg_power_hour h
+        <where>
+            <if test="type != null and type != ''">
+                h.type = #{type}
+            </if>
+            <if test="minerId != null and minerId != ''">
+                and h.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and h.date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and #{endDate} >= h.date
+            </if>
+            ORDER BY h.date desc
+            LIMIT 1
+        </where>
+    </select>
 
 </mapper>

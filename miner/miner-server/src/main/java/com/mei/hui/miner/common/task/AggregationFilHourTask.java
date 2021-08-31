@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -72,10 +73,11 @@ public class AggregationFilHourTask {
             return;
         }
 
-        LocalDateTime beforeDate = DateUtils.lDTBeforeBeforeLocalDateTimeHourDate();
-        log.info("查询上一个小时：根据minerId、date查询算力按小时聚合表list,入参:minerId ={},beforeDate={}",info.getMinerId(),beforeDate);
-        List<SysAggPowerHour> beforeSysAggPowerHourList = sysAggPowerHourService.selectSysAggPowerHourByMinerIdDate(CurrencyEnum.FIL.name(),minerId,beforeDate);
-        log.info("查询上一个小时：根据minerId、date查询算力按小时聚合表list,出参:{}",JSON.toJSONString(beforeSysAggPowerHourList));
+        String startDate = DateUtils.lDTYesterdayBeforeLocalDateTimeHour();
+        String endDate = DateUtils.lDTBeforeBeforeLocalDateTimeHour();
+        log.info("查询近24小时内上一个小时：根据minerId、date查询算力按小时聚合表list,入参:minerId =【{}】,startDate=【{}】,endDate=【{}】",minerId,startDate,endDate);
+        List<SysAggPowerHour> beforeSysAggPowerHourList = sysAggPowerHourService.selectLastSysAggPowerHourByMinerIdDate(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
+        log.info("查询近24小时内上一个小时：根据minerId、date查询算力按小时聚合表list,出参:{}",JSON.toJSONString(beforeSysAggPowerHourList));
 
         SysAggPowerHour sysAggPowerHour = new SysAggPowerHour();
         sysAggPowerHour.setMinerId(minerId);
@@ -88,9 +90,9 @@ public class AggregationFilHourTask {
             sysAggPowerHour.setBlockAwardIncrease(info.getTotalBlockAward().subtract(beforeSysAggPowerHourList.get(0).getTotalBlockAward()));
             sysAggPowerHour.setBlocksPerDay(info.getTotalBlocks() - beforeSysAggPowerHourList.get(0).getTotalBlocks());
         } else {
-            sysAggPowerHour.setPowerIncrease(info.getPowerAvailable());
-            sysAggPowerHour.setBlockAwardIncrease(info.getTotalBlockAward());
-            sysAggPowerHour.setBlocksPerDay(info.getTotalBlocks());
+            sysAggPowerHour.setPowerIncrease(BigDecimal.ZERO);
+            sysAggPowerHour.setBlockAwardIncrease(BigDecimal.ZERO);
+            sysAggPowerHour.setBlocksPerDay(0L);
         }
         sysAggPowerHour.setType(CurrencyEnum.FIL.name());
         sysAggPowerHour.setCreateTime(LocalDateTime.now());

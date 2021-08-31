@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,6 +38,30 @@ public class SysAggPowerHourServiceImpl extends ServiceImpl<SysAggPowerHourMappe
         return dbSysAggPowerHourList;
     }
 
+    /*根据minerId、date查询算力按小时聚合表list*/
+    @Override
+    public List<SysAggPowerHour> selectLastSysAggPowerHourByMinerIdDate(String type,String minerId,String startDate,String endDate) {
+        List<SysAggPowerHour> dbSysAggPowerHourList = sysAggPowerHourMapper.selectLastSysAggPowerHourByMinerIdDate(type,minerId,startDate,endDate);
+        return dbSysAggPowerHourList;
+    }
+
+    /*查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和*/
+    @Override
+    public Long selectTwentyFourTotalBlocks(String type, String minerId, String startDate, String endDate) {
+        return sysAggPowerHourMapper.selectTwentyFourTotalBlocks(type,  minerId,  startDate,  endDate);
+    }
+
+    /*查询FIL币算力按小时聚合表里近24小时所有的每小时算力增长总和*/
+    @Override
+    public BigDecimal selectTwentyFourPowerIncrease(String type, String minerId, String startDate, String endDate) {
+        return sysAggPowerHourMapper.selectTwentyFourPowerIncrease(type,  minerId,  startDate,  endDate);
+    }
+
+    /*查询FIL币算力按小时聚合表里近24小时所有的每小时新增出块奖励总和*/
+    @Override
+    public BigDecimal selectTwentyFourTotalBlockAward(String type, String minerId, String startDate, String endDate) {
+        return sysAggPowerHourMapper.selectTwentyFourTotalBlockAward(type,  minerId,  startDate,  endDate);
+    }
 
 
 }

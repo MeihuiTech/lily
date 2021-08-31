@@ -352,4 +352,9 @@ public class MinerTest {
         System.out.println((null == null ? BigDecimal.ZERO: BigDecimal.ONE).add(BigDecimal.TEN));
     }
 
+    @Test
+    public void test(){
+        System.out.println((new BigDecimal(0.0000)).compareTo(BigDecimal.ZERO));
+    }
+
 }

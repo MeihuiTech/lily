@@ -79,6 +79,8 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     private RedisUtil redisUtil;
     @Autowired
     private FilReportNetworkDataServiceImpl reportNetworkDataService;
+    @Autowired
+    private ISysAggPowerHourService sysAggPowerHourService;
 
     /**
      * 查询矿工信息
@@ -140,23 +142,29 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         if (machine != null) {
             miner.setWorkerCount(machine.getWorkerCount());
         }
-        // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
-        String yesterDayDate = DateUtils.getYesterDayDateYmd();
-        Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
-        log.info("查询算力按天聚合表里昨天所有的累计出块份数出参：【{}】",yesterDayTotalBlocks);
-        if (yesterDayTotalBlocks != null) {
-            miner.setBlocksPerDay(miner.getTotalBlocks() - yesterDayTotalBlocks);
+
+        // 查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和
+        String minerId = miner.getMinerId();
+        String startDate = DateUtils.lDTYesterdayBeforeLocalDateTimeHour();
+        String endDate = DateUtils.lDTBeforeBeforeLocalDateTimeHour();
+        log.info("入参minerId：【{}】,startDate：【{}】，endDate：【{}】",minerId,startDate,endDate);
+        Long twentyFourTotalBlocks = sysAggPowerHourService.selectTwentyFourTotalBlocks(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参：【{}】",twentyFourTotalBlocks);
+        if (twentyFourTotalBlocks != null) {
+            miner.setBlocksPerDay(twentyFourTotalBlocks);
         } else {
-            miner.setBlocksPerDay(miner.getTotalBlocks());
+            miner.setBlocksPerDay(0L);
         }
-        // 查询FIL币算力按天聚合表里昨天所有的有效算力
-        BigDecimal yesterPowerIncrease = sysAggPowerDailyService.selectPowerIncreaseByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
-        log.info("查询FIL币算力按天聚合表里昨天所有的有效算力出参：【{}】",yesterPowerIncrease);
-        if (yesterPowerIncrease != null) {
-            miner.setPowerIncreasePerDay(miner.getPowerAvailable().subtract(yesterPowerIncrease));
+
+        // 查询FIL币算力按小时聚合表里近24小时所有的每小时算力增长总和
+        BigDecimal twentyFourPowerIncrease = sysAggPowerHourService.selectTwentyFourPowerIncrease(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时算力增长总和出参：【{}】",twentyFourPowerIncrease);
+        if (twentyFourPowerIncrease != null) {
+            miner.setPowerIncreasePerDay(twentyFourPowerIncrease);
         } else {
-            miner.setPowerIncreasePerDay(miner.getPowerAvailable());
+            miner.setPowerIncreasePerDay(BigDecimal.ZERO);
         }
+
         miner.setSectorPledge(BigDecimalUtil.formatFour(miner.getSectorPledge()));
         miner.setLockAward(BigDecimalUtil.formatFour(miner.getLockAward()));
         miner.setTotalBlockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward()));
@@ -238,27 +246,23 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             miner.setAllOfflineMachineCount(allOfflineMachineCount);
         }
 
-        // 效率，单位：FIL/TiB，时间段内，该矿工当天出块奖励（单位FIL）/该矿工当天总有效算力（单位TB）
-        // 查询FIL币算力按天聚合表里昨天所有的累计出块奖励
-        BigDecimal yesterTotalBlockAward = sysAggPowerDailyService.selectTotalBlockAwardByDate(yesterDayDate,CurrencyEnum.FIL.name(),miner.getMinerId());
-        log.info("查询FIL币算力按天聚合表里昨天所有的累计出块奖励出参：【{}】",yesterTotalBlockAward);
-        if (yesterTotalBlockAward != null || miner.getPowerAvailable().compareTo(BigDecimal.ZERO) != 0) {
-            BigDecimal todayTotalBlockAward =miner.getTotalBlockAward().subtract(BigDecimalUtil.formatFour(yesterTotalBlockAward));
-            log.info("今天的出块奖励todayTotalBlockAward：【{}】，今天累计出块奖励：【{}】",todayTotalBlockAward,miner.getTotalBlockAward());
+        // 效率，单位：FIL/TiB，时间段内，该矿工近24小时出块奖励（单位FIL）/该矿工当天总有效算力（单位TB）
+        // 查询FIL币算力按小时聚合表里近24小时所有的每小时新增出块奖励总和
+        BigDecimal twentyFourTotalBlockAward = sysAggPowerHourService.selectTwentyFourTotalBlockAward(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时新增出块奖励总和出参：【{}】",twentyFourTotalBlockAward);
+        if (twentyFourTotalBlockAward != null && miner.getPowerAvailable().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal powerAvailableTib = miner.getPowerAvailable().divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)));
             log.info("今天的有效算力miner.getPowerAvailable()，单位B：【{}】，今天的有效算力powerAvailableTib，单位TiB：【{}】",miner.getPowerAvailable(),powerAvailableTib);
             // BigDecimal.ROUND_UP向远离0的方向舍入
-            miner.setEfficiency(todayTotalBlockAward.divide(powerAvailableTib,4, BigDecimal.ROUND_UP));
+            miner.setEfficiency(twentyFourTotalBlockAward.divide(powerAvailableTib,4, BigDecimal.ROUND_UP));
         } else {
             miner.setEfficiency(BigDecimal.ZERO);
         }
 
-        // 当天实际出块数量/(30秒一个高度，一个高度出5个块，1分钟出10个块，一天出14400个块，（该矿工平台总算力/全网总算力）*（10*当天已经过几个小时的分钟数）)
-        Long blocksPerDay = miner.getBlocksPerDay();
-        log.info("当天出块份数：【{}】",blocksPerDay);
-        // 平台有效算力
+        // 近24小时实际出块数量/(30秒一个高度，一个高度出5个块，1分钟出10个块，一天出14400个块，（该矿工总有效算力/全网总算力）*（10*当天已经过几个小时的分钟数）)
+        // 矿工有效算力
         BigDecimal powerAvailable = miner.getPowerAvailable();
-        log.info("有效算力：【{}】",powerAvailable);
+        log.info("矿工有效算力：【{}】",powerAvailable);
 
         // 全网数据:累计出块奖励,全网算力,全网出块份数,全网活跃矿工
         List<FilReportNetworkData> filReportNetworkDataList = reportNetworkDataService.list();
@@ -270,20 +274,12 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         }
         log.info("全网有效算力：【{}】",power);
 
-        //获取这会的秒数
-        Long nowSecond = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-        log.info("获取这会的秒数：【{}】",nowSecond);
-        //  获取昨天24点的秒数
-        Long yesterdaySecond = DateUtils.getEndYesterdayDate().getTime()/1000;
-        log.info("获取昨天24点的秒数：【{}】",yesterdaySecond);
-        // 当天已经过去了多少个30秒
-        BigDecimal secondCount = (new BigDecimal(nowSecond - yesterdaySecond)).divide(new BigDecimal(30),4, BigDecimal.ROUND_UP);
-        log.info("当天已经过去了多少个30秒：【{}】",secondCount);
-        // 当天理论上一共出了多少个块
-        BigDecimal blockCount = (new BigDecimal(5)).multiply(secondCount);
-        log.info("当天理论上一共出了多少个块：【{}】",blockCount);
         // 2/(2.53/9811.1488）*14400
-        miner.setLuckyValue((new BigDecimal(blocksPerDay)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(blockCount),5, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+        if(powerAvailable.compareTo(BigDecimal.ZERO) > 0){
+            miner.setLuckyValue((new BigDecimal(twentyFourTotalBlocks)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),5, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+        } else {
+            miner.setLuckyValue(BigDecimal.ZERO);
+        }
 
         return miner;
     }
@@ -376,23 +372,28 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         IPage<SysMinerInfoVO> result = sysMinerInfoMapper.pageMinerInfo(minerInfoPage,userId,isAsc,cloumName);
         log.info("分页查询矿工表出参：【{}】",JSON.toJSON(result));
         for (SysMinerInfoVO sysMinerInfoVO:result.getRecords()) {
-            // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
-            String yesterDayDate = DateUtils.getYesterDayDateYmd();
-            Long yesterDayTotalBlocks = sysAggPowerDailyService.selectTotalBlocksByDate(yesterDayDate,CurrencyEnum.FIL.name(),sysMinerInfoVO.getMinerId());
-            log.info("查询算力按天聚合表里昨天所有的累计出块份数出参：【{}】",yesterDayTotalBlocks);
-            if (yesterDayTotalBlocks != null) {
-                sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks() - yesterDayTotalBlocks);
+            // 查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和
+            String minerId = sysMinerInfoVO.getMinerId();
+            String startDate = DateUtils.lDTYesterdayBeforeLocalDateTimeHour();
+            String endDate = DateUtils.lDTBeforeBeforeLocalDateTimeHour();
+            log.info("入参minerId：【{}】,startDate：【{}】，endDate：【{}】",minerId,startDate,endDate);
+            Long twentyFourTotalBlocks = sysAggPowerHourService.selectTwentyFourTotalBlocks(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
+            log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参：【{}】",twentyFourTotalBlocks);
+            if (twentyFourTotalBlocks != null) {
+                sysMinerInfoVO.setBlocksPerDay(twentyFourTotalBlocks);
             } else {
-                sysMinerInfoVO.setBlocksPerDay(sysMinerInfoVO.getTotalBlocks());
+                sysMinerInfoVO.setBlocksPerDay(0L);
             }
-            // 查询FIL币算力按天聚合表里昨天所有的有效算力
-            BigDecimal yesterPowerIncrease = sysAggPowerDailyService.selectPowerIncreaseByDate(yesterDayDate,CurrencyEnum.FIL.name(),sysMinerInfoVO.getMinerId());
-            log.info("查询FIL币算力按天聚合表里昨天所有的有效算力出参：【{}】",yesterPowerIncrease);
-            if (yesterPowerIncrease != null) {
-                sysMinerInfoVO.setPowerIncreasePerDay(sysMinerInfoVO.getPowerAvailable().subtract(yesterPowerIncrease));
+
+            // 查询FIL币算力按小时聚合表里近24小时所有的每小时算力增长总和
+            BigDecimal twentyFourPowerIncrease = sysAggPowerHourService.selectTwentyFourPowerIncrease(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
+            log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时算力增长总和出参：【{}】",twentyFourPowerIncrease);
+            if (twentyFourPowerIncrease != null) {
+                sysMinerInfoVO.setPowerIncreasePerDay(twentyFourPowerIncrease);
             } else {
-                sysMinerInfoVO.setPowerIncreasePerDay(sysMinerInfoVO.getPowerAvailable());
+                sysMinerInfoVO.setPowerIncreasePerDay(BigDecimal.ZERO);
             }
+
             sysMinerInfoVO.setBalanceMinerAccount(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAccount()));
             sysMinerInfoVO.setBalanceMinerAvailable(BigDecimalUtil.formatFour(sysMinerInfoVO.getBalanceMinerAvailable()));
             sysMinerInfoVO.setSectorPledge(BigDecimalUtil.formatFour(sysMinerInfoVO.getSectorPledge()));
