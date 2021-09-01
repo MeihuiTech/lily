@@ -362,4 +362,10 @@ public class MinerTest {
         System.out.println(LocalDate.now().plusDays(-1));
     }
 
+    @Test
+    public void testRedisAddress(){
+        redisUtil.hmset("miner_address:f001","miner","asdfasdf2");
+        redisUtil.hmset("miner_address:f001","worker","asdfasdf2");
+    }
+
 }

@@ -132,6 +132,16 @@ public class RedisUtil {
     }
 
     /**
+     * Hash结构:hmset 命令设置hash值，永久不过期
+     * @param key
+     * @param field
+     * @param value
+     * @param time 设置key值删除时间，单位秒
+     */
+    public void hmset(String key,String field,String value){
+        redisTemplate.opsForHash().put(key,field,value);
+    }
+    /**
      * Hash结构:hmset 命令设置hash值
      * @param key
      * @param field

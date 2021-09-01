@@ -261,7 +261,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             miner.setEfficiency(BigDecimal.ZERO);
         }
 
-        // 近24小时实际出块数量/(30秒一个高度，一个高度出5个块，1分钟出10个块，一天出14400个块，（该矿工总有效算力/全网总算力）*（10*当天已经过几个小时的分钟数）)
+        // 幸运值：近24小时实际出块数量/(（该矿工平台总算力/全网总算力）*一天出14400个块)*100
         // 矿工有效算力
         BigDecimal powerAvailable = miner.getPowerAvailable();
         log.info("矿工有效算力：【{}】",powerAvailable);
@@ -808,20 +808,24 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
     /*新增矿工上报接口*/
     @Override
     public int insertReportedSysMinerInfo(Long userId, RequestMinerInfo sysMinerInfo) {
-        SysMinerInfo miner  = selectSysMinerInfoByUserIdAndMinerId(userId, sysMinerInfo.getMinerId());
+        String minerId = sysMinerInfo.getMinerId();
+        SysMinerInfo miner  = selectSysMinerInfoByUserIdAndMinerId(userId, minerId);
         int rows = 0;
         if (miner == null) {
             log.info("新增矿工上报接口:【{}】",JSON.toJSON(sysMinerInfo));
             rows = insertSysMinerInfo(sysMinerInfo);
         } else {
             sysMinerInfo.setId(miner.getId());
-            log.info("新增矿工上报已存在，更新矿工几款:【{}】",JSON.toJSON(sysMinerInfo));
+            log.info("新增矿工上报已存在，更新矿工入参:【{}】",JSON.toJSON(sysMinerInfo));
             rows = updateSysMinerInfo(sysMinerInfo);
         }
 
+        // 子账户地址放到缓存里
+        redisUtil.hmset("miner_address:" + minerId,"Miner",minerId);
+        redisUtil.hmset("miner_address:" + minerId,"Worker",sysMinerInfo.getBalanceWorkerAddress());
+
         List<FilMinerControlBalance> filMinerControlBalanceList = sysMinerInfo.getControlAccounts();
         if(filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0) {
-            String minerId = sysMinerInfo.getMinerId();
             for (FilMinerControlBalance filMinerControlBalance:filMinerControlBalanceList) {
                 QueryWrapper<FilMinerControlBalance> queryWrapper = new QueryWrapper<>();
                 FilMinerControlBalance selectFilMinerControlBalance = new FilMinerControlBalance();
@@ -840,6 +844,9 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
                     log.info("修改FilMinerControlBalance入参：【{}】",JSON.toJSON(filMinerControlBalance));
                     filMinerControlBalanceMapper.updateById(filMinerControlBalance);
                 }
+
+                // 子账户地址放到缓存里
+                redisUtil.hmset("miner_address:" + minerId,filMinerControlBalance.getName(),filMinerControlBalance.getAddress());
             }
         }
         return rows;

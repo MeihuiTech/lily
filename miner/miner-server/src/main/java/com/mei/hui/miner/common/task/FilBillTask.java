@@ -64,7 +64,9 @@ public class FilBillTask {
         log.info("矿工数量：【{}】",sysMinerInfoList.size());
         Integer insertCountAll = 0;
 
+        // 获取昨天的开始时间
         String startDate = DateUtils.getBeginYesterdayDate().toString().substring(0,19);
+        // 获取昨天的结束时间
         String endDate = DateUtils.getEndYesterdayDate().toString().substring(0,19);
         // 昨天的日期
         LocalDate date = LocalDate.now().plusDays(-1);
