@@ -278,7 +278,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
 
         // 2/(2.53/9811.1488）*14400
         if(powerAvailable != null && powerAvailable.compareTo(BigDecimal.ZERO) > 0){
-            miner.setLuckyValue((new BigDecimal(twentyFourTotalBlocks)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),5, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+            miner.setLuckyValue((new BigDecimal(twentyFourTotalBlocks)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),3, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
         } else {
             miner.setLuckyValue(BigDecimal.ZERO);
         }
