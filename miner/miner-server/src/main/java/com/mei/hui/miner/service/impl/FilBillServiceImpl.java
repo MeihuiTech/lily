@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.*;
@@ -65,6 +66,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     private FilBillTransactionsService filBillTransactionsService;
     @Autowired
     private FilBillDayAggMapper filBillDayAggMapper;
+    @Autowired
+    private RedisUtil redisUtil;
 
 
     /*上报FIL币账单*/
@@ -110,6 +113,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             });
             log.info("矿工子账户地址列表addressList：【{}】",addressList);
 
+            List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
             for (FilBillTransactionsReportBO filBillTransactionsReportBO : filBillTransactionsReportBOList){
                 log.info("filBillTransactionsReportBO:【{}】",JSON.toJSON(filBillTransactionsReportBO));
                 FilBillTransactions filBillTransactions = new FilBillTransactions();
@@ -150,7 +154,11 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 }
 
                 log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
-                filBillTransactionsService.save(filBillTransactions);
+                filBillTransactionsList.add(filBillTransactions);
+            }
+            if (filBillTransactionsList.size() > 0){
+                log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
+                filBillTransactionsService.saveBatch(filBillTransactionsList);
             }
         }
 
@@ -365,6 +373,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     public List<FilBillSubAccountVO> selectFilBillSubAccountList(FilBillMethodBO filBillMethodBO) {
         String minerId = filBillMethodBO.getMinerId();
         List<FilBillSubAccountVO> filBillSubAccountVOList = new ArrayList<>();
+
         // Miner
         FilBillSubAccountVO minerFilBillSubAccountVO = new FilBillSubAccountVO();
         minerFilBillSubAccountVO.setName("Miner");
@@ -373,34 +382,24 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillSubAccountVOList.add(minerFilBillSubAccountVO);
 
         // Worker
-        QueryWrapper<SysMinerInfo> workerQueryWrapper = new QueryWrapper<>();
-        SysMinerInfo sysMinerInfo = new SysMinerInfo();
-        sysMinerInfo.setMinerId(minerId);
-        workerQueryWrapper.setEntity(sysMinerInfo);
-        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list(workerQueryWrapper);
-        log.info("矿工列表：【{}】",JSON.toJSON(sysMinerInfoList));
-        if (sysMinerInfoList != null && sysMinerInfoList.size() > 0){
-            FilBillSubAccountVO workerFilBillSubAccountVO = new FilBillSubAccountVO();
-            workerFilBillSubAccountVO.setName("Worker");
-            workerFilBillSubAccountVO.setAddress(sysMinerInfoList.get(0).getBalanceWorkerAddress());
-            log.info("Worker账户：【{}】",JSON.toJSON(workerFilBillSubAccountVO));
-            filBillSubAccountVOList.add(workerFilBillSubAccountVO);
-        }
+        String balanceWorkerAddress = redisUtil.hget(Constants.REDISMINERADDRESS + minerId,"Worker");
+        FilBillSubAccountVO workerFilBillSubAccountVO = new FilBillSubAccountVO();
+        workerFilBillSubAccountVO.setName("Worker");
+        workerFilBillSubAccountVO.setAddress(balanceWorkerAddress);
+        log.info("Worker账户：【{}】",JSON.toJSON(workerFilBillSubAccountVO));
+        filBillSubAccountVOList.add(workerFilBillSubAccountVO);
 
         // Controller
-        QueryWrapper<FilMinerControlBalance> filMinerControlBalanceQueryWrapper = new QueryWrapper<>();
-        FilMinerControlBalance qwFilMinerControlBalance = new FilMinerControlBalance();
-        qwFilMinerControlBalance.setMinerId(minerId);
-        filMinerControlBalanceQueryWrapper.setEntity(qwFilMinerControlBalance);
-        List<FilMinerControlBalance> filMinerControlBalanceList = filMinerControlBalanceMapper.selectList(filMinerControlBalanceQueryWrapper);
-        if (filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0){
-            for (FilMinerControlBalance filMinerControlBalance:filMinerControlBalanceList){
+        Map<String,String> controllerMap = redisUtil.hgetall(Constants.REDISMINERADDRESS + minerId);
+        for (Map.Entry<String,String> entry:controllerMap.entrySet()){
+            if (!entry.getKey().equals("Miner") && !entry.getKey().equals("Worker")){
                 FilBillSubAccountVO controllerFilBillSubAccountVO = new FilBillSubAccountVO();
-                controllerFilBillSubAccountVO.setName(filMinerControlBalance.getName());
-                controllerFilBillSubAccountVO.setAddress(filMinerControlBalance.getAddress());
+                controllerFilBillSubAccountVO.setName(entry.getKey());
+                controllerFilBillSubAccountVO.setAddress(entry.getValue());
                 filBillSubAccountVOList.add(controllerFilBillSubAccountVO);
             }
         }
+
         return filBillSubAccountVOList;
     }
 

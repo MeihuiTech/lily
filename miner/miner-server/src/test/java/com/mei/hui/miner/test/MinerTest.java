@@ -364,8 +364,12 @@ public class MinerTest {
 
     @Test
     public void testRedisAddress(){
-        redisUtil.hmset("miner_address:f001","miner","asdfasdf2");
-        redisUtil.hmset("miner_address:f001","worker","asdfasdf2");
+//        redisUtil.hmset("miner_address:f001","miner","asdfasdf2");
+//        redisUtil.hmset("miner_address:f001","worker","asdfasdf2");
+        Map<String,String> map = redisUtil.hgetall("miner_address:f01206961");
+        for (Map.Entry<String,String> entry:map.entrySet()){
+            System.out.println(entry.getKey()+"-------"+entry.getValue());
+        }
     }
 
 }
