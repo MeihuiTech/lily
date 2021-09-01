@@ -46,10 +46,10 @@ public class FilBillTask {
 
 
     /**
-     * fil币账单按天聚合，每天晚上23点59分40秒执行
+     * fil币账单按天聚合，每天晚上1点0分0秒执行前一天的数据
      */
     // TODO 提交代码时记得修改
-    @Scheduled(cron = "40 59 23 */1 * ?")
+    @Scheduled(cron = "0 0 1 */1 * ?")
 //    @Scheduled(cron = "* */5 * * * ?")
     public void insertFilBillDayAggTask() {
         log.info("======================fil币定时器insertFilBillDayAggTask-start===================");
@@ -64,9 +64,10 @@ public class FilBillTask {
         log.info("矿工数量：【{}】",sysMinerInfoList.size());
         Integer insertCountAll = 0;
 
-        String startDate = DateUtils.getBeginOfDayDate().toString().substring(0,19);
-        String endDate = DateUtils.getEndOfDayDate().toString().substring(0,19);
-        LocalDate date = LocalDate.now();
+        String startDate = DateUtils.getBeginYesterdayDate().toString().substring(0,19);
+        String endDate = DateUtils.getEndYesterdayDate().toString().substring(0,19);
+        // 昨天的日期
+        LocalDate date = LocalDate.now().plusDays(-1);
         // 下面代码是测试用的，不要放开注释
 //        String startDate = "2021-06-10 00:00:00";
 //        String endDate = "2021-06-10 23:59:59";

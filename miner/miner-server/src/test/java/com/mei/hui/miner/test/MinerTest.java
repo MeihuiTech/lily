@@ -353,8 +353,13 @@ public class MinerTest {
     }
 
     @Test
-    public void test(){
+    public void testBigDecimal(){
         System.out.println((new BigDecimal(0.0000)).compareTo(BigDecimal.ZERO));
+    }
+
+    @Test
+    public void testPlusDays(){
+        System.out.println(LocalDate.now().plusDays(-1));
     }
 
 }
