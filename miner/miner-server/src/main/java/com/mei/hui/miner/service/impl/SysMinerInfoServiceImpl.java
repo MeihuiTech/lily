@@ -821,8 +821,8 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         }
 
         // 子账户地址放到缓存里
-        redisUtil.hmset("miner_address:" + minerId,"Miner",minerId);
-        redisUtil.hmset("miner_address:" + minerId,"Worker",sysMinerInfo.getBalanceWorkerAddress());
+        redisUtil.hmset(Constants.REDISMINERADDRESS + minerId,"Miner",minerId);
+        redisUtil.hmset(Constants.REDISMINERADDRESS + minerId,"Worker",sysMinerInfo.getBalanceWorkerAddress());
 
         List<FilMinerControlBalance> filMinerControlBalanceList = sysMinerInfo.getControlAccounts();
         if(filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0) {
@@ -846,7 +846,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
                 }
 
                 // 子账户地址放到缓存里
-                redisUtil.hmset("miner_address:" + minerId,filMinerControlBalance.getName(),filMinerControlBalance.getAddress());
+                redisUtil.hmset(Constants.REDISMINERADDRESS + minerId,filMinerControlBalance.getName(),filMinerControlBalance.getAddress());
             }
         }
         return rows;

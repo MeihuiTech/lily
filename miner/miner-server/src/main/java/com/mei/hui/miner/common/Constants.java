@@ -182,4 +182,9 @@ public interface Constants extends SystemConstants {
      */
     String BLOCKAWARDSEND = "f02";
 
+    /**
+     * 矿工子账户地址
+     */
+    String REDISMINERADDRESS = "miner_address:";
+
 }
