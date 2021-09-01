@@ -254,7 +254,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             BigDecimal powerAvailableTib = miner.getPowerAvailable().divide(new BigDecimal(1024).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)).multiply(new BigDecimal(1024)));
             log.info("今天的有效算力miner.getPowerAvailable()，单位B：【{}】，今天的有效算力powerAvailableTib，单位TiB：【{}】",miner.getPowerAvailable(),powerAvailableTib);
             // BigDecimal.ROUND_UP向远离0的方向舍入
-            if(powerAvailableTib != null && powerAvailableTib.intValue() != 0){
+            if(powerAvailableTib != null && powerAvailableTib.compareTo(BigDecimal.ZERO) > 0){
                 miner.setEfficiency(twentyFourTotalBlockAward.divide(powerAvailableTib,4, BigDecimal.ROUND_UP));
             }
         } else {
@@ -277,7 +277,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         log.info("全网有效算力：【{}】",power);
 
         // 2/(2.53/9811.1488）*14400
-        if(powerAvailable != null && powerAvailable.intValue() > 0){
+        if(powerAvailable != null && powerAvailable.compareTo(BigDecimal.ZERO) > 0){
             miner.setLuckyValue((new BigDecimal(twentyFourTotalBlocks)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),5, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
         } else {
             miner.setLuckyValue(BigDecimal.ZERO);
