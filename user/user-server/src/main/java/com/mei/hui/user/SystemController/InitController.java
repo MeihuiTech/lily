@@ -37,7 +37,7 @@ public class InitController {
     @GetMapping("/shareLuck")
     public Result shareLuck(){
         log.info("开始时间:{}", LocalDateTime.now());
-        for(int i=0;i<1000;i++){
+        for(int i=0;i<5000;i++){
             scheduledThreadPool.execute(new ShareLockThead(redisUtil,sysUserMapper));
         }
         return Result.OK;
