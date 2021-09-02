@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class RedisUtil {
+    //分布式锁超时时间,10s
+    private static long timeout = 100000L;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -136,7 +138,6 @@ public class RedisUtil {
      * @param key
      * @param field
      * @param value
-     * @param time 设置key值删除时间，单位秒
      */
     public void hmset(String key,String field,String value){
         redisTemplate.opsForHash().put(key,field,value);
@@ -183,6 +184,44 @@ public class RedisUtil {
     public void putall(String key,Map<String, String> map,long time){
         redisTemplate.opsForHash().putAll(key,map);
         expire(key,time);
+    }
+
+    /**
+     * 如果为空就set值，并返回1,否则不进行操作，并返回0（锁定10s）
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean setnx(String key,String value,long timeout, TimeUnit timeUnit){
+        return redisTemplate.opsForValue().setIfAbsent(key,value,timeout,timeUnit);
+    }
+
+    /**
+     * 上锁
+     * @param key 业务标识
+     * @return 上锁状态
+     */
+    public boolean lock(String key) {
+        long start = System.currentTimeMillis();
+        while (true){
+            // 检测是否超时
+            if (System.currentTimeMillis() - start > timeout) {
+                return false;
+            }
+            boolean absent = setnx(key,"lock", timeout, TimeUnit.MILLISECONDS);
+            if(absent){
+                return true;
+            }
+        }
+    }
+
+    /**
+     * 解锁
+     *  @param key 业务标识
+     * @return 解锁状态
+     */
+    public boolean unlock(String key) {
+        return delete(key);
     }
 
 
