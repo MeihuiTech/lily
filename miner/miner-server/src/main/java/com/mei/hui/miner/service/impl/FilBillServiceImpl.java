@@ -374,7 +374,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         log.info("Miner账户：【{}】",JSON.toJSON(minerFilBillSubAccountVO));
         filBillSubAccountVOList.add(minerFilBillSubAccountVO);
 
-        // Worker
+        // Worker，从redis中获取
         String balanceWorkerAddress = redisUtil.hget(Constants.REDISMINERADDRESS + minerId,"Worker");
         FilBillSubAccountVO workerFilBillSubAccountVO = new FilBillSubAccountVO();
         workerFilBillSubAccountVO.setName("Worker");
@@ -382,7 +382,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         log.info("Worker账户：【{}】",JSON.toJSON(workerFilBillSubAccountVO));
         filBillSubAccountVOList.add(workerFilBillSubAccountVO);
 
-        // Controller
+        // Controller，从redis中获取
         Map<String,String> controllerMap = redisUtil.hgetall(Constants.REDISMINERADDRESS + minerId);
         for (Map.Entry<String,String> entry:controllerMap.entrySet()){
             if (!entry.getKey().equals("Miner") && !entry.getKey().equals("Worker")){
