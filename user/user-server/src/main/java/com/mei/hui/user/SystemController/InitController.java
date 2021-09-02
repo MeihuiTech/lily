@@ -1,36 +1,45 @@
 package com.mei.hui.user.SystemController;
 
+import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.user.common.ShareLockThead;
 import com.mei.hui.user.entity.SysRoleMenu;
 import com.mei.hui.user.mapper.SysRoleMenuMapper;
+import com.mei.hui.user.mapper.SysUserMapper;
+import com.mei.hui.user.service.ISysUserService;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/init")
 @Api(tags = "初始化数据")
+@Slf4j
 public class InitController {
+    public static int num = 0;
 
+    private ExecutorService scheduledThreadPool = Executors.newFixedThreadPool(10);
     @Autowired
-    private SysRoleMenuMapper sysRoleMenuMapper;
-
-    public Result initRoleAndMenu(){
-
-        String meanIds = "1,2016,2007,2008,2009,100,1001,1002,1003,1004,1005,1006,1007,101,1008,1009,1010,1011,1012,102,1013,1014,1015,1016,108,500,1040,1041,1042,501,1043,1044,1045";
-        List<SysRoleMenu> roleMenuList = new ArrayList<>();
-        String[] array = meanIds.split(",");
-        for(int i=0;i<array.length;i++){
-            SysRoleMenu sysRoleMenu = new SysRoleMenu();
-            sysRoleMenu.setMenuId(Long.valueOf(array[i]));
-            sysRoleMenu.setRoleId(1L);
-            roleMenuList.add(sysRoleMenu);
+    private SysUserMapper sysUserMapper;
+    @Autowired
+    private RedisUtil redisUtil;
+    @ApiOperation("分布式锁")
+    @GetMapping("/shareLuck")
+    public Result shareLuck(){
+        log.info("开始时间:{}", LocalDateTime.now());
+        for(int i=0;i<1000;i++){
+            scheduledThreadPool.execute(new ShareLockThead(redisUtil,sysUserMapper));
         }
-        sysRoleMenuMapper.batchRoleMenu(roleMenuList);
         return Result.OK;
     }
 
