@@ -82,8 +82,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         log.info("保存FIL币账单入参：【{}】",filBill);
         filBillMapper.insert(filBill);
 
-        // FIL币账单参数表
-        String params = filBillReportBO.getParams();
+        // FIL币账单参数表，暂时注释，数据库表保留，以后可能会放开，看以后需求
+        /*String params = filBillReportBO.getParams();
         if (StringUtils.isNotEmpty(params)){
             FilBillParams filBillParams = new FilBillParams();
             filBillParams.setFilBillId(filBill.getId());
@@ -91,7 +91,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             filBillParams.setCreateTime(LocalDateTime.now());
             log.info("保存FIL币账单参数入参：【{}】",filBillParams);
             filBillParamsService.save(filBillParams);
-        }
+        }*/
 
         // FIL币账单转账信息表
         List<FilBillTransactionsReportBO> filBillTransactionsReportBOList = filBillReportBO.getTransaction();
