@@ -3,6 +3,7 @@ package com.mei.hui.user.SystemController;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.common.ShareLockThead;
 import com.mei.hui.user.entity.SysRoleMenu;
+import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysRoleMenuMapper;
 import com.mei.hui.user.mapper.SysUserMapper;
 import com.mei.hui.user.service.ISysUserService;
@@ -36,9 +37,27 @@ public class InitController {
     @ApiOperation("分布式锁")
     @GetMapping("/shareLuck")
     public Result shareLuck(){
-        log.info("开始时间:{}", LocalDateTime.now());
+        log.info("开始时间，多线程:{}", LocalDateTime.now());
         for(int i=0;i<5000;i++){
             scheduledThreadPool.execute(new ShareLockThead(redisUtil,sysUserMapper));
+        }
+        return Result.OK;
+    }
+
+    @ApiOperation("单线程")
+    @GetMapping("/onlink")
+    public Result onlink(){
+        log.info("开始时间,单线程:{}", LocalDateTime.now());
+        for(int i=0;i<5000;i++){
+            int m = InitController.num;
+            int n = m+1;
+            InitController.num = n;
+
+            SysUser sysUser = new SysUser();
+            sysUser.setUserId(1L);
+            sysUser.setCreateTime(LocalDateTime.now());
+            sysUser.setRemark(InitController.num+"");
+            sysUserMapper.updateById(sysUser);
         }
         return Result.OK;
     }
