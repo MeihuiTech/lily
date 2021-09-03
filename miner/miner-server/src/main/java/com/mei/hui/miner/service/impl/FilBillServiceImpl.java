@@ -149,24 +149,24 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
                 log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
                 filBillTransactionsList.add(filBillTransactions);
-
-
-                /**
-                 * 1.根据miner_id、date先查redis里是否有数据，如果没有新建一条，redis过期时间设置为24小时，
-                 * 判断是收入还是支出，比如是收入，redis里的收入+新进来的数据的值，
-                 * 然后（update where 根据miner_id、date ）数据库里的这天的数据
-                 *
-                 * update where 根据miner_id、date ，判断返回值：如果是0，插入
-                 * insertorupdate
-                 */
-
-
-
             }
-            if (filBillTransactionsList.size() > 0){
-                log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
-                filBillTransactionsService.saveBatch(filBillTransactionsList);
-            }
+            log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
+            filBillTransactionsService.saveBatch(filBillTransactionsList);
+
+            /**
+             * 1.根据miner_id、date先查redis里是否有数据，如果没有新建一条，redis过期时间设置为24小时，
+             * 判断是收入还是支出，比如是收入，redis里的收入+新进来的数据的值，
+             * 然后（update where 根据miner_id、date ）数据库里的这天的数据
+             *
+             * update where 根据miner_id、date ，判断返回值：如果是0，插入
+             * insertorupdate
+             */
+
+
+
+
+
+
         }
 
     }
