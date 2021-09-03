@@ -350,7 +350,7 @@ public class SysUserServiceImpl implements ISysUserService {
         SysUser user = sysUserMapper.selectById(userId);
 
         List<FindUserRateVO> list = feeRateManager.findUserRate(userId,null);
-        log.info("币种信息:{}",JSON.toJSONString(list));
+        log.info("用户费率:{}",JSON.toJSONString(list));
         List<CurrencyRateBO> lt = list.stream().map(v -> {
             CurrencyRateBO currencyRateBO = new CurrencyRateBO();
             currencyRateBO.setFeeRate(v.getFeeRate().doubleValue());
