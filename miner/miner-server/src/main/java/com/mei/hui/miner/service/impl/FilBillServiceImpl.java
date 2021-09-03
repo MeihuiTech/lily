@@ -160,8 +160,10 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
              * insertorupdate
              */
 
-
-
+//            String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
+//            for (FilBillTransactions filBillTransactions: filBillTransactionsList){
+//
+//            }
 
 
 
