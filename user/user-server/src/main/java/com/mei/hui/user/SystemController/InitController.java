@@ -46,9 +46,10 @@ public class InitController {
 
     @ApiOperation("单线程")
     @GetMapping("/onlink")
-    public Result onlink(){
+    public Result onlink() throws InterruptedException {
         log.info("开始时间,单线程:{}", LocalDateTime.now());
         for(int i=0;i<200000;i++){
+            Thread.sleep(10000);
             int m = InitController.num;
             int n = m+1;
             InitController.num = n;
