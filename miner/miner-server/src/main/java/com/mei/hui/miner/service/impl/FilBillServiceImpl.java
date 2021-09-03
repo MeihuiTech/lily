@@ -353,6 +353,44 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             filBillDayAgg.setOutMoney(BigDecimal.ZERO);
             filBillDayAgg.setBalance(BigDecimal.ZERO);
         }
+
+        // 收入-转账
+        BigDecimal inTransferMoney = filBillMapper.selectFilBillTransferDateAgg(1,minerId,startDate,endDate);
+        inTransferMoney = inTransferMoney == null?BigDecimal.ZERO:inTransferMoney;
+        log.info("查询账单月汇总转账收入出参：【{}】",inTransferMoney);
+        filBillDayAgg.setInTransfer(inTransferMoney);
+
+        // 收入-区块奖励
+        BigDecimal inBlockAwardMoney = filBillMapper.selectFilBillinBlockAwardDateAgg(minerId,startDate,endDate);
+        inBlockAwardMoney = inBlockAwardMoney == null?BigDecimal.ZERO:inBlockAwardMoney;
+        log.info("查询账单月汇总区块奖励收入出参：【{}】",inBlockAwardMoney);
+        filBillDayAgg.setInBlockAward(inBlockAwardMoney);
+
+        // 支出-转账
+        BigDecimal outTransferMoney = filBillMapper.selectFilBillTransferDateAgg(0,minerId,startDate,endDate);
+        outTransferMoney = outTransferMoney == null?BigDecimal.ZERO:outTransferMoney;
+        log.info("查询账单月汇总转账支出出参：【{}】",outTransferMoney);
+        filBillDayAgg.setOutTransfer(outTransferMoney);
+
+        // 支出-矿工手续费
+        BigDecimal outNodeFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(0,minerId,startDate,endDate);
+        outNodeFeeMoney = outNodeFeeMoney == null?BigDecimal.ZERO:outNodeFeeMoney;
+        log.info("查询账单按照日期范围汇总矿工手续费支出出参：【{}】",outNodeFeeMoney);
+        filBillDayAgg.setOutNodeFee(outNodeFeeMoney);
+
+        // 支出-燃烧手续费
+        BigDecimal outBurnFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(1,minerId,startDate,endDate);
+        outBurnFeeMoney = outBurnFeeMoney == null?BigDecimal.ZERO:outBurnFeeMoney;
+        log.info("查询账单按照日期范围汇总燃烧手续费支出出参：【{}】",outBurnFeeMoney);
+        filBillDayAgg.setOutBurnFee(outBurnFeeMoney);
+
+        // 支出-其它
+        BigDecimal outAllMoney = filBillMapper.selectFilBillOutAllDateAgg(minerId,startDate,endDate);
+        log.info("查询账单按照日期范围汇总所有外部交易支出出参：【{}】",outAllMoney);
+        outAllMoney = outAllMoney == null?BigDecimal.ZERO:outAllMoney;
+        log.info("查询账单按照日期范围汇总所有外部交易支出出参2：【{}】",outAllMoney);
+        filBillDayAgg.setOutOther(outAllMoney);
+
         Integer count = filBillDayAggMapper.insert(filBillDayAgg);
         return count;
     }
