@@ -38,7 +38,7 @@ public class InitController {
     @GetMapping("/shareLuck")
     public Result shareLuck(){
         log.info("开始时间，多线程:{}", LocalDateTime.now());
-        for(int i=0;i<5000000;i++){
+        for(int i=0;i<200000;i++){
             scheduledThreadPool.execute(new ShareLockThead(redisUtil,sysUserMapper));
         }
         return Result.OK;
@@ -48,7 +48,7 @@ public class InitController {
     @GetMapping("/onlink")
     public Result onlink(){
         log.info("开始时间,单线程:{}", LocalDateTime.now());
-        for(int i=0;i<5000000;i++){
+        for(int i=0;i<200000;i++){
             int m = InitController.num;
             int n = m+1;
             InitController.num = n;
