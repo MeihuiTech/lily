@@ -1,6 +1,7 @@
 package com.mei.hui.util;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.converters.longconverter.LongStringConverter;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
@@ -58,7 +59,7 @@ public class ExcelUtils {
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
             out = response.getOutputStream();
-            EasyExcel.write(response.getOutputStream(), t)
+            EasyExcel.write(response.getOutputStream(), t).registerConverter(new LongStringConverter())
                     .registerWriteHandler(HORIZONTAL_CELL_STYLE_STRATEGY)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .sheet(fileName).doWrite(data);
