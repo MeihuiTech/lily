@@ -38,7 +38,7 @@ public class InitController {
     @GetMapping("/shareLuck")
     public Result shareLuck(){
         log.info("开始时间，多线程:{}", LocalDateTime.now());
-        for(int i=0;i<5000000;i++){
+        for(int i=0;i<20000;i++){
             scheduledThreadPool.execute(new ShareLockThead(redisUtil,sysUserMapper));
         }
         return Result.OK;
@@ -46,9 +46,10 @@ public class InitController {
 
     @ApiOperation("单线程")
     @GetMapping("/onlink")
-    public Result onlink(){
+    public Result onlink() throws InterruptedException {
         log.info("开始时间,单线程:{}", LocalDateTime.now());
-        for(int i=0;i<5000000;i++){
+        for(int i=0;i<20000;i++){
+            Thread.sleep(10);
             int m = InitController.num;
             int n = m+1;
             InitController.num = n;
