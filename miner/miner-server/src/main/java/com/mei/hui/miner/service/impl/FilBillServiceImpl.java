@@ -1,16 +1,14 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
-import com.mei.hui.miner.entity.FilBill;
-import com.mei.hui.miner.entity.FilBillDayAgg;
-import com.mei.hui.miner.entity.FilBillParams;
-import com.mei.hui.miner.entity.FilBillTransactions;
+import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.FilBillDayAggMapper;
 import com.mei.hui.miner.mapper.FilBillMapper;
@@ -367,30 +365,71 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String minerId = filBillMethodBO.getMinerId();
         List<FilBillSubAccountVO> filBillSubAccountVOList = new ArrayList<>();
 
+        // Controller和Worker和Miner这3的代码顺序不能换，换了报错
+        // Controller，从redis中获取
+        Map<String,String> controllerMap = redisUtil.hgetall(Constants.REDISMINERADDRESS + minerId);
+        log.info("minerId：【{}】从redis中获取Controller为：【{}】",minerId,controllerMap);
+        if (controllerMap != null && controllerMap.size() > 0){
+            for (Map.Entry<String,String> entry:controllerMap.entrySet()){
+                if (!entry.getKey().equals("Miner") && !entry.getKey().equals("Worker")){
+                    FilBillSubAccountVO controllerFilBillSubAccountVO = new FilBillSubAccountVO();
+                    controllerFilBillSubAccountVO.setName(entry.getKey());
+                    controllerFilBillSubAccountVO.setAddress(entry.getValue());
+                    filBillSubAccountVOList.add(controllerFilBillSubAccountVO);
+                }
+            }
+        } else {
+            QueryWrapper<FilMinerControlBalance> filMinerControlBalanceQueryWrapper = new QueryWrapper<>();
+            FilMinerControlBalance qwFilMinerControlBalance = new FilMinerControlBalance();
+            qwFilMinerControlBalance.setMinerId(minerId);
+            filMinerControlBalanceQueryWrapper.setEntity(qwFilMinerControlBalance);
+            List<FilMinerControlBalance> filMinerControlBalanceList = filMinerControlBalanceMapper.selectList(filMinerControlBalanceQueryWrapper);
+            log.info("查询子账户Controller/Post账户余额表list出参为：【{}】",JSON.toJSON(filMinerControlBalanceList));
+            if (filMinerControlBalanceList != null && filMinerControlBalanceList.size() > 0){
+                for (FilMinerControlBalance filMinerControlBalance:filMinerControlBalanceList){
+                    FilBillSubAccountVO controllerFilBillSubAccountVO = new FilBillSubAccountVO();
+                    controllerFilBillSubAccountVO.setName(filMinerControlBalance.getName());
+                    controllerFilBillSubAccountVO.setAddress(filMinerControlBalance.getAddress());
+                    filBillSubAccountVOList.add(controllerFilBillSubAccountVO);
+                    redisUtil.hmset(Constants.REDISMINERADDRESS + minerId,filMinerControlBalance.getName(),filMinerControlBalance.getAddress());
+                    log.info("minerId：【{}】保存Controller地址到redis中：【{}】",minerId,controllerMap);
+                }
+            }
+        }
+
+        // Worker，从redis中获取
+        String balanceWorkerAddress = redisUtil.hget(Constants.REDISMINERADDRESS + minerId,"Worker");
+        log.info("minerId：【{}】从redis中获取Worker为：【{}】",minerId,balanceWorkerAddress);
+        FilBillSubAccountVO workerFilBillSubAccountVO = new FilBillSubAccountVO();
+        workerFilBillSubAccountVO.setName("Worker");
+        if (StringUtils.isNotEmpty(balanceWorkerAddress)){
+            workerFilBillSubAccountVO.setAddress(balanceWorkerAddress);
+        } else {
+            QueryWrapper<SysMinerInfo> workerQueryWrapper = new QueryWrapper<>();
+            SysMinerInfo sysMinerInfo = new SysMinerInfo();
+            sysMinerInfo.setMinerId(minerId);
+            workerQueryWrapper.setEntity(sysMinerInfo);
+            List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list(workerQueryWrapper);
+            log.info("查询矿工列表list出参为：【{}】",JSON.toJSON(sysMinerInfoList));
+            if (sysMinerInfoList != null && sysMinerInfoList.size() > 0){
+                workerFilBillSubAccountVO.setAddress(sysMinerInfoList.get(0).getBalanceWorkerAddress());
+                redisUtil.hmset(Constants.REDISMINERADDRESS + minerId,"Worker",sysMinerInfoList.get(0).getBalanceWorkerAddress());
+                log.info("minerId：【{}】保存Worker地址到redis中：【{}】",minerId,sysMinerInfoList.get(0).getBalanceWorkerAddress());
+            }
+        }
+        log.info("Worker账户：【{}】",JSON.toJSON(workerFilBillSubAccountVO));
+        filBillSubAccountVOList.add(workerFilBillSubAccountVO);
+
         // Miner
         FilBillSubAccountVO minerFilBillSubAccountVO = new FilBillSubAccountVO();
         minerFilBillSubAccountVO.setName("Miner");
         minerFilBillSubAccountVO.setAddress(minerId);
         log.info("Miner账户：【{}】",JSON.toJSON(minerFilBillSubAccountVO));
         filBillSubAccountVOList.add(minerFilBillSubAccountVO);
-
-        // Worker，从redis中获取
-        String balanceWorkerAddress = redisUtil.hget(Constants.REDISMINERADDRESS + minerId,"Worker");
-        FilBillSubAccountVO workerFilBillSubAccountVO = new FilBillSubAccountVO();
-        workerFilBillSubAccountVO.setName("Worker");
-        workerFilBillSubAccountVO.setAddress(balanceWorkerAddress);
-        log.info("Worker账户：【{}】",JSON.toJSON(workerFilBillSubAccountVO));
-        filBillSubAccountVOList.add(workerFilBillSubAccountVO);
-
-        // Controller，从redis中获取
-        Map<String,String> controllerMap = redisUtil.hgetall(Constants.REDISMINERADDRESS + minerId);
-        for (Map.Entry<String,String> entry:controllerMap.entrySet()){
-            if (!entry.getKey().equals("Miner") && !entry.getKey().equals("Worker")){
-                FilBillSubAccountVO controllerFilBillSubAccountVO = new FilBillSubAccountVO();
-                controllerFilBillSubAccountVO.setName(entry.getKey());
-                controllerFilBillSubAccountVO.setAddress(entry.getValue());
-                filBillSubAccountVOList.add(controllerFilBillSubAccountVO);
-            }
+        String minerAddress = redisUtil.hget(Constants.REDISMINERADDRESS + minerId,"Miner");
+        if (StringUtils.isEmpty(minerAddress)){
+            redisUtil.hmset(Constants.REDISMINERADDRESS + minerId,"Miner",minerId);
+            log.info("minerId：【{}】保存Miner地址到redis中：【{}】",minerId,minerAddress);
         }
 
         return filBillSubAccountVOList;
