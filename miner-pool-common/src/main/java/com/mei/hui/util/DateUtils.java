@@ -242,7 +242,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
-    * 获取昨天的开始时间
+    * 获取昨天的开始时间，返回时间类型
     *
     * @description
     * @author shangbin
@@ -259,7 +259,18 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
-    * 获取昨天的结束时间
+     * 获取昨天的开始时间，返回字符串类型，格式为：yyyy-MM-dd HH:mm:ss
+     * @return
+     */
+    public static String getBeginYesterdayDateStr() {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(getBeginOfDayDate());
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        return parseDateToStr(YYYY_MM_DD_HH_MM_SS, cal.getTime());
+    }
+
+    /**
+    * 获取昨天的结束时间，返回时间类型
     *
     * @description
     * @author shangbin
@@ -273,6 +284,17 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         cal.setTime(getEndOfDayDate());
         cal.add(Calendar.DAY_OF_MONTH, -1);
         return cal.getTime();
+    }
+
+    /**
+     * 获取昨天的结束时间，返回字符串类型，格式为：yyyy-MM-dd HH:mm:ss
+     * @return
+     */
+    public static String getEndYesterdayDateStr() {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(getEndOfDayDate());
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        return parseDateToStr(YYYY_MM_DD_HH_MM_SS, cal.getTime());
     }
 
     /**
@@ -349,6 +371,26 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static String lDTLocalDateTimeNow(){
         LocalDateTime localDateTime = LocalDateTime.now();
         String  format = lDTToStringFormat( localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+    /**
+     * 格式化入参localDateTime类型日期，返回字符串格式为：yyyy-MM-dd HH:mm:ss
+     * @param localDateTime
+     * @return
+     */
+    public static String lDTLocalDateTimeFormatYMDHMS(LocalDateTime localDateTime){
+        String  format = lDTToStringFormat( localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+    /**
+     * 格式化入参localDateTime类型日期，返回字符串格式为：yyyy-MM-dd
+     * @param localDateTime
+     * @return
+     */
+    public static String lDTLocalDateTimeFormatYMD(LocalDateTime localDateTime){
+        String  format = lDTToStringFormat( localDateTime, YYYY_MM_DD);
         return format;
     }
 
@@ -494,18 +536,20 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 //        System.out.println(sd);
 
         //获取上一个时间点,如现在为15:30,上一个整点时间点为，15:00
-        System.out.println(lDTBeforeLocalDateTimeHour());
-        //获取下一个时间点,如现在为15:30,上一个整点时间点为，16:00
-        System.out.println(lDTNextLocalDateTimeHour());
+//        System.out.println(lDTBeforeLocalDateTimeHour());
+//        //获取下一个时间点,如现在为15:30,上一个整点时间点为，16:00
+//        System.out.println(lDTNextLocalDateTimeHour());
+//
+//        // 获得 localDateTime
+//        System.out.println(lDTLocalDateTimeNow());
+//
+//        System.out.println(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1).plusHours(-1));
+//
+//        System.out.println(lDTYesterdayBeforeLocalDateTimeHour());
+//        System.out.println(lDTBeforeBeforeLocalDateTimeHour());
 
-        // 获得 localDateTime
-        System.out.println(lDTLocalDateTimeNow());
-
-        System.out.println(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1).plusHours(-1));
-
-        System.out.println(lDTYesterdayBeforeLocalDateTimeHour());
-        System.out.println(lDTBeforeBeforeLocalDateTimeHour());
-
+        System.out.println(getBeginYesterdayDateStr());
+        System.out.println(getEndYesterdayDateStr());
 
     }
 

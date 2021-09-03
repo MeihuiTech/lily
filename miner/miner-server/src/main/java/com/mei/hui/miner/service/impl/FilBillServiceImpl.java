@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -63,7 +64,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
     /*上报FIL币账单*/
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void reportBillMq(FilBillReportBO filBillReportBO) {
         String minerId = filBillReportBO.getMiner();
         String method = filBillReportBO.getMethod();
@@ -147,21 +148,27 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
                 filBillTransactionsList.add(filBillTransactions);
             }
-            if (filBillTransactionsList.size() > 0){
-                log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
-                filBillTransactionsService.saveBatch(filBillTransactionsList);
-            }
+            log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
+            filBillTransactionsService.saveBatch(filBillTransactionsList);
+
+            /**
+             * 1.根据miner_id、date先查redis里是否有数据，如果没有新建一条，redis过期时间设置为24小时，
+             * 判断是收入还是支出，比如是收入，redis里的收入+新进来的数据的值，
+             * 然后（update where 根据miner_id、date ）数据库里的这天的数据
+             *
+             * update where 根据miner_id、date ，判断返回值：如果是0，插入
+             * insertorupdate
+             */
+
+//            String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
+//            for (FilBillTransactions filBillTransactions: filBillTransactionsList){
+//
+//            }
+
+
+
         }
 
-
-        /**
-         * 1.根据miner_id、date先查redis里是否有数据，如果没有新建一条，redis过期时间设置为24小时，
-         * 判断是收入还是支出，比如是收入，redis里的收入+新进来的数据的值，
-         * 然后（update where 根据miner_id、date ）数据库里的这天的数据
-         *
-         * update where 根据miner_id、date ，判断返回值：如果是0，插入
-         * insertorupdate
-         */
     }
 
     /*在FIL币账单消息详情表里手动插入一条区块奖励数据*/
@@ -346,6 +353,44 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             filBillDayAgg.setOutMoney(BigDecimal.ZERO);
             filBillDayAgg.setBalance(BigDecimal.ZERO);
         }
+
+        // 收入-转账
+        BigDecimal inTransferMoney = filBillMapper.selectFilBillTransferDateAgg(1,minerId,startDate,endDate);
+        inTransferMoney = inTransferMoney == null?BigDecimal.ZERO:inTransferMoney;
+        log.info("查询账单月汇总转账收入出参：【{}】",inTransferMoney);
+        filBillDayAgg.setInTransfer(inTransferMoney);
+
+        // 收入-区块奖励
+        BigDecimal inBlockAwardMoney = filBillMapper.selectFilBillinBlockAwardDateAgg(minerId,startDate,endDate);
+        inBlockAwardMoney = inBlockAwardMoney == null?BigDecimal.ZERO:inBlockAwardMoney;
+        log.info("查询账单月汇总区块奖励收入出参：【{}】",inBlockAwardMoney);
+        filBillDayAgg.setInBlockAward(inBlockAwardMoney);
+
+        // 支出-转账
+        BigDecimal outTransferMoney = filBillMapper.selectFilBillTransferDateAgg(0,minerId,startDate,endDate);
+        outTransferMoney = outTransferMoney == null?BigDecimal.ZERO:outTransferMoney;
+        log.info("查询账单月汇总转账支出出参：【{}】",outTransferMoney);
+        filBillDayAgg.setOutTransfer(outTransferMoney);
+
+        // 支出-矿工手续费
+        BigDecimal outNodeFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(0,minerId,startDate,endDate);
+        outNodeFeeMoney = outNodeFeeMoney == null?BigDecimal.ZERO:outNodeFeeMoney;
+        log.info("查询账单按照日期范围汇总矿工手续费支出出参：【{}】",outNodeFeeMoney);
+        filBillDayAgg.setOutNodeFee(outNodeFeeMoney);
+
+        // 支出-燃烧手续费
+        BigDecimal outBurnFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(1,minerId,startDate,endDate);
+        outBurnFeeMoney = outBurnFeeMoney == null?BigDecimal.ZERO:outBurnFeeMoney;
+        log.info("查询账单按照日期范围汇总燃烧手续费支出出参：【{}】",outBurnFeeMoney);
+        filBillDayAgg.setOutBurnFee(outBurnFeeMoney);
+
+        // 支出-其它
+        BigDecimal outAllMoney = filBillMapper.selectFilBillOutAllDateAgg(minerId,startDate,endDate);
+        log.info("查询账单按照日期范围汇总所有外部交易支出出参：【{}】",outAllMoney);
+        outAllMoney = outAllMoney == null?BigDecimal.ZERO:outAllMoney;
+        log.info("查询账单按照日期范围汇总所有外部交易支出出参2：【{}】",outAllMoney);
+        filBillDayAgg.setOutOther(outAllMoney);
+
         Integer count = filBillDayAggMapper.insert(filBillDayAgg);
         return count;
     }

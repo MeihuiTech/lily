@@ -73,11 +73,10 @@ public class FilRabbitMQListener {
                 }
 
                 filBillService.reportBillMq(filBillReportBO);
-
-                // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
-                log.info("确认消息");
-                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             }
+            // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
+            log.info("确认消息");
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
             log.error("接收到消息之后的处理发生异常，异常后消息进入死信队列", e);
             // 报错后直接拒绝，并设置requeue属性为false，这样被拒绝的消息就不会重新回到原始队列中而是转发到死信交换机

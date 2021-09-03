@@ -98,6 +98,7 @@ public class FilBillController {
     @ApiOperation("手动调用fil币账单按天聚合定时器")
     @PostMapping("/ManualInsertFilBillDayAggTask")
     public Result<Integer> ManualInsertFilBillDayAggTask(@RequestBody FilBillMonthBO filBillMonthBO){
+        log.info("手动调用fil币账单按天聚合定时器入参：【{}】",JSON.toJSON(filBillMonthBO));
         String monthDateStr = filBillMonthBO.getMonthDate();
         String[] dateArr = monthDateStr.split(",");
         Integer insertCountAll = 0;
