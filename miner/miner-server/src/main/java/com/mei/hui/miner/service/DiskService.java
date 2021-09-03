@@ -32,4 +32,10 @@ public interface DiskService {
      * @return
      */
     Map<String,BigDecimal> allbucketInfo(QiniuStoreConfig qiniuStoreConfig);
+
+    /**
+     * 获取宽带信息
+     * @return
+     */
+    BroadbandVO broadband(QiniuStoreConfig storeConfig);
 }

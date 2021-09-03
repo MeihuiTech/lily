@@ -2,6 +2,8 @@ package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
+import com.mei.hui.miner.feign.vo.BroadbandVO;
+import com.mei.hui.miner.feign.vo.ClusterBroadbandBO;
 import com.mei.hui.miner.feign.vo.FindDiskSizeInfoBO;
 import com.mei.hui.miner.service.DiskService;
 import com.mei.hui.miner.service.GeneralService;
@@ -51,6 +53,23 @@ public class GeneralServiceImpl implements GeneralService {
                 list.add(bo);
             }
         });
+        return Result.success(list);
+    }
+
+    /**
+     * 获取集群带宽
+     * @return
+     */
+    public Result<List<ClusterBroadbandBO>> findClusterBroadband(){
+        List<ClusterBroadbandBO> list = new ArrayList<>();
+        Set<QiniuStoreConfig> qiniuClusters = qiniuStoreConfigService.findQiniuClusters();
+        log.info("七牛集群列表:{}",JSON.toJSONString(qiniuClusters));
+        for(QiniuStoreConfig config : qiniuClusters){
+            BroadbandVO broadband = diskService.broadband(config);
+            ClusterBroadbandBO bo = new ClusterBroadbandBO().setClusterName(config.getClusterName())
+                    .setBroadbandDownVOList(broadband.getBroadbandDownVOList()).setBroadbandUpVOList(broadband.getBroadbandUpVOList());
+            list.add(bo);
+        }
         return Result.success(list);
     }
 }

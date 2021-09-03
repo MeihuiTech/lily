@@ -1,9 +1,6 @@
 package com.mei.hui.miner.SystemController;
 
-import com.mei.hui.miner.feign.vo.BaselineAndPowerVO;
-import com.mei.hui.miner.feign.vo.FindDiskSizeInfoBO;
-import com.mei.hui.miner.feign.vo.GaslineVO;
-import com.mei.hui.miner.feign.vo.GeneralViewVo;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
 import com.mei.hui.miner.service.GeneralService;
@@ -60,5 +57,11 @@ public class GeneralController {
     @PostMapping("/findDiskSizeInfo")
     public Result<List<FindDiskSizeInfoBO>> findDiskSizeInfo(){
         return generalService.findDiskSizeInfo();
+    }
+
+    @ApiOperation("大屏，获取集群宽带")
+    @PostMapping("/findClusterBroadband")
+    public Result<List<ClusterBroadbandBO>> findClusterBroadband(){
+        return generalService.findClusterBroadband();
     }
 }
