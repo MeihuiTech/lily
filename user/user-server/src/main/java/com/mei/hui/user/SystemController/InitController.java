@@ -49,7 +49,7 @@ public class InitController {
     public Result onlink() throws InterruptedException {
         log.info("开始时间,单线程:{}", LocalDateTime.now());
         for(int i=0;i<20000;i++){
-            Thread.sleep(20);
+            Thread.sleep(10);
             int m = InitController.num;
             int n = m+1;
             InitController.num = n;
