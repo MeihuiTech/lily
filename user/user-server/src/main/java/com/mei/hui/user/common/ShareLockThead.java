@@ -21,7 +21,7 @@ public class ShareLockThead implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        Thread.sleep(10000);
+        Thread.sleep(20);
         String key = "service_num";
        boolean flag = redisUtil.lock(key);
         if(!flag){
