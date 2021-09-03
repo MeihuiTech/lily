@@ -4,6 +4,7 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.user.SystemController.InitController;
 import com.mei.hui.user.entity.SysUser;
 import com.mei.hui.user.mapper.SysUserMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -17,8 +18,10 @@ public class ShareLockThead implements Runnable {
         this.sysUserMapper = sysUserMapper;
     }
 
+    @SneakyThrows
     @Override
     public void run() {
+        Thread.sleep(10);
         String key = "service_num";
        boolean flag = redisUtil.lock(key);
         if(!flag){
