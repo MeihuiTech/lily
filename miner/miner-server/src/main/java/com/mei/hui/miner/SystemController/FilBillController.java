@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -236,13 +237,26 @@ public class FilBillController {
         filBillMonthBO.setPageSize(31);
         IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillService.selectFilBillDayAggPage(filBillMonthBO);
         List<ExportBillVO> list = filBillDayAggVOIPage.getRecords().stream().map(v -> {
-            ExportBillVO vo = new ExportBillVO().setBalance(v.getBalance())
-                    .setDate(v.getDate()).setInMoney(v.getInMoney())
-                    .setOutMoney(v.getOutMoney());
+            BigDecimal balance = new BigDecimal("0");
+            BigDecimal inMoney = new BigDecimal("0");
+            BigDecimal outMoney = new BigDecimal("0");
+            if(v.getBalance().compareTo(new BigDecimal("0")) != 0){
+                balance = v.getBalance().divide(new BigDecimal(Math.pow(10, 18)), 9, BigDecimal.ROUND_HALF_UP);
+            }
+            if(v.getInMoney().compareTo(new BigDecimal("0")) != 0){
+                inMoney = v.getInMoney().divide(new BigDecimal(Math.pow(10, 18)), 9, BigDecimal.ROUND_HALF_UP);
+            }
+            if(v.getOutMoney().compareTo(new BigDecimal("0")) != 0){
+                outMoney = v.getOutMoney().divide(new BigDecimal(Math.pow(10, 18)), 9, BigDecimal.ROUND_HALF_UP);
+            }
+            ExportBillVO vo = new ExportBillVO().setBalance(balance)
+                    .setDate(v.getDate()).setInMoney(inMoney)
+                    .setOutMoney(outMoney);
             return vo;
         }).collect(Collectors.toList());
         ExcelUtils.export(response, list, exportBillBO.getMonthDate()+"账单信息", ExportBillVO.class);
     }
+
 
 }
 
