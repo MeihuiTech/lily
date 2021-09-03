@@ -150,11 +150,9 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         log.info("入参minerId：【{}】,startDate：【{}】，endDate：【{}】",minerId,startDate,endDate);
         Long twentyFourTotalBlocks = sysAggPowerHourService.selectTwentyFourTotalBlocks(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
         log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参：【{}】",twentyFourTotalBlocks);
-        if (twentyFourTotalBlocks != null) {
-            miner.setBlocksPerDay(twentyFourTotalBlocks);
-        } else {
-            miner.setBlocksPerDay(0L);
-        }
+        twentyFourTotalBlocks = twentyFourTotalBlocks == null?0L:twentyFourTotalBlocks;
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参修改格式后的：【{}】",twentyFourTotalBlocks);
+        miner.setBlocksPerDay(twentyFourTotalBlocks);
 
         // 查询FIL币算力按小时聚合表里近24小时所有的每小时算力增长总和
         BigDecimal twentyFourPowerIncrease = sysAggPowerHourService.selectTwentyFourPowerIncrease(CurrencyEnum.FIL.name(),minerId,startDate,endDate);
