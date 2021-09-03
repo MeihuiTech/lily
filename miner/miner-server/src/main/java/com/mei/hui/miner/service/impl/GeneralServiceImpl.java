@@ -65,7 +65,7 @@ public class GeneralServiceImpl implements GeneralService {
         Set<QiniuStoreConfig> qiniuClusters = qiniuStoreConfigService.findQiniuClusters();
         log.info("七牛集群列表:{}",JSON.toJSONString(qiniuClusters));
         for(QiniuStoreConfig config : qiniuClusters){
-            BroadbandVO broadband = diskService.broadband(config);
+            BroadbandVO broadband = diskService.broadband(config,true);
             ClusterBroadbandBO bo = new ClusterBroadbandBO().setClusterName(config.getClusterName())
                     .setBroadbandDownVOList(broadband.getBroadbandDownVOList()).setBroadbandUpVOList(broadband.getBroadbandUpVOList());
             list.add(bo);

@@ -86,7 +86,7 @@ public class DiskServiceImpl implements DiskService {
             qiniuVO.setDiskSizeVO(diskSizeVO);
 
             // 宽带
-            BroadbandVO broadbandVO = broadband(dbQiniuStoreConfig);
+            BroadbandVO broadbandVO = broadband(dbQiniuStoreConfig,false);
             log.info("获取宽带信息出参：【{}】",JSON.toJSON(broadbandVO));
             qiniuVO.setBroadbandVO(broadbandVO);
             qiniuVOList.add(qiniuVO);
@@ -330,17 +330,20 @@ public class DiskServiceImpl implements DiskService {
         }
     }
 
-
     /**
      * 获取宽带信息
+     * @param storeConfig 集群配置
+     * @param threeHour 是否获取三个小时带宽数据,true-获取三个小时的数据；false-获取24个小时的数据
      * @return
      */
-    public BroadbandVO broadband(QiniuStoreConfig storeConfig) {
+    public BroadbandVO broadband(QiniuStoreConfig storeConfig,boolean threeHour) {
         try {
             // 查24小时的数据
             Long yesterdayTimeLong = LocalDateTime.now().plusHours(-24L).toEpochSecond(ZoneOffset.of("+8"));
             Long nowTimeLong = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-
+            if(threeHour){
+                yesterdayTimeLong = LocalDateTime.now().plusHours(-3L).toEpochSecond(ZoneOffset.of("+8"));
+            }
             // 上传带宽，单位 bps
             String upBroadbandMetric = "sum (rate(service_request_length{idcname=\"" + storeConfig.getIdcname() + "\",api=~\"up.*|s3apiv2.putobject.*|s3apiv2.postobject|s3apiv2.uploadpart.*\"}[1m]))*8";
             List<BroadbandUpDownVO> upBroadbandVOList = getQiniuData(storeConfig,upBroadbandMetric,yesterdayTimeLong,nowTimeLong);

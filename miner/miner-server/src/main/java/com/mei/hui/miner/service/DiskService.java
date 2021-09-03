@@ -37,5 +37,5 @@ public interface DiskService {
      * 获取宽带信息
      * @return
      */
-    BroadbandVO broadband(QiniuStoreConfig storeConfig);
+    BroadbandVO broadband(QiniuStoreConfig storeConfig,boolean threeHour);
 }
