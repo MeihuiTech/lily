@@ -353,6 +353,26 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * 格式化入参localDateTime类型日期，返回字符串格式为：yyyy-MM-dd HH:mm:ss
+     * @param localDateTime
+     * @return
+     */
+    public static String lDTLocalDateTimeFormatYMDHMS(LocalDateTime localDateTime){
+        String  format = lDTToStringFormat( localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+    /**
+     * 格式化入参localDateTime类型日期，返回字符串格式为：yyyy-MM-dd
+     * @param localDateTime
+     * @return
+     */
+    public static String lDTLocalDateTimeFormatYMD(LocalDateTime localDateTime){
+        String  format = lDTToStringFormat( localDateTime, YYYY_MM_DD);
+        return format;
+    }
+
+    /**
      * LocalDateTime格式化localDateTime时间为YYYY_MM_DD_HH_MM_SS，返回字符串类型
      * @param localDateTime  时间
      * @return

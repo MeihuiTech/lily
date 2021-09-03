@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -63,7 +64,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
     /*上报FIL币账单*/
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void reportBillMq(FilBillReportBO filBillReportBO) {
         String minerId = filBillReportBO.getMiner();
         String method = filBillReportBO.getMethod();
@@ -147,21 +148,27 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
                 filBillTransactionsList.add(filBillTransactions);
             }
-            if (filBillTransactionsList.size() > 0){
-                log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
-                filBillTransactionsService.saveBatch(filBillTransactionsList);
-            }
+            log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
+            filBillTransactionsService.saveBatch(filBillTransactionsList);
+
+            /**
+             * 1.根据miner_id、date先查redis里是否有数据，如果没有新建一条，redis过期时间设置为24小时，
+             * 判断是收入还是支出，比如是收入，redis里的收入+新进来的数据的值，
+             * 然后（update where 根据miner_id、date ）数据库里的这天的数据
+             *
+             * update where 根据miner_id、date ，判断返回值：如果是0，插入
+             * insertorupdate
+             */
+
+//            String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
+//            for (FilBillTransactions filBillTransactions: filBillTransactionsList){
+//
+//            }
+
+
+
         }
 
-
-        /**
-         * 1.根据miner_id、date先查redis里是否有数据，如果没有新建一条，redis过期时间设置为24小时，
-         * 判断是收入还是支出，比如是收入，redis里的收入+新进来的数据的值，
-         * 然后（update where 根据miner_id、date ）数据库里的这天的数据
-         *
-         * update where 根据miner_id、date ，判断返回值：如果是0，插入
-         * insertorupdate
-         */
     }
 
     /*在FIL币账单消息详情表里手动插入一条区块奖励数据*/

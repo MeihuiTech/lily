@@ -45,6 +45,35 @@ public class FilBillDayAgg {
      */
     private BigDecimal balance;
 
+    /**
+     * 收入-转账
+     */
+    private BigDecimal inTransfer;
+
+    /**
+     * 收入-区块奖励
+     */
+    private BigDecimal inBlockAward;
+
+    /**
+     * 支出-转账
+     */
+    private BigDecimal outTransfer;
+
+    /**
+     * 支出-矿工手续费
+     */
+    private BigDecimal outNodeFee;
+
+    /**
+     * 支出-燃烧手续费
+     */
+    private BigDecimal outBurnFee;
+
+    /**
+     * 支出-其它
+     */
+    private BigDecimal outOther;
 
     private LocalDateTime createTime;
 
