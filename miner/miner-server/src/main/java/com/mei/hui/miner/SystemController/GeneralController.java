@@ -1,10 +1,12 @@
 package com.mei.hui.miner.SystemController;
 
 import com.mei.hui.miner.feign.vo.BaselineAndPowerVO;
+import com.mei.hui.miner.feign.vo.FindDiskSizeInfoBO;
 import com.mei.hui.miner.feign.vo.GaslineVO;
 import com.mei.hui.miner.feign.vo.GeneralViewVo;
 import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
+import com.mei.hui.miner.service.GeneralService;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
@@ -23,6 +25,8 @@ import java.util.List;
 public class GeneralController {
     @Autowired
     private UserManager userManager;
+    @Autowired
+    private GeneralService generalService;
 
     @Autowired
     private FilBaselinePowerDayAggService baselinePowerDayAggService;
@@ -50,5 +54,11 @@ public class GeneralController {
     @RequestMapping(value = "/findAllUser",method = RequestMethod.POST)
     public List<SysUserOut> findAllUser(){
         return userManager.findAllUser();
+    }
+
+    @ApiOperation("大屏磁盘容量")
+    @PostMapping("/findDiskSizeInfo")
+    public Result<List<FindDiskSizeInfoBO>> findDiskSizeInfo(){
+        return generalService.findDiskSizeInfo();
     }
 }

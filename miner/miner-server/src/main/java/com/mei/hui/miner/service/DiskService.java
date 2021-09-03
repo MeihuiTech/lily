@@ -5,7 +5,9 @@ import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.Result;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface DiskService {
 
@@ -22,4 +24,12 @@ public interface DiskService {
     * @version v1.4.1
     */
     public List<QiniuVO> selectDiskSizeAndBroadbandList(List<SysMinerInfo> sysMinerInfoList);
+
+    BigDecimal getDiskSize(QiniuStoreConfig qiniuStoreConfig, String metric);
+
+    /**
+     * 获取集群所有bucket已使用存储量
+     * @return
+     */
+    Map<String,BigDecimal> allbucketInfo(QiniuStoreConfig qiniuStoreConfig);
 }
