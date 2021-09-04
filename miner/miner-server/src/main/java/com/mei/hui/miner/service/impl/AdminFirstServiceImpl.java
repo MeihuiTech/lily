@@ -48,6 +48,8 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
     private ISysAggPowerDailyService sysAggPowerDailyService;
     @Autowired
     private FilAdminUserService adminUserService;
+    @Autowired
+    private ISysAggPowerHourService sysAggPowerHourService;
 
     /**
      * fil管理员首页-矿工统计数据
@@ -73,17 +75,18 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         // 管理员首页-矿工统计数据-活跃矿工
         Long allMinerCount = sysMinerInfoService.selectFilAllMinerIdCount(userIds);
         adminFirstCollectVO.setAllMinerCount(allMinerCount);
+
         // 管理员首页-矿工统计数据-当天出块份数
-        // 查询FIL币矿工信息表里所有的累计出块份数
-        Long allTotalBlocks = sysMinerInfoService.selectFilAllBlocksPerDay(userIds);
-        // 查询FIL币算力按天聚合表里昨天所有的累计出块份数
-        String yesterDayDate = DateUtils.getYesterDayDateYmd();
-        Long yesterDayTotalBlocks = sysAggPowerDailyService.totalBlocksByMinerId(yesterDayDate,userIds);
-        if (allTotalBlocks != null && yesterDayTotalBlocks != null) {
-            adminFirstCollectVO.setAllBlocksPerDay(allTotalBlocks - yesterDayTotalBlocks);
-        }else {
-            adminFirstCollectVO.setAllBlocksPerDay(0L);
-        }
+        // 查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和
+        String startDate = DateUtils.lDTYesterdayBeforeLocalDateTimeHour();
+        String endDate = DateUtils.lDTBeforeBeforeLocalDateTimeHour();
+        log.info("入参minerId：【{}】,startDate：【{}】，endDate：【{}】",null,startDate,endDate);
+        Long twentyFourTotalBlocks = sysAggPowerHourService.selectTwentyFourTotalBlocks(CurrencyEnum.FIL.name(),null,startDate,endDate);
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参：【{}】",twentyFourTotalBlocks);
+        twentyFourTotalBlocks = twentyFourTotalBlocks == null?0L:twentyFourTotalBlocks;
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参修改格式后的：【{}】",twentyFourTotalBlocks);
+        adminFirstCollectVO.setAllBlocksPerDay(twentyFourTotalBlocks);
+
         return adminFirstCollectVO;
     }
 
