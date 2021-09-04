@@ -56,7 +56,7 @@
                 <th align="center" valign="middle">存储ID</th>
                 <th align="center" valign="middle">有效算力</th>
                 <th align="center" valign="middle">算力增速</th>
-                <th align="center" valign="middle">今日出块</th>
+                <th align="center" valign="middle">24H出块</th>
                 <th align="center" valign="middle">可用余额</th>
                 <th align="center" valign="middle">Worker余额</th>
                 <th align="center" valign="middle">PoSt余额</th>
@@ -73,7 +73,8 @@
                 <td align="center" valign="middle">[[${item.balanceMinerAvailable}]] FIL</td>
                 <td align="center" valign="middle" th:class="${item.balanceWorkerAccount < 50}? 'notice'">
                     [[${item.balanceWorkerAccount}]] FIL</td>
-                <td align="center" valign="middle">[[${item.postBalance}]] FIL</td>
+                <td align="center" valign="middle" th:class="${item.postBalance < 50}? 'notice'">
+                    [[${item.postBalance}]] FIL</td>
                 <td align="center" valign="middle">
                     <span th:text="${item.sectorAvailable}"></span><span>/</span><span th:text="${item.sectorError}"
                         th:class="${item.sectorError > 0}? 'notice'"></span>
