@@ -6,6 +6,10 @@ import com.mei.hui.miner.mapper.QiniuStoreConfigMapper;
 import com.mei.hui.miner.service.QiniuStoreConfigService;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * <p>
  * 矿工存储服务配置 服务实现类
@@ -16,5 +20,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class QiniuStoreConfigServiceImpl extends ServiceImpl<QiniuStoreConfigMapper, QiniuStoreConfig> implements QiniuStoreConfigService {
+
+    /**
+     * 获取七牛集群配置
+     * @return
+     */
+    public Set<QiniuStoreConfig> findQiniuClusters(){
+        List<QiniuStoreConfig> list = this.list();
+        Set<QiniuStoreConfig> set = new HashSet<>();
+        list.stream().forEach(v->set.add(v));
+        return set;
+    }
 
 }

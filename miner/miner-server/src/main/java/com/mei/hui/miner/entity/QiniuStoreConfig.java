@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * <p>
@@ -71,4 +72,21 @@ public class QiniuStoreConfig implements Serializable {
      */
     private String idcname;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QiniuStoreConfig config = (QiniuStoreConfig) o;
+        return Objects.equals(prometheusDomain, config.prometheusDomain) &&
+                Objects.equals(ecloudDomain, config.ecloudDomain) &&
+                Objects.equals(userName, config.userName) &&
+                Objects.equals(passWord, config.passWord) &&
+                Objects.equals(clusterName, config.clusterName) &&
+                Objects.equals(idcname, config.idcname);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(prometheusDomain, ecloudDomain, userName, passWord, clusterName, idcname);
+    }
 }

@@ -12,7 +12,9 @@ import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.SystemController.FilReportedController;
 import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
+import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.entity.SysSectorInfo;
+import com.mei.hui.miner.feign.vo.FindDiskSizeInfoBO;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.RequestSectorInfo;
 import com.mei.hui.miner.service.*;
@@ -33,10 +35,7 @@ import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.checkerframework.checker.units.UnitsTools.m;
 
@@ -66,10 +65,12 @@ public class MinerTest {
         log.info("token = {}",token);
     }
 
+    @Autowired
+    private GeneralService generalService;
     @Test
     public void testRedis() {
-        redisUtil.set("testRedisKey","testRedisValue");
-        System.out.print(redisUtil.get("testRedisKey"));
+        Result<List<FindDiskSizeInfoBO>> ff = generalService.findDiskSizeInfo();
+        log.info("结果:{}",JSON.toJSONString(ff.getData()));
     }
 
 
