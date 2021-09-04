@@ -117,4 +117,11 @@ public interface FilBillService extends IService<FilBill> {
      * @return
      */
     public Integer insertFilBillDayAgg(String minerId, String startDate, String endDate,LocalDate date);
+
+    /**
+     * 账单总汇总-从矿工创建开始至今所有收入以及支出的汇总
+     * @param filBillMonthBO
+     * @return
+     */
+    public BillTotalVO selectFilBillAllAgg(FilBillMonthBO filBillMonthBO);
 }

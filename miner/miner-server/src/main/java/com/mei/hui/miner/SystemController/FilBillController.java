@@ -71,6 +71,23 @@ public class FilBillController {
         return Result.success(billTotalVO);
     }
 
+    @ApiOperation("账单总汇总-从矿工创建开始至今所有收入以及支出的汇总")
+    @PostMapping("/allAgg")
+    public Result<BillTotalVO> selectFilBillAllAgg(@RequestBody(required = false) String filBillMonthBOStr){
+        FilBillMonthBO filBillMonthBO = new FilBillMonthBO();
+        // 页面初始化的时候这3个字段都不传，后端增加默认值
+        if (StringUtils.isNotEmpty(filBillMonthBOStr)){
+            JSONObject jsonObject = JSONObject.parseObject(filBillMonthBOStr);
+            filBillMonthBO = jsonObject.toJavaObject(FilBillMonthBO.class);
+            log.info("账单管理入参实体为：【{}】",JSON.toJSON(filBillMonthBO));
+        }
+        if (StringUtils.isEmpty(filBillMonthBO.getMinerId()) && StringUtils.isEmpty(filBillMonthBO.getMonthDate())){
+            filBillMonthBO = filBillMonthBOIsNull(filBillMonthBO);
+        }
+        BillTotalVO billTotalVO = filBillService.selectFilBillAllAgg(filBillMonthBO);
+
+        return Result.success(billTotalVO);
+    }
 
     @ApiOperation("分页查询日账单详情列表")
     @PostMapping("/transaction")

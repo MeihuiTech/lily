@@ -229,9 +229,42 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,10);
         }
         String minerId = filBillMonthBO.getMinerId();
-        BillTotalVO billTotalVO = new BillTotalVO();
 
+        log.info("账单月汇总入参minerId：【{}】,startDate：【{}】,endDate：【{}】",minerId,startDate,endDate);
         List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,startDate,endDate);
+        log.info("账单月汇总出参：【{}】",JSON.toJSON(filBillDayAggList));
+
+        BillTotalVO billTotalVO = new BillTotalVO();
+        billTotalVO = packageBillTotalVO(filBillDayAggList, billTotalVO);
+
+        return billTotalVO;
+    }
+
+    /*账单总汇总-从矿工创建开始至今所有收入以及支出的汇总*/
+    @Override
+    public BillTotalVO selectFilBillAllAgg(FilBillMonthBO filBillMonthBO) {
+        String startDate = "2019-01-01";
+        // 昨天的结束日期
+        String endDate = DateUtils.getYesterDayDateYmd();
+        String minerId = filBillMonthBO.getMinerId();
+
+        log.info("账单总汇总-从矿工创建开始至今所有收入以及支出的汇总入参minerId：【{}】,startDate：【{}】,endDate：【{}】",minerId,startDate,endDate);
+        List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,startDate,endDate);
+        log.info("账单总汇总-从矿工创建开始至今所有收入以及支出的汇总出参：【{}】",JSON.toJSON(filBillDayAggList));
+
+        BillTotalVO billTotalVO = new BillTotalVO();
+        billTotalVO = packageBillTotalVO(filBillDayAggList, billTotalVO);
+
+        return billTotalVO;
+    }
+
+    /**
+     * 组装fil币账单汇总出参
+     * @param filBillDayAggList
+     * @param billTotalVO
+     * @return
+     */
+    public BillTotalVO packageBillTotalVO(List<FilBillDayAgg> filBillDayAggList,BillTotalVO billTotalVO){
         // 收入-转账
         BigDecimal inTransferMoney = BigDecimal.ZERO;
         // 收入-区块奖励
@@ -250,33 +283,33 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             // 收入-转账
             inTransferMoney = filBillDayAgg.getInTransfer();
             inTransferMoney = inTransferMoney == null?BigDecimal.ZERO:inTransferMoney;
-            log.info("查询账单月汇总转账收入出参：【{}】",inTransferMoney);
+            log.info("收入-转账：查询账单月汇总转账收入出参：【{}】",inTransferMoney);
 
             // 收入-区块奖励
             inBlockAwardMoney = filBillDayAgg.getInBlockAward();
             inBlockAwardMoney = inBlockAwardMoney == null?BigDecimal.ZERO:inBlockAwardMoney;
-            log.info("查询账单月汇总区块奖励收入出参：【{}】",inBlockAwardMoney);
+            log.info("收入-区块奖励：查询账单月汇总区块奖励收入出参：【{}】",inBlockAwardMoney);
 
             // 支出-转账
             outTransferMoney = filBillDayAgg.getOutTransfer();
             outTransferMoney = outTransferMoney == null?BigDecimal.ZERO:outTransferMoney;
-            log.info("查询账单月汇总转账支出出参：【{}】",outTransferMoney);
+            log.info("支出-转账：查询账单月汇总转账支出出参：【{}】",outTransferMoney);
 
             // 支出-矿工手续费
             outNodeFeeMoney = filBillDayAgg.getOutNodeFee();
             outNodeFeeMoney = outNodeFeeMoney == null?BigDecimal.ZERO:outNodeFeeMoney;
-            log.info("查询账单按照日期范围汇总矿工手续费支出出参：【{}】",outNodeFeeMoney);
+            log.info("支出-矿工手续费：查询账单按照日期范围汇总矿工手续费支出出参：【{}】",outNodeFeeMoney);
 
             // 支出-燃烧手续费
             outBurnFeeMoney = filBillDayAgg.getOutBurnFee();
             outBurnFeeMoney = outBurnFeeMoney == null?BigDecimal.ZERO:outBurnFeeMoney;
-            log.info("查询账单按照日期范围汇总燃烧手续费支出出参：【{}】",outBurnFeeMoney);
+            log.info("支出-燃烧手续费：查询账单按照日期范围汇总燃烧手续费支出出参：【{}】",outBurnFeeMoney);
 
             // 支出-其它
             outAllMoney = filBillDayAgg.getOutOther();
-            log.info("查询账单按照日期范围汇总所有外部交易支出出参：【{}】",outAllMoney);
+            log.info("支出-其它：查询账单按照日期范围汇总所有外部交易支出出参：【{}】",outAllMoney);
             outAllMoney = outAllMoney == null?BigDecimal.ZERO:outAllMoney;
-            log.info("查询账单按照日期范围汇总所有外部交易支出出参2：【{}】",outAllMoney);
+            log.info("支出-其它：查询账单按照日期范围汇总所有外部交易支出出参2：【{}】",outAllMoney);
         }
 
         // 收入
