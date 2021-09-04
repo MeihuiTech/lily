@@ -232,7 +232,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         BillTotalVO billTotalVO = new BillTotalVO();
 
         List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,startDate,endDate);
-        if(filBillDayAggList != null && filBillDayAggList.size() > 0){
+        if(filBillDayAggList != null && filBillDayAggList.size() > 0 && filBillDayAggList.get(0) != null){
             FilBillDayAgg filBillDayAgg = filBillDayAggList.get(0);
 
             // 收入
