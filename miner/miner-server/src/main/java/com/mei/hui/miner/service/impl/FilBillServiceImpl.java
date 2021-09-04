@@ -232,86 +232,111 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         BillTotalVO billTotalVO = new BillTotalVO();
 
         List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,startDate,endDate);
+        // 收入-转账
+        BigDecimal inTransferMoney = BigDecimal.ZERO;
+        // 收入-区块奖励
+        BigDecimal inBlockAwardMoney = BigDecimal.ZERO;
+        // 支出-转账
+        BigDecimal outTransferMoney = BigDecimal.ZERO;
+        // 支出-矿工手续费
+        BigDecimal outNodeFeeMoney = BigDecimal.ZERO;
+        // 支出-燃烧手续费
+        BigDecimal outBurnFeeMoney =  BigDecimal.ZERO;
+        // 支出-其它
+        BigDecimal outAllMoney = BigDecimal.ZERO;
         if(filBillDayAggList != null && filBillDayAggList.size() > 0 && filBillDayAggList.get(0) != null){
             FilBillDayAgg filBillDayAgg = filBillDayAggList.get(0);
 
-            // 收入
-            BillMethodTotalVO in = new BillMethodTotalVO();
-            List<BillMethodMoneyVO> inBillMethodMoneyVOList = new ArrayList<>();
-
             // 收入-转账
-            BillMethodMoneyVO inTransferBillMethodMoneyVO = new BillMethodMoneyVO();
-            inTransferBillMethodMoneyVO.setMethod("转账");
-//            BigDecimal inTransferMoney = filBillMapper.selectFilBillTransferDateAgg(1,minerId,startDate,endDate);
-            BigDecimal inTransferMoney = filBillDayAgg.getInTransfer();
+            inTransferMoney = filBillDayAgg.getInTransfer();
             inTransferMoney = inTransferMoney == null?BigDecimal.ZERO:inTransferMoney;
             log.info("查询账单月汇总转账收入出参：【{}】",inTransferMoney);
-            inTransferBillMethodMoneyVO.setMoney(inTransferMoney);
-            inBillMethodMoneyVOList.add(inTransferBillMethodMoneyVO);
 
             // 收入-区块奖励
-            BillMethodMoneyVO inBlockAwardBillMethodMoneyVO = new BillMethodMoneyVO();
-            inBlockAwardBillMethodMoneyVO.setMethod("区块奖励");
-//            BigDecimal inBlockAwardMoney = filBillMapper.selectFilBillinBlockAwardDateAgg(minerId,startDate,endDate);
-            BigDecimal inBlockAwardMoney = filBillDayAgg.getInBlockAward();
+            inBlockAwardMoney = filBillDayAgg.getInBlockAward();
             inBlockAwardMoney = inBlockAwardMoney == null?BigDecimal.ZERO:inBlockAwardMoney;
             log.info("查询账单月汇总区块奖励收入出参：【{}】",inBlockAwardMoney);
-            inBlockAwardBillMethodMoneyVO.setMoney(inBlockAwardMoney);
-            inBillMethodMoneyVOList.add(inBlockAwardBillMethodMoneyVO);
-
-            in.setBillMethodMoneyVOList(inBillMethodMoneyVOList);
-            in.setTotal(inTransferMoney.add(inBlockAwardMoney));
-            billTotalVO.setIn(in);
-
-            // 支出
-            BillMethodTotalVO out = new BillMethodTotalVO();
-            List<BillMethodMoneyVO> outBillMethodMoneyVOList = new ArrayList<>();
 
             // 支出-转账
-            BillMethodMoneyVO outTransferBillMethodMoneyVO = new BillMethodMoneyVO();
-            outTransferBillMethodMoneyVO.setMethod("转账");
-//            BigDecimal outTransferMoney = filBillMapper.selectFilBillTransferDateAgg(0,minerId,startDate,endDate);
-            BigDecimal outTransferMoney = filBillDayAgg.getOutTransfer();
+            outTransferMoney = filBillDayAgg.getOutTransfer();
             outTransferMoney = outTransferMoney == null?BigDecimal.ZERO:outTransferMoney;
             log.info("查询账单月汇总转账支出出参：【{}】",outTransferMoney);
-            outTransferBillMethodMoneyVO.setMoney(outTransferMoney);
-            outBillMethodMoneyVOList.add(outTransferBillMethodMoneyVO);
 
             // 支出-矿工手续费
-            BillMethodMoneyVO outNodeFeeBillMethodMoneyVO = new BillMethodMoneyVO();
-            outNodeFeeBillMethodMoneyVO.setMethod("存储手续费");
-//            BigDecimal outNodeFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(0,minerId,startDate,endDate);
-            BigDecimal outNodeFeeMoney = filBillDayAgg.getOutNodeFee();
+            outNodeFeeMoney = filBillDayAgg.getOutNodeFee();
             outNodeFeeMoney = outNodeFeeMoney == null?BigDecimal.ZERO:outNodeFeeMoney;
             log.info("查询账单按照日期范围汇总矿工手续费支出出参：【{}】",outNodeFeeMoney);
-            outNodeFeeBillMethodMoneyVO.setMoney(outNodeFeeMoney);
-            outBillMethodMoneyVOList.add(outNodeFeeBillMethodMoneyVO);
 
             // 支出-燃烧手续费
-            BillMethodMoneyVO outBurnFeeBillMethodMoneyVO = new BillMethodMoneyVO();
-            outBurnFeeBillMethodMoneyVO.setMethod("燃烧手续费");
-//            BigDecimal outBurnFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(1,minerId,startDate,endDate);
-            BigDecimal outBurnFeeMoney = filBillDayAgg.getOutBurnFee();
+            outBurnFeeMoney = filBillDayAgg.getOutBurnFee();
             outBurnFeeMoney = outBurnFeeMoney == null?BigDecimal.ZERO:outBurnFeeMoney;
             log.info("查询账单按照日期范围汇总燃烧手续费支出出参：【{}】",outBurnFeeMoney);
-            outBurnFeeBillMethodMoneyVO.setMoney(outBurnFeeMoney);
-            outBillMethodMoneyVOList.add(outBurnFeeBillMethodMoneyVO);
 
             // 支出-其它
-            BillMethodMoneyVO outOtherBillMethodMoneyVO = new BillMethodMoneyVO();
-            outOtherBillMethodMoneyVO.setMethod("其它");
-//            BigDecimal outAllMoney = filBillMapper.selectFilBillOutAllDateAgg(minerId,startDate,endDate);
-            BigDecimal outAllMoney = filBillDayAgg.getOutOther();
+            outAllMoney = filBillDayAgg.getOutOther();
             log.info("查询账单按照日期范围汇总所有外部交易支出出参：【{}】",outAllMoney);
             outAllMoney = outAllMoney == null?BigDecimal.ZERO:outAllMoney;
             log.info("查询账单按照日期范围汇总所有外部交易支出出参2：【{}】",outAllMoney);
-            outOtherBillMethodMoneyVO.setMoney(outAllMoney);
-            outBillMethodMoneyVOList.add(outOtherBillMethodMoneyVO);
-
-            out.setBillMethodMoneyVOList(outBillMethodMoneyVOList);
-            out.setTotal(outTransferMoney.add(outNodeFeeMoney).add(outBurnFeeMoney).add(outAllMoney));
-            billTotalVO.setOut(out);
         }
+
+        // 收入
+        BillMethodTotalVO in = new BillMethodTotalVO();
+        List<BillMethodMoneyVO> inBillMethodMoneyVOList = new ArrayList<>();
+
+        // 收入-转账
+        BillMethodMoneyVO inTransferBillMethodMoneyVO = new BillMethodMoneyVO();
+        inTransferBillMethodMoneyVO.setMethod("转账");
+//            BigDecimal inTransferMoney = filBillMapper.selectFilBillTransferDateAgg(1,minerId,startDate,endDate);
+        inTransferBillMethodMoneyVO.setMoney(inTransferMoney);
+        inBillMethodMoneyVOList.add(inTransferBillMethodMoneyVO);
+
+        // 收入-区块奖励
+        BillMethodMoneyVO inBlockAwardBillMethodMoneyVO = new BillMethodMoneyVO();
+        inBlockAwardBillMethodMoneyVO.setMethod("区块奖励");
+//            BigDecimal inBlockAwardMoney = filBillMapper.selectFilBillinBlockAwardDateAgg(minerId,startDate,endDate);
+        inBlockAwardBillMethodMoneyVO.setMoney(inBlockAwardMoney);
+        inBillMethodMoneyVOList.add(inBlockAwardBillMethodMoneyVO);
+
+        in.setBillMethodMoneyVOList(inBillMethodMoneyVOList);
+        in.setTotal(inTransferMoney.add(inBlockAwardMoney));
+        billTotalVO.setIn(in);
+
+        // 支出
+        BillMethodTotalVO out = new BillMethodTotalVO();
+        List<BillMethodMoneyVO> outBillMethodMoneyVOList = new ArrayList<>();
+
+        // 支出-转账
+        BillMethodMoneyVO outTransferBillMethodMoneyVO = new BillMethodMoneyVO();
+        outTransferBillMethodMoneyVO.setMethod("转账");
+//            BigDecimal outTransferMoney = filBillMapper.selectFilBillTransferDateAgg(0,minerId,startDate,endDate);
+        outTransferBillMethodMoneyVO.setMoney(outTransferMoney);
+        outBillMethodMoneyVOList.add(outTransferBillMethodMoneyVO);
+
+        // 支出-矿工手续费
+        BillMethodMoneyVO outNodeFeeBillMethodMoneyVO = new BillMethodMoneyVO();
+        outNodeFeeBillMethodMoneyVO.setMethod("存储手续费");
+//            BigDecimal outNodeFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(0,minerId,startDate,endDate);
+        outNodeFeeBillMethodMoneyVO.setMoney(outNodeFeeMoney);
+        outBillMethodMoneyVOList.add(outNodeFeeBillMethodMoneyVO);
+
+        // 支出-燃烧手续费
+        BillMethodMoneyVO outBurnFeeBillMethodMoneyVO = new BillMethodMoneyVO();
+        outBurnFeeBillMethodMoneyVO.setMethod("燃烧手续费");
+//            BigDecimal outBurnFeeMoney = filBillMapper.selectFilBillOutFeeDateAgg(1,minerId,startDate,endDate);
+        outBurnFeeBillMethodMoneyVO.setMoney(outBurnFeeMoney);
+        outBillMethodMoneyVOList.add(outBurnFeeBillMethodMoneyVO);
+
+        // 支出-其它
+        BillMethodMoneyVO outOtherBillMethodMoneyVO = new BillMethodMoneyVO();
+        outOtherBillMethodMoneyVO.setMethod("其它");
+//            BigDecimal outAllMoney = filBillMapper.selectFilBillOutAllDateAgg(minerId,startDate,endDate);
+        outOtherBillMethodMoneyVO.setMoney(outAllMoney);
+        outBillMethodMoneyVOList.add(outOtherBillMethodMoneyVO);
+
+        out.setBillMethodMoneyVOList(outBillMethodMoneyVOList);
+        out.setTotal(outTransferMoney.add(outNodeFeeMoney).add(outBurnFeeMoney).add(outAllMoney));
+        billTotalVO.setOut(out);
+
         return billTotalVO;
     }
 
