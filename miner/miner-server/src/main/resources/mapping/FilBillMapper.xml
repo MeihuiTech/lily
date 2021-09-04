@@ -327,4 +327,28 @@
         </where>
     </select>
 
+    <!--账单月汇总-->
+    <select id="selectFilBillmonthAgg" resultType="com.mei.hui.miner.entity.FilBillDayAgg">
+        SELECT
+        SUM(a.in_transfer) inTransfer,
+        SUM(a.in_block_award) inBlockAward,
+        SUM(a.out_transfer) outTransfer,
+        SUM(a.out_node_fee) outNodeFee,
+        SUM(a.out_burn_fee) outBurnFee,
+        SUM(a.out_other) outOther
+        FROM
+        fil_bill_day_agg a
+        <where>
+            <if test="minerId != null and minerId != ''">
+                a.miner_id = #{minerId}
+            </if>
+            <if test="startDate != null and startDate != null">
+                AND a.date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND #{endDate} >= a.date
+            </if>
+        </where>
+    </select>
+
 </mapper>
