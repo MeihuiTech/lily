@@ -1,13 +1,13 @@
 package com.mei.hui.miner.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
-import com.mei.hui.miner.feign.vo.BroadbandVO;
-import com.mei.hui.miner.feign.vo.ClusterBroadbandBO;
-import com.mei.hui.miner.feign.vo.FindDiskSizeInfoBO;
-import com.mei.hui.miner.service.DiskService;
-import com.mei.hui.miner.service.GeneralService;
-import com.mei.hui.miner.service.QiniuStoreConfigService;
+import com.mei.hui.miner.entity.SysMinerInfo;
+import com.mei.hui.miner.feign.vo.*;
+import com.mei.hui.miner.mapper.SysMachineInfoMapper;
+import com.mei.hui.miner.service.*;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,6 +26,12 @@ public class GeneralServiceImpl implements GeneralService {
     private QiniuStoreConfigService qiniuStoreConfigService;
     @Autowired
     private DiskService diskService;
+    @Autowired
+    private ISysMinerInfoService sysMinerInfoService;
+    @Autowired
+    private SysMachineInfoMapper sysMachineInfoMapper;
+    @Autowired
+    private ISysAggPowerHourService aggPowerHourService;
 
     public Result<List<FindDiskSizeInfoBO>> findDiskSizeInfo(){
         List<FindDiskSizeInfoBO> list = new ArrayList<>();
@@ -71,5 +78,46 @@ public class GeneralServiceImpl implements GeneralService {
             list.add(bo);
         }
         return Result.success(list);
+    }
+
+    public Result<List<AvailablePowerVO>> availablePower(){
+        List<SysMinerInfo> list = sysMinerInfoService.list();
+        List<AvailablePowerVO> lt = list.stream().map(v -> {
+            AvailablePowerVO vo = new AvailablePowerVO().setMinerId(v.getMinerId()).setPowerAvailable(v.getPowerAvailable());
+            return vo;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
+    }
+
+    public Result<PlatformBaseInfoVO> platformBaseInfo(){
+        List<SysMinerInfo> list = sysMinerInfoService.list();
+        BigDecimal totalAccount = new BigDecimal("0");
+        BigDecimal allPowerAvailable = new BigDecimal("0");
+        long totalBlocks = 0L;
+        for(SysMinerInfo miner : list){
+            totalAccount = totalAccount.add(miner.getBalanceMinerAccount());
+            allPowerAvailable = allPowerAvailable.add(miner.getPowerAvailable());
+            totalBlocks = totalBlocks + miner.getTotalBlocks();
+        }
+        //在线设备
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("online",1);
+        int count = sysMachineInfoMapper.selectCount(queryWrapper);
+        log.info("在线设备:{}",count);
+
+        //24小时出块
+        QueryWrapper query = new QueryWrapper();
+        query.select("coalesce(sum(blocks_per_day),0) as twentyFourBlocks");
+        Map map = aggPowerHourService.getMap(query);
+        BigDecimal twentyFourBlocks = (BigDecimal) map.get("twentyFourBlocks");
+        log.info("24小时出块数:{}",twentyFourBlocks);
+        PlatformBaseInfoVO vo = new PlatformBaseInfoVO()
+                .setAllMinerCount(list.size())
+                .setTotalAccount(BigDecimalUtil.formatFour(totalAccount))
+                .setAllPowerAvailable(allPowerAvailable)
+                .setTotalBlocks(totalBlocks)
+                .setTwentyFourBlocks(twentyFourBlocks.longValue())
+                .setMachineOnlineNum(count);
+        return Result.success(vo);
     }
 }

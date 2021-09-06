@@ -99,7 +99,6 @@ public class FilBillController {
 
     /**
      * filBillMethodBO为空时设置默认值
-     * @param filBillMethodBO
      */
     public FilBillMonthBO filBillMonthBOIsNull(FilBillMonthBO filBillMonthBO){
         List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.selectSysMinerInfoList(new SysMinerInfo());
@@ -250,9 +249,7 @@ public class FilBillController {
     public void export(HttpServletResponse response,@RequestBody ExportBillBO exportBillBO){
         FilBillMonthBO filBillMonthBO = new FilBillMonthBO();
         filBillMonthBO.setMinerId(exportBillBO.getMinerId());
-        filBillMonthBO.setMonthDate(exportBillBO.getMonthDate());
-        filBillMonthBO.setPageNum(1);
-        filBillMonthBO.setPageSize(31);
+        //filBillMonthBO.setMonthDate(exportBillBO.getMonthDate());
         IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillService.selectFilBillDayAggPage(filBillMonthBO);
         List<ExportBillVO> list = filBillDayAggVOIPage.getRecords().stream().map(v -> {
             BigDecimal balance = new BigDecimal("0");
@@ -272,7 +269,7 @@ public class FilBillController {
                     .setOutMoney(outMoney);
             return vo;
         }).collect(Collectors.toList());
-        ExcelUtils.export(response, list, exportBillBO.getMonthDate()+"账单信息", ExportBillVO.class);
+        ExcelUtils.export(response, list, "账单信息", ExportBillVO.class);
     }
 
 

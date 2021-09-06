@@ -15,6 +15,7 @@ import com.mei.hui.miner.entity.FilBaselinePowerDayAgg;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.feign.vo.FindDiskSizeInfoBO;
+import com.mei.hui.miner.feign.vo.PlatformBaseInfoVO;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.model.RequestSectorInfo;
 import com.mei.hui.miner.service.*;
@@ -54,7 +55,7 @@ public class MinerTest {
     @Autowired
     private UserFeignClient userFeignClient;
     @Autowired
-    private ISysAggPowerDailyService sysAggPowerDailyService;
+    private GeneralService generalService;
 
     @Autowired
     private ISysSectorsWrapService sysSectorsWrapService;
@@ -65,11 +66,9 @@ public class MinerTest {
         log.info("token = {}",token);
     }
 
-    @Autowired
-    private GeneralService generalService;
     @Test
     public void testRedis() {
-        Result<List<FindDiskSizeInfoBO>> ff = generalService.findDiskSizeInfo();
+        Result<PlatformBaseInfoVO> ff = generalService.platformBaseInfo();
         log.info("结果:{}",JSON.toJSONString(ff.getData()));
     }
 
