@@ -493,19 +493,22 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 //        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
 //        System.out.println(sd);
 
-        //获取上一个时间点,如现在为15:30,上一个整点时间点为，15:00
-        System.out.println(lDTBeforeLocalDateTimeHour());
-        //获取下一个时间点,如现在为15:30,上一个整点时间点为，16:00
-        System.out.println(lDTNextLocalDateTimeHour());
+//        //获取上一个时间点,如现在为15:30,上一个整点时间点为，15:00
+//        System.out.println(lDTBeforeLocalDateTimeHour());
+//        //获取下一个时间点,如现在为15:30,上一个整点时间点为，16:00
+//        System.out.println(lDTNextLocalDateTimeHour());
+//
+//        // 获得 localDateTime
+//        System.out.println(lDTLocalDateTimeNow());
+//
+//        System.out.println(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1).plusHours(-1));
+//
+//        System.out.println(lDTYesterdayBeforeLocalDateTimeHour());
+//        System.out.println(lDTBeforeBeforeLocalDateTimeHour());
 
-        // 获得 localDateTime
-        System.out.println(lDTLocalDateTimeNow());
 
-        System.out.println(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1).plusHours(-1));
-
-        System.out.println(lDTYesterdayBeforeLocalDateTimeHour());
-        System.out.println(lDTBeforeBeforeLocalDateTimeHour());
-
+        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getBeginYesterdayDate()));
+        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getEndYesterdayDate()));
 
     }
 

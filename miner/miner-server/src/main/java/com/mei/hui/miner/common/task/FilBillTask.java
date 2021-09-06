@@ -65,9 +65,9 @@ public class FilBillTask {
         Integer insertCountAll = 0;
 
         // 获取昨天的开始时间
-        String startDate = DateUtils.getBeginYesterdayDate().toString().substring(0,19);
+        String startDate = DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", DateUtils.getBeginYesterdayDate());
         // 获取昨天的结束时间
-        String endDate = DateUtils.getEndYesterdayDate().toString().substring(0,19);
+        String endDate = DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", DateUtils.getEndYesterdayDate());
         // 昨天的日期
         LocalDate date = LocalDate.now().plusDays(-1);
         // 下面代码是测试用的，不要放开注释
