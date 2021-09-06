@@ -64,4 +64,16 @@ public class GeneralController {
     public Result<List<ClusterBroadbandBO>> findClusterBroadband(){
         return generalService.findClusterBroadband();
     }
+
+    @ApiOperation("大屏，有效算力")
+    @PostMapping("/availablePower")
+    public Result<List<AvailablePowerVO>> availablePower(){
+        return generalService.availablePower();
+    }
+
+    @ApiOperation("大屏-基础数据接口：累计出块、今天出块、账户资产、总算力、在线设备、活跃存储")
+    @PostMapping("/platformBaseInfo")
+    public Result<PlatformBaseInfoVO> platformBaseInfo(){
+        return generalService.platformBaseInfo();
+    }
 }
