@@ -462,6 +462,16 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * LocalDateTime获取昨天的上上一个时间点,如现在为2021-08-30 15:30:00,上上一个整点时间点为，2021-08-29 14:00:00
+     * @return
+     */
+    public static String lDTYesterdayBeforeBeforeLocalDateTimeHourDate(){
+        LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1).plusHours(-1);
+        String format = lDTToStringFormat(localDateTime, YYYY_MM_DD_HH_MM_SS);
+        return format;
+    }
+
+    /**
      * LocalDateTime获取今天的上上一个时间点,如现在为2021-08-30 15:30:00,上上一个整点时间点为，2021-08-30 14:00:00
      * @return
      */
@@ -557,11 +567,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 //        System.out.println(lDTYesterdayBeforeLocalDateTimeHour());
 //        System.out.println(lDTBeforeBeforeLocalDateTimeHour());
 
-        System.out.println(getBeginYesterdayDateStr());
-        System.out.println(getEndYesterdayDateStr());
-
-        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getBeginYesterdayDate()));
-        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getEndYesterdayDate()));
+//        System.out.println(getBeginYesterdayDateStr());
+//        System.out.println(getEndYesterdayDateStr());
+//
+//        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getBeginYesterdayDate()));
+//        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getEndYesterdayDate()));
+        System.out.println(lDTYesterdayBeforeBeforeLocalDateTimeHourDate());
 
     }
 

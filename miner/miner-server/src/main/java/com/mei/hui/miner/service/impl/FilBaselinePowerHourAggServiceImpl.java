@@ -161,8 +161,8 @@ public class FilBaselinePowerHourAggServiceImpl extends ServiceImpl<FilBaselineP
         }
 
         // 近24小时出块数量
-        // LocalDateTime获取昨天的上一个时间点,如现在为2021-08-30 15:30:00,上一个整点时间点为，2021-08-29 15:00:00
-        String startDate = DateUtils.lDTYesterdayBeforeLocalDateTimeHour();
+        // LocalDateTime获取昨天的上上一个时间点,如现在为2021-08-30 15:30:00,上上一个整点时间点为，2021-08-29 14:00:00
+        String startDate = DateUtils.lDTYesterdayBeforeBeforeLocalDateTimeHourDate();
         // LocalDateTime获取今天的上上一个时间点,如现在为2021-08-30 15:30:00,上上一个整点时间点为，2021-08-30 14:00:00
         String endDate = DateUtils.lDTBeforeBeforeLocalDateTimeHour();
         log.info("startDate：【{}】,endDate：【{}】",startDate,endDate);
