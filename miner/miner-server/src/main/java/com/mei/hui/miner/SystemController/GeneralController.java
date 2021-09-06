@@ -30,7 +30,7 @@ public class GeneralController {
     /**
      * 新增矿工信息
      */
-    @ApiOperation(value = "免登陆首页，概览【鲍红建】")
+    @ApiOperation(value = "免登陆首页，概览-全网与平台指标【鲍红建】")
     @PostMapping("/generalView")
     public Result<GeneralViewVo> generalView(){
         return baselinePowerDayAggService.generalView();

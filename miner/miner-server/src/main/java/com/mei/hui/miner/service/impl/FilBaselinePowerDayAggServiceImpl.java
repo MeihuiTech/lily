@@ -14,7 +14,10 @@ import com.mei.hui.miner.mapper.FilBaselinePowerDayAggMapper;
 import com.mei.hui.miner.mapper.SysMinerInfoMapper;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
 import com.mei.hui.miner.service.FilReportGasService;
+import com.mei.hui.miner.service.ISysAggPowerHourService;
 import com.mei.hui.util.BigDecimalUtil;
+import com.mei.hui.util.CurrencyEnum;
+import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -46,6 +49,8 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
     private SysMinerInfoMapper minerInfoMapper;
     @Autowired
     private FilReportGasService reportGasService;
+    @Autowired
+    private ISysAggPowerHourService sysAggPowerHourService;
 
     /**
      * 免登陆首页，全网数据占比计算，扇区封装成本展示
@@ -85,12 +90,17 @@ public class FilBaselinePowerDayAggServiceImpl extends ServiceImpl<FilBaselinePo
         long activityMinerCount = minerInfoMapper.getActivityMinerCount();
         log.info("平台活跃矿工数量:{}",activityMinerCount);
         platformData.setActiveMiner(activityMinerCount);
-        /**
-         * 计算今日出块数量
-         */
-        long yesterdayTotalBlocksCount = minerInfoMapper.getYesterdayTotalBlocksCount(LocalDate.now().minusDays(1).toString());
-        log.info("全平台昨日出块总数:{}",yesterdayTotalBlocksCount);
-        platformData.setPerDayBlocks(minerAggData.getTotalBlocks()-yesterdayTotalBlocksCount);
+
+        // 计算近24小时出块数量
+        // 查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和
+        String startDate = DateUtils.lDTYesterdayBeforeLocalDateTimeHour();
+        String endDate = DateUtils.lDTBeforeBeforeLocalDateTimeHour();
+        log.info("入参minerId：【{}】,startDate：【{}】，endDate：【{}】",null,startDate,endDate);
+        Long twentyFourTotalBlocks = sysAggPowerHourService.selectTwentyFourTotalBlocks(CurrencyEnum.FIL.name(),null,startDate,endDate);
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参：【{}】",twentyFourTotalBlocks);
+        twentyFourTotalBlocks = twentyFourTotalBlocks == null?0L:twentyFourTotalBlocks;
+        log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参修改格式后的：【{}】",twentyFourTotalBlocks);
+        platformData.setPerDayBlocks(twentyFourTotalBlocks);
 
         generalViewVo.setPlatformData(platformData);
     }
