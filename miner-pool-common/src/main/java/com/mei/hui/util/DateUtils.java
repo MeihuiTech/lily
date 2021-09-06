@@ -551,6 +551,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         System.out.println(getBeginYesterdayDateStr());
         System.out.println(getEndYesterdayDateStr());
 
+        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getBeginYesterdayDate()));
+        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getEndYesterdayDate()));
+
     }
 
 }
