@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.miner.mapper.FilBaselinePowerHourAggMapper">
+
+    <!--根据类型、开始时间、结束时间查询  filcoin 基线和有效算力聚合表，按小时聚合表 的 全网累计出块份数-->
+    <select id="selectFilBaselinePowerHourAggBlocksByType" resultType="java.lang.Long">
+        select
+        a.blocks
+        from
+        fil_baseline_power_hour_agg a
+        <where>
+            <if test="startDate != null and startDate != ''">
+                a.date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and #{endDate} >= a.date
+            </if>
+            <if test="type == 'start'">
+                ORDER BY a.date
+            </if>
+            <if test="type == 'end'">
+                ORDER BY a.date desc
+            </if>
+        </where>
+        LIMIT 1
+    </select>
+</mapper>

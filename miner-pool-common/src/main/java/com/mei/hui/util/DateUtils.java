@@ -446,6 +446,15 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * LocalDateTime获取昨天的上一个时间点,如现在为2021-08-30 15:30:00,上一个整点时间点为，2021-08-29 15:00:00
      * @return
      */
+    public static LocalDateTime lDTYesterdayBeforeLocalDateTimeHourDate(){
+        LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1);
+        return localDateTime;
+    }
+
+    /**
+     * LocalDateTime获取昨天的上一个时间点,如现在为2021-08-30 15:30:00,上一个整点时间点为，2021-08-29 15:00:00
+     * @return
+     */
     public static String lDTYesterdayBeforeLocalDateTimeHour(){
         LocalDateTime localDateTime =LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1);
         String format = lDTToStringFormat(localDateTime, YYYY_MM_DD_HH_MM_SS);

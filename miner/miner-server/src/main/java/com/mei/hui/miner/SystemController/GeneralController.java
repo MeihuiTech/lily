@@ -3,6 +3,7 @@ package com.mei.hui.miner.SystemController;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
+import com.mei.hui.miner.service.FilBaselinePowerHourAggService;
 import com.mei.hui.miner.service.GeneralService;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.Result;
@@ -27,13 +28,15 @@ public class GeneralController {
 
     @Autowired
     private FilBaselinePowerDayAggService baselinePowerDayAggService;
+    @Autowired
+    private FilBaselinePowerHourAggService baselinePowerHourAggService;
     /**
      * 新增矿工信息
      */
     @ApiOperation(value = "免登陆首页，概览-全网与平台指标【鲍红建】")
     @PostMapping("/generalView")
     public Result<GeneralViewVo> generalView(){
-        return baselinePowerDayAggService.generalView();
+        return baselinePowerHourAggService.generalView();
     }
 
     @ApiOperation(value = "全网:基线算力走势图【鲍红建】")
