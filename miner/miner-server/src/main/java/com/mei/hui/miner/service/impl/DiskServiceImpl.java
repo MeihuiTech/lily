@@ -32,10 +32,7 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -57,24 +54,12 @@ public class DiskServiceImpl implements DiskService {
     /*获取七牛云集群硬盘容量和宽带信息*/
     @Override
     public List<QiniuVO> selectDiskSizeAndBroadbandList(List<SysMinerInfo> sysMinerInfoList) {
-        List<QiniuStoreConfig> qiniuStoreConfigList = new ArrayList<>();
-        List<String> idcnameList = new ArrayList<>();
-        for (SysMinerInfo sysMinerInfo:sysMinerInfoList){
-            if (Constants.STORETYPEQINIU.equals(sysMinerInfo.getStoreType())){
-                //获取当前选择矿工的七牛配置信息
-                String minerId = sysMinerInfo.getMinerId();
-                QiniuStoreConfig storeConfig = selectQiniuStoreConfigByMinerId(minerId);
-                if(storeConfig == null){
-                    throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
-                }
-                String idcname = storeConfig.getIdcname();
-                if (!idcnameList.contains(idcname)){
-                    idcnameList.add(idcname);
-                    qiniuStoreConfigList.add(storeConfig);
-                }
-            }
-        }
-        log.info("idcnameList：【{}】，qiniuStoreConfigList:【{}】",idcnameList,JSON.toJSON(qiniuStoreConfigList));
+        /**
+         * 获取矿工所在七牛云的集群列表
+         */
+        List<String> minerIds = sysMinerInfoList.stream().map(v -> v.getMinerId()).collect(Collectors.toList());
+        Set<QiniuStoreConfig> qiniuStoreConfigList = qiniuStoreConfigService.findQiniuClusters(minerIds);
+        log.info("矿工所在七牛云的集群列表:{}",JSON.toJSON(qiniuStoreConfigList));
 
         // 循环集群
         List<QiniuVO> qiniuVOList = new ArrayList<>();
@@ -91,7 +76,6 @@ public class DiskServiceImpl implements DiskService {
             qiniuVO.setBroadbandVO(broadbandVO);
             qiniuVOList.add(qiniuVO);
         }
-
         return qiniuVOList;
     }
 

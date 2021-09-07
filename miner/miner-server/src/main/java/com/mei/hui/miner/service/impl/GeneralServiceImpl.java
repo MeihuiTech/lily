@@ -38,7 +38,7 @@ public class GeneralServiceImpl implements GeneralService {
 
     public Result<List<FindDiskSizeInfoBO>> findDiskSizeInfo(){
         List<FindDiskSizeInfoBO> list = new ArrayList<>();
-        Set<QiniuStoreConfig> qiniuClusters = qiniuStoreConfigService.findQiniuClusters();
+        Set<QiniuStoreConfig> qiniuClusters = qiniuStoreConfigService.findQiniuClusters(null);
         log.info("七牛集群列表:{}",JSON.toJSONString(qiniuClusters));
 
         Map<String, BigDecimal> maps = new HashMap<>();
@@ -72,7 +72,7 @@ public class GeneralServiceImpl implements GeneralService {
      */
     public Result<List<ClusterBroadbandBO>> findClusterBroadband(){
         List<ClusterBroadbandBO> list = new ArrayList<>();
-        Set<QiniuStoreConfig> qiniuClusters = qiniuStoreConfigService.findQiniuClusters();
+        Set<QiniuStoreConfig> qiniuClusters = qiniuStoreConfigService.findQiniuClusters(null);
         log.info("七牛集群列表:{}",JSON.toJSONString(qiniuClusters));
         for(QiniuStoreConfig config : qiniuClusters){
             BroadbandVO broadband = diskService.broadband(config,true);

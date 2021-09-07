@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.mapper.QiniuStoreConfigMapper;
@@ -25,8 +26,12 @@ public class QiniuStoreConfigServiceImpl extends ServiceImpl<QiniuStoreConfigMap
      * 获取七牛集群配置
      * @return
      */
-    public Set<QiniuStoreConfig> findQiniuClusters(){
-        List<QiniuStoreConfig> list = this.list();
+    public Set<QiniuStoreConfig> findQiniuClusters(List<String> minerIds){
+        LambdaQueryWrapper<QiniuStoreConfig> lambdaQueryWrapper = new LambdaQueryWrapper();
+        if(minerIds != null && minerIds.size() > 0){
+            lambdaQueryWrapper.in(QiniuStoreConfig::getMinerId,minerIds);
+        }
+        List<QiniuStoreConfig> list = this.list(lambdaQueryWrapper);
         Set<QiniuStoreConfig> set = new HashSet<>();
         list.stream().forEach(v->set.add(v));
         return set;
