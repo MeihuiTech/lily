@@ -1,8 +1,11 @@
 package com.mei.hui.miner.service;
 
+import com.mei.hui.miner.feign.vo.QiniuVO;
 import com.mei.hui.miner.model.AdminFirstCollectVO;
 import com.mei.hui.util.BasePage;
+import com.mei.hui.util.Result;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IAdminFirstService {
@@ -56,6 +59,6 @@ public interface IAdminFirstService {
      */
     public Map<String,Object> chiaPowerAvailablePage(String yesterDayDate, BasePage basePage);
 
-
+    Result<List<QiniuVO>> findDiskSize();
 
 }

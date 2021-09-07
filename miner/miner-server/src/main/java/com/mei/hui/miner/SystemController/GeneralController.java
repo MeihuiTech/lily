@@ -79,4 +79,10 @@ public class GeneralController {
     public Result<PlatformBaseInfoVO> platformBaseInfo(){
         return generalService.platformBaseInfo();
     }
+
+    @ApiOperation("大屏-账户余额")
+    @PostMapping("/accountInfo")
+    public Result<List<AccountInfoVO>> accountInfo(){
+        return generalService.accountInfo();
+    }
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
+import com.mei.hui.miner.mapper.FilMinerControlBalanceMapper;
 import com.mei.hui.miner.mapper.SysMachineInfoMapper;
 import com.mei.hui.miner.service.*;
 import com.mei.hui.util.BigDecimalUtil;
@@ -32,6 +33,8 @@ public class GeneralServiceImpl implements GeneralService {
     private SysMachineInfoMapper sysMachineInfoMapper;
     @Autowired
     private ISysAggPowerHourService aggPowerHourService;
+    @Autowired
+    private FilMinerControlBalanceMapper minerControlBalanceMapper;
 
     public Result<List<FindDiskSizeInfoBO>> findDiskSizeInfo(){
         List<FindDiskSizeInfoBO> list = new ArrayList<>();
@@ -119,5 +122,34 @@ public class GeneralServiceImpl implements GeneralService {
                 .setTwentyFourBlocks(twentyFourBlocks.longValue())
                 .setMachineOnlineNum(count);
         return Result.success(vo);
+    }
+
+    public Result<List<AccountInfoVO>> accountInfo(){
+        //查询post账户余额信息
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.select("coalesce(sum(balance),0) as balance,miner_id");
+        queryWrapper.groupBy("miner_id");
+        List<Map<String, Object>> maps = minerControlBalanceMapper.selectMaps(queryWrapper);
+
+        Map<String,BigDecimal> map = new HashMap<>();
+        maps.stream().forEach(v->{
+            String minerId = (String) v.get("miner_id");
+            BigDecimal balance = (BigDecimal) v.get("balance");
+            map.put(minerId,balance);
+        });
+        log.info("post余额信息:{}",JSON.toJSONString(map));
+
+        //查询可用余额、worker账户余额
+        List<SysMinerInfo> list = sysMinerInfoService.list();
+        List<AccountInfoVO> lt = list.stream().map(v -> {
+            BigDecimal balancePostAccount = map.get(v.getMinerId());
+            AccountInfoVO vo = new AccountInfoVO()
+                    .setBalanceMinerAvailable(v.getBalanceMinerAvailable())
+                    .setBalanceWorkerAccount(v.getBalanceWorkerAccount())
+                    .setBalancePostAccount(balancePostAccount)
+                    .setMinerId(v.getMinerId());
+            return vo;
+        }).collect(Collectors.toList());
+        return Result.success(lt);
     }
 }
