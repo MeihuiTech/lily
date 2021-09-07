@@ -4,84 +4,54 @@
 <head>
     <meta charset="UTF-8" />
     <title>存储池数据详情</title>
-    <style>
-        body {
-            display: grid;
-            place-content: center;
-        }
 
-        table {
-            margin-top: 20px;
-            font-size: 12px;
-            border-spacing: 0;
-            box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-        }
-
-        th,
-        td {
-            padding: 17px 15px;
-        }
-
-        th {
-            color: #909399;
-            background-color: #f8f8f9;
-            font-weight: 400;
-        }
-
-        td {
-            background-color: #FFFFFF;
-            color: #313131;
-            font-weight: bold;
-            border-top: 1px solid #dfe6ec;
-        }
-
-        tbody tr:nth-child(even) td {
-            background: #FAFAFA;
-        }
-
-        tbody tr:hover td {
-            background: #f2f7fa;
-        }
-
-        .notice {
-            color: red;
-        }
-    </style>
 </head>
 
 <body>
-    <table>
-        <thead>
-            <tr>
-                <th align="center" valign="middle">存储ID</th>
-                <th align="center" valign="middle">有效算力</th>
-                <th align="center" valign="middle">算力增速</th>
-                <th align="center" valign="middle">24H出块</th>
-                <th align="center" valign="middle">可用余额</th>
-                <th align="center" valign="middle">Worker余额</th>
-                <th align="center" valign="middle">PoSt余额</th>
-                <th align="center" valign="middle">有效/错误扇区</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="item:${list}">
-                <td align="center" valign="middle" th:text="${item.minerId}"></td>
-                <td align="center" valign="middle" th:text="${item.powerAvailable} + ${item.powerAvailableUnit}"></td>
-                <td align="center" valign="middle"
-                    th:text="${item.powerIncreasePerDay} + ${item.powerIncreasePerDayUnit}"></td>
-                <td align="center" valign="middle" th:text="${item.blocksPerDay}"></td>
-                <td align="center" valign="middle">[[${item.balanceMinerAvailable}]] FIL</td>
-                <td align="center" valign="middle" th:class="${item.balanceWorkerAccount < 50}? 'notice'">
-                    [[${item.balanceWorkerAccount}]] FIL</td>
-                <td align="center" valign="middle" th:class="${item.postBalance < 50}? 'notice'">
-                    [[${item.postBalance}]] FIL</td>
-                <td align="center" valign="middle">
-                    <span th:text="${item.sectorAvailable}"></span><span>/</span><span th:text="${item.sectorError}"
-                        th:class="${item.sectorError > 0}? 'notice'"></span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<table th:each="item:${list}" style="margin-top: 20px;font-size: 12px;border-spacing: 0;box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);">
+
+    <tbody>
+    <tbody>
+
+    <tr>
+        <td align="center" valign="middle" th:text="${item.minerId}" colspan="2" style="padding: 17px 15px;"></td>
+    </tr>
+    <tr>
+        <th align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;border-top: 1px solid #dfe6ec;font-weight: 400;">有效算力</th>
+        <td align="center" valign="middle" th:text="${item.powerAvailable} + ${item.powerAvailableUnit}" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;font-weight: bold;border-top: 1px solid #dfe6ec;"></td>
+    </tr>
+    <tr>
+        <th align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;border-top: 1px solid #dfe6ec;font-weight: 400;">算力增速</th>
+        <td align="center" valign="middle"
+            th:text="${item.powerIncreasePerDay} + ${item.powerIncreasePerDayUnit}" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;font-weight: bold;border-top: 1px solid #dfe6ec;"></td>
+    </tr>
+    <tr>
+        <th align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;border-top: 1px solid #dfe6ec;font-weight: 400;">24H出块</th>
+        <td align="center" valign="middle" th:text="${item.blocksPerDay}" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;font-weight: bold;border-top: 1px solid #dfe6ec;"></td>
+    </tr>
+    <tr>
+        <th align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;border-top: 1px solid #dfe6ec;font-weight: 400;">可用余额</th>
+        <td align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;font-weight: bold;border-top: 1px solid #dfe6ec;">[[${item.balanceMinerAvailable}]] FIL</td>
+    </tr>
+    <tr>
+        <th align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;border-top: 1px solid #dfe6ec;font-weight: 400;">Worker余额</th>
+        <td align="center" valign="middle" th:style="${item.balanceWorkerAccount < 50}? 'color: red;padding: 17px 15px;background-color: #FFFFFF;font-weight: bold;border-top: 1px solid #dfe6ec;':'padding: 17px 15px;background-color: #FFFFFF;color: #313131;font-weight: bold;border-top: 1px solid #dfe6ec;'">
+            [[${item.balanceWorkerAccount}]] FIL</td>
+    </tr>
+    <tr>
+        <th align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;border-top: 1px solid #dfe6ec;font-weight: 400;">PoSt余额</th>
+        <td align="center" valign="middle" th:style="${item.postBalance < 50}? 'color: red;padding: 17px 15px;background-color: #FFFFFF;font-weight: bold;border-top: 1px solid #dfe6ec;':'padding: 17px 15px;background-color: #FFFFFF;color: #313131;font-weight: bold;border-top: 1px solid #dfe6ec;'">
+            [[${item.postBalance}]] FIL</td>
+    </tr>
+    <tr>
+        <th align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;border-top: 1px solid #dfe6ec;font-weight: 400;">有效/错误扇区</th>
+        <td align="center" valign="middle" style="padding: 17px 15px;background-color: #FFFFFF;color: #313131;font-weight: bold;border-top: 1px solid #dfe6ec;">
+            <span th:text="${item.sectorAvailable}"></span><span>/</span><span th:text="${item.sectorError}"
+                                                                               th:style="${item.sectorError > 0}? 'color: red;'"></span>
+        </td>
+    </tr>
+    </tbody>
+</table>
 </body>
 
 </html>
