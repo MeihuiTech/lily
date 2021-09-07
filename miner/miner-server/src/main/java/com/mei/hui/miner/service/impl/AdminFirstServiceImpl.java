@@ -164,12 +164,17 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         //查询当前管理员负责管理的普通用户
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
         log.info("管理员:{},分配的用户:{}",userId,JSON.toJSONString(userIds));
+        if(userIds.size() == 0){
+            return Result.OK;
+        }
 
         LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.in(SysMinerInfo::getUserId,userIds);
         List<SysMinerInfo> list = sysMinerInfoService.list(lambdaQueryWrapper);
         log.info("管理员负责的矿工列表:{}",JSON.toJSONString(list));
-
+        if(list.size() == 0){
+            return Result.OK;
+        }
         return Result.success(diskService.selectDiskSizeAndBroadbandList(list));
     }
 }
