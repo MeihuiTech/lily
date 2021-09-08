@@ -3,6 +3,7 @@ package com.mei.hui.miner.feign.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
  **/
 @Data
 @ApiModel(value = "矿工已用物理容量")
+@Accessors(chain = true)
 public class MinerDiskSizeVO {
 
     @ApiModelProperty(value = "矿工id")
