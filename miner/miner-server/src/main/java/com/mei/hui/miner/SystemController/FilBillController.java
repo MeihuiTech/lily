@@ -3,6 +3,7 @@ package com.mei.hui.miner.SystemController;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mei.hui.miner.common.MinerError;
@@ -13,6 +14,7 @@ import com.mei.hui.miner.service.FilBillDayAggService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.*;
+import com.mei.hui.util.html.DateFormatEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,11 +44,17 @@ public class FilBillController {
     @Autowired
     private FilBillDayAggService filBillDayAggService;
 
-
     @ApiOperation("分页查询日账单列表")
     @PostMapping("/dayAggPage")
     public Result<IPage<FilBillDayAggVO>> selectFilBillDayAggPage(@RequestBody FilBillMonthBO filBillMonthBO){
-        if (StringUtils.isEmpty(filBillMonthBO.getMinerId()) && StringUtils.isEmpty(filBillMonthBO.getMonthDate())){
+        LocalDateTime startDate = filBillMonthBO.getStartMonthDate();
+        LocalDateTime endDate = filBillMonthBO.getEndMonthDate();
+        if(startDate != null && endDate != null){
+            if(startDate.isAfter(endDate)){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"开始时间不能大于结束时间");
+            }
+        }
+        if (StringUtils.isEmpty(filBillMonthBO.getMinerId())){
             filBillMonthBO = filBillMonthBOIsNull(filBillMonthBO);
         }
         IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillService.selectFilBillDayAggPage(filBillMonthBO);
@@ -63,7 +72,14 @@ public class FilBillController {
             filBillMonthBO = jsonObject.toJavaObject(FilBillMonthBO.class);
             log.info("账单管理入参实体为：【{}】",JSON.toJSON(filBillMonthBO));
         }
-        if (StringUtils.isEmpty(filBillMonthBO.getMinerId()) && StringUtils.isEmpty(filBillMonthBO.getMonthDate())){
+        LocalDateTime startDate = filBillMonthBO.getStartMonthDate();
+        LocalDateTime endDate = filBillMonthBO.getEndMonthDate();
+        if(startDate != null && endDate != null){
+            if(startDate.isAfter(endDate)){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"开始时间不能大于结束时间");
+            }
+        }
+        if (StringUtils.isEmpty(filBillMonthBO.getMinerId())){
             filBillMonthBO = filBillMonthBOIsNull(filBillMonthBO);
         }
         BillTotalVO billTotalVO = filBillService.selectFilBillmonthAgg(filBillMonthBO);
@@ -81,7 +97,7 @@ public class FilBillController {
             filBillMonthBO = jsonObject.toJavaObject(FilBillMonthBO.class);
             log.info("账单管理入参实体为：【{}】",JSON.toJSON(filBillMonthBO));
         }
-        if (StringUtils.isEmpty(filBillMonthBO.getMinerId()) && StringUtils.isEmpty(filBillMonthBO.getMonthDate())){
+        if (StringUtils.isEmpty(filBillMonthBO.getMinerId())){
             filBillMonthBO = filBillMonthBOIsNull(filBillMonthBO);
         }
         BillTotalVO billTotalVO = filBillService.selectFilBillAllAgg(filBillMonthBO);
@@ -107,15 +123,16 @@ public class FilBillController {
             throw  MyException.fail(MinerError.MYB_222222.getCode(),"该用户没有矿工");
         }
         filBillMonthBO.setMinerId(sysMinerInfoList.get(0).getMinerId());
-        filBillMonthBO.setMonthDate(DateUtils.getDate().substring(0,7));
         return filBillMonthBO;
     }
 
-    @ApiOperation("手动调用fil币账单按天聚合定时器")
+
+
+/*@ApiOperation("手动调用fil币账单按天聚合定时器")
     @PostMapping("/ManualInsertFilBillDayAggTask")
     public Result<Integer> ManualInsertFilBillDayAggTask(@RequestBody FilBillMonthBO filBillMonthBO){
         log.info("手动调用fil币账单按天聚合定时器入参：【{}】",JSON.toJSON(filBillMonthBO));
-        String monthDateStr = filBillMonthBO.getMonthDate();
+        String monthDateStr = filBillMonthBO.getStartMonthDate();
         String[] dateArr = monthDateStr.split(",");
         Integer insertCountAll = 0;
         for (int i= 0;i<dateArr.length;i++){
@@ -156,9 +173,7 @@ public class FilBillController {
 
         return Result.success(insertCountAll);
     }
-
-
-
+*/
     /**
      * 账单方法下拉列表，20210817废弃，方法保留，以后备用
      * @param filBillMethodBO
@@ -247,14 +262,26 @@ public class FilBillController {
     @ApiOperation(value = "账单列表导出excel",produces="application/octet-stream")
     @PostMapping("/export")
     public void export(HttpServletResponse response,@RequestBody ExportBillBO exportBillBO){
-        FilBillMonthBO filBillMonthBO = new FilBillMonthBO();
-        filBillMonthBO.setMinerId(exportBillBO.getMinerId());
-        //filBillMonthBO.setMonthDate(exportBillBO.getMonthDate());
-        IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillService.selectFilBillDayAggPage(filBillMonthBO);
-        List<ExportBillVO> list = filBillDayAggVOIPage.getRecords().stream().map(v -> {
-            BigDecimal balance = new BigDecimal("0");
-            BigDecimal inMoney = new BigDecimal("0");
-            BigDecimal outMoney = new BigDecimal("0");
+        LocalDateTime startDate = exportBillBO.getStartMonthDate();
+        LocalDateTime endDate = exportBillBO.getEndMonthDate();
+        if(startDate != null && endDate != null){
+            if(startDate.isAfter(endDate)){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"开始时间不能大于结束时间");
+            }
+        }
+        LambdaQueryWrapper<FilBillDayAgg> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(FilBillDayAgg::getMinerId,exportBillBO.getMinerId());
+        if(exportBillBO.getStartMonthDate() != null){
+            queryWrapper.gt(FilBillDayAgg::getDate,exportBillBO.getStartMonthDate());
+        }
+        if(exportBillBO.getEndMonthDate() != null){
+            queryWrapper.lt(FilBillDayAgg::getDate,exportBillBO.getEndMonthDate());
+        }
+        List<FilBillDayAgg> filBillDayAggList = filBillDayAggService.list(queryWrapper);
+        List<ExportBillVO> list = filBillDayAggList.stream().map(v -> {
+            BigDecimal balance = BigDecimal.ZERO;
+            BigDecimal inMoney = BigDecimal.ZERO;
+            BigDecimal outMoney = BigDecimal.ZERO;
             if(v.getBalance().compareTo(new BigDecimal("0")) != 0){
                 balance = v.getBalance().divide(new BigDecimal(Math.pow(10, 18)), 9, BigDecimal.ROUND_HALF_UP);
             }
@@ -265,7 +292,7 @@ public class FilBillController {
                 outMoney = v.getOutMoney().divide(new BigDecimal(Math.pow(10, 18)), 9, BigDecimal.ROUND_HALF_UP);
             }
             ExportBillVO vo = new ExportBillVO().setBalance(balance)
-                    .setDate(v.getDate()).setInMoney(inMoney)
+                    .setDate(DateUtils.localDateToString(v.getDate(),DateFormatEnum.yyyy_MM_dd)).setInMoney(inMoney)
                     .setOutMoney(outMoney);
             return vo;
         }).collect(Collectors.toList());

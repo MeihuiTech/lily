@@ -153,10 +153,10 @@
             <if test="minerId != null and minerId != ''">
               miner_id = #{minerId}
             </if>
-            <if test="startDate != null and startDate != null">
+            <if test="startDate != null">
                 AND date >= #{startDate}
             </if>
-            <if test="endDate != null and endDate != ''">
+            <if test="endDate != null">
                 AND #{endDate} >= date
             </if>
         </where>

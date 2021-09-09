@@ -19,6 +19,7 @@ import com.mei.hui.miner.service.FilBillTransactionsService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.html.DateFormatEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -203,9 +204,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     /*分页查询日账单列表*/
     @Override
     public IPage<FilBillDayAggVO> selectFilBillDayAggPage(FilBillMonthBO filBillMonthBO) {
-        String monthDate = filBillMonthBO.getMonthDate();
-        String startDate = monthDate + "-01";
-        String endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,10);
+        LocalDateTime startDate = filBillMonthBO.getStartMonthDate();
+        LocalDateTime endDate = filBillMonthBO.getEndMonthDate();
         Page<FilBillDayAggVO> page = new Page<>(filBillMonthBO.getPageNum(),filBillMonthBO.getPageSize());
         IPage<FilBillDayAggVO> filBillDayAggVOIPage = filBillMapper.selectFilBillDayAggPage(page,filBillMonthBO.getMinerId(),startDate,endDate);
         log.info("分页查询日账单列表出参：【{}】",JSON.toJSON(filBillDayAggVOIPage));
@@ -218,38 +218,23 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     /*账单月汇总*/
     @Override
     public BillTotalVO selectFilBillmonthAgg(FilBillMonthBO filBillMonthBO) {
-        String monthDate = filBillMonthBO.getMonthDate();
-        String startDate = monthDate + "-01";
-        // 昨天的结束日期
-        String endDate = "";
-        // 如果是当月，查询到昨天的24点，如果不是当月，查询到当月月底
-        if(DateUtils.getDate().substring(0,7).equals(monthDate)){
-            endDate = (DateUtils.getYesterDayDateYmd());
-        } else {
-            endDate = (DateUtils.getAssignEndDayOfMonth(Integer.valueOf(monthDate.substring(0,4)),Integer.valueOf(monthDate.substring(5,7))) + "").substring(0,10);
-        }
         String minerId = filBillMonthBO.getMinerId();
-
-        log.info("账单月汇总入参minerId：【{}】,startDate：【{}】,endDate：【{}】",minerId,startDate,endDate);
-        List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,startDate,endDate);
+        log.info("账单月汇总入参:{}",JSON.toJSONString(filBillMonthBO));
+        List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,filBillMonthBO.getStartMonthDate(),filBillMonthBO.getEndMonthDate());
         log.info("账单月汇总出参：【{}】",JSON.toJSON(filBillDayAggList));
-
         BillTotalVO billTotalVO = new BillTotalVO();
         billTotalVO = packageBillTotalVO(filBillDayAggList, billTotalVO);
-
         return billTotalVO;
     }
 
     /*账单总汇总-从矿工创建开始至今所有收入以及支出的汇总*/
     @Override
     public BillTotalVO selectFilBillAllAgg(FilBillMonthBO filBillMonthBO) {
-        String startDate = "2019-01-01";
-        // 昨天的结束日期
-        String endDate = DateUtils.getYesterDayDateYmd();
+        LocalDateTime startDate = DateUtils.stringToLocalDateTime("2019-01-01 00:00:01", DateFormatEnum.YYYY_MM_DD_HH_MM_SS);
         String minerId = filBillMonthBO.getMinerId();
 
-        log.info("账单总汇总-从矿工创建开始至今所有收入以及支出的汇总入参minerId：【{}】,startDate：【{}】,endDate：【{}】",minerId,startDate,endDate);
-        List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,startDate,endDate);
+        log.info("账单总汇总-从矿工创建开始至今所有收入以及支出的汇总入参minerId：【{}】,startDate：【{}】",minerId,startDate);
+        List<FilBillDayAgg> filBillDayAggList = filBillMapper.selectFilBillmonthAgg(minerId,startDate,null);
         log.info("账单总汇总-从矿工创建开始至今所有收入以及支出的汇总出参：【{}】",JSON.toJSON(filBillDayAggList));
 
         BillTotalVO billTotalVO = new BillTotalVO();

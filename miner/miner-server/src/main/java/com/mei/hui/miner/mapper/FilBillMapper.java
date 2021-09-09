@@ -17,6 +17,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -78,7 +79,7 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
      * @date 2021/8/18 15:54
      * @version v1.4.1
      */
-    public IPage<FilBillDayAggVO> selectFilBillDayAggPage(Page<FilBillDayAggVO> page, @Param("minerId") String minerId, @Param("startDate") String startDate, @Param("endDate") String endDate);
+    public IPage<FilBillDayAggVO> selectFilBillDayAggPage(Page<FilBillDayAggVO> page, @Param("minerId") String minerId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     /**
      * 收入-转账,支出-转账,查询账单按照日期范围汇总转账收支
@@ -152,5 +153,5 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
      * @param endDate
      * @return
      */
-    public List<FilBillDayAgg> selectFilBillmonthAgg(@Param("minerId") String minerId, @Param("startDate") String startDate, @Param("endDate") String endDate);
+    public List<FilBillDayAgg> selectFilBillmonthAgg(@Param("minerId") String minerId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }
