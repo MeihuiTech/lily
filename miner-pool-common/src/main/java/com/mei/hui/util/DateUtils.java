@@ -1,5 +1,6 @@
 package com.mei.hui.util;
 
+import com.mei.hui.util.html.DateFormatEnum;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.lang.management.ManagementFactory;
@@ -21,13 +22,8 @@ import java.util.TimeZone;
  * @author ruoyi
  */
 public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
-    public static String YYYY = "yyyy";
-
-    public static String YYYY_MM = "yyyy-MM";
 
     public static String YYYY_MM_DD = "yyyy-MM-dd";
-
-    public static String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 
     public static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
     
@@ -35,6 +31,52 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
             "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM", 
             "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
             "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
+
+    /**
+     * String转LocalDateTime
+     * @param string
+     * @param format
+     * @return
+     */
+    public static LocalDateTime stringToLocalDateTime(String string, DateFormatEnum format){
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
+        LocalDateTime localDateTime = LocalDateTime.parse(string, timeDtf);
+        return localDateTime;
+    }
+
+    /**
+     * LocalDateTime 转 String
+     * @param localDateTime
+     * @param format
+     * @return
+     */
+    public static String localDateTimeToString(LocalDateTime localDateTime, DateFormatEnum format){
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
+        return localDateTime.format(timeDtf);
+    }
+
+    /**
+     * String转LocalDate
+     * @param string
+     * @param format
+     * @return
+     */
+    public static LocalDate stringToLocalDate(String string,DateFormatEnum format){
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
+        LocalDate localDate = LocalDate.parse(string, timeDtf);
+        return localDate;
+    }
+
+    /**
+     * LocalDateTime 转 String
+     * @param localDate
+     * @param format
+     * @return
+     */
+    public static String localDateToString(LocalDate localDate, DateFormatEnum format){
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
+        return localDate.format(timeDtf);
+    }
 
     /**
      * 获取当前Date型日期
@@ -61,36 +103,14 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return dateTimeNow(YYYY_MM_DD_HH_MM_SS);
     }
 
-    public static final String dateTimeNow()
-    {
-        return dateTimeNow(YYYYMMDDHHMMSS);
-    }
-
     public static final String dateTimeNow(final String format)
     {
         return parseDateToStr(format, new Date());
     }
 
-    public static final String dateTime(final Date date)
-    {
-        return parseDateToStr(YYYY_MM_DD, date);
-    }
-
     public static final String parseDateToStr(final String format, final Date date)
     {
         return new SimpleDateFormat(format).format(date);
-    }
-
-    public static final Date dateTime(final String format, final String ts)
-    {
-        try
-        {
-            return new SimpleDateFormat(format).parse(ts);
-        }
-        catch (ParseException e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -100,15 +120,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     {
         Date now = new Date();
         return DateFormatUtils.format(now, "yyyy/MM/dd");
-    }
-
-    /**
-     * 日期路径 即年/月/日 如20180808
-     */
-    public static final String dateTime()
-    {
-        Date now = new Date();
-        return DateFormatUtils.format(now, "yyyyMMdd");
     }
 
     /**
@@ -128,15 +139,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         {
             return null;
         }
-    }
-    
-    /**
-     * 获取服务器启动时间
-     */
-    public static Date getServerStartDate()
-    {
-        long time = ManagementFactory.getRuntimeMXBean().getStartTime();
-        return new Date(time);
     }
 
     /**
@@ -217,28 +219,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),    calendar.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
         calendar.set(Calendar.MILLISECOND, 999);
         return new Timestamp(calendar.getTimeInMillis());
-    }
-
-    /**
-     * 计算两个时间差
-     */
-    public static String getDatePoor(Date endDate, Date nowDate)
-    {
-        long nd = 1000 * 24 * 60 * 60;
-        long nh = 1000 * 60 * 60;
-        long nm = 1000 * 60;
-        // long ns = 1000;
-        // 获得两个时间的毫秒时间差异
-        long diff = endDate.getTime() - nowDate.getTime();
-        // 计算差多少天
-        long day = diff / nd;
-        // 计算差多少小时
-        long hour = diff % nd / nh;
-        // 计算差多少分钟
-        long min = diff % nd % nh / nm;
-        // 计算差多少秒//输出结果
-        // long sec = diff % nd % nh % nm / ns;
-        return day + "天" + hour + "小时" + min + "分钟";
     }
 
     /**
@@ -500,80 +480,5 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
 
-
-    public static void main(String[] args) {
-//        System.out.println(getYesterDayDateYmd());
-
-        //获取系统当前时间Date类型，需要将字符串类型转成时间
-        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //设置为东八区
-        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-        Date date = new Date();
-        String dateStr = sdf.format(date);
-        System.out.println(dateStr);
-        System.out.println(new Date());
-        System.out.println(LocalDateTime.now());*/
-
-//        System.out.println(getBeginYesterdayDate());
-//        System.out.println(getBeginOfDayDate());
-//        System.out.println(getYesterDayDateYmd());
-//        System.out.println(getEndDayOfMonth());
-//        System.out.println(getAssignEndDayOfMonth(2021,7));
-//        String date = "2021-07-31 23:59:59.999";
-//        System.out.println(getAssignEndDayOfMonth(Integer.valueOf(date.substring(0,4)),Integer.valueOf(date.substring(5,7))));
-//        String yesterDayDateYmd = getYesterDayDateYmd();
-//        System.out.println(yesterDayDateYmd.substring(0,4)+ "--------" +yesterDayDateYmd.substring(5,7)+ "--------" +yesterDayDateYmd.substring(8,10));
-//        System.out.println(yesterDayDateYmd.substring(0,10));
-
-//        System.out.println(getEndYesterdayDate());
-//        System.out.println(getYesterDayDateYmd()+" 23:59:59");
-
-//        System.out.println(getBeginOfDayDate());// 2021-08-20 00:00:00.0
-//        System.out.println(getEndOfDayDate());// 2021-08-20 23:59:59.999
-//        System.out.println(getDate());//2021-08-20
-//        System.out.println(LocalDateTime.now());//2021-08-20T14:53:57.306
-
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        LocalDate localDateTime = LocalDate.parse(DateUtils.getDate(), dateTimeFormatter);
-//        System.out.println(localDateTime);
-
-//        System.out.println((new Date()).getTime());// 1629797079401
-//        System.out.println(new Date());// Tue Aug 24 17:24:04 CST 2021
-
-        //获取秒数
-//        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-//        System.out.println(second);//1629797079
-//        System.out.println(getEndYesterdayDate().getTime()/1000);
-        //获取毫秒数
-//        Long milliSecond = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli();
-//        System.out.println(milliSecond);// 1629797079500
-
-        // 时间戳转成datetime
-//        String beginDate = "1630252650";
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
-//        System.out.println(sd);
-
-        //获取上一个时间点,如现在为15:30,上一个整点时间点为，15:00
-//        System.out.println(lDTBeforeLocalDateTimeHour());
-//        //获取下一个时间点,如现在为15:30,上一个整点时间点为，16:00
-//        System.out.println(lDTNextLocalDateTimeHour());
-//
-//        // 获得 localDateTime
-//        System.out.println(lDTLocalDateTimeNow());
-//
-//        System.out.println(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0).plusDays(-1).plusHours(-1));
-//
-//        System.out.println(lDTYesterdayBeforeLocalDateTimeHour());
-//        System.out.println(lDTBeforeBeforeLocalDateTimeHour());
-
-//        System.out.println(getBeginYesterdayDateStr());
-//        System.out.println(getEndYesterdayDateStr());
-//
-//        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getBeginYesterdayDate()));
-//        System.out.println(parseDateToStr(YYYY_MM_DD_HH_MM_SS, getEndYesterdayDate()));
-        System.out.println(lDTYesterdayBeforeBeforeLocalDateTimeHourDate());
-
-    }
 
 }

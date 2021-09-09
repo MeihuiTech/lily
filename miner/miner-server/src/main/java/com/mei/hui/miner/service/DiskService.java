@@ -11,8 +11,6 @@ import java.util.Map;
 
 public interface DiskService {
 
-
-
     /**
     * 获取七牛云集群硬盘容量和宽带信息
     *

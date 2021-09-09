@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilAdminUser;
+import com.mei.hui.miner.entity.FilReportNetworkData;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.QiniuVO;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
@@ -46,7 +48,8 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
     private ISysAggPowerHourService sysAggPowerHourService;
     @Autowired
     private DiskService diskService;
-
+    @Autowired
+    private FilReportNetworkDataServiceImpl reportNetworkDataService;
     /**
      * fil管理员首页-矿工统计数据
      * @return
@@ -164,12 +167,17 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         //查询当前管理员负责管理的普通用户
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
         log.info("管理员:{},分配的用户:{}",userId,JSON.toJSONString(userIds));
+        if(userIds.size() ==0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"请给管理员分配用户");
+        }
 
         LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.in(SysMinerInfo::getUserId,userIds);
         List<SysMinerInfo> list = sysMinerInfoService.list(lambdaQueryWrapper);
         log.info("管理员负责的矿工列表:{}",JSON.toJSONString(list));
-
+        if(list.size() == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"管理员分配的用户缺少矿工");
+        }
         return Result.success(diskService.selectDiskSizeAndBroadbandList(list));
     }
 }

@@ -5,12 +5,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mei.hui.config.AESUtil;
-import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.HttpUtil;
-import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
-import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.QiniuOneDayAgg;
 import com.mei.hui.miner.entity.QiniuStoreConfig;
 import com.mei.hui.miner.entity.SysMinerInfo;
@@ -21,21 +18,18 @@ import com.mei.hui.miner.service.QiniuOneDayAggService;
 import com.mei.hui.miner.service.QiniuStoreConfigService;
 import com.mei.hui.util.ErrorCode;
 import com.mei.hui.util.MyException;
-import com.mei.hui.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -51,30 +45,16 @@ public class DiskServiceImpl implements DiskService {
     private QiniuOneDayAggService qiniuOneDayAggService;
     @Autowired
     private QiniuStoreConfigService qiniuStoreConfigService;
-    @Autowired
-    private ISysMinerInfoService sysMinerInfoService;
 
     /*获取七牛云集群硬盘容量和宽带信息*/
     @Override
     public List<QiniuVO> selectDiskSizeAndBroadbandList(List<SysMinerInfo> sysMinerInfoList) {
-        List<QiniuStoreConfig> qiniuStoreConfigList = new ArrayList<>();
-        List<String> idcnameList = new ArrayList<>();
-        for (SysMinerInfo sysMinerInfo:sysMinerInfoList){
-            if (Constants.STORETYPEQINIU.equals(sysMinerInfo.getStoreType())){
-                //获取当前选择矿工的七牛配置信息
-                String minerId = sysMinerInfo.getMinerId();
-                QiniuStoreConfig storeConfig = selectQiniuStoreConfigByMinerId(minerId);
-                if(storeConfig == null){
-                    throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工七牛存储配置信息为空");
-                }
-                String idcname = storeConfig.getIdcname();
-                if (!idcnameList.contains(idcname)){
-                    idcnameList.add(idcname);
-                    qiniuStoreConfigList.add(storeConfig);
-                }
-            }
-        }
-        log.info("idcnameList：【{}】，qiniuStoreConfigList:【{}】",idcnameList,JSON.toJSON(qiniuStoreConfigList));
+        /**
+         * 获取矿工所在七牛云的集群列表
+         */
+        List<String> minerIds = sysMinerInfoList.stream().map(v -> v.getMinerId()).collect(Collectors.toList());
+        Set<QiniuStoreConfig> qiniuStoreConfigList = qiniuStoreConfigService.findQiniuClusters(minerIds);
+        log.info("矿工所在七牛云的集群列表:{}",JSON.toJSON(qiniuStoreConfigList));
 
         // 循环集群
         List<QiniuVO> qiniuVOList = new ArrayList<>();
@@ -91,7 +71,6 @@ public class DiskServiceImpl implements DiskService {
             qiniuVO.setBroadbandVO(broadbandVO);
             qiniuVOList.add(qiniuVO);
         }
-
         return qiniuVOList;
     }
 
@@ -101,30 +80,17 @@ public class DiskServiceImpl implements DiskService {
      */
     public DiskSizeVO diskSizeInfo(QiniuStoreConfig storeConfig){
         try {
+            log.info("集群:{}",JSON.toJSONString(storeConfig));
             String totalDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_capacity_bytes{service=\"blkmaster\"})";
-            log.info("获取磁盘总容量入参storeConfig：【{}】,totalDiskSizeUrl：【{}】",JSON.toJSON(storeConfig),totalDiskSizeUrl);
             BigDecimal totalDiskSize = getDiskSize(storeConfig,totalDiskSizeUrl);
             log.info("获取磁盘总容量出参:{}",totalDiskSize);
 
             String availDiskSizeUrl = "sum by(cluster)(kodo_qbs_blkmaster_physical_space_avail_bytes{service=\"blkmaster\"})";
-            log.info("获取磁盘总容量入参storeConfig：【{}】,availDiskSizeUrl：【{}】",JSON.toJSON(storeConfig),availDiskSizeUrl);
             BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
             log.info("获取磁盘剩余可用容量出参:{}",availDiskSize);
 
-            List<QiniuStoreConfig> configs = selectQiniuStoreConfigListByUserId(storeConfig.getIdcname());
-            List<MinerDiskSizeVO> minerUsedDiskSizeVOList = new ArrayList<>();
-            // 循环获得每个矿工id
-            for (QiniuStoreConfig config:configs){
-                log.info("dbQiniuStoreConfig：【{}】",JSON.toJSON(config));
-                String dbMinerId = config.getMinerId();
-                BigDecimal minerUsedDiskSize = getMinerUsedDiskSize(config);
-                log.info("获取矿工为：【{}】  已用存储量:【{}】",dbMinerId,minerUsedDiskSize);
-                MinerDiskSizeVO minerDiskSizeVO = new MinerDiskSizeVO();
-                minerDiskSizeVO.setMinerId(dbMinerId);
-                minerDiskSizeVO.setDiskSize(minerUsedDiskSize);
-                log.info("minerDiskSizeVO：【{}】",JSON.toJSON(minerDiskSizeVO));
-                minerUsedDiskSizeVOList.add(minerDiskSizeVO);
-            }
+            //获取每个bucket磁盘的使用存储
+            List<MinerDiskSizeVO> minerUsedDiskSizeVOList = findMinerUsedDiskSize(storeConfig);
 
             DiskSizeVO diskSizeVO = new DiskSizeVO();
             diskSizeVO.setAllDiskSize(totalDiskSize);
@@ -133,53 +99,31 @@ public class DiskServiceImpl implements DiskService {
             diskSizeVO.setMinerUsedDiskSizeVOList(minerUsedDiskSizeVOList);
             return diskSizeVO;
         } catch (Exception e) {
-            log.error("获取宽带信息报错",e);
+            log.error("获取磁盘信息报错",e);
             return null;
         }
-    }
-
-    /**
-     * 根据minerId查询矿工存储服务配置表
-     * @param minerId
-     * @return
-     */
-    public QiniuStoreConfig selectQiniuStoreConfigByMinerId(String minerId){
-        log.info("根据minerId查询矿工存储服务配置表入参minerId:【{}】",minerId);
-        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(QiniuStoreConfig::getMinerId,minerId);
-        QiniuStoreConfig storeConfig = qiniuStoreConfigService.getOne(queryWrapper);
-        log.info("根据minerId查询矿工存储服务配置表出参:{}",JSON.toJSONString(storeConfig));
-        return storeConfig;
-    }
-
-    /**
-     * 根据idcname查询矿工存储服务配置表
-     * @return
-     */
-    public List<QiniuStoreConfig> selectQiniuStoreConfigListByUserId(String idcname){
-        SysMinerInfo sysMinerInfo = new SysMinerInfo();
-        sysMinerInfo.setUserId( HttpRequestUtil.getUserId());
-        List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.selectSysMinerInfoListBySysMinerInfo(sysMinerInfo);
-        List<String> minerIds = sysMinerInfoList.stream().map(v -> v.getMinerId()).collect(Collectors.toList());
-        if(minerIds.size() == 0){
-            return null;
-        }
-        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.in(QiniuStoreConfig::getMinerId,minerIds);
-        queryWrapper.eq(QiniuStoreConfig::getIdcname,idcname);
-        List<QiniuStoreConfig> list = qiniuStoreConfigService.list(queryWrapper);
-        log.info("根据minerId查询矿工存储服务配置表出参:{}",JSON.toJSONString(list));
-        return list;
     }
 
     /**
      * 获取矿工已用存储量
      * @return
      */
-    public BigDecimal getMinerUsedDiskSize(QiniuStoreConfig storeConfig){
+    public List<MinerDiskSizeVO> findMinerUsedDiskSize(QiniuStoreConfig storeConfig){
+        // 数据格式 Map<bucket,storageSize>
         Map<String, BigDecimal> map = allbucketInfo(storeConfig);
         log.info("获取每个矿工已使用存储量出参：【{}】",map.toString());
-        return map.get(storeConfig.getBucket());
+
+        LambdaQueryWrapper<QiniuStoreConfig> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(QiniuStoreConfig::getIdcname,storeConfig.getIdcname());
+        List<QiniuStoreConfig> list = qiniuStoreConfigService.list(queryWrapper);
+        log.info("获取集群中的bucket:{}",JSON.toJSONString(list));
+        List<MinerDiskSizeVO> minerUsedDiskSizeVOList = list.stream().map(v -> {
+            MinerDiskSizeVO vo = new MinerDiskSizeVO()
+                    .setMinerId(v.getMinerId())
+                    .setDiskSize(map.get(v.getBucket()));
+            return vo;
+        }).collect(Collectors.toList());
+        return minerUsedDiskSizeVOList;
     }
     /**
      * 获取总容量
