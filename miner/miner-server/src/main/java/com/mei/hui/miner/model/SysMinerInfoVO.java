@@ -75,4 +75,11 @@ public class SysMinerInfoVO {
     @ApiModelProperty(value = "PoSt账户余额")
     private BigDecimal postBalance;
 
+    /**
+     * 幸运值，单位： %，实际爆块数量和理论爆块数量的比值。若有效算力低于1PiB，则该值存在较大随机性， 仅供参考。
+     */
+    @ApiModelProperty(value = "幸运值")
+    private BigDecimal luckyValue;
+
+
 }

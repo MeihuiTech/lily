@@ -1057,6 +1057,19 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             if(ErrorCode.MYB_000000.getCode().equals(sysUserOutResult.getCode())){
                 sysMinerInfoVO.setUserName(sysUserOutResult.getData().getUserName());
             }
+
+            //全网数据:累计出块奖励,全网算力,全网出块份数,全网活跃矿工
+            List<FilReportNetworkData> filReportNetworkDataList = reportNetworkDataService.list();
+            log.info("全网出块奖励,全网算力,全网出块份数,全网活跃矿工:{}", JSON.toJSONString(filReportNetworkDataList));
+            // 全网有效算力
+            BigDecimal power = BigDecimal.ZERO;
+            if (filReportNetworkDataList != null && filReportNetworkDataList.size() > 0){
+                power = filReportNetworkDataList.get(0).getPower();
+            }
+            BigDecimal allPowerAvailable = minerInfo.getPowerAvailable();
+            if(power != null && power.compareTo(BigDecimal.ZERO) ==1 && allPowerAvailable != null && allPowerAvailable.compareTo(BigDecimal.ZERO) ==1){
+                sysMinerInfoVO.setLuckyValue(new BigDecimal(twentyFourTotalBlocks).divide(allPowerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),3, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+            }
             list.add(sysMinerInfoVO);
         }
         Map<String,Object> map = new HashMap<>();
