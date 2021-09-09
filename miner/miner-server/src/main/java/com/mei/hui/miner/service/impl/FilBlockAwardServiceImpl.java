@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.entity.FilBlockAward;
+import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBillReportBO;
 import com.mei.hui.miner.feign.vo.FilBlockAwardReportBO;
 import com.mei.hui.miner.mapper.FilBlockAwardMapper;
@@ -36,7 +37,7 @@ public class FilBlockAwardServiceImpl extends ServiceImpl<FilBlockAwardMapper,Fi
     /*上报fil币区块奖励详情*/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void reportFilBlockAwardMq(FilBlockAwardReportBO filBlockAwardReportBO) {
+    public void reportFilBlockAwardMq(FilBlockAwardReportBO filBlockAwardReportBO,FilBillDayAggArgsVO filBillDayAggArgsVO) {
         FilBlockAward filBlockAward = new FilBlockAward();
         BeanUtils.copyProperties(filBlockAwardReportBO,filBlockAward);
         filBlockAward.setMinerId(filBlockAwardReportBO.getMiner());
@@ -51,7 +52,7 @@ public class FilBlockAwardServiceImpl extends ServiceImpl<FilBlockAwardMapper,Fi
         filBlockAwardMapper.insert(filBlockAward);
 
         // 在FIL币账单消息详情表里手动插入一条区块奖励数据
-        filBillService.insertFilBillBlockAward(filBlockAwardReportBO);
+        filBillService.insertFilBillBlockAward(filBlockAwardReportBO, filBillDayAggArgsVO);
 
     }
 

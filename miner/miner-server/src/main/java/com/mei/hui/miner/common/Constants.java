@@ -183,8 +183,12 @@ public interface Constants extends SystemConstants {
     String BLOCKAWARDSEND = "f02";
 
     /**
-     * 矿工子账户地址
+     * 矿工子账户地址key
      */
     String REDISMINERADDRESS = "miner_address:";
 
+    /**
+     * FIL币账单消息每天汇总表redis存的key
+     */
+    String FILBILLDAYAGGKEY = "fil_bill_day_agg:%s:%s";
 }

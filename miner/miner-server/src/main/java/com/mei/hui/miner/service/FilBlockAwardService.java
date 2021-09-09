@@ -2,7 +2,10 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBlockAward;
+import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBlockAwardReportBO;
+
+import java.math.BigDecimal;
 
 /**
  * @author shangbin
@@ -21,5 +24,5 @@ public interface FilBlockAwardService extends IService<FilBlockAward> {
     * @return void
     * @version v1.4.1
     */
-    public void reportFilBlockAwardMq(FilBlockAwardReportBO filBlockAwardReportBO);
+    public void reportFilBlockAwardMq(FilBlockAwardReportBO filBlockAwardReportBO, FilBillDayAggArgsVO filBillDayAggArgsVO);
 }

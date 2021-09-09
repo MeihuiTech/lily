@@ -8,6 +8,7 @@ import com.mei.hui.miner.entity.FilBill;
 import com.mei.hui.miner.entity.FilBillParams;
 import com.mei.hui.miner.entity.FilBillTransactions;
 import com.mei.hui.miner.entity.FilBlockAward;
+import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBillReportBO;
 import com.mei.hui.miner.feign.vo.FilBillTransactionsReportBO;
 import com.mei.hui.miner.feign.vo.FilBlockAwardReportBO;
@@ -15,6 +16,7 @@ import com.mei.hui.miner.service.FilBillParamsService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.FilBillTransactionsService;
 import com.mei.hui.miner.service.FilBlockAwardService;
+import com.mei.hui.util.DateUtils;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -38,6 +42,8 @@ public class FilRabbitMQListener {
     private FilBillService filBillService;
     @Autowired
     private FilBlockAwardService filBlockAwardService;
+    @Autowired
+    private FilBillTransactionsService filBillTransactionsService;
 
 
 
@@ -57,6 +63,9 @@ public class FilRabbitMQListener {
             log.info("FIL币账单rabbitmq上报入参【{}】：" , messageStr);
             List<FilBillReportBO> filBillReportBOList = JSONObject.parseArray(messageStr,FilBillReportBO.class);
             log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
+            List<FilBill> filBillList = new ArrayList<>();
+            List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
+            FilBillDayAggArgsVO filBillDayAggArgsVO = new FilBillDayAggArgsVO();
             for (FilBillReportBO filBillReportBO : filBillReportBOList){
                 log.info("filBillReportBO入参：【{}】",JSON.toJSON(filBillReportBO));
                 QueryWrapper<FilBill> queryWrapper = new QueryWrapper<>();
@@ -64,16 +73,27 @@ public class FilRabbitMQListener {
                 String cid = filBillReportBO.getCid();
                 dbFilBill.setCid(cid);
                 queryWrapper.setEntity(dbFilBill);
-                List<FilBill> filBillList = filBillService.list(queryWrapper);
-                log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(filBillList));
-                if (filBillList != null && filBillList.size() > 0){
+                List<FilBill> dbFilBillList = filBillService.list(queryWrapper);
+                log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(dbFilBillList));
+                if (dbFilBillList != null && dbFilBillList.size() > 0){
                     log.info("该条数据MessageId：【{}】数据库中已经存在，不插入，并且确认消息",cid);
                     channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                     continue;
                 }
 
-                filBillService.reportBillMq(filBillReportBO);
+                filBillService.reportBillMq(filBillReportBO,filBillList, filBillTransactionsList,filBillDayAggArgsVO);
             }
+
+            if(filBillList != null && filBillList.size() > 0 && filBillTransactionsList != null && filBillTransactionsList.size() > 0){
+                log.info("批量保存FIL币账单消息详情表入参：【{}】",JSON.toJSON(filBillList));
+                filBillService.saveBatch(filBillList);
+                log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
+                filBillTransactionsService.saveBatch(filBillTransactionsList);
+
+                LocalDateTime dateTime = LocalDateTime.ofEpochSecond(filBillReportBOList.get(0).getTimestamp(), 0, ZoneOffset.ofHours(8));
+                filBillService.insertOrUpdateFilBillDayAggByMinerIdAndDateAll(filBillReportBOList.get(0).getMiner(),dateTime,filBillDayAggArgsVO);
+            }
+
             // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
             log.info("确认消息");
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
@@ -96,7 +116,7 @@ public class FilRabbitMQListener {
     public void reportFilBlockAwardMq(Channel channel, Message message) throws IOException {
         byte[] body = message.getBody();
         String messageStr = new String(body,"UTF-8");
-        log.info("FIL币区块奖励详情rabbitmq上报入参【{}】：" + messageStr);
+        log.info("FIL币区块奖励详情rabbitmq上报入参【{}】：" , messageStr);
         try {
             FilBlockAwardReportBO filBlockAwardReportBO = JSONObject.parseObject(messageStr,FilBlockAwardReportBO.class);
             log.info("FilBlockAwardReportBO入参：【{}】",filBlockAwardReportBO);
@@ -113,7 +133,11 @@ public class FilRabbitMQListener {
                 return;
             }
 
-            filBlockAwardService.reportFilBlockAwardMq(filBlockAwardReportBO);
+            FilBillDayAggArgsVO filBillDayAggArgsVO = new FilBillDayAggArgsVO();
+            filBlockAwardService.reportFilBlockAwardMq(filBlockAwardReportBO, filBillDayAggArgsVO);
+
+            LocalDateTime dateTime = LocalDateTime.ofEpochSecond(filBlockAwardReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8));
+            filBillService.insertOrUpdateFilBillDayAggByMinerIdAndDateAll(filBlockAwardReportBO.getMiner(),dateTime, filBillDayAggArgsVO);
 
             // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

@@ -25,7 +25,7 @@ public class FilBillTransactions {
     /**
      * FIL币账单表id
      */
-    private Long filBillId;
+    private String filBillId;
 
     /**
      * 发送方

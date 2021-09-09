@@ -3,10 +3,13 @@ package com.mei.hui.miner.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBill;
+import com.mei.hui.miner.entity.FilBillTransactions;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.Result;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -69,7 +72,7 @@ public interface FilBillService extends IService<FilBill> {
     * @return void
     * @version v1.4.1
     */
-    public void reportBillMq(FilBillReportBO filBillReportBO);
+    public void reportBillMq(FilBillReportBO filBillReportBO, List<FilBill> filBillList, List<FilBillTransactions> filBillTransactionsList, FilBillDayAggArgsVO filBillDayAggArgsVO);
 
     /**
     * 在FIL币账单消息详情表里手动插入一条区块奖励数据
@@ -81,7 +84,7 @@ public interface FilBillService extends IService<FilBill> {
     * @return void
     * @version v1.4.1
     */
-    public void insertFilBillBlockAward(FilBlockAwardReportBO filBlockAwardReportBO);
+    public void insertFilBillBlockAward(FilBlockAwardReportBO filBlockAwardReportBO,FilBillDayAggArgsVO filBillDayAggArgsVO);
 
     /**
     * 分页查询日账单列表
@@ -124,4 +127,20 @@ public interface FilBillService extends IService<FilBill> {
      * @return
      */
     public BillTotalVO selectFilBillAllAgg(FilBillMonthBO filBillMonthBO);
+
+    /**
+     * 更新或者插入所有的 FIL币账单消息每天汇总表
+     * @param minerId
+     * @param date
+     * @param inMoney
+     * @param outMoney
+     * @param balance
+     * @param inTransfer
+     * @param inBlockAward
+     * @param outTransfer
+     * @param outNodeFee
+     * @param outBurnFee
+     * @param outOther
+     */
+    public void insertOrUpdateFilBillDayAggByMinerIdAndDateAll(String minerId, LocalDateTime dateTime, FilBillDayAggArgsVO filBillDayAggArgsVO);
 }

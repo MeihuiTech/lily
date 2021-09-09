@@ -18,7 +18,9 @@ import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.FilBillTransactionsService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.util.DateUtils;
+import com.mei.hui.util.IdUtils;
 import com.mei.hui.util.MyException;
+import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -34,6 +36,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -64,8 +67,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
     /*上报FIL币账单*/
     @Override
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    public void reportBillMq(FilBillReportBO filBillReportBO) {
+//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public void reportBillMq(FilBillReportBO filBillReportBO,List<FilBill> filBillList,List<FilBillTransactions> filBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO) {
         String minerId = filBillReportBO.getMiner();
         String method = filBillReportBO.getMethod();
         FilBill filBill = new FilBill();
@@ -77,8 +80,11 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBill.setType(Constants.FILBILLTYPEBILL);
         filBill.setDateTime(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
         filBill.setCreateTime(LocalDateTime.now());
-        log.info("保存FIL币账单入参：【{}】",filBill);
-        filBillMapper.insert(filBill);
+        filBill.setId(IdUtils.simpleUUID());
+//        log.info("保存FIL币账单入参：【{}】",filBill);
+//        filBillMapper.insert(filBill);
+        log.info("往filBillList添加单个FIL币账单消息详情表：【{}】",filBill);
+        filBillList.add(filBill);
 
         // FIL币账单参数表，暂时注释，数据库表保留，以后可能会放开，看以后需求
         /*String params = filBillReportBO.getParams();
@@ -105,78 +111,214 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             });
             log.info("矿工子账户地址列表addressList：【{}】",addressList);
 
-            List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
+//            List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
             for (FilBillTransactionsReportBO filBillTransactionsReportBO : filBillTransactionsReportBOList){
                 log.info("filBillTransactionsReportBO:【{}】",JSON.toJSON(filBillTransactionsReportBO));
-                FilBillTransactions filBillTransactions = new FilBillTransactions();
-                BeanUtils.copyProperties(filBillTransactionsReportBO,filBillTransactions);
-                filBillTransactions.setFilBillId(filBill.getId());
-                String from = filBillTransactionsReportBO.getFrom();
-                filBillTransactions.setSender(from);
-                String to = filBillTransactionsReportBO.getTo();
-                filBillTransactions.setReceiver(to);
-                filBillTransactions.setMoney(filBillTransactionsReportBO.getValue());
-                filBillTransactions.setCreateTime(LocalDateTime.now());
-                String type = filBillTransactionsReportBO.getType();
-                log.info("type：【{}】",type);
-                if(Constants.TYPENODEFEE.equals(type)){
-                    filBillTransactions.setType(Constants.TYPENODEFEEZERO);
-                } else if (Constants.TYPEBURNFEE.equals(type)){
-                    filBillTransactions.setType(Constants.TYPEBURNFEEONE);
-                } else if (Constants.TYPETRANSFER.equals(type)){
-                    // 转账
-                    if (Constants.FILBILLMETHODSEND.equals(method) || Constants.FILBILLMETHODPROPOSE.equals(method) || Constants.FILBILLMETHODREPORTCONSENSUSFAULT.equals(method)){
-                        filBillTransactions.setType(Constants.TYPETRANSFERTWO);
-                    } else {
-                        // 其它
-                        filBillTransactions.setType(Constants.TYPEOTHERFOUR);
-                    }
-                }
 
-                log.info("from：【{}】,to：【{}】",from,to);
-                if (addressList.contains(from) && addressList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
-                    filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
-                } else {
-                    filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
-                    if (addressList.contains(from) || Constants.TYPENODEFEE.equals(type) || Constants.TYPEBURNFEE.equals(type)){
-                        filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
-                    } else {
-                        filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
-                    }
-                }
+                FilBillTransactions filBillTransactions = packageFilBillTransactions(filBill.getId(),method,addressList,filBillTransactionsReportBO);
 
-                log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
+                log.info("往filBillTransactionsList添加单个FIL币账单转账信息表：【{}】",filBillTransactions);
                 filBillTransactionsList.add(filBillTransactions);
             }
-            log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
-            filBillTransactionsService.saveBatch(filBillTransactionsList);
+//            log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
+//            filBillTransactionsService.saveBatch(filBillTransactionsList);
 
             /**
-             * 1.根据miner_id、date先查redis里是否有数据，如果没有新建一条，redis过期时间设置为24小时，
+             * 方式一：
+             * 1.根据miner_id、date先查redis里是否有数据，如果没有，数据库里新建一条，放到redis里，redis过期时间设置为25小时，
              * 判断是收入还是支出，比如是收入，redis里的收入+新进来的数据的值，
              * 然后（update where 根据miner_id、date ）数据库里的这天的数据
              *
+             * 方拾二：
              * update where 根据miner_id、date ，判断返回值：如果是0，插入
              * insertorupdate
              */
-
-//            String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
-//            for (FilBillTransactions filBillTransactions: filBillTransactionsList){
-//
-//            }
-
-
-
+            String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
+            insertOrUpdateFilBillDayAggByMinerIdAndDate(minerId,date,method,filBill.getDateTime().toLocalDate(),filBillTransactionsList,filBillDayAggArgsVO);
         }
 
+    }
+
+    /**
+     * 组装 FIL币账单转账信息表
+     * @param filBillId
+     * @param method
+     * @param addressList
+     * @param filBillTransactionsReportBO
+     * @return
+     */
+    public FilBillTransactions packageFilBillTransactions(String filBillId,String method,List<String> addressList,FilBillTransactionsReportBO filBillTransactionsReportBO){
+        log.info("组装 FIL币账单转账信息表入参filBillId：【{}】,method：【{}】,addressList：【{}】,filBillTransactionsReportBO：【{}】",filBillId,method,addressList,JSON.toJSON(filBillTransactionsReportBO));
+        FilBillTransactions filBillTransactions = new FilBillTransactions();
+        BeanUtils.copyProperties(filBillTransactionsReportBO,filBillTransactions);
+        filBillTransactions.setFilBillId(filBillId);
+        String from = filBillTransactionsReportBO.getFrom();
+        filBillTransactions.setSender(from);
+        String to = filBillTransactionsReportBO.getTo();
+        filBillTransactions.setReceiver(to);
+        filBillTransactions.setMoney(filBillTransactionsReportBO.getValue());
+        filBillTransactions.setCreateTime(LocalDateTime.now());
+        String type = filBillTransactionsReportBO.getType();
+        log.info("type：【{}】",type);
+        if(Constants.TYPENODEFEE.equals(type)){
+            filBillTransactions.setType(Constants.TYPENODEFEEZERO);
+        } else if (Constants.TYPEBURNFEE.equals(type)){
+            filBillTransactions.setType(Constants.TYPEBURNFEEONE);
+        } else if (Constants.TYPETRANSFER.equals(type)){
+            // 转账
+            if (Constants.FILBILLMETHODSEND.equals(method) || Constants.FILBILLMETHODPROPOSE.equals(method) || Constants.FILBILLMETHODREPORTCONSENSUSFAULT.equals(method)){
+                filBillTransactions.setType(Constants.TYPETRANSFERTWO);
+            } else {
+                // 其它
+                filBillTransactions.setType(Constants.TYPEOTHERFOUR);
+            }
+        }
+
+        log.info("from：【{}】,to：【{}】",from,to);
+        if (addressList.contains(from) && addressList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
+            filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
+        } else {
+            filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
+            if (addressList.contains(from) || Constants.TYPENODEFEE.equals(type) || Constants.TYPEBURNFEE.equals(type)){
+                filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
+            } else {
+                filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
+            }
+        }
+        return filBillTransactions;
+    }
+
+    /**
+     * 更新或者插入 FIL币账单消息每天汇总表
+     * update where 根据miner_id、date ，判断返回值：如果是0，插入
+     * @param minerId
+     * @param date
+     * @param method
+     * @param dateTime
+     * @param filBillTransactionsList
+     */
+    public void insertOrUpdateFilBillDayAggByMinerIdAndDate(String minerId,String date,String method,LocalDate dateTime,List<FilBillTransactions> filBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO){
+        log.info("更新或者插入 FIL币账单消息每天汇总表入参minerId：【{}】，date：【{}】，method：【{}】，dateTime：【{}】，" +
+                "filBillTransactionsList：【{}】",minerId, date, method, dateTime, JSON.toJSON(filBillTransactionsList));
+
+        for (FilBillTransactions filBillTransactions: filBillTransactionsList){
+            if (Constants.TRANSACTIONTYPEINSIDE.equals(filBillTransactions.getTransactionType())){
+                log.info("内部交易，跳过该条记录，执行下一条：【{}】",JSON.toJSON(filBillTransactions));
+                continue;
+            }
+
+            filBillDayAggArgsVO.setInMoney(filBillDayAggArgsVO.getInMoney()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getInMoney());
+            filBillDayAggArgsVO.setOutMoney(filBillDayAggArgsVO.getOutMoney()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutMoney());
+            filBillDayAggArgsVO.setBalance(filBillDayAggArgsVO.getBalance()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getBalance());
+            filBillDayAggArgsVO.setInTransfer(filBillDayAggArgsVO.getInTransfer()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getInTransfer());
+            filBillDayAggArgsVO.setInBlockAward(filBillDayAggArgsVO.getInBlockAward()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getInBlockAward());
+            filBillDayAggArgsVO.setOutTransfer(filBillDayAggArgsVO.getOutTransfer()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutTransfer());
+            filBillDayAggArgsVO.setOutNodeFee(filBillDayAggArgsVO.getOutNodeFee()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutNodeFee());
+            filBillDayAggArgsVO.setOutBurnFee(filBillDayAggArgsVO.getOutBurnFee()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutBurnFee());
+            filBillDayAggArgsVO.setOutOther(filBillDayAggArgsVO.getOutOther()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutOther());
+
+            Integer type = filBillTransactions.getType();
+            BigDecimal money = filBillTransactions.getMoney();
+            Integer outsideType = filBillTransactions.getOutsideType();
+            log.info("type：【{}】，money：【{}】，outsideType：【{}】",type,money,outsideType);
+            if (Constants.TYPENODEFEEZERO.equals(type)){
+                filBillDayAggArgsVO.setOutNodeFee(money.add(filBillDayAggArgsVO.getOutNodeFee()));
+                log.info("支出-矿工手续费：【{}】",filBillDayAggArgsVO.getOutNodeFee());
+            } else if (Constants.TYPEBURNFEEONE.equals(type)){
+                filBillDayAggArgsVO.setOutBurnFee(money.add(filBillDayAggArgsVO.getOutBurnFee()));
+                log.info("支出-燃烧手续费：【{}】",filBillDayAggArgsVO.getOutBurnFee());
+            } else if (Constants.TYPETRANSFERTWO.equals(type)){
+                if (Constants.FILBILLMETHODSEND.equals(method) || Constants.FILBILLMETHODPROPOSE.equals(method) || Constants.FILBILLMETHODREPORTCONSENSUSFAULT.equals(method)){
+                    if (Constants.OUTSIDETYPEOUT.equals(outsideType)){
+                        filBillDayAggArgsVO.setOutTransfer(money.add(filBillDayAggArgsVO.getOutTransfer()));
+                        log.info("支出-转账：【{}】",filBillDayAggArgsVO.getOutTransfer());
+                    } else {
+                        filBillDayAggArgsVO.setInTransfer(money.add(filBillDayAggArgsVO.getInTransfer()));
+                        log.info("收入-转账：【{}】",filBillDayAggArgsVO.getInTransfer());
+                    }
+                }
+            } else if (Constants.TYPEBLOCKAWARDTHREE.equals(type)){
+                filBillDayAggArgsVO.setInBlockAward(money.add(filBillDayAggArgsVO.getInBlockAward()));
+                log.info("收入-区块奖励：【{}】",filBillDayAggArgsVO.getInBlockAward());
+            } else if (Constants.TYPEOTHERFOUR.equals(type)){
+                Integer transactionType = filBillTransactions.getTransactionType();
+                if (Constants.TRANSACTIONTYPEOUTSIDE.equals(transactionType) && Constants.OUTSIDETYPEOUT.equals(outsideType)){
+                    filBillDayAggArgsVO.setOutOther(money.add(filBillDayAggArgsVO.getOutOther()));
+                    log.info("支出-其它：【{}】",filBillDayAggArgsVO.getOutOther());
+                }
+            }
+        }
+
+        filBillDayAggArgsVO.setInMoney(filBillDayAggArgsVO.getInTransfer().add(filBillDayAggArgsVO.getInBlockAward()));
+        filBillDayAggArgsVO.setOutMoney(filBillDayAggArgsVO.getOutTransfer().add(filBillDayAggArgsVO.getOutNodeFee()).add(filBillDayAggArgsVO.getOutBurnFee()).add(filBillDayAggArgsVO.getOutOther()));
+        filBillDayAggArgsVO.setBalance(filBillDayAggArgsVO.getInMoney().subtract(filBillDayAggArgsVO.getOutMoney()));
+        // 根据矿工id、日期更新所有的收入和支出
+//        Integer updateCount = filBillDayAggMapper.updateFilBillDayAggByMinerIdAndDate(minerId,date,inMoney,outMoney,balance,inTransfer,inBlockAward,outTransfer,outNodeFee,outBurnFee,outOther);
+//        log.info("根据矿工id、日期更新所有的收入和支出数量：【{}】",updateCount);
+//        if (updateCount < 1){
+//            Integer insertCount = insertFilBillDayAgg(minerId, dateTime, inMoney, outMoney, balance,inTransfer, BigDecimal.ZERO, outTransfer, outNodeFee, outBurnFee, outOther);
+//            log.info("单条插入FIL币账单消息每天汇总表数量：【{}】",insertCount);
+//        }
+    }
+
+    /*更新或者插入所有的 FIL币账单消息每天汇总表*/
+    @Override
+    public void insertOrUpdateFilBillDayAggByMinerIdAndDateAll(String minerId, LocalDateTime dateTime, FilBillDayAggArgsVO filBillDayAggArgsVO) {
+        String date = DateUtils.lDTLocalDateTimeFormatYMD(dateTime);
+        String redisKey = String.format(Constants.FILBILLDAYAGGKEY, minerId, date);
+        String redisValue = redisUtil.get(redisKey);
+        log.info("从redis里查询FIL币账单消息每天汇总表出参：【{}】",redisValue);
+        if (StringUtils.isEmpty(redisValue)){
+            redisUtil.set(redisKey,"0",25,TimeUnit.HOURS);
+            insertFilBillDayAgg(minerId, dateTime.toLocalDate(),  filBillDayAggArgsVO);
+            return;
+        }
+        // 根据矿工id、日期更新所有的收入和支出
+        filBillDayAggMapper.updateFilBillDayAggByMinerIdAndDate(minerId,date,filBillDayAggArgsVO.getInMoney(),filBillDayAggArgsVO.getOutMoney(),filBillDayAggArgsVO.getBalance(),
+                filBillDayAggArgsVO.getInTransfer(),filBillDayAggArgsVO.getInBlockAward(),filBillDayAggArgsVO.getOutTransfer(),filBillDayAggArgsVO.getOutNodeFee(),filBillDayAggArgsVO.getOutBurnFee(),filBillDayAggArgsVO.getOutOther());
+    }
+
+    /**
+     * 单条插入FIL币账单消息每天汇总表
+     * @param minerId
+     * @param date
+     * @param inMoney
+     * @param outMoney
+     * @param balance
+     * @param inTransfer
+     * @param inBlockAward
+     * @param outTransfer
+     * @param outNodeFee
+     * @param outBurnFee
+     * @param outOther
+     * @return
+     */
+    public Integer insertFilBillDayAgg(String minerId, LocalDate dateTime, FilBillDayAggArgsVO filBillDayAggArgsVO){
+        log.info("单条插入FIL币账单消息每天汇总表入参：filBillDayAggArgsVO：【{}】",filBillDayAggArgsVO);
+        FilBillDayAgg filBillDayAgg = new FilBillDayAgg();
+        filBillDayAgg.setMinerId(minerId);
+        filBillDayAgg.setDate(dateTime);
+        filBillDayAgg.setCreateTime(LocalDateTime.now());
+        filBillDayAgg.setInMoney(filBillDayAggArgsVO.getInMoney());
+        filBillDayAgg.setOutMoney(filBillDayAggArgsVO.getOutMoney());
+        filBillDayAgg.setBalance(filBillDayAggArgsVO.getBalance());
+        filBillDayAgg.setInTransfer(filBillDayAggArgsVO.getInTransfer());
+        filBillDayAgg.setInBlockAward(filBillDayAggArgsVO.getInBlockAward());
+        filBillDayAgg.setOutTransfer(filBillDayAggArgsVO.getOutTransfer());
+        filBillDayAgg.setOutNodeFee(filBillDayAggArgsVO.getOutNodeFee());
+        filBillDayAgg.setOutBurnFee(filBillDayAggArgsVO.getOutBurnFee());
+        filBillDayAgg.setOutOther(filBillDayAggArgsVO.getOutOther());
+        log.info("单条插入FIL币账单消息每天汇总表：【{}】",JSON.toJSON(filBillDayAgg));
+        return filBillDayAggMapper.insert(filBillDayAgg);
     }
 
     /*在FIL币账单消息详情表里手动插入一条区块奖励数据*/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void insertFilBillBlockAward(FilBlockAwardReportBO filBlockAwardReportBO) {
+    public void insertFilBillBlockAward(FilBlockAwardReportBO filBlockAwardReportBO,FilBillDayAggArgsVO filBillDayAggArgsVO) {
         String minerId = filBlockAwardReportBO.getMiner();
         FilBill filBill = new FilBill();
+        filBill.setId(IdUtils.simpleUUID());
         filBill.setMinerId(minerId);
         filBill.setHeight(filBlockAwardReportBO.getHeight());
         filBill.setParentBaseFee(filBlockAwardReportBO.getParentBaseFee());
@@ -198,6 +340,11 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillTransactions.setCreateTime(LocalDateTime.now());
         log.info("保存FIL币账单转账信息表入参：【{}】",filBillTransactions);
         filBillTransactionsService.save(filBillTransactions);
+
+        String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
+        List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
+        filBillTransactionsList.add(filBillTransactions);
+        insertOrUpdateFilBillDayAggByMinerIdAndDate(minerId,date,null,filBill.getDateTime().toLocalDate(),filBillTransactionsList, filBillDayAggArgsVO);
     }
 
     /*分页查询日账单列表*/

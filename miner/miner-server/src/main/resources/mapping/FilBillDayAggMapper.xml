@@ -2,4 +2,47 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mei.hui.miner.mapper.FilBillDayAggMapper">
 
+    <!--根据矿工id、日期更新所有的收入和支出-->
+    <delete id="updateFilBillDayAggByMinerIdAndDate">
+        UPDATE
+        fil_bill_day_agg
+        SET
+        <if test="inMoney != null and inMoney != 0">
+            in_money = in_money + #{inMoney},
+        </if>
+        <if test="outMoney != null and outMoney != 0">
+            out_money = out_money + #{outMoney},
+        </if>
+        <if test="balance != null and balance != 0">
+            balance = balance + #{balance},
+        </if>
+        <if test="inTransfer != null and inTransfer != 0">
+            in_transfer = in_transfer + #{inTransfer},
+        </if>
+        <if test="inBlockAward != null and inBlockAward != 0">
+            in_block_award = in_block_award + #{inBlockAward},
+        </if>
+        <if test="outTransfer != null and outTransfer != 0">
+            out_transfer = out_transfer + #{outTransfer},
+        </if>
+        <if test="outNodeFee != null and outNodeFee != 0">
+            out_node_fee = out_node_fee + #{outNodeFee},
+        </if>
+        <if test="outBurnFee != null and outBurnFee != 0">
+            out_burn_fee = out_burn_fee + #{outBurnFee},
+        </if>
+        <if test="outOther != null and outOther != 0">
+            out_other = out_other + #{outOther},
+        </if>
+        update_time = NOW()
+        <where>
+            <if test="minerId != null and minerId != ''">
+                miner_id = #{minerId}
+            </if>
+            <if test="date != null and date != ''">
+                AND date = #{date}
+            </if>
+        </where>
+    </delete>
+
 </mapper>
