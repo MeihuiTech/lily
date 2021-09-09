@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilAdminUser;
+import com.mei.hui.miner.entity.FilReportNetworkData;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.QiniuVO;
 import com.mei.hui.miner.mapper.ChiaMinerMapper;
@@ -47,7 +48,8 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
     private ISysAggPowerHourService sysAggPowerHourService;
     @Autowired
     private DiskService diskService;
-
+    @Autowired
+    private FilReportNetworkDataServiceImpl reportNetworkDataService;
     /**
      * fil管理员首页-矿工统计数据
      * @return
@@ -83,6 +85,18 @@ public class AdminFirstServiceImpl implements IAdminFirstService {
         twentyFourTotalBlocks = twentyFourTotalBlocks == null?0L:twentyFourTotalBlocks;
         log.info("查询FIL币算力按小时聚合表里近24小时所有的每小时出块份数总和出参修改格式后的：【{}】",twentyFourTotalBlocks);
         adminFirstCollectVO.setAllBlocksPerDay(twentyFourTotalBlocks);
+
+        // 全网数据:累计出块奖励,全网算力,全网出块份数,全网活跃矿工
+        List<FilReportNetworkData> filReportNetworkDataList = reportNetworkDataService.list();
+        log.info("全网出块奖励,全网算力,全网出块份数,全网活跃矿工:{}", JSON.toJSONString(filReportNetworkDataList));
+        // 全网有效算力
+        BigDecimal power = BigDecimal.ZERO;
+        if (filReportNetworkDataList != null && filReportNetworkDataList.size() > 0){
+            power = filReportNetworkDataList.get(0).getPower();
+        }
+        if(power != null && power.compareTo(BigDecimal.ZERO) ==1 && allPowerAvailable != null && allPowerAvailable.compareTo(BigDecimal.ZERO) ==1){
+            adminFirstCollectVO.setLuckyValue(new BigDecimal(twentyFourTotalBlocks).divide(allPowerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),3, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+        }
 
         return adminFirstCollectVO;
     }
