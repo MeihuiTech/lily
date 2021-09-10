@@ -114,8 +114,8 @@ public class GeneralServiceImpl implements GeneralService {
         String endDate = DateUtils.lDTBeforeBeforeLocalDateTimeHour();
         QueryWrapper query = new QueryWrapper();
         query.select("coalesce(sum(blocks_per_day),0) as twentyFourBlocks");
-        query.gt("date",startDate);
-        query.lt("date",endDate);
+        query.ge("date",startDate);
+        query.le("date",endDate);
         Map map = aggPowerHourService.getMap(query);
         BigDecimal twentyFourBlocks = (BigDecimal) map.get("twentyFourBlocks");
         log.info("24小时出块数:{}",twentyFourBlocks);
