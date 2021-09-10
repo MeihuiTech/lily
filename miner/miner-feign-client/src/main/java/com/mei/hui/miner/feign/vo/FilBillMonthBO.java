@@ -1,6 +1,7 @@
 package com.mei.hui.miner.feign.vo;
 
 import com.mei.hui.util.BasePage;
+import com.mei.hui.util.DateUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -70,8 +71,9 @@ public class FilBillMonthBO extends BasePage {
     public void setEndMonthDate(String endMonthDate) {
         if(StringUtils.isNotEmpty(endMonthDate)){
             String[] endArray = endMonthDate.split("-");
+            int day = DateUtils.getDays(Integer.valueOf(endArray[0]), Integer.valueOf(endArray[1]));
             LocalDateTime endDate = LocalDateTime.now().withYear(Integer.valueOf(endArray[0]))
-                    .withMonth(Integer.valueOf(endArray[1])).withDayOfMonth(1).withHour(23).withMinute(59).withSecond(59).withNano(999);
+                    .withMonth(Integer.valueOf(endArray[1])).withDayOfMonth(day).withHour(23).withMinute(59).withSecond(59).withNano(999);
             this.endMonthDate = endDate;
         }
     }
