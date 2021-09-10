@@ -3,38 +3,27 @@ package com.mei.hui.miner.listener;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.entity.FilBill;
-import com.mei.hui.miner.entity.FilBillParams;
 import com.mei.hui.miner.entity.FilBillTransactions;
 import com.mei.hui.miner.entity.FilBlockAward;
 import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBillReportBO;
-import com.mei.hui.miner.feign.vo.FilBillTransactionsReportBO;
 import com.mei.hui.miner.feign.vo.FilBlockAwardReportBO;
-import com.mei.hui.miner.service.FilBillParamsService;
 import com.mei.hui.miner.service.FilBillService;
-import com.mei.hui.miner.service.FilBillTransactionsService;
 import com.mei.hui.miner.service.FilBlockAwardService;
-import com.mei.hui.util.DateUtils;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -44,8 +33,6 @@ public class FilRabbitMQListener {
     private FilBillService filBillService;
     @Autowired
     private FilBlockAwardService filBlockAwardService;
-    @Autowired
-    private FilBillTransactionsService filBillTransactionsService;
 
 
 
@@ -80,7 +67,6 @@ public class FilRabbitMQListener {
                 log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(dbFilBillList));
                 if (dbFilBillList != null && dbFilBillList.size() > 0){
                     log.info("该条数据MessageId：【{}】数据库中已经存在，不插入，并且确认消息",cid);
-                    channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                     continue;
                 }
 
@@ -88,19 +74,12 @@ public class FilRabbitMQListener {
                 allFilBillTransactionsList.addAll(filBillTransactionsList);
             }
 
-//            log.info("allFilBillTransactionsList转set之前的值：【{}】",JSON.toJSON(allFilBillTransactionsList));
-//            Set<FilBillTransactions> filBillTransactionsSet = new HashSet<FilBillTransactions>(allFilBillTransactionsList);
-//            allFilBillTransactionsList = new ArrayList<FilBillTransactions>(filBillTransactionsSet);
-//            log.info("allFilBillTransactionsList转set之前后的值：【{}】",JSON.toJSON(allFilBillTransactionsList));
-
             if(filBillList != null && filBillList.size() > 0 && allFilBillTransactionsList != null && allFilBillTransactionsList.size() > 0){
-                log.info("批量保存FIL币账单消息详情表入参：【{}】",JSON.toJSON(filBillList));
-                filBillService.saveBatch(filBillList);
-                log.info("批量保存FIL币账单转账信息表入参：【{}】",JSON.toJSON(allFilBillTransactionsList));
-                filBillTransactionsService.saveBatch(allFilBillTransactionsList);
-
                 LocalDateTime dateTime = LocalDateTime.ofEpochSecond(filBillReportBOList.get(0).getTimestamp(), 0, ZoneOffset.ofHours(8));
-                filBillService.insertOrUpdateFilBillDayAggByMinerIdAndDateAll(filBillReportBOList.get(0).getMiner(),dateTime,filBillDayAggArgsVO);
+                log.info("批量保存FIL币账单消息详情表、FIL币账单转账信息表，实时计算FIL币账单消息每天汇总表数据minerId：【{}】，dateTime：【{}】，filBillList：【{}】，" +
+                        "allFilBillTransactionsList：【{}】，filBillDayAggArgsVO：【{}】",filBillReportBOList.get(0).getMiner(),dateTime,JSON.toJSON(filBillList),
+                        JSON.toJSON(allFilBillTransactionsList),JSON.toJSON(filBillDayAggArgsVO));
+                filBillService.saveBatchReportBillMq(filBillReportBOList.get(0).getMiner(),dateTime,filBillList,allFilBillTransactionsList,filBillDayAggArgsVO);
             }
 
             // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
@@ -143,10 +122,11 @@ public class FilRabbitMQListener {
             }
 
             FilBillDayAggArgsVO filBillDayAggArgsVO = new FilBillDayAggArgsVO();
-            filBlockAwardService.reportFilBlockAwardMq(filBlockAwardReportBO, filBillDayAggArgsVO);
-
             LocalDateTime dateTime = LocalDateTime.ofEpochSecond(filBlockAwardReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8));
-            filBillService.insertOrUpdateFilBillDayAggByMinerIdAndDateAll(filBlockAwardReportBO.getMiner(),dateTime, filBillDayAggArgsVO);
+
+            log.info("批量保存FIL币账单消息详情表、FIL币账单转账信息表，实时计算FIL币账单消息每天汇总表数据minerId：【{}】，dateTime：【{}】,filBlockAwardReportBO：【{}】" +
+                            "，filBillDayAggArgsVO：【{}】",filBlockAwardReportBO.getMiner(),dateTime,JSON.toJSON(filBlockAwardReportBO),JSON.toJSON(filBillDayAggArgsVO));
+            filBlockAwardService.reportFilBlockAwardMq(filBlockAwardReportBO.getMiner(),dateTime, filBlockAwardReportBO, filBillDayAggArgsVO);
 
             // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

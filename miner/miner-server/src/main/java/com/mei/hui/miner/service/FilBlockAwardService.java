@@ -6,6 +6,7 @@ import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBlockAwardReportBO;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * @author shangbin
@@ -24,5 +25,5 @@ public interface FilBlockAwardService extends IService<FilBlockAward> {
     * @return void
     * @version v1.4.1
     */
-    public void reportFilBlockAwardMq(FilBlockAwardReportBO filBlockAwardReportBO, FilBillDayAggArgsVO filBillDayAggArgsVO);
+    public void reportFilBlockAwardMq(String minerId, LocalDateTime dateTime,FilBlockAwardReportBO filBlockAwardReportBO, FilBillDayAggArgsVO filBillDayAggArgsVO);
 }

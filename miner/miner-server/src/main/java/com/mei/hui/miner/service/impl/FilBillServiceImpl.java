@@ -276,7 +276,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 //        }
     }
 
-    /*更新或者插入所有的 FIL币账单消息每天汇总表*/
+    /*更新或者插入所有的FIL币账单消息每天汇总表*/
     @Override
     public void insertOrUpdateFilBillDayAggByMinerIdAndDateAll(String minerId, LocalDateTime dateTime, FilBillDayAggArgsVO filBillDayAggArgsVO) {
         String date = DateUtils.lDTLocalDateTimeFormatYMD(dateTime);
@@ -289,10 +289,15 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             insertFilBillDayAgg(minerId, dateTime.toLocalDate(),  filBillDayAggArgsVO);
             return;
         }
-        log.info("根据矿工id、日期更新所有的收入和支出");
+
         // 根据矿工id、日期更新所有的收入和支出
+        // 上报账单和上报区块奖励同时操作日统计表，所以需要加锁
+        String redisLock = String.format(Constants.FILBILLDAYAGGLOCK,minerId);
+        log.info("根据矿工id、日期更新所有的收入和支出redisLock：【{}】",redisLock);
+        redisUtil.lock(redisLock);
         filBillDayAggMapper.updateFilBillDayAggByMinerIdAndDate(minerId,date,filBillDayAggArgsVO.getInMoney(),filBillDayAggArgsVO.getOutMoney(),filBillDayAggArgsVO.getBalance(),
                 filBillDayAggArgsVO.getInTransfer(),filBillDayAggArgsVO.getInBlockAward(),filBillDayAggArgsVO.getOutTransfer(),filBillDayAggArgsVO.getOutNodeFee(),filBillDayAggArgsVO.getOutBurnFee(),filBillDayAggArgsVO.getOutOther());
+        redisUtil.unlock(redisLock);
     }
 
     /**
@@ -327,6 +332,18 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillDayAgg.setOutOther(filBillDayAggArgsVO.getOutOther());
         log.info("单条插入FIL币账单消息每天汇总表：【{}】",JSON.toJSON(filBillDayAgg));
         return filBillDayAggMapper.insert(filBillDayAgg);
+    }
+
+    /*批量保存FIL币账单消息详情表、FIL币账单转账信息表，实时计算FIL币账单消息每天汇总表数据*/
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveBatchReportBillMq(String minerId, LocalDateTime dateTime, List<FilBill> filBillList, List<FilBillTransactions> allFilBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO) {
+        log.info("批量保存FIL币账单消息详情表入参：【{}】",JSON.toJSON(filBillList));
+        saveBatch(filBillList);
+        log.info("批量保存FIL币账单转账信息表入参：【{}】",JSON.toJSON(allFilBillTransactionsList));
+        filBillTransactionsService.saveBatch(allFilBillTransactionsList);
+        log.info("更新或者插入所有的FIL币账单消息每天汇总表minerId：【{}】，dateTime：【{}】，filBillDayAggArgsVO：【{}】",minerId,dateTime,JSON.toJSON(filBillDayAggArgsVO));
+        insertOrUpdateFilBillDayAggByMinerIdAndDateAll(minerId,dateTime,filBillDayAggArgsVO);
     }
 
     /*在FIL币账单消息详情表里手动插入一条区块奖励数据*/

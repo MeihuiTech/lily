@@ -143,4 +143,14 @@ public interface FilBillService extends IService<FilBill> {
      * @param outOther
      */
     public void insertOrUpdateFilBillDayAggByMinerIdAndDateAll(String minerId, LocalDateTime dateTime, FilBillDayAggArgsVO filBillDayAggArgsVO);
+
+
+    /**
+     * 批量保存FIL币账单消息详情表、FIL币账单转账信息表，实时计算FIL币账单消息每天汇总表数据
+     * @param minerId
+     * @param dateTime
+     * @param filBillList
+     * @param allFilBillTransactionsList
+     */
+    public void saveBatchReportBillMq(String minerId, LocalDateTime dateTime, List<FilBill> filBillList, List<FilBillTransactions> allFilBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO);
 }
