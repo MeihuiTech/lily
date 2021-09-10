@@ -63,6 +63,11 @@ public class DiskServiceImpl implements DiskService {
             // 容量
             DiskSizeVO diskSizeVO = diskSizeInfo(dbQiniuStoreConfig);
             log.info("获取七牛云集群硬盘容量出参：【{}】",JSON.toJSON(diskSizeVO));
+
+            //获取每个bucket磁盘的使用存储
+            List<MinerDiskSizeVO> minerUsedDiskSizeVOList = findMinerUsedDiskSize(dbQiniuStoreConfig);
+            List<MinerDiskSizeVO> minerSizeList = minerUsedDiskSizeVOList.stream().filter(v -> minerIds.contains(v.getMinerId())).collect(Collectors.toList());
+            diskSizeVO.setMinerUsedDiskSizeVOList(minerSizeList);
             qiniuVO.setDiskSizeVO(diskSizeVO);
 
             // 宽带
@@ -89,14 +94,10 @@ public class DiskServiceImpl implements DiskService {
             BigDecimal availDiskSize = getDiskSize(storeConfig,availDiskSizeUrl);
             log.info("获取磁盘剩余可用容量出参:{}",availDiskSize);
 
-            //获取每个bucket磁盘的使用存储
-            List<MinerDiskSizeVO> minerUsedDiskSizeVOList = findMinerUsedDiskSize(storeConfig);
-
             DiskSizeVO diskSizeVO = new DiskSizeVO();
             diskSizeVO.setAllDiskSize(totalDiskSize);
             diskSizeVO.setAvailDiskSize(availDiskSize);
             diskSizeVO.setUsedDiskSize(totalDiskSize.subtract(availDiskSize));
-            diskSizeVO.setMinerUsedDiskSizeVOList(minerUsedDiskSizeVOList);
             return diskSizeVO;
         } catch (Exception e) {
             log.error("获取磁盘信息报错",e);
