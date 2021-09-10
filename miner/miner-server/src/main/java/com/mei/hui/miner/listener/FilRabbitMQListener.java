@@ -32,7 +32,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -54,8 +56,8 @@ public class FilRabbitMQListener {
      * @throws IOException
      */
     // TODO 开发环境注释，测试环境暂时注释，正式环境发版的时候不要注释
-//    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
-//    @RabbitHandler
+    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
+    @RabbitHandler
     public void reportBillMq(Channel channel, Message message) throws IOException {
         try {
             byte[] body = message.getBody();
@@ -64,9 +66,10 @@ public class FilRabbitMQListener {
             List<FilBillReportBO> filBillReportBOList = JSONObject.parseArray(messageStr,FilBillReportBO.class);
             log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
             List<FilBill> filBillList = new ArrayList<>();
-            List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
             FilBillDayAggArgsVO filBillDayAggArgsVO = new FilBillDayAggArgsVO();
+            List<FilBillTransactions> allFilBillTransactionsList = new ArrayList<>();
             for (FilBillReportBO filBillReportBO : filBillReportBOList){
+                List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
                 log.info("filBillReportBO入参：【{}】",JSON.toJSON(filBillReportBO));
                 QueryWrapper<FilBill> queryWrapper = new QueryWrapper<>();
                 FilBill dbFilBill = new FilBill();
@@ -82,13 +85,19 @@ public class FilRabbitMQListener {
                 }
 
                 filBillService.reportBillMq(filBillReportBO,filBillList, filBillTransactionsList,filBillDayAggArgsVO);
+                allFilBillTransactionsList.addAll(filBillTransactionsList);
             }
 
-            if(filBillList != null && filBillList.size() > 0 && filBillTransactionsList != null && filBillTransactionsList.size() > 0){
+//            log.info("allFilBillTransactionsList转set之前的值：【{}】",JSON.toJSON(allFilBillTransactionsList));
+//            Set<FilBillTransactions> filBillTransactionsSet = new HashSet<FilBillTransactions>(allFilBillTransactionsList);
+//            allFilBillTransactionsList = new ArrayList<FilBillTransactions>(filBillTransactionsSet);
+//            log.info("allFilBillTransactionsList转set之前后的值：【{}】",JSON.toJSON(allFilBillTransactionsList));
+
+            if(filBillList != null && filBillList.size() > 0 && allFilBillTransactionsList != null && allFilBillTransactionsList.size() > 0){
                 log.info("批量保存FIL币账单消息详情表入参：【{}】",JSON.toJSON(filBillList));
                 filBillService.saveBatch(filBillList);
-                log.info("批量保存FIL币账单转账信息表入参：【{}】",filBillTransactionsList);
-                filBillTransactionsService.saveBatch(filBillTransactionsList);
+                log.info("批量保存FIL币账单转账信息表入参：【{}】",JSON.toJSON(allFilBillTransactionsList));
+                filBillTransactionsService.saveBatch(allFilBillTransactionsList);
 
                 LocalDateTime dateTime = LocalDateTime.ofEpochSecond(filBillReportBOList.get(0).getTimestamp(), 0, ZoneOffset.ofHours(8));
                 filBillService.insertOrUpdateFilBillDayAggByMinerIdAndDateAll(filBillReportBOList.get(0).getMiner(),dateTime,filBillDayAggArgsVO);
@@ -111,8 +120,8 @@ public class FilRabbitMQListener {
      * @throws IOException
      */
     // TODO 开发环境注释，测试环境暂时注释，正式环境发版的时候不要注释
-//    @RabbitListener(queues = {"fil.reward.queue"})//从哪个队列取消息
-//    @RabbitHandler
+    @RabbitListener(queues = {"fil.reward.queue"})//从哪个队列取消息
+    @RabbitHandler
     public void reportFilBlockAwardMq(Channel channel, Message message) throws IOException {
         byte[] body = message.getBody();
         String messageStr = new String(body,"UTF-8");

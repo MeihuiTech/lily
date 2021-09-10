@@ -70,6 +70,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     @Override
 //    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void reportBillMq(FilBillReportBO filBillReportBO,List<FilBill> filBillList,List<FilBillTransactions> filBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO) {
+        log.info("上报FIL币账单：filBillReportBO：【{}】,filBillList：【{}】,filBillTransactionsList：【{}】,filBillDayAggArgsVO：【{}】",
+                filBillReportBO,filBillList,filBillTransactionsList,filBillDayAggArgsVO);
         String minerId = filBillReportBO.getMiner();
         String method = filBillReportBO.getMethod();
         FilBill filBill = new FilBill();
@@ -100,6 +102,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
         // FIL币账单转账信息表
         List<FilBillTransactionsReportBO> filBillTransactionsReportBOList = filBillReportBO.getTransaction();
+        log.info("FIL币账单转账信息表列表filBillTransactionsReportBOList：【{}】",JSON.toJSON(filBillTransactionsReportBOList));
         if (filBillTransactionsReportBOList != null && filBillTransactionsReportBOList.size() > 0){
 
             FilBillMethodBO filBillMethodBO = new FilBillMethodBO();
@@ -162,27 +165,35 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String type = filBillTransactionsReportBO.getType();
         log.info("type：【{}】",type);
         if(Constants.TYPENODEFEE.equals(type)){
+            log.info(Constants.TYPENODEFEE);
             filBillTransactions.setType(Constants.TYPENODEFEEZERO);
         } else if (Constants.TYPEBURNFEE.equals(type)){
+            log.info(Constants.TYPEBURNFEE);
             filBillTransactions.setType(Constants.TYPEBURNFEEONE);
         } else if (Constants.TYPETRANSFER.equals(type)){
             // 转账
             if (Constants.FILBILLMETHODSEND.equals(method) || Constants.FILBILLMETHODPROPOSE.equals(method) || Constants.FILBILLMETHODREPORTCONSENSUSFAULT.equals(method)){
+                log.info(Constants.TYPETRANSFER);
                 filBillTransactions.setType(Constants.TYPETRANSFERTWO);
             } else {
                 // 其它
+                log.info(Constants.TYPEOTHER);
                 filBillTransactions.setType(Constants.TYPEOTHERFOUR);
             }
         }
 
         log.info("from：【{}】,to：【{}】",from,to);
         if (addressList.contains(from) && addressList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
+            log.info(Constants.TRANSACTIONTYPEINSIDE+"");
             filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
         } else {
+            log.info(Constants.TRANSACTIONTYPEOUTSIDE+"");
             filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEOUTSIDE);
             if (addressList.contains(from) || Constants.TYPENODEFEE.equals(type) || Constants.TYPEBURNFEE.equals(type)){
+                log.info(Constants.OUTSIDETYPEOUT+"");
                 filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
             } else {
+                log.info(Constants.OUTSIDETYPEIN+"");
                 filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
             }
         }
@@ -199,7 +210,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
      * @param filBillTransactionsList
      */
     public void insertOrUpdateFilBillDayAggByMinerIdAndDate(String minerId,String date,String method,LocalDate dateTime,List<FilBillTransactions> filBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO){
-        log.info("更新或者插入 FIL币账单消息每天汇总表入参minerId：【{}】，date：【{}】，method：【{}】，dateTime：【{}】，" +
+        log.info("更新或者插入FIL币账单消息每天汇总表入参minerId：【{}】，date：【{}】，method：【{}】，dateTime：【{}】，" +
                 "filBillTransactionsList：【{}】",minerId, date, method, dateTime, JSON.toJSON(filBillTransactionsList));
 
         for (FilBillTransactions filBillTransactions: filBillTransactionsList){
@@ -208,6 +219,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 continue;
             }
 
+            log.info("外部交易，接着走下面流程：【{}】",JSON.toJSON(filBillTransactions));
             filBillDayAggArgsVO.setInMoney(filBillDayAggArgsVO.getInMoney()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getInMoney());
             filBillDayAggArgsVO.setOutMoney(filBillDayAggArgsVO.getOutMoney()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutMoney());
             filBillDayAggArgsVO.setBalance(filBillDayAggArgsVO.getBalance()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getBalance());
@@ -217,6 +229,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             filBillDayAggArgsVO.setOutNodeFee(filBillDayAggArgsVO.getOutNodeFee()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutNodeFee());
             filBillDayAggArgsVO.setOutBurnFee(filBillDayAggArgsVO.getOutBurnFee()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutBurnFee());
             filBillDayAggArgsVO.setOutOther(filBillDayAggArgsVO.getOutOther()== null?BigDecimal.ZERO:filBillDayAggArgsVO.getOutOther());
+            log.info("filBillDayAggArgsVO:【{}】",JSON.toJSON(filBillDayAggArgsVO));
 
             Integer type = filBillTransactions.getType();
             BigDecimal money = filBillTransactions.getMoney();
@@ -253,6 +266,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillDayAggArgsVO.setInMoney(filBillDayAggArgsVO.getInTransfer().add(filBillDayAggArgsVO.getInBlockAward()));
         filBillDayAggArgsVO.setOutMoney(filBillDayAggArgsVO.getOutTransfer().add(filBillDayAggArgsVO.getOutNodeFee()).add(filBillDayAggArgsVO.getOutBurnFee()).add(filBillDayAggArgsVO.getOutOther()));
         filBillDayAggArgsVO.setBalance(filBillDayAggArgsVO.getInMoney().subtract(filBillDayAggArgsVO.getOutMoney()));
+        log.info("更新或者插入 FIL币账单消息每天汇总表  完成最后的filBillDayAggArgsVO：【{}】",JSON.toJSON(filBillDayAggArgsVO));
         // 根据矿工id、日期更新所有的收入和支出
 //        Integer updateCount = filBillDayAggMapper.updateFilBillDayAggByMinerIdAndDate(minerId,date,inMoney,outMoney,balance,inTransfer,inBlockAward,outTransfer,outNodeFee,outBurnFee,outOther);
 //        log.info("根据矿工id、日期更新所有的收入和支出数量：【{}】",updateCount);
@@ -270,10 +284,12 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String redisValue = redisUtil.get(redisKey);
         log.info("从redis里查询FIL币账单消息每天汇总表出参：【{}】",redisValue);
         if (StringUtils.isEmpty(redisValue)){
+            log.info("往redis和数据库里都里插入数据：【{}】",JSON.toJSON(filBillDayAggArgsVO));
             redisUtil.set(redisKey,"0",25,TimeUnit.HOURS);
             insertFilBillDayAgg(minerId, dateTime.toLocalDate(),  filBillDayAggArgsVO);
             return;
         }
+        log.info("根据矿工id、日期更新所有的收入和支出");
         // 根据矿工id、日期更新所有的收入和支出
         filBillDayAggMapper.updateFilBillDayAggByMinerIdAndDate(minerId,date,filBillDayAggArgsVO.getInMoney(),filBillDayAggArgsVO.getOutMoney(),filBillDayAggArgsVO.getBalance(),
                 filBillDayAggArgsVO.getInTransfer(),filBillDayAggArgsVO.getInBlockAward(),filBillDayAggArgsVO.getOutTransfer(),filBillDayAggArgsVO.getOutNodeFee(),filBillDayAggArgsVO.getOutBurnFee(),filBillDayAggArgsVO.getOutOther());
