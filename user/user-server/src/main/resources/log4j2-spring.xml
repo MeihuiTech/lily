@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <Properties>
+        <property name="LOG_HOME" value="/usr/local/miner_pool/logs" />
+        <property name="serviceName" value="user-server"/>
+        <property name="myFilePattern" value="%d{yyyy-MM-dd HH:mm:ss.CTT} %-5level [${serviceName},%X{X-B3-TraceId},%X{X-B3-SpanId}] %logger:%L:%msg%n"/>
+    </Properties>
+
+    <appenders>
+        <console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${myFilePattern}" disableAnsi="false" noConsoleNoAnsi="false"/>
+        </console>
+
+        <RollingFile name="RollingFileInfo" fileName="${LOG_HOME}/${serviceName}.log" filePattern="${LOG_HOME}/${serviceName}-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${myFilePattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="200"/>
+        </RollingFile>
+    </appenders>
+
+    <loggers>
+
+        <root level="INFO">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFileInfo"/>
+        </root>
+    </loggers>
+</configuration>
