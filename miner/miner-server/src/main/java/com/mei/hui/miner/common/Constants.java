@@ -191,4 +191,9 @@ public interface Constants extends SystemConstants {
      * FIL币账单消息每天汇总表redis存的key
      */
     String FILBILLDAYAGGKEY = "fil_bill_day_agg:%s:%s";
+
+    /**
+     * 更新FIL币账单消息每天汇总表的redis锁
+     */
+    String FILBILLDAYAGGLOCK = "updateFilBillDayAgg:%s";
 }

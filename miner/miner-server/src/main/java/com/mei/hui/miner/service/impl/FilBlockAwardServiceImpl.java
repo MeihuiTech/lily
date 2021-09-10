@@ -37,7 +37,7 @@ public class FilBlockAwardServiceImpl extends ServiceImpl<FilBlockAwardMapper,Fi
     /*上报fil币区块奖励详情*/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void reportFilBlockAwardMq(FilBlockAwardReportBO filBlockAwardReportBO,FilBillDayAggArgsVO filBillDayAggArgsVO) {
+    public void reportFilBlockAwardMq(String minerId, LocalDateTime dateTime,FilBlockAwardReportBO filBlockAwardReportBO,FilBillDayAggArgsVO filBillDayAggArgsVO) {
         FilBlockAward filBlockAward = new FilBlockAward();
         BeanUtils.copyProperties(filBlockAwardReportBO,filBlockAward);
         filBlockAward.setMinerId(filBlockAwardReportBO.getMiner());
@@ -51,9 +51,11 @@ public class FilBlockAwardServiceImpl extends ServiceImpl<FilBlockAwardMapper,Fi
         log.info("保存FIL币区块奖励详情入参：【{}】",filBlockAward);
         filBlockAwardMapper.insert(filBlockAward);
 
-        // 在FIL币账单消息详情表里手动插入一条区块奖励数据
+        log.info("在FIL币账单消息详情表里手动插入一条区块奖励数据filBlockAwardReportBO：【{}】，filBillDayAggArgsVO：【{}】",JSON.toJSON(filBlockAwardReportBO),JSON.toJSON(filBillDayAggArgsVO));
         filBillService.insertFilBillBlockAward(filBlockAwardReportBO, filBillDayAggArgsVO);
 
+        log.info("更新或者插入所有的FIL币账单消息每天汇总表minerId：【{}】，dateTime：【{}】，filBillDayAggArgsVO：【{}】",minerId,dateTime,JSON.toJSON(filBillDayAggArgsVO));
+        filBillService.insertOrUpdateFilBillDayAggByMinerIdAndDateAll(filBlockAwardReportBO.getMiner(),dateTime, filBillDayAggArgsVO);
     }
 
 
