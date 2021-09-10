@@ -49,7 +49,7 @@ public class FilBillTask {
      * fil币账单按天聚合，每天晚上1点0分0秒执行前一天的数据
      */
     // TODO 提交代码时记得修改
-    @Scheduled(cron = "0 0 1 */1 * ?")
+//    @Scheduled(cron = "0 0 1 */1 * ?")
 //    @Scheduled(cron = "* */5 * * * ?")
     public void insertFilBillDayAggTask() {
         log.info("======================fil币定时器insertFilBillDayAggTask-start===================");
