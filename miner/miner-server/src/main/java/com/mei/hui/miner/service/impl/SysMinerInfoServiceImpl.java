@@ -273,7 +273,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
 
         // 2/(2.53/9811.1488）*14400
         if(powerAvailable != null && powerAvailable.compareTo(BigDecimal.ZERO) > 0){
-            miner.setLuckyValue((new BigDecimal(twentyFourTotalBlocks)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),3, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+            miner.setLuckyValue((new BigDecimal(twentyFourTotalBlocks)).multiply(new BigDecimal(100)).divide(powerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),3, BigDecimal.ROUND_UP));
         } else {
             miner.setLuckyValue(BigDecimal.ZERO);
         }
@@ -1068,7 +1068,7 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
             }
             BigDecimal allPowerAvailable = minerInfo.getPowerAvailable();
             if(power != null && power.compareTo(BigDecimal.ZERO) ==1 && allPowerAvailable != null && allPowerAvailable.compareTo(BigDecimal.ZERO) ==1){
-                sysMinerInfoVO.setLuckyValue(new BigDecimal(twentyFourTotalBlocks).divide(allPowerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),3, BigDecimal.ROUND_UP).multiply(new BigDecimal(100)));
+                sysMinerInfoVO.setLuckyValue((new BigDecimal(twentyFourTotalBlocks)).multiply(new BigDecimal(100)).divide(allPowerAvailable.divide(power,5, BigDecimal.ROUND_UP).multiply(new BigDecimal(14400)),3, BigDecimal.ROUND_UP));
             }
             list.add(sysMinerInfoVO);
         }
