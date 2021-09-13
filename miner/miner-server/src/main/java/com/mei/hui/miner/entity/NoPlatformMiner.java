@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -19,18 +20,13 @@ import java.util.Date;
  * @since 2021-09-13
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class NoPlatformMiner implements Serializable {
-
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
 
     /**
      * 矿工ID
      */
+    @TableId(value = "id", type = IdType.INPUT)
     private String minerId;
 
     /**
@@ -66,12 +62,12 @@ public class NoPlatformMiner implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
 
 }

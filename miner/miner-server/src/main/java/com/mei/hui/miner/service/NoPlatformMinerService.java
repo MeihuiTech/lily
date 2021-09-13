@@ -14,4 +14,6 @@ import com.mei.hui.util.Result;
  */
 public interface NoPlatformMinerService extends IService<NoPlatformMiner> {
     Result findNoPlatformMiners();
+
+    Result noPlatformMiner(NoPlatformMiner noPlatformMiner);
 }

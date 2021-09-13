@@ -6,8 +6,12 @@ import com.mei.hui.miner.entity.NoPlatformMiner;
 import com.mei.hui.miner.mapper.NoPlatformMinerMapper;
 import com.mei.hui.miner.service.NoPlatformMinerService;
 import com.mei.hui.util.Result;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +31,17 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
         lambdaQueryWrapper.eq(NoPlatformMiner::getStatus,0);
         List<String> minerIds = this.list(lambdaQueryWrapper).stream().map(v -> v.getMinerId()).collect(Collectors.toList());
         return Result.success(minerIds);
+    }
+
+    public Result noPlatformMiner(NoPlatformMiner noPlatformMiner){
+        NoPlatformMiner miner = this.getById(noPlatformMiner.getMinerId());
+        if(miner == null){
+            noPlatformMiner.setCreateTime(LocalDateTime.now());
+            this.save(noPlatformMiner);
+        }else{
+            this.updateById(noPlatformMiner);
+        }
+        return Result.OK;
     }
 
 }

@@ -1,7 +1,11 @@
 package com.mei.hui.miner.SystemController;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.NoPlatformMiner;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.feign.vo.MinerIpLongitudeLatitudeBO;
 import com.mei.hui.miner.feign.vo.ReportDeadlinesBO;
@@ -27,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -255,17 +261,35 @@ public class FilReportedController {
 
     @ApiOperation(value = "非平台矿工上报接口,仅在大屏显示")
     @PostMapping("/noPlatformMiner")
-    public Result noPlatformMiner(@RequestBody RequestMinerInfo sysMinerInfo)
-    {
+    public Result noPlatformMiner(@RequestBody String body){
+        JSONObject json = JSON.parseObject(body);
+        String minerId = json.getString("minerId");
+        BigDecimal powerAvailable = json.getBigDecimal("powerAvailable");
+        Double balanceMinerAccount = json.getDouble("balanceMinerAccount");
+        Long totalBlocks = json.getLong("totalBlocks");
+        Double workerBalance = json.getDouble("balanceWorkerAccount");
+        JSONArray postAccounts = json.getJSONArray("controlAccounts");
 
-
-        return null;
+        BigDecimal postBalance = BigDecimal.ZERO;
+        for(int i = 0; i < postAccounts.size();i++){
+            JSONObject post = postAccounts.getJSONObject(i);
+            BigDecimal balance = post.getBigDecimal("balance");
+            postBalance = postBalance.add(balance);
+        }
+        NoPlatformMiner noPlatformMiner = new NoPlatformMiner()
+                .setMinerId(minerId)
+                .setPowerAvailable(powerAvailable)
+                .setBalanceMinerAccount(balanceMinerAccount)
+                .setTotalBlocks(totalBlocks)
+                .setWorkerBalance(workerBalance)
+                .setPostBalance(postBalance.doubleValue())
+                .setUpdateTime(LocalDateTime.now());
+        return noPlatformMinerService.noPlatformMiner(noPlatformMiner);
     }
 
     @ApiOperation(value = "获取非平台矿工")
     @PostMapping("/findNoPlatformMiners")
-    public Result findNoPlatformMiners()
-    {
+    public Result findNoPlatformMiners(){
         return noPlatformMinerService.findNoPlatformMiners();
     }
 
