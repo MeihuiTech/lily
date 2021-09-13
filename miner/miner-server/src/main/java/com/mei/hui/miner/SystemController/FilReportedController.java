@@ -55,6 +55,8 @@ public class FilReportedController {
     private FilDeadlinesService deadlinesService;
     @Autowired
     private IMinerLongitudeLatitudeService minerLongitudeLatitudeService;
+    @Autowired
+    private NoPlatformMinerService noPlatformMinerService;
 
     /**
      * 新增矿工信息
@@ -250,5 +252,22 @@ public class FilReportedController {
     public void initSectorDuration(){
         sysSectorsWrapService.initSectorDuration();
     }
+
+    @ApiOperation(value = "非平台矿工上报接口,仅在大屏显示")
+    @PostMapping("/noPlatformMiner")
+    public Result noPlatformMiner(@RequestBody RequestMinerInfo sysMinerInfo)
+    {
+
+
+        return null;
+    }
+
+    @ApiOperation(value = "获取非平台矿工")
+    @PostMapping("/findNoPlatformMiners")
+    public Result findNoPlatformMiners()
+    {
+        return noPlatformMinerService.findNoPlatformMiners();
+    }
+
 
 }
