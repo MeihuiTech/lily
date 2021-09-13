@@ -69,5 +69,10 @@ public class NoPlatformMiner implements Serializable {
      */
     private LocalDateTime updateTime;
 
+    //0-未上报;1-已上报
+    private int type;
+
+    private int deviceNum;
+
 
 }

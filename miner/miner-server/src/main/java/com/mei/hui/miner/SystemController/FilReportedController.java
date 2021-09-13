@@ -280,7 +280,8 @@ public class FilReportedController {
                 .setTotalBlocks(totalBlocks)
                 .setWorkerBalance(workerBalance)
                 .setPostBalance(postBalance.doubleValue())
-                .setUpdateTime(LocalDateTime.now());
+                .setUpdateTime(LocalDateTime.now())
+                .setType(1);
         return noPlatformMinerService.noPlatformMiner(noPlatformMiner);
     }
 
