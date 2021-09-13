@@ -211,13 +211,10 @@ public class DiskServiceImpl implements DiskService {
      */
     public Map<String,BigDecimal> allbucketInfo(QiniuStoreConfig qiniuStoreConfig) {
         log.info("获取每个矿工已使用存储量入参：【{}】",JSON.toJSON(qiniuStoreConfig));
-        int count = minerInfoService.count();
-        log.info("平台矿工数量:{}",count);
-
         Map<String,BigDecimal> map = new HashMap<>();
         Map<String,String> header = new HashMap<>();
         header.put("Authorization",getQiNiuToken(qiniuStoreConfig));
-        String result = HttpUtil.doGet(qiniuStoreConfig.getEcloudDomain()+"/api/proxy/uc/qbox/admin/allbuckets?limit="+count, null, header);
+        String result = HttpUtil.doGet(qiniuStoreConfig.getEcloudDomain()+"/api/proxy/uc/qbox/admin/allbuckets", null, header);
         if(StringUtils.isEmpty(result)){
             log.error("调用七牛接口失败");
             return map;
