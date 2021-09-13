@@ -26,7 +26,7 @@ public class NoPlatformMiner implements Serializable {
     /**
      * 矿工ID
      */
-    @TableId(value = "id", type = IdType.INPUT)
+    @TableId(value = "miner_id", type = IdType.INPUT)
     private String minerId;
 
     /**
