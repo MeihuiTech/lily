@@ -55,10 +55,12 @@ public class AopController {
     @AfterReturning(pointcut="webLog()",
             returning="returnValue")  
     public void afterReturning(JoinPoint point, Result returnValue){
+		Result result = new Result();
     	if(returnValue != null){
-			returnValue.setData(null);
+    		result.setCode(returnValue.getCode());
+    		result.setMsg(returnValue.getMsg());
 		}
-        log.info("@响应参数:{}",JSON.toJSONString(returnValue));
+        log.info("@响应参数:{}",JSON.toJSONString(result));
         log.info("@========================end========================");
     }  
 
