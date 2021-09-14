@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -266,6 +267,7 @@ public class FilReportedController {
         Long totalBlocks = json.getLong("totalBlocks");
         Double workerBalance = json.getDouble("balanceWorkerAccount");
         JSONArray postAccounts = json.getJSONArray("controlAccounts");
+        Double balanceMinerAvailable = json.getDouble("balanceMinerAvailable");
 
         BigDecimal postBalance = BigDecimal.ZERO;
         for(int i = 0; i < postAccounts.size();i++){
@@ -281,7 +283,8 @@ public class FilReportedController {
                 .setWorkerBalance(workerBalance)
                 .setPostBalance(postBalance.doubleValue())
                 .setUpdateTime(LocalDateTime.now())
-                .setType(1);
+                .setType(1)
+                .setBalanceMinerAvailable(balanceMinerAvailable);
         return noPlatformMinerService.noPlatformMiner(noPlatformMiner);
     }
 

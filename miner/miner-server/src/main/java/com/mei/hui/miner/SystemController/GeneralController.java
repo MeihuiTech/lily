@@ -63,7 +63,9 @@ public class GeneralController {
     @ApiOperation("大屏磁盘容量")
     @PostMapping("/findDiskSizeInfo")
     public Result<List<FindDiskSizeInfoBO>> findDiskSizeInfo(){
-        return generalService.findDiskSizeInfo();
+        Result<List<FindDiskSizeInfoBO>> result = generalService.findDiskSizeInfo();
+        noPlatformMinerService.setFindDiskSizeInfo(result.getData());
+        return result;
     }
 
     @ApiOperation("大屏，获取集群宽带")
@@ -75,7 +77,9 @@ public class GeneralController {
     @ApiOperation("大屏，有效算力")
     @PostMapping("/availablePower")
     public Result<List<AvailablePowerVO>> availablePower(){
-        return generalService.availablePower();
+        Result<List<AvailablePowerVO>> result = generalService.availablePower();
+        noPlatformMinerService.setAvailablePower(result.getData());
+        return result;
     }
 
     @ApiOperation("大屏-基础数据接口：累计出块、今天出块、账户资产、总算力、在线设备、活跃存储")
@@ -90,6 +94,8 @@ public class GeneralController {
     @ApiOperation("大屏-账户余额")
     @PostMapping("/accountInfo")
     public Result<List<AccountInfoVO>> accountInfo(){
-        return generalService.accountInfo();
+        Result<List<AccountInfoVO>> result = generalService.accountInfo();
+        noPlatformMinerService.setAccountInfo(result.getData());
+        return result;
     }
 }

@@ -2,13 +2,12 @@ package com.mei.hui.miner.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.NoPlatformMiner;
-import com.mei.hui.miner.feign.vo.NoPlatformAddBO;
-import com.mei.hui.miner.feign.vo.NoPlatformBOPage;
-import com.mei.hui.miner.feign.vo.NoPlatformVOPage;
-import com.mei.hui.miner.feign.vo.PlatformBaseInfoVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 /**
  * <p>
@@ -30,4 +29,10 @@ public interface NoPlatformMinerService extends IService<NoPlatformMiner> {
     PageResult<NoPlatformVOPage> pageList(@RequestBody NoPlatformBOPage bo);
 
     void setPlatformBaseInfo(PlatformBaseInfoVO vo);
+
+    void setFindDiskSizeInfo(List<FindDiskSizeInfoBO> list);
+
+    void setAvailablePower(List<AvailablePowerVO> list);
+
+    void setAccountInfo(List<AccountInfoVO> list);
 }

@@ -10,10 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.NoPlatformMiner;
 import com.mei.hui.miner.entity.NoPlatformPerHourAgg;
-import com.mei.hui.miner.feign.vo.NoPlatformAddBO;
-import com.mei.hui.miner.feign.vo.NoPlatformBOPage;
-import com.mei.hui.miner.feign.vo.NoPlatformVOPage;
-import com.mei.hui.miner.feign.vo.PlatformBaseInfoVO;
+import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.NoPlatformMinerMapper;
 import com.mei.hui.miner.service.NoPlatformMinerService;
 import com.mei.hui.miner.service.NoPlatformPerHourAggService;
@@ -113,6 +110,10 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
         return result;
     }
 
+    /**
+     * 将非平台矿工的累计出块，有效算力 添加到大屏中
+     * @param vo
+     */
     public void setPlatformBaseInfo(PlatformBaseInfoVO vo){
         if(vo != null){
             //计算非平台矿工数据
@@ -144,6 +145,54 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
             }
         }
         vo.setTotalAccount(BigDecimalUtil.formatFour(vo.getTotalAccount()));
+    }
+
+    /**
+     * 将非平台矿工的有效算力值当做磁盘显示在大屏中
+     */
+    public void setFindDiskSizeInfo(List<FindDiskSizeInfoBO> list){
+        //计算非平台矿工数据
+        LambdaQueryWrapper<NoPlatformMiner> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(NoPlatformMiner::getStatus,0);
+        queryWrapper.eq(NoPlatformMiner::getType,1);
+        List<NoPlatformMiner> miners = this.list(queryWrapper);
+        List<FindDiskSizeInfoBO> lt = miners.stream().map(v -> {
+            FindDiskSizeInfoBO bo = new FindDiskSizeInfoBO()
+                    .setSize(v.getPowerAvailable())
+                    .setClusterName(v.getMinerId());
+            return bo;
+        }).collect(Collectors.toList());
+        list.addAll(lt);
+    }
+
+    public void setAvailablePower(List<AvailablePowerVO> list){
+        //计算非平台矿工数据
+        LambdaQueryWrapper<NoPlatformMiner> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(NoPlatformMiner::getStatus,0);
+        queryWrapper.eq(NoPlatformMiner::getType,1);
+        List<NoPlatformMiner> miners = this.list(queryWrapper);
+        List<AvailablePowerVO> lt = miners.stream().map(v -> {
+            AvailablePowerVO bo = new AvailablePowerVO()
+                    .setMinerId(v.getMinerId())
+                    .setPowerAvailable(v.getPowerAvailable());
+            return bo;
+        }).collect(Collectors.toList());
+        list.addAll(lt);
+    }
+
+    public void setAccountInfo(List<AccountInfoVO> list){
+        //计算非平台矿工数据
+        LambdaQueryWrapper<NoPlatformMiner> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(NoPlatformMiner::getStatus,0);
+        queryWrapper.eq(NoPlatformMiner::getType,1);
+        List<NoPlatformMiner> miners = this.list(queryWrapper);
+        List<AccountInfoVO> lt = miners.stream().map(v -> {
+            AccountInfoVO bo = new AccountInfoVO()
+                    .setMinerId(v.getMinerId())
+                    .setBalanceMinerAvailable(new BigDecimal(v.getBalanceMinerAvailable()));
+            return bo;
+        }).collect(Collectors.toList());
+        list.addAll(lt);
     }
 
 }

@@ -74,5 +74,7 @@ public class NoPlatformMiner implements Serializable {
 
     private int deviceNum;
 
+    private Double balanceMinerAvailable;
+
 
 }
