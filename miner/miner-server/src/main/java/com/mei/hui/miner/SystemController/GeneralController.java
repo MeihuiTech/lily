@@ -1,10 +1,13 @@
 package com.mei.hui.miner.SystemController;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mei.hui.miner.entity.NoPlatformMiner;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.service.FilBaselinePowerDayAggService;
 import com.mei.hui.miner.service.FilBaselinePowerHourAggService;
 import com.mei.hui.miner.service.GeneralService;
+import com.mei.hui.miner.service.NoPlatformMinerService;
 import com.mei.hui.user.feign.vo.SysUserOut;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
@@ -25,11 +28,12 @@ public class GeneralController {
     private UserManager userManager;
     @Autowired
     private GeneralService generalService;
-
     @Autowired
     private FilBaselinePowerDayAggService baselinePowerDayAggService;
     @Autowired
     private FilBaselinePowerHourAggService baselinePowerHourAggService;
+    @Autowired
+    private NoPlatformMinerService noPlatformMinerService;
     /**
      * 新增矿工信息
      */
@@ -77,7 +81,10 @@ public class GeneralController {
     @ApiOperation("大屏-基础数据接口：累计出块、今天出块、账户资产、总算力、在线设备、活跃存储")
     @PostMapping("/platformBaseInfo")
     public Result<PlatformBaseInfoVO> platformBaseInfo(){
-        return generalService.platformBaseInfo();
+        Result<PlatformBaseInfoVO> result = generalService.platformBaseInfo();
+        PlatformBaseInfoVO vo = result.getData();
+        noPlatformMinerService.setPlatformBaseInfo(vo);
+        return result;
     }
 
     @ApiOperation("大屏-账户余额")

@@ -1,5 +1,6 @@
 package com.mei.hui.miner.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -8,21 +9,29 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.NoPlatformMiner;
+import com.mei.hui.miner.entity.NoPlatformPerHourAgg;
 import com.mei.hui.miner.feign.vo.NoPlatformAddBO;
 import com.mei.hui.miner.feign.vo.NoPlatformBOPage;
 import com.mei.hui.miner.feign.vo.NoPlatformVOPage;
+import com.mei.hui.miner.feign.vo.PlatformBaseInfoVO;
 import com.mei.hui.miner.mapper.NoPlatformMinerMapper;
 import com.mei.hui.miner.service.NoPlatformMinerService;
+import com.mei.hui.miner.service.NoPlatformPerHourAggService;
+import com.mei.hui.util.BigDecimalUtil;
 import com.mei.hui.util.MyException;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.diff.myers.MyersDiff;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,8 +42,11 @@ import java.util.stream.Collectors;
  * @author 鲍红建
  * @since 2021-09-13
  */
+@Slf4j
 @Service
 public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMapper, NoPlatformMiner> implements NoPlatformMinerService {
+    @Autowired
+    private NoPlatformPerHourAggService noPlatformPerHourAggService;
 
     public Result findNoPlatformMiners(){
         LambdaQueryWrapper<NoPlatformMiner> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -88,6 +100,7 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
 
     public PageResult<NoPlatformVOPage> pageList(NoPlatformBOPage bo){
         QueryWrapper<NoPlatformMiner> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("status","1");
         IPage<NoPlatformMiner> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), queryWrapper);
         List<NoPlatformVOPage> list = page.getRecords().stream().map(v -> {
             NoPlatformVOPage vo = new NoPlatformVOPage()
@@ -98,6 +111,39 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
         }).collect(Collectors.toList());
         PageResult result = new PageResult(page.getTotal(),list);
         return result;
+    }
+
+    public void setPlatformBaseInfo(PlatformBaseInfoVO vo){
+        if(vo != null){
+            //计算非平台矿工数据
+            LambdaQueryWrapper<NoPlatformMiner> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.eq(NoPlatformMiner::getStatus,0);
+            queryWrapper.eq(NoPlatformMiner::getType,1);
+            List<NoPlatformMiner> miners = this.list(queryWrapper);
+            log.info("非平台矿工:{}", JSON.toJSONString(miners));
+            for(NoPlatformMiner miner : miners){
+                vo.setTotalBlocks(vo.getTotalBlocks()+miner.getTotalBlocks());
+                vo.setTotalAccount(vo.getTotalAccount().add(new BigDecimal(miner.getBalanceMinerAccount())));
+                vo.setAllPowerAvailable(vo.getAllPowerAvailable().add(miner.getPowerAvailable()));
+                vo.setMachineOnlineNum(vo.getMachineOnlineNum() + miner.getDeviceNum());
+            }
+            vo.setAllMinerCount(vo.getAllMinerCount() + miners.size());
+            //24小时出块数
+            if(miners.size() > 0){
+                List<String> minerIds = miners.stream().map(v -> v.getMinerId()).collect(Collectors.toList());
+                LocalDateTime dateTime = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+                QueryWrapper<NoPlatformPerHourAgg> wrapper = new QueryWrapper();
+                wrapper.select("coalesce(sum(per_hour_blocks),0) as perHourBlocks");
+                wrapper.in("miner_id",minerIds);
+                wrapper.le("create_time",dateTime);
+                wrapper.ge("create_time",dateTime.minusHours(24));
+                Map<String, Object> map = noPlatformPerHourAggService.getMap(wrapper);
+                BigDecimal perHourBlocks = (BigDecimal) map.get("perHourBlocks");
+                log.info("非平台矿工24小时出块数:{}",perHourBlocks);
+                vo.setTwentyFourBlocks(vo.getTwentyFourBlocks() + perHourBlocks.longValue());
+            }
+        }
+        vo.setTotalAccount(BigDecimalUtil.formatFour(vo.getTotalAccount()));
     }
 
 }

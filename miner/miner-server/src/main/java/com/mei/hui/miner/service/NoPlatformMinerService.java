@@ -5,6 +5,7 @@ import com.mei.hui.miner.entity.NoPlatformMiner;
 import com.mei.hui.miner.feign.vo.NoPlatformAddBO;
 import com.mei.hui.miner.feign.vo.NoPlatformBOPage;
 import com.mei.hui.miner.feign.vo.NoPlatformVOPage;
+import com.mei.hui.miner.feign.vo.PlatformBaseInfoVO;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,4 +28,6 @@ public interface NoPlatformMinerService extends IService<NoPlatformMiner> {
     Result delete(String minerId);
 
     PageResult<NoPlatformVOPage> pageList(@RequestBody NoPlatformBOPage bo);
+
+    void setPlatformBaseInfo(PlatformBaseInfoVO vo);
 }
