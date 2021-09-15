@@ -15,5 +15,12 @@ import com.mei.hui.miner.entity.FilBillDayAgg;
 */
 public interface FilBillDayAggService extends IService<FilBillDayAgg> {
 
+    /**
+     * 根据minerId、date查询FIL币账单消息每天汇总表
+     * @param minerId
+     * @param date
+     * @return
+     */
+    public FilBillDayAgg selectFilBillDayAggList(String minerId,String date);
 
 }

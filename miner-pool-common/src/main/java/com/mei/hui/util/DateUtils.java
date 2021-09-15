@@ -2,6 +2,7 @@ package com.mei.hui.util;
 
 import com.mei.hui.util.html.DateFormatEnum;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.http.util.Args;
 
 import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
@@ -404,6 +405,39 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * LocalDateTime：把YMDHMS格式的字符串转成LocalDateTime类型
+     * @param str
+     * @return
+     */
+    public static LocalDateTime lDTStringToLocalDateTimeYMDHMS(String str){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS);
+        LocalDateTime ldt = LocalDateTime.parse(str,df);
+        return ldt;
+    }
+
+    /**
+     * LocalDateTime：把YMD格式的字符串转成LocalDateTime类型
+     * @param str
+     * @return
+     */
+//    public static LocalDateTime lDTStringToLocalDateTimeYMD(String str){
+//        DateTimeFormatter df = DateTimeFormatter.ofPattern(YYYY_MM_DD);
+//        LocalDateTime ldt = LocalDateTime.parse(str,df);
+//        return ldt;
+//    }
+
+    /**
+     * LocalDateTime：把YMD格式的字符串转成LocalDate类型
+     * @param str
+     * @return
+     */
+    public static LocalDate lDTStringToLocalDateYMD(String str){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern(YYYY_MM_DD);
+        LocalDate ldt = LocalDate.parse(str,df);
+        return ldt;
+    }
+
+    /**
      * LocalDateTime获取今天上一个时间点,如现在为：2021-08-30 15:30:00,上一个整点时间点为：2021-08-30 15:00:00
      * @return
      */
@@ -514,5 +548,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
 
+    public static void main(String[] args) {
+        // 时间戳转成datetime
+        String beginDate = "1631500410";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
+        System.out.println(sd);
+    }
 
 }

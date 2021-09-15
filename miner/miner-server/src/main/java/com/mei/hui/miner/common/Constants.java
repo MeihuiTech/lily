@@ -1,5 +1,6 @@
 package com.mei.hui.miner.common;
 
+import com.alibaba.excel.event.AbstractIgnoreExceptionReadListener;
 import com.mei.hui.util.SystemConstants;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -178,9 +179,29 @@ public interface Constants extends SystemConstants {
     Integer FILBILLTYPEBLOCKAWARD = 1;
 
     /**
+     * FIL币账单消息详情表类型：2补录
+     */
+    Integer FILBILLTYPEBACKTRACKING = 2;
+
+    /**
      * 账单-区块奖励的发送地址：f02
      */
     String BLOCKAWARDSEND = "f02";
+
+    /**
+     * 账单补录接收方
+     */
+    String BACKTRACKINGRECEIVER = "f099";
+
+    /**
+     * FIL币账单消息每天汇总表类型：0正常
+     */
+    Integer FILBILLDAYAGGTYPENORMAL = 0;
+
+    /**
+     * FIL币账单消息每天汇总表类型：1补录
+     */
+    Integer FILBILLDAYAGGTYPEBACKTRACKING = 1;
 
     /**
      * 矿工子账户地址key

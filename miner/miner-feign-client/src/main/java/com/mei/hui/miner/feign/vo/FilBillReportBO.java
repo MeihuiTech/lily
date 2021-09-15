@@ -16,7 +16,7 @@ public class FilBillReportBO {
 
 
     /**
-     * 旷工id，minerId
+     * 矿工id，minerId
      */
     private String miner;
 

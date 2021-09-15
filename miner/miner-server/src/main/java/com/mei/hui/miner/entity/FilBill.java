@@ -151,7 +151,7 @@ public class FilBill implements Serializable {
     private Long gasBurned;
 
     /**
-     * 类型：0账单消息，1区块奖励
+     * 类型：0账单消息，1区块奖励，2补录
      */
     private Integer type;
 

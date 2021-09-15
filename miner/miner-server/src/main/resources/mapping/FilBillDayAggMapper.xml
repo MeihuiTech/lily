@@ -34,6 +34,9 @@
         <if test="outOther != null and outOther != 0">
             out_other = out_other + #{outOther},
         </if>
+        <if test="type != null">
+            type = #{type},
+        </if>
         update_time = NOW()
         <where>
             <if test="minerId != null and minerId != ''">

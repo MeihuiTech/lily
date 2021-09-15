@@ -75,6 +75,11 @@ public class FilBillDayAgg {
      */
     private BigDecimal outOther;
 
+    /**
+     * 类型：默认0正常，1补录
+     */
+    private Integer type;
+
     private LocalDateTime createTime;
 
 

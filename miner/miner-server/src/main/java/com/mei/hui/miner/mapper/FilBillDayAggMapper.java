@@ -34,5 +34,5 @@ public interface FilBillDayAggMapper extends BaseMapper<FilBillDayAgg> {
                                                        @Param("inMoney") BigDecimal inMoney, @Param("outMoney") BigDecimal outMoney, @Param("balance") BigDecimal balance,
                                                        @Param("inTransfer") BigDecimal inTransfer,@Param("inBlockAward") BigDecimal inBlockAward,
                                                        @Param("outTransfer") BigDecimal outTransfer, @Param("outNodeFee") BigDecimal outNodeFee,
-                                                       @Param("outBurnFee") BigDecimal outBurnFee, @Param("outOther") BigDecimal outOther);
+                                                       @Param("outBurnFee") BigDecimal outBurnFee, @Param("outOther") BigDecimal outOther,@Param("type")Integer type);
 }

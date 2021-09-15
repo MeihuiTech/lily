@@ -3,6 +3,7 @@ package com.mei.hui.miner.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mei.hui.miner.entity.FilBill;
+import com.mei.hui.miner.entity.FilBillDayAgg;
 import com.mei.hui.miner.entity.FilBillTransactions;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.util.Result;
@@ -153,4 +154,15 @@ public interface FilBillService extends IService<FilBill> {
      * @param allFilBillTransactionsList
      */
     public void saveBatchReportBillMq(String minerId, LocalDateTime dateTime, List<FilBill> filBillList, List<FilBillTransactions> allFilBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO);
+
+    /**
+     * 账单补录数据
+     * @param miner
+     * @param date
+     * @param balance
+     * @param filBillList
+     * @param filBillTransactionsList
+     * @param filBillDayAggArgsVO
+     */
+    public void backTrackingBill(String minerId, String date, BigDecimal balance, FilBillDayAgg filBillDayAgg);
 }
