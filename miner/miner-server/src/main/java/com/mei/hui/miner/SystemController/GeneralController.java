@@ -13,12 +13,15 @@ import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Random;
 
 @Api(tags = "免登陆首页")
 @RestController
@@ -34,6 +37,8 @@ public class GeneralController {
     private FilBaselinePowerHourAggService baselinePowerHourAggService;
     @Autowired
     private NoPlatformMinerService noPlatformMinerService;
+    @Value("${spring.profiles.active}")
+    private String env;
     /**
      * 新增矿工信息
      */
@@ -88,7 +93,21 @@ public class GeneralController {
         Result<PlatformBaseInfoVO> result = generalService.platformBaseInfo();
         PlatformBaseInfoVO vo = result.getData();
         noPlatformMinerService.setPlatformBaseInfo(vo);
+        if("test".equals(env) || "dev".equals(env)){
+            vo.setTotalAccount(new BigDecimal("879024."+getFourRandom()));
+        }
         return result;
+    }
+
+    public static String getFourRandom(){
+        Random random = new Random();
+        String fourRandom = random.nextInt(10000) + "";
+        int randLength = fourRandom.length();
+        if(randLength<4){
+            for(int i=1; i<=4-randLength; i++)
+                fourRandom = "0" + fourRandom  ;
+        }
+        return fourRandom;
     }
 
     @ApiOperation("大屏-账户余额")
