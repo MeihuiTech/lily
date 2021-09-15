@@ -5,12 +5,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.miner.MinerApplication;
 import com.mei.hui.miner.entity.FilBill;
+import com.mei.hui.miner.entity.FilBillDayAgg;
 import com.mei.hui.miner.entity.FilBillTransactions;
 import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBillReportBO;
+import com.mei.hui.miner.feign.vo.FilBillReportListBO;
+import com.mei.hui.miner.service.FilBillDayAggService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.FilBillTransactionsService;
 import com.mei.hui.miner.service.FilBlockAwardService;
+import com.mei.hui.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -39,50 +44,71 @@ public class FilRabbitMQTest {
     private FilBlockAwardService filBlockAwardService;
     @Autowired
     private FilBillTransactionsService filBillTransactionsService;
+    @Autowired
+    private FilBillDayAggService filBillDayAggService;
 
 
     @Test
     public void filBillMQ(){
-        String messageStr = "[{\"cid\":\"bafy2bzaceasw6ur4fpt35xhwcoug7tvfbfbqeulvgohcw4suwsf47wgkvd4ci\",\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f01016365\",\"sizeBytes\":2020,\"nonce\":116068,\"value\":\"318815919044178336\",\"gasFeeCap\":\"3054027005\",\"gasPremium\":\"99670\",\"gasLimit\":\"53682271\",\"height\":1097848,\"stateRoot\":\"bafy2bzacedste2c6gmkiihrppx4gv4vk53yadn2qg5sfb5stgf5nbi2qs6i4q\",\"exitCode\":0,\"gasUsed\":46012734,\"parentBaseFee\":\"313950338\",\"baseFeeBurn\":\"14445713391604092\",\"overEstimationBurn\":\"160562679512326\",\"minerPenalty\":\"0\",\"minerTip\":\"5350511950570\",\"refund\":\"149335478740661367\",\"gasRefund\":7158110,\"gasBurned\":511427,\"miner\":\"f01016365\",\"method\":\"ProveCommitSector\",\"timestamp\":1631241840,\"transaction\":[{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f01016365\",\"value\":\"318815919044178336\",\"type\":\"Transfer\"},{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f099\",\"value\":\"14606276071116418\",\"type\":\"Burn Fee\"},{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f0145060\",\"value\":\"5350511950570\",\"type\":\"Node Fee\"}]},{\"cid\":\"bafy2bzacedbdwbhx5sukyc3rxioxw7sfrlgaiyxa5wkvwbpxebmatery6msyu\",\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f01016365\",\"sizeBytes\":156,\"nonce\":116069,\"value\":\"40807804398330598\",\"gasFeeCap\":\"3054026718\",\"gasPremium\":\"99383\",\"gasLimit\":\"15948368\",\"height\":1097848,\"stateRoot\":\"bafy2bzacedste2c6gmkiihrppx4gv4vk53yadn2qg5sfb5stgf5nbi2qs6i4q\",\"exitCode\":0,\"gasUsed\":12819795,\"parentBaseFee\":\"313950338\",\"baseFeeBurn\":\"4024778973340710\",\"overEstimationBurn\":\"141480777968686\",\"minerPenalty\":\"0\",\"minerTip\":\"1584996656944\",\"refund\":\"44538897232529884\",\"gasRefund\":2677926,\"gasBurned\":450647,\"miner\":\"f01016365\",\"method\":\"PreCommitSector\",\"timestamp\":1631241840,\"transaction\":[{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f01016365\",\"value\":\"40807804398330598\",\"type\":\"Transfer\"},{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f099\",\"value\":\"4166259751309396\",\"type\":\"Burn Fee\"},{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f0145060\",\"value\":\"1584996656944\",\"type\":\"Node Fee\"}]}]";
+        String messageStr = "{\"miner\":\"f01016365\",\"messages\":[{\"cid\":\"bafy2bzacedwjmonjtgwpa34gz4vr7kexxmm3y6gl7eppynhwkct3kxnxfy2h2\",\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f01016365\",\"sizeBytes\":136,\"nonce\":1,\"value\":\"0\",\"gasFeeCap\":\"102140\",\"gasPremium\":\"99737\",\"gasLimit\":\"2259007\",\"height\":807620,\"stateRoot\":\"bafy2bzacec5m46fg5omt75w4dbdjzb6fdo5t2noj5auadwvobdo5k2lucdisg\",\"exitCode\":0,\"gasUsed\":1867006,\"parentBaseFee\":\"218\",\"baseFeeBurn\":\"407007308\",\"overEstimationBurn\":\"9396890\",\"minerPenalty\":\"0\",\"minerTip\":\"225306581159\",\"refund\":\"5011989623\",\"gasRefund\":348896,\"gasBurned\":43105,\"miner\":\"f01016365\",\"method\":\"ChangeWorkerAddress\",\"timestamp\":1622535000,\"transaction\":[{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f099\",\"value\":\"416404198\",\"type\":\"Burn Fee\"},{\"from\":\"f3wuv4uczcwbpymvzks3qrjb2vlgzpdroba7te4g3brn6ofotthfaomexr7by5qsivn5eef4c2n2bjfj3umz6a\",\"to\":\"f022373\",\"value\":\"225306581159\",\"type\":\"Node Fee\"}]}],\"balance\":\"0\",\"date\":\"2021-06-01\",\"firstTipSet\":false}";
         log.info("FIL币账单rabbitmq上报入参【{}】：" , messageStr);
-        List<FilBillReportBO> filBillReportBOList = JSONObject.parseArray(messageStr,FilBillReportBO.class);
-        log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
+        FilBillReportListBO filBillReportListBO = JSONObject.parseObject(messageStr,FilBillReportListBO.class);
         List<FilBill> filBillList = new ArrayList<>();
         FilBillDayAggArgsVO filBillDayAggArgsVO = new FilBillDayAggArgsVO();
         List<FilBillTransactions> allFilBillTransactionsList = new ArrayList<>();
-        for (FilBillReportBO filBillReportBO : filBillReportBOList){
-            List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
-            log.info("filBillReportBO入参：【{}】",JSON.toJSON(filBillReportBO));
-            QueryWrapper<FilBill> queryWrapper = new QueryWrapper<>();
-            FilBill dbFilBill = new FilBill();
-            String cid = filBillReportBO.getCid();
-            dbFilBill.setCid(cid);
-            queryWrapper.setEntity(dbFilBill);
-            List<FilBill> dbFilBillList = filBillService.list(queryWrapper);
-            log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(dbFilBillList));
-            if (dbFilBillList != null && dbFilBillList.size() > 0){
-                log.info("该条数据MessageId：【{}】数据库中已经存在，不插入，并且确认消息",cid);
-                continue;
-            }
+        List<FilBillReportBO> filBillReportBOList = filBillReportListBO.getMessages();
+        log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
+        if (filBillReportBOList != null && filBillReportBOList.size() > 0){
+            for (FilBillReportBO filBillReportBO : filBillReportBOList){
+                List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
+//                log.info("filBillReportBO入参：【{}】",JSON.toJSON(filBillReportBO));
+                QueryWrapper<FilBill> queryWrapper = new QueryWrapper<>();
+                FilBill dbFilBill = new FilBill();
+                String cid = filBillReportBO.getCid();
+                dbFilBill.setCid(cid);
+                queryWrapper.setEntity(dbFilBill);
+                List<FilBill> dbFilBillList = filBillService.list(queryWrapper);
+                log.info("查询数据库里该条消息MessageId：【{}】是否存在出参：【{}】",cid,JSON.toJSON(dbFilBillList));
+                if (dbFilBillList != null && dbFilBillList.size() > 0){
+                    log.info("该条数据MessageId：【{}】数据库中已经存在，不插入，并且确认消息",cid);
+                    continue;
+                }
 
-            filBillService.reportBillMq(filBillReportBO,filBillList, filBillTransactionsList,filBillDayAggArgsVO);
-            allFilBillTransactionsList.addAll(filBillTransactionsList);
+                filBillService.reportBillMq(filBillReportBO,filBillList, filBillTransactionsList,filBillDayAggArgsVO);
+                log.info("保存上报FIL币账单出参：filBillList：【{}】，filBillTransactionsList：【{}】，filBillDayAggArgsVO：【{}】",JSON.toJSON(filBillList),
+                        JSON.toJSON(filBillTransactionsList),JSON.toJSON(filBillDayAggArgsVO));
+
+                allFilBillTransactionsList.addAll(filBillTransactionsList);
+            }
         }
 
-//            log.info("allFilBillTransactionsList转set之前的值：【{}】",JSON.toJSON(allFilBillTransactionsList));
-//            Set<FilBillTransactions> filBillTransactionsSet = new HashSet<FilBillTransactions>(allFilBillTransactionsList);
-//            allFilBillTransactionsList = new ArrayList<FilBillTransactions>(filBillTransactionsSet);
-//            log.info("allFilBillTransactionsList转set之前后的值：【{}】",JSON.toJSON(allFilBillTransactionsList));
+        // 判断是否补录
+        /*BigDecimal balance = filBillReportListBO.getBalance();
+        if (filBillReportListBO.isFirstTipSet()){
+            String minerId = filBillReportListBO.getMiner();
+            String date = filBillReportListBO.getDate();
+            // 获取前一天的日期
+            date = DateUtils.lDTLocalDateTimeFormatYMD(DateUtils.lDTStringToLocalDateTimeYMDHMS(date + " 00:00:00").plusDays(-1));
+            FilBillDayAgg filBillDayAgg = filBillDayAggService.selectFilBillDayAggList(minerId,date);
+            log.info("根据minerId、date查询FIL币账单消息每天汇总表出参：【{}】",JSON.toJSON(filBillDayAgg));
+            if (filBillDayAgg != null && filBillDayAgg.getBalance().compareTo(balance) > 0){
+                log.info("日统计里的余额大于mq补录数据的余额，插入一条补录账单数据minerId：【{}】,date：【{}】，balance：【{}】，filBillDayAgg：【{}】",
+                        minerId,date,balance,JSON.toJSON(filBillDayAgg));
+                filBillService.backTrackingBill(minerId,date,balance,filBillDayAgg);
+            } else if (filBillDayAgg.getBalance().compareTo(balance) < 0) {
+                log.info("日统计里的余额小于mq补录数据的余额，不做任何操作");
+            } else {
+                log.info("日统计里的余额等于mq补录数据的余额，不做任何操作");
+            }
+        }
 
         if(filBillList != null && filBillList.size() > 0 && allFilBillTransactionsList != null && allFilBillTransactionsList.size() > 0){
-            log.info("批量保存FIL币账单消息详情表入参：【{}】",JSON.toJSON(filBillList));
-            filBillService.saveBatch(filBillList);
-            log.info("批量保存FIL币账单转账信息表入参：【{}】",JSON.toJSON(allFilBillTransactionsList));
-            filBillTransactionsService.saveBatch(allFilBillTransactionsList);
-
             LocalDateTime dateTime = LocalDateTime.ofEpochSecond(filBillReportBOList.get(0).getTimestamp(), 0, ZoneOffset.ofHours(8));
-            filBillService.insertOrUpdateFilBillDayAggByMinerIdAndDateAll(filBillReportBOList.get(0).getMiner(),dateTime,filBillDayAggArgsVO);
-        }
+            log.info("批量保存FIL币账单消息详情表、FIL币账单转账信息表，实时计算FIL币账单消息每天汇总表数据minerId：【{}】，dateTime：【{}】，filBillList：【{}】，" +
+                            "allFilBillTransactionsList：【{}】，filBillDayAggArgsVO：【{}】",filBillReportBOList.get(0).getMiner(),dateTime,JSON.toJSON(filBillList),
+                    JSON.toJSON(allFilBillTransactionsList),JSON.toJSON(filBillDayAggArgsVO));
+            filBillService.saveBatchReportBillMq(filBillReportBOList.get(0).getMiner(),dateTime,filBillList,allFilBillTransactionsList,filBillDayAggArgsVO);
+        }*/
     }
 
 
