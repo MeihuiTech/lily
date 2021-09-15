@@ -52,7 +52,7 @@ public class NoPlatformPerHourAggTask {
             List<NoPlatformPerHourAgg> list = new ArrayList<>();
             for(NoPlatformMiner miner : miners){
                 Long blocks = noPlatformPerHourAggService.getPreNoPlatformPerHourAgg(miner.getMinerId());
-                BigDecimal perHoureBlocks = new BigDecimal(blocks).subtract(new BigDecimal(miner.getTotalBlocks()));
+                BigDecimal perHoureBlocks = new BigDecimal(miner.getTotalBlocks()).subtract(new BigDecimal(blocks));
                 LocalDateTime dateTime = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
                 NoPlatformPerHourAgg noPlatformPerHourAgg = new NoPlatformPerHourAgg()
                         .setMinerId(miner.getMinerId())
