@@ -41,7 +41,7 @@ public class NoPlatformPerHourAggServiceImpl extends ServiceImpl<NoPlatformPerHo
      * @return
      */
     public Long getPreNoPlatformPerHourAgg(String minerId){
-        LocalDateTime dateTime = LocalDateTime.now().withHour(1).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime dateTime = LocalDateTime.now().minusHours(1).withMinute(0).withSecond(0).withNano(0);
         String strDateTime = DateUtils.localDateTimeToString(dateTime, DateFormatEnum.YYYY_MM_DD_HH_MM_SS);
         //NoPlatform:minerId:2021-09-12 13:00:00
         String key = String.format("NoPlatform:%s:%s", minerId, strDateTime);
