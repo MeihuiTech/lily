@@ -118,7 +118,7 @@ public class FilRabbitMQListener {
             log.info("确认消息");
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            log.error("接收到FIL币账单异常,消息进入死信队列", e);
+            log.error("接收到FIL币账单异常,消息进入死信队列，异常：", e);
             // 报错后直接拒绝，并设置requeue属性为false，这样被拒绝的消息就不会重新回到原始队列中而是转发到死信交换机
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
         }
@@ -163,7 +163,7 @@ public class FilRabbitMQListener {
             // 对于每个Channel来说，每个消息都会有一个DeliveryTag，一般用接收消息的顺序(index)来表示，一条消息就为1
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            log.error("接收FIL币区块奖励异常,消息进入死信队列", e);
+            log.error("接收FIL币区块奖励异常,消息进入死信队列，异常：", e);
             // 报错后直接拒绝，并设置requeue属性为false，这样被拒绝的消息就不会重新回到原始队列中而是转发到死信交换机
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
         }
