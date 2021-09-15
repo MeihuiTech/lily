@@ -47,7 +47,7 @@ public class GeneralServiceImpl implements GeneralService {
             BigDecimal availDiskSize = diskService.getDiskSize(qiniuStoreConfig,availDiskSizeUrl);
             log.info("磁盘剩余可用容量:{}",availDiskSize);
             FindDiskSizeInfoBO bo = new FindDiskSizeInfoBO();
-            bo.setClusterName(qiniuStoreConfig.getClusterName());
+            bo.setClusterName(qiniuStoreConfig.getClusterName()+"(剩余)");
             bo.setSize(availDiskSize);
             list.add(bo);
 
