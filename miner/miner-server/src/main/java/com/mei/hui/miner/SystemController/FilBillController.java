@@ -272,10 +272,10 @@ public class FilBillController {
         LambdaQueryWrapper<FilBillDayAgg> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(FilBillDayAgg::getMinerId,exportBillBO.getMinerId());
         if(exportBillBO.getStartMonthDate() != null){
-            queryWrapper.gt(FilBillDayAgg::getDate,exportBillBO.getStartMonthDate());
+            queryWrapper.ge(FilBillDayAgg::getDate,exportBillBO.getStartMonthDate());
         }
         if(exportBillBO.getEndMonthDate() != null){
-            queryWrapper.lt(FilBillDayAgg::getDate,exportBillBO.getEndMonthDate());
+            queryWrapper.le(FilBillDayAgg::getDate,exportBillBO.getEndMonthDate());
         }
         List<FilBillDayAgg> filBillDayAggList = filBillDayAggService.list(queryWrapper);
         List<ExportBillVO> list = filBillDayAggList.stream().map(v -> {

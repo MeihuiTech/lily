@@ -3,6 +3,7 @@ package com.mei.hui.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mei.hui.util.NotAop;
+import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,33 +21,20 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 
- *
  * Description: 统一打印入参和出参日志格式
- *
  * @author baohongjian
- * @version 1.0
- * <pre>
- * Modification History: 
- * Date         Author      Version     Description 
- * ------------------------------------------------------------------ 
- * 2017年10月10日    bao       1.0        1.0 Version 
- * </pre>
  */
 @Component
 @Slf4j
 @Aspect
 public class AopController {
 
-	@Value("${spring.application.name}")
-	private String  projectName;
-
 	@Pointcut("execution(public * com.mei.hui.*.*Controller..*.*(..))")
 	public void webLog(){}
 
     @Before("webLog()")
     public void before(JoinPoint joinPoint) {
-    	log.info("@========================start-{}========================",projectName);
+    	log.info("@========================start========================");
 		NotAop notAop = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(NotAop.class);
 		if(notAop == null){
 			//获取请求的request
@@ -63,18 +51,17 @@ public class AopController {
 					currencyId,getReqParameter(joinPoint));
 		}
     }
-    
-/*    @AfterThrowing(pointcut = "webLog()", throwing = "ex")
-    public void afterThrowing(Exception ex) {  
-    	 log.error("@出现异常信息,如下:", ex);
-    	 log.info("@========================end-{}========================",projectName);
-    }
-    */
+
     @AfterReturning(pointcut="webLog()",
             returning="returnValue")  
-    public void afterReturning(JoinPoint point, Object returnValue){
-        log.info("@响应参数:{}",JSON.toJSONString(returnValue));
-        log.info("@========================end-{}========================",projectName);
+    public void afterReturning(JoinPoint point, Result returnValue){
+		Result result = new Result();
+    	if(returnValue != null){
+    		result.setCode(returnValue.getCode());
+    		result.setMsg(returnValue.getMsg());
+		}
+        log.info("@响应参数:{}",JSON.toJSONString(result));
+        log.info("@========================end========================");
     }  
 
 	public String getReqParameter(JoinPoint joinPoint) {

@@ -1,7 +1,11 @@
 package com.mei.hui.miner.SystemController;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.mei.hui.config.CommonUtil;
 import com.mei.hui.miner.common.MinerError;
+import com.mei.hui.miner.entity.NoPlatformMiner;
 import com.mei.hui.miner.entity.SysMachineInfo;
 import com.mei.hui.miner.feign.vo.MinerIpLongitudeLatitudeBO;
 import com.mei.hui.miner.feign.vo.ReportDeadlinesBO;
@@ -21,12 +25,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,6 +59,8 @@ public class FilReportedController {
     private FilDeadlinesService deadlinesService;
     @Autowired
     private IMinerLongitudeLatitudeService minerLongitudeLatitudeService;
+    @Autowired
+    private NoPlatformMinerService noPlatformMinerService;
 
     /**
      * 新增矿工信息
@@ -250,5 +256,43 @@ public class FilReportedController {
     public void initSectorDuration(){
         sysSectorsWrapService.initSectorDuration();
     }
+
+    @ApiOperation(value = "非平台矿工上报接口,仅在大屏显示")
+    @PostMapping("/noPlatformMiner")
+    public Result noPlatformMiner(@RequestBody String body){
+        JSONObject json = JSON.parseObject(body);
+        String minerId = json.getString("minerId");
+        BigDecimal powerAvailable = json.getBigDecimal("powerAvailable");
+        Double balanceMinerAccount = json.getDouble("balanceMinerAccount");
+        Long totalBlocks = json.getLong("totalBlocks");
+        Double workerBalance = json.getDouble("balanceWorkerAccount");
+        JSONArray postAccounts = json.getJSONArray("controlAccounts");
+        Double balanceMinerAvailable = json.getDouble("balanceMinerAvailable");
+
+        BigDecimal postBalance = BigDecimal.ZERO;
+        for(int i = 0; i < postAccounts.size();i++){
+            JSONObject post = postAccounts.getJSONObject(i);
+            BigDecimal balance = post.getBigDecimal("balance");
+            postBalance = postBalance.add(balance);
+        }
+        NoPlatformMiner noPlatformMiner = new NoPlatformMiner()
+                .setMinerId(minerId)
+                .setPowerAvailable(powerAvailable)
+                .setBalanceMinerAccount(balanceMinerAccount)
+                .setTotalBlocks(totalBlocks)
+                .setWorkerBalance(workerBalance)
+                .setPostBalance(postBalance.doubleValue())
+                .setUpdateTime(LocalDateTime.now())
+                .setType(1)
+                .setBalanceMinerAvailable(balanceMinerAvailable);
+        return noPlatformMinerService.noPlatformMiner(noPlatformMiner);
+    }
+
+    @ApiOperation(value = "获取非平台矿工")
+    @GetMapping("/findNoPlatformMiners")
+    public Result findNoPlatformMiners(){
+        return noPlatformMinerService.findNoPlatformMiners();
+    }
+
 
 }
