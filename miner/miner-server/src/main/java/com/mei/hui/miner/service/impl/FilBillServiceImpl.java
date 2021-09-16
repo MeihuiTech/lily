@@ -399,12 +399,21 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
         FilBillBalanceDayAgg todayFilBillBalanceDayAgg = filBillBalanceDayAggService.selectFilBillBalanceDayAggByMinerIdAndDate(minerId,DateUtils.lDTStringToLocalDateYMD(todayDate));
         log.info("今天根据minerId、date查询矿工总余额表，只返回一条数据出参：【{}】",JSON.toJSON(todayFilBillBalanceDayAgg));
+
+        String redisKey = String.format(Constants.FILBILLBALANCEDAYAGGKEY,minerId,yesterdayDate);
+
         if (todayFilBillBalanceDayAgg == null){
             Integer count = filBillBalanceDayAggService.insertFilBillBalanceDayAgg(minerId, DateUtils.lDTStringToLocalDateYMD(todayDate), balance);
             log.info("根据minerId、date、balance插入今天的矿工总余额表count出参：【{}】",count);
+
+            redisUtil.set(redisKey,balance.toString(),30,TimeUnit.DAYS);
+            log.info("补录哪天的账单保存在redis里redisKey：【{}】，value：【{}】",redisKey,balance.toString());
         } else {
             Integer count = filBillBalanceDayAggService.updateFilBillBalanceDayAgg(todayFilBillBalanceDayAgg.getId(), balance);
             log.info("根据id、balance修改矿工总余额表count出参：【{}】",count);
+
+            redisUtil.set(redisKey,balance.toString(),30,TimeUnit.DAYS);
+            log.info("补录哪天的账单保存在redis里redisKey：【{}】，value：【{}】",redisKey,balance.toString());
         }
         FilBillBalanceDayAgg yesterdayFilBillBalanceDayAgg = filBillBalanceDayAggService.selectFilBillBalanceDayAggByMinerIdAndDate(minerId,DateUtils.lDTStringToLocalDateYMD(yesterdayDate));
         log.info("昨天根据minerId、date查询矿工总余额表，只返回一条数据出参：【{}】",JSON.toJSON(yesterdayFilBillBalanceDayAgg));

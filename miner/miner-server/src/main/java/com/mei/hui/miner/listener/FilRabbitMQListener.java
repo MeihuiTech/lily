@@ -3,6 +3,8 @@ package com.mei.hui.miner.listener;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mei.hui.config.redisConfig.RedisUtil;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBillReportBO;
@@ -15,6 +17,7 @@ import com.mei.hui.miner.service.FilBlockAwardService;
 import com.mei.hui.util.DateUtils;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -37,7 +40,8 @@ public class FilRabbitMQListener {
     private FilBillService filBillService;
     @Autowired
     private FilBlockAwardService filBlockAwardService;
-
+    @Autowired
+    private RedisUtil redisUtil;
 
 
     /**
@@ -47,8 +51,8 @@ public class FilRabbitMQListener {
      * @throws IOException
      */
     // TODO 开发环境注释，测试环境暂时注释，正式环境发版的时候不要注释
-    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
-    @RabbitHandler
+//    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
+//    @RabbitHandler
     public void reportBillMq(Channel channel, Message message) throws IOException {
         try {
             byte[] body = message.getBody();
@@ -62,6 +66,17 @@ public class FilRabbitMQListener {
             log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
             if (filBillReportBOList != null && filBillReportBOList.size() > 0){
                 for (FilBillReportBO filBillReportBO : filBillReportBOList){
+                    // 判断该天账单矿工总余额表是否补录过，如果补录过，则不插入，跳过该条数据，如果没有不补录过，则正常走下面的逻辑
+                    String minerId = filBillReportBO.getMiner();
+                    String mqDateYMD = DateUtils.lDTLocalDateTimeFormatYMD(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)).plusDays(-1));
+                    String redisKey = String.format(Constants.FILBILLBALANCEDAYAGGKEY,minerId,mqDateYMD);
+                    String backTrackingBillRedisValue = redisUtil.get(redisKey);
+                    log.info("从redis里查该天账单矿工总余额表是否补录过redisKey：【{}】，backTrackingBillRedisValue：【{}】",redisKey,backTrackingBillRedisValue);
+                    if (StringUtils.isNotEmpty(backTrackingBillRedisValue)){
+                        log.info("从redis里查该天账单矿工总余额表里已经补录过，跳过该条数据，继续下一条账单redisKey：【{}】",redisKey);
+                        continue;
+                    }
+
                     List<FilBillTransactions> filBillTransactionsList = new ArrayList<>();
 //                log.info("filBillReportBO入参：【{}】",JSON.toJSON(filBillReportBO));
                     QueryWrapper<FilBill> queryWrapper = new QueryWrapper<>();
