@@ -149,9 +149,9 @@ public class GeneralServiceImpl implements GeneralService {
         List<AccountInfoVO> lt = list.stream().map(v -> {
             BigDecimal balancePostAccount = map.get(v.getMinerId());
             AccountInfoVO vo = new AccountInfoVO()
-                    .setBalanceMinerAvailable(v.getBalanceMinerAvailable())
-                    .setBalanceWorkerAccount(v.getBalanceWorkerAccount())
-                    .setBalancePostAccount(balancePostAccount)
+                    .setBalanceMinerAvailable(BigDecimalUtil.formatFour(v.getBalanceMinerAvailable()))
+                    .setBalanceWorkerAccount(BigDecimalUtil.formatFour(v.getBalanceWorkerAccount()))
+                    .setBalancePostAccount(BigDecimalUtil.formatFour(balancePostAccount))
                     .setMinerId(v.getMinerId());
             return vo;
         }).collect(Collectors.toList());

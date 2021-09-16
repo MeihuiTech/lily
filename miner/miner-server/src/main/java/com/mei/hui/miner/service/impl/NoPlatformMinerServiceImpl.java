@@ -198,9 +198,9 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
         List<AccountInfoVO> lt = miners.stream().map(v -> {
             AccountInfoVO bo = new AccountInfoVO()
                     .setMinerId(v.getMinerId())
-                    .setBalanceMinerAvailable(new BigDecimal(v.getBalanceMinerAvailable()))
-                    .setBalancePostAccount(new BigDecimal(v.getPostBalance()))
-                    .setBalanceWorkerAccount(new BigDecimal(v.getWorkerBalance()));
+                    .setBalanceMinerAvailable(BigDecimalUtil.formatFour(new BigDecimal(v.getBalanceMinerAvailable())))
+                    .setBalancePostAccount(BigDecimalUtil.formatFour(new BigDecimal(v.getPostBalance())))
+                    .setBalanceWorkerAccount(BigDecimalUtil.formatFour(new BigDecimal(v.getWorkerBalance())));
             return bo;
         }).collect(Collectors.toList());
         list.addAll(lt);
