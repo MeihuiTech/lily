@@ -59,7 +59,10 @@ public class NoPlatformPerHourAggServiceImpl extends ServiceImpl<NoPlatformPerHo
                 blocks = vo.getTotalBlocks();
             }else {
                 //如果缓存和mysql都没有聚合信息，则返回矿工的总出块数
-                NoPlatformMiner entity = noPlatformMinerService.getById(minerId);
+                LambdaQueryWrapper<NoPlatformMiner> wrapper = new LambdaQueryWrapper();
+                wrapper.eq(NoPlatformMiner::getMinerId,minerId);
+                wrapper.eq(NoPlatformMiner::getStatus,0);
+                NoPlatformMiner entity = noPlatformMinerService.getOne(wrapper);
                 blocks = entity.getTotalBlocks();
             }
             redisUtil.set(key,blocks+"",3,TimeUnit.HOURS);

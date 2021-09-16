@@ -23,10 +23,11 @@ import java.util.Date;
 @Accessors(chain = true)
 public class NoPlatformMiner implements Serializable {
 
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
     /**
      * 矿工ID
      */
-    @TableId(value = "miner_id", type = IdType.INPUT)
     private String minerId;
 
     /**
