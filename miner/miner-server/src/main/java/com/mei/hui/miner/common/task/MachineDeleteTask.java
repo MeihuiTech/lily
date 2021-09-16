@@ -36,7 +36,7 @@ public class MachineDeleteTask {
         }
         LambdaQueryWrapper<SysMachineInfo> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(SysMachineInfo::getOnline,0);
-        queryWrapper.lt(SysMachineInfo::getUpdateTime, LocalDate.now().minusDays(2));
+        queryWrapper.lt(SysMachineInfo::getUpdateTime, LocalDateTime.now().minusHours(24));
         List<SysMachineInfo> sysMachineInfoList = sysMachineInfoMapper.selectList(queryWrapper);
         log.info("数据条数:{}",sysMachineInfoList.size());
         List<Long> ids = sysMachineInfoList.stream().map(v -> v.getId()).collect(Collectors.toList());
