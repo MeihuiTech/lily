@@ -121,7 +121,7 @@ public interface Constants extends SystemConstants {
     /**
      * FIL币账单转账类型：3BlockAward区块奖励
      */
-    String TYPEBLOCKAWARD = "BlockAward";
+    String TYPEBLOCKAWARD = "AwardBlockReward";
 
     /**
      * FIL币账单转账类型：3BlockAward区块奖励

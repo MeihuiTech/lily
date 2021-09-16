@@ -55,7 +55,7 @@ public class FilRabbitMQTest {
 
     @Test
     public void filBillMQ(){
-        String messageStr = "{\"messages\":[{\"cid\":\"bafy2bzaceae6g7y4yrvy5nfxrlnqlmdwrjfhi3eg6hx7slk4ewanisod57rb4\",\"from\":\"f3tgj4uxd6dizgwzcnalb3i62a5zhvhwkbmg6pvcfufnevirxgwdoixeuffngtyii7c6xj2hdapsuke4dmgp3a\",\"to\":\"f01016365\",\"sizeBytes\":323,\"nonce\":1416,\"value\":\"0\",\"gasFeeCap\":\"1756841607\",\"gasPremium\":\"98955\",\"gasLimit\":\"10228996\",\"height\":1109107,\"stateRoot\":\"bafy2bzacebfqinlqppqphndkkky33kewgj52sbvyggocroaxl7w2p2opbpbjg\",\"exitCode\":0,\"gasUsed\":8241697,\"parentBaseFee\":\"157662586\",\"baseFeeBurn\":\"1299407262048442\",\"overEstimationBurn\":\"44218364194732\",\"minerPenalty\":\"0\",\"minerTip\":\"1012210299180\",\"refund\":\"16626087934094218\",\"gasRefund\":1706837,\"gasBurned\":280462,\"miner\":\"f01016365\",\"method\":\"SubmitWindowedPoSt\",\"timestamp\":1631785706,\"transaction\":[{\"from\":\"f3tgj4uxd6dizgwzcnalb3i62a5zhvhwkbmg6pvcfufnevirxgwdoixeuffngtyii7c6xj2hdapsuke4dmgp3a\",\"to\":\"f099\",\"value\":\"1343625626243174\",\"type\":\"Burn Fee\"},{\"from\":\"f3tgj4uxd6dizgwzcnalb3i62a5zhvhwkbmg6pvcfufnevirxgwdoixeuffngtyii7c6xj2hdapsuke4dmgp3a\",\"to\":\"f0135474\",\"value\":\"1012210299180\",\"type\":\"Node Fee\"}]}], \"balance\":\"95836169846690834000\",\"miner\":\"f01016365\", \"date\": \"2021-09-16\", \"firstTipSet\": true}";
+        String messageStr = "{\"miner\":\"f01016365\",\"messages\":[{\"cid\":\"\",\"from\":\"f02\",\"to\":\"f01016365\",\"sizeBytes\":0,\"nonce\":0,\"value\":\"25433472551625396653\",\"gasFeeCap\":\"0\",\"gasPremium\":\"0\",\"gasLimit\":\"0\",\"height\":821498,\"stateRoot\":\"bafy2bzacebyon67z6kn7c5xgc4itqba5n6ysjsajpw5payzy7hr2tgqo3tnta\",\"exitCode\":0,\"gasUsed\":0,\"parentBaseFee\":\"0\",\"baseFeeBurn\":\"0\",\"overEstimationBurn\":\"0\",\"minerPenalty\":\"0\",\"minerTip\":\"0\",\"refund\":\"0\",\"gasRefund\":0,\"gasBurned\":0,\"miner\":\"f01016365\",\"method\":\"AwardBlockReward\",\"timestamp\":1631785706,\"transaction\":[{\"from\":\"f02\",\"to\":\"f01016365\",\"value\":\"25433472551625396653\",\"type\":\"AwardBlockReward\"}]}],\"balance\":\"0\",\"date\":\"2021-09-16\",\"firstTipSet\":false}";
         log.info("FIL币账单rabbitmq上报入参【{}】：" , messageStr);
         FilBillReportListBO filBillReportListBO = JSONObject.parseObject(messageStr,FilBillReportListBO.class);
         List<FilBill> filBillList = new ArrayList<>();
@@ -113,6 +113,7 @@ public class FilRabbitMQTest {
                     JSON.toJSON(allFilBillTransactionsList),JSON.toJSON(filBillDayAggArgsVO));
             filBillService.saveBatchReportBillMq(filBillReportBOList.get(0).getMiner(),dateTime,filBillList,allFilBillTransactionsList,filBillDayAggArgsVO);
         }
+
     }
 
 

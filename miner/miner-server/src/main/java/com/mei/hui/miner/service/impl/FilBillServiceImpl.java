@@ -81,7 +81,12 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBill.setSender(filBillReportBO.getFrom());
         filBill.setReceiver(filBillReportBO.getTo());
         filBill.setMoney(filBillReportBO.getValue());
-        filBill.setType(Constants.FILBILLTYPEBILL);
+        if (Constants.TYPEBLOCKAWARD.equals(method)){
+            filBill.setType(Constants.FILBILLTYPEBLOCKAWARD);
+            filBill.setCid(null);
+        } else {
+            filBill.setType(Constants.FILBILLTYPEBILL);
+        }
         filBill.setDateTime(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
         filBill.setCreateTime(LocalDateTime.now());
         filBill.setId(IdUtils.simpleUUID());
@@ -119,7 +124,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
             insertOrUpdateFilBillDayAggByMinerIdAndDate(minerId,date,method,filBill.getDateTime().toLocalDate(),filBillTransactionsList,filBillDayAggArgsVO);
         }
-
     }
 
     /**
@@ -159,6 +163,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 log.info(Constants.TYPEOTHER);
                 filBillTransactions.setType(Constants.TYPEOTHERFOUR);
             }
+        } else if (Constants.TYPEBLOCKAWARD.equals(type)){
+            filBillTransactions.setType(Constants.TYPEBLOCKAWARDTHREE);
         }
 
         log.info("from：【{}】,to：【{}】",from,to);
@@ -172,6 +178,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 log.info(Constants.OUTSIDETYPEOUT+"");
                 filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
             } else {
+                // 区块奖励的接收方是minerId，发送方是f02，外部交易的收支是收入
                 log.info(Constants.OUTSIDETYPEIN+"");
                 filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
             }
