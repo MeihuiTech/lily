@@ -52,7 +52,7 @@ public class NoPlatformPerHourAggTask {
             List<NoPlatformPerHourAgg> list = new ArrayList<>();
             for(NoPlatformMiner miner : miners){
                 Long blocks = noPlatformPerHourAggService.getPreNoPlatformPerHourAgg(miner.getMinerId());
-                BigDecimal perHoureBlocks = new BigDecimal(blocks).subtract(new BigDecimal(miner.getTotalBlocks()));
+                BigDecimal perHoureBlocks = new BigDecimal(miner.getTotalBlocks()).subtract(new BigDecimal(blocks));
                 LocalDateTime dateTime = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
                 NoPlatformPerHourAgg noPlatformPerHourAgg = new NoPlatformPerHourAgg()
                         .setMinerId(miner.getMinerId())
@@ -62,7 +62,7 @@ public class NoPlatformPerHourAggTask {
                 list.add(noPlatformPerHourAgg);
                 String strDateTime = DateUtils.localDateTimeToString(dateTime, DateFormatEnum.YYYY_MM_DD_HH_MM_SS);
                 String key = String.format("NoPlatform:%s:%s", miner.getMinerId(), strDateTime);
-                redisUtil.set(key,blocks+"",3, TimeUnit.HOURS);
+                redisUtil.set(key,miner.getTotalBlocks()+"",3, TimeUnit.HOURS);
             }
             noPlatformPerHourAggService.saveBatch(list);
         } catch (Exception e) {

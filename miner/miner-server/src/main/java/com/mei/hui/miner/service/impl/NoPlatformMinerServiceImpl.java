@@ -53,11 +53,16 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
     }
 
     public Result noPlatformMiner(NoPlatformMiner noPlatformMiner){
-        NoPlatformMiner miner = this.getById(noPlatformMiner.getMinerId());
+        LambdaQueryWrapper<NoPlatformMiner> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(NoPlatformMiner::getStatus,0);
+        lambdaQueryWrapper.eq(NoPlatformMiner::getMinerId,noPlatformMiner.getMinerId());
+        NoPlatformMiner miner = this.getOne(lambdaQueryWrapper);
+        log.info("查询矿工是否存在:{}",JSON.toJSONString(miner));
         if(miner == null){
             noPlatformMiner.setCreateTime(LocalDateTime.now());
             this.save(noPlatformMiner);
         }else{
+            noPlatformMiner.setId(miner.getId());
             this.updateById(noPlatformMiner);
         }
         return Result.OK;
@@ -67,7 +72,11 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
         if(StringUtils.isEmpty(bo.getMinerId())){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"矿工id不能为空");
         }
-        NoPlatformMiner vo = this.getById(bo.getMinerId());
+        LambdaQueryWrapper<NoPlatformMiner> lambdaQueryWrapper = new LambdaQueryWrapper();
+        lambdaQueryWrapper.eq(NoPlatformMiner::getMinerId,bo.getMinerId());
+        lambdaQueryWrapper.eq(NoPlatformMiner::getStatus,0);
+        NoPlatformMiner vo = this.getOne(lambdaQueryWrapper);
+        log.info("查询非平台矿工是否已经存在:{}",JSON.toJSONString(vo));
         if(vo == null){
             NoPlatformMiner noPlatformMiner = new NoPlatformMiner()
                     .setMinerId(bo.getMinerId())
@@ -78,8 +87,8 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
         }else {
             LambdaUpdateWrapper<NoPlatformMiner> lambdaUpdateWrapper = new LambdaUpdateWrapper();
             lambdaUpdateWrapper.eq(NoPlatformMiner::getMinerId,bo.getMinerId());
+            lambdaUpdateWrapper.eq(NoPlatformMiner::getStatus,0);
             lambdaUpdateWrapper.set(NoPlatformMiner::getDeviceNum,bo.getDeviceNum());
-            lambdaUpdateWrapper.set(NoPlatformMiner::getCreateTime,LocalDateTime.now());
             lambdaUpdateWrapper.set(NoPlatformMiner::getUpdateTime,LocalDateTime.now());
             this.update(lambdaUpdateWrapper);
         }
@@ -97,7 +106,7 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
 
     public PageResult<NoPlatformVOPage> pageList(NoPlatformBOPage bo){
         QueryWrapper<NoPlatformMiner> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("status","1");
+        queryWrapper.eq("status","0");
         IPage<NoPlatformMiner> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), queryWrapper);
         List<NoPlatformVOPage> list = page.getRecords().stream().map(v -> {
             NoPlatformVOPage vo = new NoPlatformVOPage()
@@ -189,9 +198,9 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
         List<AccountInfoVO> lt = miners.stream().map(v -> {
             AccountInfoVO bo = new AccountInfoVO()
                     .setMinerId(v.getMinerId())
-                    .setBalanceMinerAvailable(new BigDecimal(v.getBalanceMinerAvailable()))
-                    .setBalancePostAccount(new BigDecimal(v.getPostBalance()))
-                    .setBalanceWorkerAccount(new BigDecimal(v.getWorkerBalance()));
+                    .setBalanceMinerAvailable(BigDecimalUtil.formatFour(new BigDecimal(v.getBalanceMinerAvailable())))
+                    .setBalancePostAccount(BigDecimalUtil.formatFour(new BigDecimal(v.getPostBalance())))
+                    .setBalanceWorkerAccount(BigDecimalUtil.formatFour(new BigDecimal(v.getWorkerBalance())));
             return bo;
         }).collect(Collectors.toList());
         list.addAll(lt);

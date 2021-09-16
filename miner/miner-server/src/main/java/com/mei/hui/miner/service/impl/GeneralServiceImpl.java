@@ -47,7 +47,7 @@ public class GeneralServiceImpl implements GeneralService {
             BigDecimal availDiskSize = diskService.getDiskSize(qiniuStoreConfig,availDiskSizeUrl);
             log.info("磁盘剩余可用容量:{}",availDiskSize);
             FindDiskSizeInfoBO bo = new FindDiskSizeInfoBO();
-            bo.setClusterName(qiniuStoreConfig.getClusterName());
+            bo.setClusterName(qiniuStoreConfig.getClusterName()+"(剩余)");
             bo.setSize(availDiskSize);
             list.add(bo);
 
@@ -149,9 +149,9 @@ public class GeneralServiceImpl implements GeneralService {
         List<AccountInfoVO> lt = list.stream().map(v -> {
             BigDecimal balancePostAccount = map.get(v.getMinerId());
             AccountInfoVO vo = new AccountInfoVO()
-                    .setBalanceMinerAvailable(v.getBalanceMinerAvailable())
-                    .setBalanceWorkerAccount(v.getBalanceWorkerAccount())
-                    .setBalancePostAccount(balancePostAccount)
+                    .setBalanceMinerAvailable(BigDecimalUtil.formatFour(v.getBalanceMinerAvailable()))
+                    .setBalanceWorkerAccount(BigDecimalUtil.formatFour(v.getBalanceWorkerAccount()))
+                    .setBalancePostAccount(BigDecimalUtil.formatFour(balancePostAccount))
                     .setMinerId(v.getMinerId());
             return vo;
         }).collect(Collectors.toList());

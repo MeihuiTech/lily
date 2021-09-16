@@ -23,10 +23,11 @@ import java.util.Date;
 @Accessors(chain = true)
 public class NoPlatformMiner implements Serializable {
 
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
     /**
      * 矿工ID
      */
-    @TableId(value = "miner_id", type = IdType.INPUT)
     private String minerId;
 
     /**
@@ -70,9 +71,9 @@ public class NoPlatformMiner implements Serializable {
     private LocalDateTime updateTime;
 
     //0-未上报;1-已上报
-    private int type;
+    private Integer type;
 
-    private int deviceNum;
+    private Integer deviceNum;
 
     private Double balanceMinerAvailable;
 

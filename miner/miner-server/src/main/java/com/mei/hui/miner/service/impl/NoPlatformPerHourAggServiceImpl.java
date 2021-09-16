@@ -41,7 +41,7 @@ public class NoPlatformPerHourAggServiceImpl extends ServiceImpl<NoPlatformPerHo
      * @return
      */
     public Long getPreNoPlatformPerHourAgg(String minerId){
-        LocalDateTime dateTime = LocalDateTime.now().withHour(1).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime dateTime = LocalDateTime.now().minusHours(1).withMinute(0).withSecond(0).withNano(0);
         String strDateTime = DateUtils.localDateTimeToString(dateTime, DateFormatEnum.YYYY_MM_DD_HH_MM_SS);
         //NoPlatform:minerId:2021-09-12 13:00:00
         String key = String.format("NoPlatform:%s:%s", minerId, strDateTime);
@@ -59,7 +59,10 @@ public class NoPlatformPerHourAggServiceImpl extends ServiceImpl<NoPlatformPerHo
                 blocks = vo.getTotalBlocks();
             }else {
                 //如果缓存和mysql都没有聚合信息，则返回矿工的总出块数
-                NoPlatformMiner entity = noPlatformMinerService.getById(minerId);
+                LambdaQueryWrapper<NoPlatformMiner> wrapper = new LambdaQueryWrapper();
+                wrapper.eq(NoPlatformMiner::getMinerId,minerId);
+                wrapper.eq(NoPlatformMiner::getStatus,0);
+                NoPlatformMiner entity = noPlatformMinerService.getOne(wrapper);
                 blocks = entity.getTotalBlocks();
             }
             redisUtil.set(key,blocks+"",3,TimeUnit.HOURS);

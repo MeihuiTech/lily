@@ -37,8 +37,6 @@ public class GeneralController {
     private FilBaselinePowerHourAggService baselinePowerHourAggService;
     @Autowired
     private NoPlatformMinerService noPlatformMinerService;
-    @Value("${spring.profiles.active}")
-    private String env;
     /**
      * 新增矿工信息
      */
@@ -93,21 +91,7 @@ public class GeneralController {
         Result<PlatformBaseInfoVO> result = generalService.platformBaseInfo();
         PlatformBaseInfoVO vo = result.getData();
         noPlatformMinerService.setPlatformBaseInfo(vo);
-        if("test".equals(env) || "dev".equals(env)){
-            vo.setTotalAccount(new BigDecimal("879024."+getFourRandom()));
-        }
         return result;
-    }
-
-    public static String getFourRandom(){
-        Random random = new Random();
-        String fourRandom = random.nextInt(10000) + "";
-        int randLength = fourRandom.length();
-        if(randLength<4){
-            for(int i=1; i<=4-randLength; i++)
-                fourRandom = "0" + fourRandom  ;
-        }
-        return fourRandom;
     }
 
     @ApiOperation("大屏-账户余额")
