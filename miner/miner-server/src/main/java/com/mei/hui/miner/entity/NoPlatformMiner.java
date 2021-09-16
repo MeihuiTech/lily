@@ -70,9 +70,9 @@ public class NoPlatformMiner implements Serializable {
     private LocalDateTime updateTime;
 
     //0-未上报;1-已上报
-    private int type;
+    private Integer type;
 
-    private int deviceNum;
+    private Integer deviceNum;
 
     private Double balanceMinerAvailable;
 

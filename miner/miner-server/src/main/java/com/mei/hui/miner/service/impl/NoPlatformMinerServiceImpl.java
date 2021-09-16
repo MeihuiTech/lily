@@ -79,7 +79,6 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
             LambdaUpdateWrapper<NoPlatformMiner> lambdaUpdateWrapper = new LambdaUpdateWrapper();
             lambdaUpdateWrapper.eq(NoPlatformMiner::getMinerId,bo.getMinerId());
             lambdaUpdateWrapper.set(NoPlatformMiner::getDeviceNum,bo.getDeviceNum());
-            lambdaUpdateWrapper.set(NoPlatformMiner::getCreateTime,LocalDateTime.now());
             lambdaUpdateWrapper.set(NoPlatformMiner::getUpdateTime,LocalDateTime.now());
             this.update(lambdaUpdateWrapper);
         }
