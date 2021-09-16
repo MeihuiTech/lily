@@ -81,7 +81,12 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBill.setSender(filBillReportBO.getFrom());
         filBill.setReceiver(filBillReportBO.getTo());
         filBill.setMoney(filBillReportBO.getValue());
-        filBill.setType(Constants.FILBILLTYPEBILL);
+        if (Constants.TYPEBLOCKAWARD.equals(method)){
+            filBill.setType(Constants.FILBILLTYPEBLOCKAWARD);
+            filBill.setCid(null);
+        } else {
+            filBill.setType(Constants.FILBILLTYPEBILL);
+        }
         filBill.setDateTime(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
         filBill.setCreateTime(LocalDateTime.now());
         filBill.setId(IdUtils.simpleUUID());
@@ -119,7 +124,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             String date = DateUtils.lDTLocalDateTimeFormatYMD(filBill.getDateTime());
             insertOrUpdateFilBillDayAggByMinerIdAndDate(minerId,date,method,filBill.getDateTime().toLocalDate(),filBillTransactionsList,filBillDayAggArgsVO);
         }
-
     }
 
     /**
@@ -159,6 +163,8 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 log.info(Constants.TYPEOTHER);
                 filBillTransactions.setType(Constants.TYPEOTHERFOUR);
             }
+        } else if (Constants.TYPEBLOCKAWARD.equals(type)){
+            filBillTransactions.setType(Constants.TYPEBLOCKAWARDTHREE);
         }
 
         log.info("from：【{}】,to：【{}】",from,to);
@@ -172,6 +178,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 log.info(Constants.OUTSIDETYPEOUT+"");
                 filBillTransactions.setOutsideType(Constants.OUTSIDETYPEOUT);
             } else {
+                // 区块奖励的接收方是minerId，发送方是f02，外部交易的收支是收入
                 log.info(Constants.OUTSIDETYPEIN+"");
                 filBillTransactions.setOutsideType(Constants.OUTSIDETYPEIN);
             }
@@ -399,12 +406,21 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
         FilBillBalanceDayAgg todayFilBillBalanceDayAgg = filBillBalanceDayAggService.selectFilBillBalanceDayAggByMinerIdAndDate(minerId,DateUtils.lDTStringToLocalDateYMD(todayDate));
         log.info("今天根据minerId、date查询矿工总余额表，只返回一条数据出参：【{}】",JSON.toJSON(todayFilBillBalanceDayAgg));
+
+        String redisKey = String.format(Constants.FILBILLBALANCEDAYAGGKEY,minerId,yesterdayDate);
+
         if (todayFilBillBalanceDayAgg == null){
             Integer count = filBillBalanceDayAggService.insertFilBillBalanceDayAgg(minerId, DateUtils.lDTStringToLocalDateYMD(todayDate), balance);
             log.info("根据minerId、date、balance插入今天的矿工总余额表count出参：【{}】",count);
+
+            redisUtil.set(redisKey,balance.toString(),30,TimeUnit.DAYS);
+            log.info("补录哪天的账单保存在redis里redisKey：【{}】，value：【{}】",redisKey,balance.toString());
         } else {
             Integer count = filBillBalanceDayAggService.updateFilBillBalanceDayAgg(todayFilBillBalanceDayAgg.getId(), balance);
             log.info("根据id、balance修改矿工总余额表count出参：【{}】",count);
+
+            redisUtil.set(redisKey,balance.toString(),30,TimeUnit.DAYS);
+            log.info("补录哪天的账单保存在redis里redisKey：【{}】，value：【{}】",redisKey,balance.toString());
         }
         FilBillBalanceDayAgg yesterdayFilBillBalanceDayAgg = filBillBalanceDayAggService.selectFilBillBalanceDayAggByMinerIdAndDate(minerId,DateUtils.lDTStringToLocalDateYMD(yesterdayDate));
         log.info("昨天根据minerId、date查询矿工总余额表，只返回一条数据出参：【{}】",JSON.toJSON(yesterdayFilBillBalanceDayAgg));

@@ -121,7 +121,7 @@ public interface Constants extends SystemConstants {
     /**
      * FIL币账单转账类型：3BlockAward区块奖励
      */
-    String TYPEBLOCKAWARD = "BlockAward";
+    String TYPEBLOCKAWARD = "AwardBlockReward";
 
     /**
      * FIL币账单转账类型：3BlockAward区块奖励
@@ -217,4 +217,9 @@ public interface Constants extends SystemConstants {
      * 更新FIL币账单消息每天汇总表的redis锁
      */
     String FILBILLDAYAGGLOCK = "updateFilBillDayAgg:%s";
+
+    /**
+     * 补账单-矿工总余额表redis存的key
+     */
+    String FILBILLBALANCEDAYAGGKEY = "fil_bill_balance_day_agg:%s:%s";
 }
