@@ -97,7 +97,7 @@ public class NoPlatformMinerServiceImpl extends ServiceImpl<NoPlatformMinerMappe
 
     public PageResult<NoPlatformVOPage> pageList(NoPlatformBOPage bo){
         QueryWrapper<NoPlatformMiner> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("status","1");
+        queryWrapper.eq("status","0");
         IPage<NoPlatformMiner> page = this.page(new Page<>(bo.getPageNum(), bo.getPageSize()), queryWrapper);
         List<NoPlatformVOPage> list = page.getRecords().stream().map(v -> {
             NoPlatformVOPage vo = new NoPlatformVOPage()
