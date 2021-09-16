@@ -31,6 +31,7 @@ public class NoPlatformApi {
     @ApiOperation(value = "新增、编辑")
     @PostMapping("/saveOrUpdate")
     public Result saveOrUpdate(@RequestBody NoPlatformAddBO bo){
+        bo.setMinerId(bo.getMinerId().trim());
         return noPlatformMinerService.saveOrUpdate(bo);
     }
 
