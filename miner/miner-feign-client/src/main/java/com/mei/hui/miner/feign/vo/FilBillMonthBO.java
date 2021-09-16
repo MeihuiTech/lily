@@ -35,6 +35,9 @@ public class FilBillMonthBO extends BasePage {
     @ApiModelProperty(value = "收支：0支出，1收入")
     private Integer outsideType;
 
+    @ApiModelProperty(value = "转账类型：0转入，1转出，2区块奖励")
+    private Integer transferType;
+
     public Integer getId() {
         return id;
     }
@@ -94,5 +97,11 @@ public class FilBillMonthBO extends BasePage {
         this.outsideType = outsideType;
     }
 
+    public Integer getTransferType() {
+        return transferType;
+    }
 
+    public void setTransferType(Integer transferType) {
+        this.transferType = transferType;
+    }
 }

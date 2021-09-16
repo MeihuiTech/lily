@@ -126,6 +126,24 @@ public class FilBillController {
         return filBillMonthBO;
     }
 
+    @ApiOperation("根据minerId、月份分页查询月转入、转出、区块奖励列表")
+    @PostMapping("/monthTransferPage")
+    public Result<IPage<FilBillVO>> selectFilBillMonthTransferPage(@RequestBody FilBillMonthBO filBillMonthBO){
+        LocalDateTime startDate = filBillMonthBO.getStartMonthDate();
+        LocalDateTime endDate = filBillMonthBO.getEndMonthDate();
+        if(startDate != null && endDate != null){
+            if(startDate.isAfter(endDate)){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"开始时间不能大于结束时间");
+            }
+        }
+        if (StringUtils.isEmpty(filBillMonthBO.getMinerId())){
+            filBillMonthBO = filBillMonthBOIsNull(filBillMonthBO);
+        }
+        IPage<FilBillVO> filBillVOPage = filBillService.selectFilBillMonthTransferPage(filBillMonthBO);
+
+        return Result.success(filBillVOPage);
+    }
+
 
 
 /*@ApiOperation("手动调用fil币账单按天聚合定时器")

@@ -3,14 +3,12 @@ package com.mei.hui.miner.listener;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.mei.hui.miner.entity.FilBill;
-import com.mei.hui.miner.entity.FilBillDayAgg;
-import com.mei.hui.miner.entity.FilBillTransactions;
-import com.mei.hui.miner.entity.FilBlockAward;
+import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.FilBillDayAggArgsVO;
 import com.mei.hui.miner.feign.vo.FilBillReportBO;
 import com.mei.hui.miner.feign.vo.FilBillReportListBO;
 import com.mei.hui.miner.feign.vo.FilBlockAwardReportBO;
+import com.mei.hui.miner.service.FilBillBalanceDayAggService;
 import com.mei.hui.miner.service.FilBillDayAggService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.FilBlockAwardService;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -38,8 +37,7 @@ public class FilRabbitMQListener {
     private FilBillService filBillService;
     @Autowired
     private FilBlockAwardService filBlockAwardService;
-    @Autowired
-    private FilBillDayAggService filBillDayAggService;
+
 
 
     /**
@@ -87,23 +85,11 @@ public class FilRabbitMQListener {
             }
 
             // 判断是否补录
-            BigDecimal balance = filBillReportListBO.getBalance();
             if (filBillReportListBO.isFirstTipSet()){
+                BigDecimal balance = filBillReportListBO.getBalance();
                 String minerId = filBillReportListBO.getMiner();
-                String date = filBillReportListBO.getDate();
-                // 获取前一天的日期
-                date = DateUtils.lDTLocalDateTimeFormatYMD(DateUtils.lDTStringToLocalDateTimeYMDHMS(date + " 00:00:00").plusDays(-1));
-                FilBillDayAgg filBillDayAgg = filBillDayAggService.selectFilBillDayAggList(minerId,date);
-                log.info("根据minerId、date查询FIL币账单消息每天汇总表出参：【{}】",JSON.toJSON(filBillDayAgg));
-                if (filBillDayAgg != null && filBillDayAgg.getBalance().compareTo(balance) > 0){
-                    log.info("日统计里的余额大于mq补录数据的余额，插入一条补录账单数据minerId：【{}】,date：【{}】，balance：【{}】，filBillDayAgg：【{}】",
-                            minerId,date,balance,JSON.toJSON(filBillDayAgg));
-                    filBillService.backTrackingBill(minerId,date,balance,filBillDayAgg);
-                } else if (filBillDayAgg.getBalance().compareTo(balance) < 0) {
-                    log.info("日统计里的余额小于mq补录数据的余额，不做任何操作");
-                } else {
-                    log.info("日统计里的余额等于mq补录数据的余额，不做任何操作");
-                }
+                String todayDate = filBillReportListBO.getDate();
+                filBillService.reportBillBackTracking(minerId,todayDate,balance);
             }
 
             if(filBillList != null && filBillList.size() > 0 && allFilBillTransactionsList != null && allFilBillTransactionsList.size() > 0){

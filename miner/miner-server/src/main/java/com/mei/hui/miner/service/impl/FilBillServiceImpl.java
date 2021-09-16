@@ -13,10 +13,7 @@ import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.mapper.FilBillDayAggMapper;
 import com.mei.hui.miner.mapper.FilBillMapper;
 import com.mei.hui.miner.mapper.FilMinerControlBalanceMapper;
-import com.mei.hui.miner.service.FilBillParamsService;
-import com.mei.hui.miner.service.FilBillService;
-import com.mei.hui.miner.service.FilBillTransactionsService;
-import com.mei.hui.miner.service.ISysMinerInfoService;
+import com.mei.hui.miner.service.*;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.IdUtils;
 import com.mei.hui.util.MyException;
@@ -64,6 +61,10 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     private FilBillDayAggMapper filBillDayAggMapper;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private FilBillDayAggService filBillDayAggService;
+    @Autowired
+    private FilBillBalanceDayAggService filBillBalanceDayAggService;
 
 
     /*上报FIL币账单*/
@@ -389,6 +390,44 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
                 null,money,Constants.FILBILLDAYAGGTYPEBACKTRACKING);
     }
 
+    /*补录账单所有的业务逻辑*/
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void reportBillBackTracking(String minerId, String todayDate, BigDecimal balance) {
+        // 获取前一天的日期
+        String yesterdayDate = DateUtils.lDTLocalDateTimeFormatYMD(DateUtils.lDTStringToLocalDateTimeYMDHMS(todayDate + " 00:00:00").plusDays(-1));
+
+        FilBillBalanceDayAgg todayFilBillBalanceDayAgg = filBillBalanceDayAggService.selectFilBillBalanceDayAggByMinerIdAndDate(minerId,DateUtils.lDTStringToLocalDateYMD(todayDate));
+        log.info("今天根据minerId、date查询矿工总余额表，只返回一条数据出参：【{}】",JSON.toJSON(todayFilBillBalanceDayAgg));
+        if (todayFilBillBalanceDayAgg == null){
+            Integer count = filBillBalanceDayAggService.insertFilBillBalanceDayAgg(minerId, DateUtils.lDTStringToLocalDateYMD(todayDate), balance);
+            log.info("根据minerId、date、balance插入今天的矿工总余额表count出参：【{}】",count);
+        } else {
+            Integer count = filBillBalanceDayAggService.updateFilBillBalanceDayAgg(todayFilBillBalanceDayAgg.getId(), balance);
+            log.info("根据id、balance修改矿工总余额表count出参：【{}】",count);
+        }
+        FilBillBalanceDayAgg yesterdayFilBillBalanceDayAgg = filBillBalanceDayAggService.selectFilBillBalanceDayAggByMinerIdAndDate(minerId,DateUtils.lDTStringToLocalDateYMD(yesterdayDate));
+        log.info("昨天根据minerId、date查询矿工总余额表，只返回一条数据出参：【{}】",JSON.toJSON(yesterdayFilBillBalanceDayAgg));
+
+        if (yesterdayFilBillBalanceDayAgg != null){
+            BigDecimal yesterdayBalance = balance.subtract(yesterdayFilBillBalanceDayAgg.getBalance());
+
+            FilBillDayAgg filBillDayAgg = filBillDayAggService.selectFilBillDayAggList(minerId,yesterdayDate);
+            log.info("根据minerId、date查询FIL币账单消息每天汇总表出参：【{}】",JSON.toJSON(filBillDayAgg));
+            if (filBillDayAgg != null && filBillDayAgg.getBalance().compareTo(yesterdayBalance) > 0){
+                log.info("日统计里的余额大于mq补录数据的余额，插入一条补录账单数据minerId：【{}】,date：【{}】，yesterdayBalance：【{}】，filBillDayAgg：【{}】",
+                        minerId,yesterdayDate,yesterdayBalance,JSON.toJSON(filBillDayAgg));
+                this.backTrackingBill(minerId,yesterdayDate,yesterdayBalance,filBillDayAgg);
+            } else if (filBillDayAgg.getBalance().compareTo(yesterdayBalance) < 0) {
+                log.info("日统计里的余额小于mq补录数据的余额，不做任何操作minerId：【{}】,date：【{}】",minerId,yesterdayDate);
+            } else {
+                log.info("日统计里的余额等于mq补录数据的余额，不做任何操作minerId：【{}】,date：【{}】",minerId,yesterdayDate);
+            }
+        } else {
+            log.info("矿工总余额表昨天的数据不存在，不进行补录minerId：【{}】,date：【{}】",minerId,yesterdayDate);
+        }
+    }
+
     /*分页查询日账单列表*/
     @Override
     public IPage<FilBillDayAggVO> selectFilBillDayAggPage(FilBillMonthBO filBillMonthBO) {
@@ -563,6 +602,18 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         IPage<FilBillVO> filBillVOIPage = filBillMapper.selectFilBillTransactionsPage(page,minerId,startDate,endDate,filBillMonthBO.getType(),filBillMonthBO.getOutsideType());
         log.info("分页查询日账单详情列表出参：【{}】",JSON.toJSON(filBillVOIPage));
         return filBillVOIPage;
+    }
+
+    /*根据minerId、月份分页查询月转入、转出、区块奖励列表*/
+    @Override
+    public IPage<FilBillVO> selectFilBillMonthTransferPage(FilBillMonthBO filBillMonthBO) {
+        LocalDateTime startDate = filBillMonthBO.getStartMonthDate();
+        LocalDateTime endDate = filBillMonthBO.getEndMonthDate();
+        Integer transferType = filBillMonthBO.getTransferType();
+        Page<FilBillVO> page = new Page<>(filBillMonthBO.getPageNum(),filBillMonthBO.getPageSize());
+        IPage<FilBillVO> filBillVOPage = filBillMapper.selectFilBillMonthTransferPage(page,filBillMonthBO.getMinerId(),startDate,endDate,transferType);
+        log.info("根据minerId、月份分页查询月转入、转出、区块奖励列表出参：【{}】",JSON.toJSON(filBillVOPage));
+        return filBillVOPage;
     }
 
     /*新增FIL币账单消息每天汇总表*/

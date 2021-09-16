@@ -154,4 +154,17 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
      * @return
      */
     public List<FilBillDayAgg> selectFilBillmonthAgg(@Param("minerId") String minerId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * 根据minerId、月份分页查询月转入、转出、区块奖励列表
+     *
+     * @param page
+     * @param minerId
+     * @param startDate
+     * @param endDate
+     * @param transferType
+     * @return
+     */
+    public IPage<FilBillVO> selectFilBillMonthTransferPage(@Param("page") Page<FilBillVO> page, @Param("minerId") String minerId, @Param("startDate") LocalDateTime startDate,
+                                                           @Param("endDate") LocalDateTime endDate, @Param("transferType") Integer transferType);
 }

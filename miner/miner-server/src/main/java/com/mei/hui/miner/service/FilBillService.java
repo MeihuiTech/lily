@@ -165,4 +165,19 @@ public interface FilBillService extends IService<FilBill> {
      * @param filBillDayAggArgsVO
      */
     public void backTrackingBill(String minerId, String date, BigDecimal balance, FilBillDayAgg filBillDayAgg);
+
+    /**
+     * 根据minerId、月份分页查询月转入、转出、区块奖励列表
+     * @param filBillMonthBO
+     * @return
+     */
+    public IPage<FilBillVO> selectFilBillMonthTransferPage(FilBillMonthBO filBillMonthBO);
+
+    /**
+     * 补录账单所有的业务逻辑
+     * @param minerId
+     * @param todayDate
+     * @param balance
+     */
+    public void reportBillBackTracking(String minerId, String todayDate, BigDecimal balance);
 }

@@ -416,17 +416,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
-     * LocalDateTime：把YMD格式的字符串转成LocalDateTime类型
-     * @param str
-     * @return
-     */
-//    public static LocalDateTime lDTStringToLocalDateTimeYMD(String str){
-//        DateTimeFormatter df = DateTimeFormatter.ofPattern(YYYY_MM_DD);
-//        LocalDateTime ldt = LocalDateTime.parse(str,df);
-//        return ldt;
-//    }
-
-    /**
      * LocalDateTime：把YMD格式的字符串转成LocalDate类型
      * @param str
      * @return
