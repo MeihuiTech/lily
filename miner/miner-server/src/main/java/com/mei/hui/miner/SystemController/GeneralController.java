@@ -37,8 +37,6 @@ public class GeneralController {
     private FilBaselinePowerHourAggService baselinePowerHourAggService;
     @Autowired
     private NoPlatformMinerService noPlatformMinerService;
-    @Value("${spring.profiles.active}")
-    private String env;
     /**
      * 新增矿工信息
      */
@@ -93,9 +91,6 @@ public class GeneralController {
         Result<PlatformBaseInfoVO> result = generalService.platformBaseInfo();
         PlatformBaseInfoVO vo = result.getData();
         noPlatformMinerService.setPlatformBaseInfo(vo);
-        if("test".equals(env) || "dev".equals(env)){
-            vo.setTotalAccount(new BigDecimal("879024."+getFourRandom()));
-        }
         return result;
     }
 
