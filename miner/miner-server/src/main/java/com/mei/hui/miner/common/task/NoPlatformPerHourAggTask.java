@@ -62,7 +62,7 @@ public class NoPlatformPerHourAggTask {
                 list.add(noPlatformPerHourAgg);
                 String strDateTime = DateUtils.localDateTimeToString(dateTime, DateFormatEnum.YYYY_MM_DD_HH_MM_SS);
                 String key = String.format("NoPlatform:%s:%s", miner.getMinerId(), strDateTime);
-                redisUtil.set(key,blocks+"",3, TimeUnit.HOURS);
+                redisUtil.set(key,miner.getTotalBlocks()+"",3, TimeUnit.HOURS);
             }
             noPlatformPerHourAggService.saveBatch(list);
         } catch (Exception e) {
