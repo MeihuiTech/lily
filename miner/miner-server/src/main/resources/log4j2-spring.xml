@@ -14,9 +14,9 @@
         <RollingFile name="RollingFileInfo" fileName="${LOG_HOME}/${serviceName}.log" filePattern="${LOG_HOME}/${serviceName}-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="${myFilePattern}"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="100MB"/>
+                <SizeBasedTriggeringPolicy size="250MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="200"/>
+            <DefaultRolloverStrategy max="400"/>
         </RollingFile>
     </appenders>
 
