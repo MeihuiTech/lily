@@ -67,7 +67,7 @@ public class FilRabbitMQTest {
             for (FilBillReportBO filBillReportBO : filBillReportBOList){
                 // 判断该天账单矿工总余额表是否补录过，如果补录过，则不插入，跳过该条数据，如果没有不补录过，则正常走下面的逻辑
                 String minerId = filBillReportBO.getMiner();
-                String mqDateYMD = DateUtils.lDTLocalDateTimeFormatYMD(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)).plusDays(-1));
+                String mqDateYMD = DateUtils.lDTLocalDateTimeFormatYMD(LocalDateTime.ofEpochSecond(filBillReportBO.getTimestamp(), 0, ZoneOffset.ofHours(8)));
                 String redisKey = String.format(Constants.FILBILLBALANCEDAYAGGKEY,minerId,mqDateYMD);
                 String backTrackingBillRedisValue = redisUtil.get(redisKey);
                 log.info("从redis里查该天账单矿工总余额表是否补录过redisKey：【{}】，backTrackingBillRedisValue：【{}】",redisKey,backTrackingBillRedisValue);
