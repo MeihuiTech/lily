@@ -63,7 +63,7 @@ public class FilRabbitMQListener {
             FilBillDayAggArgsVO filBillDayAggArgsVO = new FilBillDayAggArgsVO();
             List<FilBillTransactions> allFilBillTransactionsList = new ArrayList<>();
             List<FilBillReportBO> filBillReportBOList = filBillReportListBO.getMessages();
-            log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
+//            log.info("FIL币账单rabbitmq上报入参转成list结果：【{}】",JSON.toJSON(filBillReportBOList));
             if (filBillReportBOList != null && filBillReportBOList.size() > 0){
                 for (FilBillReportBO filBillReportBO : filBillReportBOList){
                     // 判断该天账单矿工总余额表是否补录过，如果补录过，则不插入，跳过该条数据，如果没有不补录过，则正常走下面的逻辑

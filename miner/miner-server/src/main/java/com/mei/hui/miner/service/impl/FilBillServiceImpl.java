@@ -71,8 +71,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     @Override
 //    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void reportBillMq(FilBillReportBO filBillReportBO,List<FilBill> filBillList,List<FilBillTransactions> filBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO) {
-        log.info("上报FIL币账单：filBillReportBO：【{}】,filBillList：【{}】,filBillTransactionsList：【{}】,filBillDayAggArgsVO：【{}】",
-                filBillReportBO,filBillList,filBillTransactionsList,filBillDayAggArgsVO);
+        log.info("上报FIL币账单：filBillReportBO：【{}】",filBillReportBO);
         String minerId = filBillReportBO.getMiner();
         String method = filBillReportBO.getMethod();
         FilBill filBill = new FilBill();
@@ -106,7 +105,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             filBillSubAccountVOList.stream().forEach(v->{
                 addressList.add(v.getAddress());
             });
-            log.info("矿工子账户地址列表addressList：【{}】",addressList);
+//            log.info("矿工子账户地址列表addressList：【{}】",addressList);
 
             for (FilBillTransactionsReportBO filBillTransactionsReportBO : filBillTransactionsReportBOList){
 //                log.info("filBillTransactionsReportBO:【{}】",JSON.toJSON(filBillTransactionsReportBO));
@@ -146,7 +145,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillTransactions.setMoney(filBillTransactionsReportBO.getValue());
         filBillTransactions.setCreateTime(LocalDateTime.now());
         String type = filBillTransactionsReportBO.getType();
-        log.info("type：【{}】",type);
+//        log.info("type：【{}】",type);
         if(Constants.TYPENODEFEE.equals(type)){
             log.info(Constants.TYPENODEFEE);
             filBillTransactions.setType(Constants.TYPENODEFEEZERO);
@@ -167,7 +166,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             filBillTransactions.setType(Constants.TYPEBLOCKAWARDTHREE);
         }
 
-        log.info("from：【{}】,to：【{}】",from,to);
+//        log.info("from：【{}】,to：【{}】",from,to);
         if (addressList.contains(from) && addressList.contains(to) && !Constants.TYPENODEFEE.equals(type) && !Constants.TYPEBURNFEE.equals(type)){
             log.info(Constants.TRANSACTIONTYPEINSIDE+"");
             filBillTransactions.setTransactionType(Constants.TRANSACTIONTYPEINSIDE);
@@ -252,7 +251,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBillDayAggArgsVO.setInMoney(filBillDayAggArgsVO.getInTransfer().add(filBillDayAggArgsVO.getInBlockAward()));
         filBillDayAggArgsVO.setOutMoney(filBillDayAggArgsVO.getOutTransfer().add(filBillDayAggArgsVO.getOutNodeFee()).add(filBillDayAggArgsVO.getOutBurnFee()).add(filBillDayAggArgsVO.getOutOther()));
         filBillDayAggArgsVO.setBalance(filBillDayAggArgsVO.getInMoney().subtract(filBillDayAggArgsVO.getOutMoney()));
-        log.info("更新或者插入 FIL币账单消息每天汇总表  完成最后的filBillDayAggArgsVO：【{}】",JSON.toJSON(filBillDayAggArgsVO));
+//        log.info("更新或者插入 FIL币账单消息每天汇总表  完成最后的filBillDayAggArgsVO：【{}】",JSON.toJSON(filBillDayAggArgsVO));
     }
 
     /*更新或者插入所有的FIL币账单消息每天汇总表*/
@@ -261,7 +260,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         String date = DateUtils.lDTLocalDateTimeFormatYMD(dateTime);
         String redisKey = String.format(Constants.FILBILLDAYAGGKEY, minerId, date);
         String redisValue = redisUtil.get(redisKey);
-        log.info("从redis里查询FIL币账单消息每天汇总表出参：【{}】",redisValue);
+        log.info("从redis里查询FIL币账单消息每天汇总表出参redisValue：【{}】",redisValue);
         if (StringUtils.isEmpty(redisValue)){
             log.info("往redis和数据库里都里插入数据：【{}】",JSON.toJSON(filBillDayAggArgsVO));
             redisUtil.set(redisKey,"0",25,TimeUnit.HOURS);
@@ -272,7 +271,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         // 根据矿工id、日期更新所有的收入和支出
         // 上报账单和上报区块奖励同时操作日统计表，所以需要加锁
         String redisLock = String.format(Constants.FILBILLDAYAGGLOCK,minerId);
-        log.info("根据矿工id、日期更新所有的收入和支出redisLock：【{}】",redisLock);
+        log.info("根据矿工id、日期更新所有的收入和支出加分布式redis锁：【{}】",redisLock);
         redisUtil.lock(redisLock);
         filBillDayAggMapper.updateFilBillDayAggByMinerIdAndDate(minerId,date,filBillDayAggArgsVO.getInMoney(),filBillDayAggArgsVO.getOutMoney(),filBillDayAggArgsVO.getBalance(),
                 filBillDayAggArgsVO.getInTransfer(),filBillDayAggArgsVO.getInBlockAward(),filBillDayAggArgsVO.getOutTransfer(),filBillDayAggArgsVO.getOutNodeFee(),
@@ -319,11 +318,11 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveBatchReportBillMq(String minerId, LocalDateTime dateTime, List<FilBill> filBillList, List<FilBillTransactions> allFilBillTransactionsList,FilBillDayAggArgsVO filBillDayAggArgsVO) {
-        log.info("批量保存FIL币账单消息详情表入参：【{}】",JSON.toJSON(filBillList));
+//        log.info("批量保存FIL币账单消息详情表入参：【{}】",JSON.toJSON(filBillList));
         saveBatch(filBillList);
-        log.info("批量保存FIL币账单转账信息表入参：【{}】",JSON.toJSON(allFilBillTransactionsList));
+//        log.info("批量保存FIL币账单转账信息表入参：【{}】",JSON.toJSON(allFilBillTransactionsList));
         filBillTransactionsService.saveBatch(allFilBillTransactionsList);
-        log.info("更新或者插入所有的FIL币账单消息每天汇总表minerId：【{}】，dateTime：【{}】，filBillDayAggArgsVO：【{}】",minerId,dateTime,JSON.toJSON(filBillDayAggArgsVO));
+//        log.info("更新或者插入所有的FIL币账单消息每天汇总表minerId：【{}】，dateTime：【{}】，filBillDayAggArgsVO：【{}】",minerId,dateTime,JSON.toJSON(filBillDayAggArgsVO));
         insertOrUpdateFilBillDayAggByMinerIdAndDateAll(minerId,dateTime,filBillDayAggArgsVO);
     }
 
@@ -429,6 +428,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             BigDecimal yesterdayBalance = balance.subtract(yesterdayFilBillBalanceDayAgg.getBalance());
 
             FilBillDayAgg filBillDayAgg = filBillDayAggService.selectFilBillDayAggList(minerId,yesterdayDate);
+            log.info("日统计里的余额filBillDayAgg.getBalance()：【{}】，补录数据的余额yesterdayBalance：【{}】",filBillDayAgg.getBalance(),yesterdayBalance);
             log.info("根据minerId、date查询FIL币账单消息每天汇总表出参：【{}】",JSON.toJSON(filBillDayAgg));
             if (filBillDayAgg != null && filBillDayAgg.getBalance().compareTo(yesterdayBalance) > 0){
                 log.info("日统计里的余额大于mq补录数据的余额，插入一条补录账单数据minerId：【{}】,date：【{}】，yesterdayBalance：【{}】，filBillDayAgg：【{}】",
@@ -774,7 +774,7 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         FilBillSubAccountVO minerFilBillSubAccountVO = new FilBillSubAccountVO();
         minerFilBillSubAccountVO.setName("Miner");
         minerFilBillSubAccountVO.setAddress(minerId);
-        log.info("Miner账户：【{}】",JSON.toJSON(minerFilBillSubAccountVO));
+//        log.info("Miner账户：【{}】",JSON.toJSON(minerFilBillSubAccountVO));
         filBillSubAccountVOList.add(minerFilBillSubAccountVO);
         String minerAddress = redisUtil.hget(Constants.REDISMINERADDRESS + minerId,"Miner");
         if (StringUtils.isEmpty(minerAddress)){
