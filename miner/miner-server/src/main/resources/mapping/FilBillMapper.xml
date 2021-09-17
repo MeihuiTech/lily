@@ -395,6 +395,7 @@
 
                 </otherwise>
             </choose>
+            ORDER BY b.date_time DESC
         </where>
     </select>
 
