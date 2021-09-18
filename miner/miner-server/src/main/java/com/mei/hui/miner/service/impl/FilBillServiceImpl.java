@@ -82,7 +82,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         filBill.setMoney(filBillReportBO.getValue());
         if (Constants.TYPEBLOCKAWARD.equals(method)){
             filBill.setType(Constants.FILBILLTYPEBLOCKAWARD);
-            filBill.setCid(null);
         } else {
             filBill.setType(Constants.FILBILLTYPEBILL);
         }
