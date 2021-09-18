@@ -616,6 +616,11 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         log.info("分页查询日账单详情列表入参page：【{}】，minerId：【{}】，startDate：【{}】，endDate：【{}】",JSON.toJSON(page),minerId,startDate,endDate);
         IPage<FilBillVO> filBillVOIPage = filBillMapper.selectFilBillTransactionsPage(page,minerId,startDate,endDate,filBillMonthBO.getType(),filBillMonthBO.getOutsideType());
         log.info("分页查询日账单详情列表出参：【{}】",JSON.toJSON(filBillVOIPage));
+        filBillVOIPage.getRecords().stream().forEach(v->{
+            if (Constants.TYPEBLOCKAWARDTHREE.toString().equals(v.getType())){
+                v.setCid(null);
+            }
+        });
         return filBillVOIPage;
     }
 
@@ -628,6 +633,11 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
         Page<FilBillVO> page = new Page<>(filBillMonthBO.getPageNum(),filBillMonthBO.getPageSize());
         IPage<FilBillVO> filBillVOPage = filBillMapper.selectFilBillMonthTransferPage(page,filBillMonthBO.getMinerId(),startDate,endDate,transferType);
         log.info("根据minerId、月份分页查询月转入、转出、区块奖励列表出参：【{}】",JSON.toJSON(filBillVOPage));
+        if (transferType.equals(2)){
+            filBillVOPage.getRecords().stream().forEach(v->{
+                v.setCid(null);
+            });
+        }
         return filBillVOPage;
     }
 
