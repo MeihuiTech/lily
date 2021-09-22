@@ -15,14 +15,17 @@ import java.util.List;
 *@Author: 鲍红建
 *@date: 2021/1/6
 */
-@FeignClient(name = "miner-server",path = "/code",fallbackFactory = MinerFeignFallbackFactory.class )
+@FeignClient(name = "miner-server",path = "/system/miner",fallbackFactory = MinerFeignFallbackFactory.class )
 public interface MinerFeignClient {
 
-    @PostMapping("/findCodeByUserId")
-    Result<SysVerifyCodeInput> findCodeByUserId(@RequestBody FindCodeByUserIdInput input);
+//    @PostMapping("/findCodeByUserId")
+//    Result<SysVerifyCodeInput> findCodeByUserId(@RequestBody FindCodeByUserIdInput input);
 
-    @PostMapping("/insertSysVerifyCode")
-    public Result insertSysVerifyCode(@RequestBody SysVerifyCodeInput input);
+//    @PostMapping("/insertSysVerifyCode")
+//    public Result insertSysVerifyCode(@RequestBody SysVerifyCodeInput input);
+
+    @GetMapping("/checkConnectionListAll")
+    Result<Integer> CheckConnectionListAll();
 
 
 }

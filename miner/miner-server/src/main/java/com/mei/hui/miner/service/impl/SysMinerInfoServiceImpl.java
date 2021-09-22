@@ -313,6 +313,13 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         return list;
     }
 
+    /*宕机运维报警功能-查询矿工列表的数量*/
+    @Override
+    public Integer selectSysMinerInfoCheckConnectionListAll() {
+        List<SysMinerInfo> list = sysMinerInfoMapper.selectList(null);
+        return list.size();
+    }
+
     /**
      * 获取 起亚币 矿工列表
      * @return

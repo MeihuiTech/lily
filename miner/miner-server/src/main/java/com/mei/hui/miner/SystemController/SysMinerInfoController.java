@@ -13,6 +13,7 @@ import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.miner.model.SysMinerInfoVO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.miner.service.FilAdminUserService;
 import com.mei.hui.miner.service.IChiaMinerService;
@@ -84,6 +85,12 @@ public class SysMinerInfoController {
         return new PageResult(list.size(),list);
     }
 
+    @ApiOperation(value = "宕机运维报警功能-查询矿工列表的数量")
+    @GetMapping("/checkConnectionListAll")
+    public Result<Integer> CheckConnectionListAll(){
+        Integer listSize = sysMinerInfoService.selectSysMinerInfoCheckConnectionListAll();
+        return Result.success(listSize);
+    }
 
     /**
      * 普通用户-首页-获取矿工信息详细信息

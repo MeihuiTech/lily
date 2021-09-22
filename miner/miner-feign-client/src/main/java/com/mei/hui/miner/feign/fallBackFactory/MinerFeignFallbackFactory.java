@@ -20,16 +20,20 @@ public class MinerFeignFallbackFactory implements FallbackFactory<MinerFeignClie
     public MinerFeignClient create(Throwable throwable) {
         log.error("远程接口异常:",throwable);
         MinerFeignClient minerFeignClient = new MinerFeignClient() {
-
             @Override
-            public Result<SysVerifyCodeInput> findCodeByUserId(FindCodeByUserIdInput input) {
+            public Result<Integer> CheckConnectionListAll() {
                 return null;
             }
 
-            @Override
-            public Result insertSysVerifyCode(SysVerifyCodeInput input) {
-                return null;
-            }
+//            @Override
+//            public Result<SysVerifyCodeInput> findCodeByUserId(FindCodeByUserIdInput input) {
+//                return null;
+//            }
+
+//            @Override
+//            public Result insertSysVerifyCode(SysVerifyCodeInput input) {
+//                return null;
+//            }
         };
         return minerFeignClient;
     }

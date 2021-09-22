@@ -6,6 +6,7 @@ import com.mei.hui.miner.entity.SysTotalEarning;
 import com.mei.hui.miner.feign.vo.*;
 import com.mei.hui.miner.model.RequestMinerInfo;
 import com.mei.hui.miner.model.SysMinerInfoBO;
+import com.mei.hui.miner.model.SysMinerInfoVO;
 import com.mei.hui.miner.model.XchMinerDetailBO;
 import com.mei.hui.util.PageResult;
 import com.mei.hui.util.Result;
@@ -282,4 +283,10 @@ public interface ISysMinerInfoService extends IService<SysMinerInfo>
     public List<MinerInfoExportExcelVO> exportMinerInfoExcel();
 
     Result setVisitorUserId(@RequestBody SetVisitorUserIdBO bo);
+
+    /**
+     * 宕机运维报警功能-查询矿工列表的数量
+     * @return
+     */
+    public Integer selectSysMinerInfoCheckConnectionListAll();
 }
