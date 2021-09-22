@@ -331,10 +331,10 @@ func ExtractMinerSectorData(ctx context.Context, ec *MinerStateExtractionContext
 			return nil, nil, nil, nil, xerrors.Errorf("diffing miner precommits: %w", err)
 		}
 
-		sectorChanges, err = miner.DiffSectors(ctx, node.Store(), ec.PrevState, ec.CurrState)
-		if err != nil {
-			return nil, nil, nil, nil, xerrors.Errorf("diffing miner sectors: %w", err)
-		}
+		//sectorChanges, err = miner.DiffSectors(ctx, node.Store(), ec.PrevState, ec.CurrState)
+		//if err != nil {
+		//	return nil, nil, nil, nil, xerrors.Errorf("diffing miner sectors: %w", err)
+		//}
 
 		for _, newSector := range sectorChanges.Added {
 			for _, dealID := range newSector.DealIDs {

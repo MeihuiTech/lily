@@ -211,6 +211,7 @@ func (p *Task) ProcessMessages(ctx context.Context, ts *types.TipSet, pts *types
 			GasBurned:          m.GasOutputs.GasBurned,
 			ActorName:          actorName,
 			ActorFamily:        builtin.ActorFamily(actorName),
+			ExecutedBlock:		m.BlockHeader.Cid().String(),
 		}
 		gasOutputsResults = append(gasOutputsResults, gasOutput)
 

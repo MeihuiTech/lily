@@ -24,9 +24,16 @@ import (
 	"github.com/filecoin-project/lotus/chain/vm"
 	"github.com/filecoin-project/specs-actors/actors/util/adt"
 
+	"github.com/ipfs/go-cid"
+	logging "github.com/ipfs/go-log/v2"
+	"github.com/ipld/go-ipld-prime"
+	"golang.org/x/xerrors"
+	"sync"
+
 	builtininit "github.com/filecoin-project/lily/chain/actors/builtin/init"
 	"github.com/filecoin-project/lily/lens"
 )
+
 
 var ActorRegistry *vm.ActorRegistry
 
@@ -35,6 +42,60 @@ func init() {
 }
 
 var log = logging.Logger("lily/lens")
+
+var actorCodes  = NewActorCodes()
+
+type ActorCodes struct {
+	data       map[address.Address]cid.Cid
+	lock       sync.RWMutex
+	initialled bool
+}
+
+func NewActorCodes() *ActorCodes {
+	return &ActorCodes{
+		data: make(map[address.Address]cid.Cid),
+		lock: sync.RWMutex{},
+		initialled: false,
+	}
+}
+
+func (m *ActorCodes) IsInitialled() bool {
+	m.lock.RLock()
+
+	defer m.lock.RUnlock()
+	return m.initialled
+}
+func (m *ActorCodes) Initial(nextStateTree *state.StateTree) error {
+
+	if err := nextStateTree.ForEach(func(a address.Address, act *types.Actor) error {
+		actorCodes.Set(a, act.Code)
+		return nil
+	}); err != nil {
+		return xerrors.Errorf("iterate actors: %w", err)
+	}
+	m.initialled = true
+	return nil
+}
+func (m *ActorCodes) Get(k address.Address) (cid.Cid,bool) {
+	m.lock.RLock()
+
+	defer m.lock.RUnlock()
+	c, ok := m.data[k]
+	if ok {
+		return c, ok
+	} else {
+		return cid.Cid{}, ok
+	}
+
+}
+func (m *ActorCodes) Set(k address.Address, v cid.Cid) {
+	m.lock.Lock()
+
+	defer m.lock.Unlock()
+
+	m.data[k] = v
+
+}
 
 // GetMessagesForTipset returns a list of messages sent as part of pts (parent) with receipts found in ts (child).
 // No attempt at deduplication of messages is made. A list of blocks with their corresponding messages is also returned - it contains all messages
@@ -287,39 +348,36 @@ func MakeGetActorCodeFunc(ctx context.Context, store adt.Store, next, current *t
 		return nil, xerrors.Errorf("load state tree: %w", err)
 	}
 
-	// Build a lookup of actor codes that exist after all messages in the current epoch have been executed
-	actorCodes := map[address.Address]cid.Cid{}
-	if err := nextStateTree.ForEach(func(a address.Address, act *types.Actor) error {
-		actorCodes[a] = act.Code
-		return nil
-	}); err != nil {
-		return nil, xerrors.Errorf("iterate actors: %w", err)
-	}
-
-	nextInitActor, err := nextStateTree.GetActor(builtininit.Address)
-	if err != nil {
-		return nil, xerrors.Errorf("getting init actor: %w", err)
-	}
-
-	nextInitActorState, err := builtininit.Load(store, nextInitActor)
-	if err != nil {
-		return nil, xerrors.Errorf("loading init actor state: %w", err)
+	if !actorCodes.IsInitialled() {
+		// Build a lookup of actor codes that exist after all messages in the current epoch have been executed
+		err := actorCodes.Initial(nextStateTree)
+		if err != nil {
+			return nil,err
+		}
 	}
 
 	return func(a address.Address) (cid.Cid, bool) {
 		// Shortcut lookup before resolving
-		c, ok := actorCodes[a]
+		c, ok := actorCodes.Get(a)
 		if ok {
 			return c, true
 		}
+		nextInitActor, err := nextStateTree.GetActor(builtininit.Address)
+		if err != nil {
+			return cid.Undef, false
+		}
 
+		nextInitActorState, err := builtininit.Load(store, nextInitActor)
+		if err != nil {
+			return cid.Undef, false
+		}
 		ra, found, err := nextInitActorState.ResolveAddress(a)
 		if err != nil || !found {
 			log.Warnw("failed to resolve actor address", "address", a.String())
 			return cid.Undef, false
 		}
 
-		c, ok = actorCodes[ra]
+		c, ok = actorCodes.Get(ra)
 		if ok {
 			return c, true
 		}
@@ -336,7 +394,7 @@ func MakeGetActorCodeFunc(ctx context.Context, store adt.Store, next, current *t
 			log.Warnw("failed to find actor in state tree", "address", a.String(), "error", err.Error())
 			return cid.Undef, false
 		}
-
+		actorCodes.Set(a, act.Code)
 		return act.Code, true
 	}, nil
 }
