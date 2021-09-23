@@ -427,16 +427,20 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             BigDecimal yesterdayBalance = balance.subtract(yesterdayFilBillBalanceDayAgg.getBalance());
 
             FilBillDayAgg filBillDayAgg = filBillDayAggService.selectFilBillDayAggList(minerId,yesterdayDate);
-            log.info("日统计里的余额filBillDayAgg.getBalance()：【{}】，补录数据的余额yesterdayBalance：【{}】",filBillDayAgg.getBalance(),yesterdayBalance);
             log.info("根据minerId、date查询FIL币账单消息每天汇总表出参：【{}】",JSON.toJSON(filBillDayAgg));
             if (filBillDayAgg != null && filBillDayAgg.getBalance().compareTo(yesterdayBalance) > 0){
-                log.info("日统计里的余额大于mq补录数据的余额，插入一条补录账单数据minerId：【{}】,date：【{}】，yesterdayBalance：【{}】，filBillDayAgg：【{}】",
-                        minerId,yesterdayDate,yesterdayBalance,JSON.toJSON(filBillDayAgg));
+                log.info("日统计里的余额大于mq补录数据的余额，插入一条补录账单数据minerId：【{}】,date：【{}】，日统计里的余额filBillDayAgg.getBalance()：【{}】，" +
+                                "补录数据的余额yesterdayBalance：【{}】，filBillDayAgg.getBalance().subtract(yesterdayBalance)：【{}】",minerId,yesterdayDate,
+                        filBillDayAgg.getBalance(),yesterdayBalance,filBillDayAgg.getBalance().subtract(yesterdayBalance));
                 this.backTrackingBill(minerId,yesterdayDate,yesterdayBalance,filBillDayAgg);
             } else if (filBillDayAgg.getBalance().compareTo(yesterdayBalance) < 0) {
-                log.info("日统计里的余额小于mq补录数据的余额，不做任何操作minerId：【{}】,date：【{}】",minerId,yesterdayDate);
+                log.info("日统计里的余额小于mq补录数据的余额，不做任何操作minerId：【{}】,date：【{}】，日统计里的余额filBillDayAgg.getBalance()：【{}】，" +
+                        "补录数据的余额yesterdayBalance：【{}】，filBillDayAgg.getBalance().subtract(yesterdayBalance)：【{}】",minerId,yesterdayDate,
+                        filBillDayAgg.getBalance(),yesterdayBalance,filBillDayAgg.getBalance().subtract(yesterdayBalance));
             } else {
-                log.info("日统计里的余额等于mq补录数据的余额，不做任何操作minerId：【{}】,date：【{}】",minerId,yesterdayDate);
+                log.info("日统计里的余额等于mq补录数据的余额，不做任何操作minerId：【{}】,date：【{}】，日统计里的余额filBillDayAgg.getBalance()：【{}】，" +
+                        "补录数据的余额yesterdayBalance：【{}】，filBillDayAgg.getBalance().subtract(yesterdayBalance)：【{}】",minerId,yesterdayDate,
+                        filBillDayAgg.getBalance(),yesterdayBalance,filBillDayAgg.getBalance().subtract(yesterdayBalance));
             }
         } else {
             log.info("矿工总余额表昨天的数据不存在，不进行补录minerId：【{}】,date：【{}】",minerId,yesterdayDate);
