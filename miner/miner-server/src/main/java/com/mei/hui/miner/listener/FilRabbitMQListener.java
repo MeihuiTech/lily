@@ -51,7 +51,7 @@ public class FilRabbitMQListener {
      * @throws IOException
      */
     // TODO 开发环境注释，测试环境暂时注释，正式环境发版的时候不要注释
-    @RabbitListener(queues = {"fil.bill.queue"})//从哪个队列取消息
+    @RabbitListener(queues = "${queue.bill}")//从哪个队列取消息
     @RabbitHandler
     public void reportBillMq(Channel channel, Message message) throws IOException {
         try {
