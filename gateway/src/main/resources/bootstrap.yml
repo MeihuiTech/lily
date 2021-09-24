@@ -59,3 +59,46 @@ spring:
         server-addr: 10.10.15.3:8848
         namespace: 2b846553-2f3f-4482-997a-8c08e32ade2d
         group: miner_pool_group
+---
+#诺博-开发环境
+spring:
+  profiles: nb-dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.10.15.11:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: b8c0c705-201b-4dbf-a828-0390b69f13af
+      discovery:
+        server-addr: 10.10.15.11:8848
+        namespace: b8c0c705-201b-4dbf-a828-0390b69f13af
+        #register-enabled: false
+---
+#诺博-测试环境
+spring:
+  profiles: nb-test
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.10.15.11:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: 50acaae6-c9cb-40ff-aa19-045fd58f3e74
+      discovery:
+        server-addr: 10.10.15.11:8848
+        namespace: 50acaae6-c9cb-40ff-aa19-045fd58f3e74
+---
+#诺博-生产环境
+spring:
+  profiles: nb-prod
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.10.15.11:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: 72e3f518-c022-4136-a72b-90006d8ea80f
+      discovery:
+        server-addr: 10.10.15.11:8848
+        namespace: 72e3f518-c022-4136-a72b-90006d8ea80f
