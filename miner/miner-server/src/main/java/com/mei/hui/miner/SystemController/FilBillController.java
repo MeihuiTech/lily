@@ -285,11 +285,6 @@ public class FilBillController {
     public void exportMonthTransfer(HttpServletResponse response,@RequestBody ExportMonthTransferBO bo) throws Exception {
         LocalDateTime startDate = bo.getStartMonthDate();
         LocalDateTime endDate = bo.getEndMonthDate();
-        if(startDate != null && endDate != null){
-            if(startDate.isAfter(endDate)){
-                throw MyException.fail(MinerError.MYB_222222.getCode(),"开始时间不能大于结束时间");
-            }
-        }
         String minerId = bo.getMinerId();
         //转入
         List<ExcelFilBill> inList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 0);
