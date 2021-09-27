@@ -180,4 +180,6 @@ public interface FilBillService extends IService<FilBill> {
      * @param balance
      */
     public void reportBillBackTracking(String minerId, String todayDate, BigDecimal balance);
+
+    List<ExcelFilBill> findFilBillMonthTransfer(String minerId,LocalDateTime startDate,LocalDateTime endDate,Integer transferType);
 }

@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -53,8 +54,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
     private ISysMinerInfoService sysMinerInfoService;
     @Autowired
     private FilMinerControlBalanceMapper filMinerControlBalanceMapper;
-    @Autowired
-    private FilBillParamsService filBillParamsService;
     @Autowired
     private FilBillTransactionsService filBillTransactionsService;
     @Autowired
@@ -280,17 +279,6 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
 
     /**
      * 单条插入FIL币账单消息每天汇总表
-     * @param minerId
-     * @param date
-     * @param inMoney
-     * @param outMoney
-     * @param balance
-     * @param inTransfer
-     * @param inBlockAward
-     * @param outTransfer
-     * @param outNodeFee
-     * @param outBurnFee
-     * @param outOther
      * @return
      */
     public Integer insertFilBillDayAgg(String minerId, LocalDate dateTime, FilBillDayAggArgsVO filBillDayAggArgsVO){
@@ -643,6 +631,24 @@ public class FilBillServiceImpl extends ServiceImpl<FilBillMapper, FilBill> impl
             });
         }
         return filBillVOPage;
+    }
+
+    /*根据minerId、月份查询(不分页)月转入、转出、区块奖励列表*/
+    @Override
+    public List<ExcelFilBill> findFilBillMonthTransfer(String minerId,LocalDateTime startDate,LocalDateTime endDate,Integer transferType) {
+        List<FilBillVO> list = filBillMapper.selectFilBillMonthTransferPage(minerId,startDate,endDate,transferType);
+        if (transferType.equals(2)){
+            list.stream().forEach(v-> v.setCid(null));
+        }
+        List<ExcelFilBill> lt = list.stream().map(v -> {
+            ExcelFilBill excelFilBill = new ExcelFilBill().setCid(v.getCid())
+                    .setDateTime(DateUtils.localDateTimeToString(v.getDateTime(), DateFormatEnum.YYYY_MM_DD_HH_MM_SS))
+                    .setMoney(v.getMoney().divide(new BigDecimal(Math.pow(10, 18)), 11, BigDecimal.ROUND_HALF_UP))
+                    .setReceiver(v.getReceiver())
+                    .setSender(v.getSender());
+            return excelFilBill;
+        }).collect(Collectors.toList());
+        return lt;
     }
 
     /*新增FIL币账单消息每天汇总表*/
