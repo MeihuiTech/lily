@@ -1,6 +1,12 @@
 package com.mei.hui.miner.SystemController;
 
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.converters.longconverter.LongStringConverter;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -23,8 +29,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -144,54 +154,6 @@ public class FilBillController {
         return Result.success(filBillVOPage);
     }
 
-
-
-/*@ApiOperation("手动调用fil币账单按天聚合定时器")
-    @PostMapping("/ManualInsertFilBillDayAggTask")
-    public Result<Integer> ManualInsertFilBillDayAggTask(@RequestBody FilBillMonthBO filBillMonthBO){
-        log.info("手动调用fil币账单按天聚合定时器入参：【{}】",JSON.toJSON(filBillMonthBO));
-        String monthDateStr = filBillMonthBO.getStartMonthDate();
-        String[] dateArr = monthDateStr.split(",");
-        Integer insertCountAll = 0;
-        for (int i= 0;i<dateArr.length;i++){
-            List<SysMinerInfo> sysMinerInfoList = sysMinerInfoService.list();
-            log.info("查询所有矿工信息列表：【{}】",JSON.toJSON(sysMinerInfoList));
-            log.info("矿工数量：【{}】",sysMinerInfoList.size());
-
-            // 下面代码是测试用的，不要放开注释
-            String startDate = dateArr[i] + " 00:00:00";
-            String endDate = dateArr[i] + " 23:59:59";
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate date = LocalDate.parse(dateArr[i], dateTimeFormatter);
-
-            for (SysMinerInfo sysMinerInfo:sysMinerInfoList){
-                String minerId = sysMinerInfo.getMinerId();
-                try {
-                    QueryWrapper<FilBillDayAgg> queryWrapper = new QueryWrapper<>();
-                    FilBillDayAgg filBillDayAgg = new FilBillDayAgg();
-                    filBillDayAgg.setMinerId(minerId);
-                    filBillDayAgg.setDate(date);
-                    queryWrapper.setEntity(filBillDayAgg);
-                    List<FilBillDayAgg> filBillDayAggList = filBillDayAggService.list(queryWrapper);
-                    log.info("根据矿工minerId：【{}】，日期Date：【{}】查询FIL币账单消息每天汇总表出参：【{}】",minerId,filBillDayAgg.getDate(),JSON.toJSON(filBillDayAggList));
-                    if (filBillDayAggList != null && filBillDayAggList.size() > 0){
-                        log.info("该矿工minerId：【{}】，日期Date：【{}】数据已存在，跳过",minerId,filBillDayAgg.getDate());
-                        continue;
-                    }
-
-                    log.info("新增FIL币账单消息每天汇总表入参minerId：【{}】，startDate：【{}】，endDate：【{}】，date：【{}】",minerId,startDate,endDate,date);
-                    Integer insertCount = filBillService.insertFilBillDayAgg(minerId,startDate,endDate,date);
-                    insertCountAll += insertCount;
-                } catch (Exception e){
-                    log.info("新增FIL币账单消息每天汇总表异常：minerId：【{}】，startDate：【{}】，endDate：【{}】，date：【{}】",minerId,startDate,endDate,date);
-                    log.info("异常信息：",e);
-                }
-            }
-        }
-
-        return Result.success(insertCountAll);
-    }
-*/
     /**
      * 账单方法下拉列表，20210817废弃，方法保留，以后备用
      * @param filBillMethodBO
@@ -315,6 +277,48 @@ public class FilBillController {
             return vo;
         }).collect(Collectors.toList());
         ExcelUtils.export(response, list, "账单信息", ExportBillVO.class);
+    }
+
+    @NotAop
+    @ApiOperation(value = "导出转入、转出、出块奖励",produces="application/octet-stream")
+    @PostMapping("/exportMonthTransfer")
+    public void exportMonthTransfer(HttpServletResponse response,@RequestBody ExportMonthTransferBO bo) throws Exception {
+        LocalDateTime startDate = bo.getStartMonthDate();
+        LocalDateTime endDate = bo.getEndMonthDate();
+        if(startDate != null && endDate != null){
+            if(startDate.isAfter(endDate)){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"开始时间不能大于结束时间");
+            }
+        }
+        String minerId = bo.getMinerId();
+        //转入
+        List<ExcelFilBill> inList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 0);
+        //转出
+        List<ExcelFilBill> outList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 1);
+        //区块奖励
+        List<ExcelFilBill> rewardList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 2);
+        ServletOutputStream out = response.getOutputStream();
+        try {
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("明细", "UTF-8") + ".xlsx");
+            ExcelWriter excelWriter = EasyExcel.write(out).build();
+            WriteSheet test1 = EasyExcel.writerSheet(0, "转入").registerWriteHandler(new RowWriteHandlerImpl()).head(ExcelFilBill.class).build();
+            WriteSheet test2 = EasyExcel.writerSheet(1, "转出").registerWriteHandler(new RowWriteHandlerImpl()).head(ExcelFilBill.class).build();
+            WriteSheet test3 = EasyExcel.writerSheet(2, "区块奖励").registerWriteHandler(new RowWriteHandlerImpl()).head(ExcelFilBill.class).build();
+            excelWriter.write(inList,test1).write(outList,test2).write(rewardList,test3);
+            excelWriter.finish();
+        } catch (IOException e) {
+            log.error("异常:",e);
+        } finally {
+            if(out != null){
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 

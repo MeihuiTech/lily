@@ -20,7 +20,7 @@ import java.util.List;
 
 @Slf4j
 public class ExcelUtils {
-    private final static HorizontalCellStyleStrategy HORIZONTAL_CELL_STYLE_STRATEGY;
+    public static HorizontalCellStyleStrategy HORIZONTAL_CELL_STYLE_STRATEGY;
 
     static {
         // 头的策略

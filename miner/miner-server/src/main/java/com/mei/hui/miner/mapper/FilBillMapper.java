@@ -167,4 +167,7 @@ public interface FilBillMapper extends BaseMapper<FilBill> {
      */
     public IPage<FilBillVO> selectFilBillMonthTransferPage(@Param("page") Page<FilBillVO> page, @Param("minerId") String minerId, @Param("startDate") LocalDateTime startDate,
                                                            @Param("endDate") LocalDateTime endDate, @Param("transferType") Integer transferType);
+
+    List<FilBillVO> selectFilBillMonthTransferPage(@Param("minerId") String minerId, @Param("startDate") LocalDateTime startDate,
+                                                           @Param("endDate") LocalDateTime endDate, @Param("transferType") Integer transferType);
 }
