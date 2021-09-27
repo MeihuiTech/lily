@@ -67,14 +67,14 @@ public interface Constants extends SystemConstants {
     String WhiteUrl = "white_url";
 
     /**
-     * 宕机运维报警功能：on在线
+     * 宕机运维报警功能：1在线
      */
-    String CHECKCONNECTIONSTATUSON = "on";
+    String CHECKCONNECTIONSTATUSON = "1";
 
     /**
-     * 宕机运维报警功能：off离线
+     * 宕机运维报警功能：0离线
      */
-    String CHECKCONNECTIONSTATUSOFF = "off";
+    String CHECKCONNECTIONSTATUSOFF = "0";
 
     /**
     * 宕机运维报警功能：redis的key

@@ -18,13 +18,13 @@ public class CheckConnectionStatusVO {
 //    @ApiModelProperty(value = "mysql状态：on在线，off离线")
 //    private String mysql;
 
-    @ApiModelProperty(value = "redis状态：on在线，off离线")
+    @ApiModelProperty(value = "redis状态：1在线，0离线")
     private String redis;
 
-    @ApiModelProperty(value = "mq状态：on在线，off离线")
+    @ApiModelProperty(value = "mq状态：1在线，0离线")
     private String mq;
 
-    @ApiModelProperty(value = "矿工模块：on在线，off离线")
+    @ApiModelProperty(value = "矿工模块：1在线，0离线")
     private String  miner;
 
     @ApiModelProperty(value = "时间")
