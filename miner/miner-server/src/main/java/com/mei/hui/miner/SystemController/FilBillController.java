@@ -16,6 +16,7 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.FilBillDayAgg;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.feign.vo.*;
+import com.mei.hui.miner.mapper.FilBillMapper;
 import com.mei.hui.miner.service.FilBillDayAggService;
 import com.mei.hui.miner.service.FilBillService;
 import com.mei.hui.miner.service.ISysMinerInfoService;
@@ -27,10 +28,12 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -53,6 +56,8 @@ public class FilBillController {
     private ISysMinerInfoService sysMinerInfoService;
     @Autowired
     private FilBillDayAggService filBillDayAggService;
+    @Autowired
+    private FilBillMapper filBillMapper;
 
     @ApiOperation("分页查询日账单列表")
     @PostMapping("/dayAggPage")
@@ -282,26 +287,46 @@ public class FilBillController {
     @NotAop
     @ApiOperation(value = "导出转入、转出、出块奖励",produces="application/octet-stream")
     @PostMapping("/exportMonthTransfer")
-    public void exportMonthTransfer(HttpServletResponse response,@RequestBody ExportMonthTransferBO bo) throws Exception {
+    public void exportMonthTransfer(HttpServletResponse response,@RequestBody ExportMonthTransferBO bo) {
         LocalDateTime startDate = bo.getStartMonthDate();
         LocalDateTime endDate = bo.getEndMonthDate();
         String minerId = bo.getMinerId();
+        //资产
+        LambdaQueryWrapper<SysMinerInfo> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SysMinerInfo::getMinerId,minerId);
+        SysMinerInfo sysMinerInfo = sysMinerInfoService.getOne(queryWrapper);
+        log.info("矿工信息:{}",JSON.toJSONString(sysMinerInfo));
+        SysMinerInfo miner = sysMinerInfoService.selectSysMinerInfoById(sysMinerInfo.getId());
+        log.info("矿工资产:{}",JSON.toJSONString(miner));
+        //汇总
+        FilBillMonthBO filBillMonthBO = new FilBillMonthBO();
+        filBillMonthBO.setMinerId(minerId);
+        filBillMonthBO.setStartMonthDate(DateUtils.localDateTimeToString(startDate,DateFormatEnum.yyyy_MM));
+        filBillMonthBO.setEndMonthDate(DateUtils.localDateTimeToString(endDate,DateFormatEnum.yyyy_MM));
+        BillTotalVO filBillDayAgg = filBillService.selectFilBillmonthAgg(filBillMonthBO);
+        log.info("汇总:{}",JSON.toJSONString(filBillDayAgg));
+
         //转入
         List<ExcelFilBill> inList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 0);
         //转出
         List<ExcelFilBill> outList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 1);
         //区块奖励
         List<ExcelFilBill> rewardList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 2);
-        ServletOutputStream out = response.getOutputStream();
+        ServletOutputStream out = null;
         try {
+            out = response.getOutputStream();
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("明细", "UTF-8") + ".xlsx");
-            ExcelWriter excelWriter = EasyExcel.write(out).build();
-            WriteSheet test1 = EasyExcel.writerSheet(0, "转入").registerWriteHandler(new RowWriteHandlerImpl()).head(ExcelFilBill.class).build();
-            WriteSheet test2 = EasyExcel.writerSheet(1, "转出").registerWriteHandler(new RowWriteHandlerImpl()).head(ExcelFilBill.class).build();
-            WriteSheet test3 = EasyExcel.writerSheet(2, "区块奖励").registerWriteHandler(new RowWriteHandlerImpl()).head(ExcelFilBill.class).build();
-            excelWriter.write(inList,test1).write(outList,test2).write(rewardList,test3);
+            //获取Excel模块
+            ClassPathResource classPathResource = new ClassPathResource("templates/templates.xlsx");
+            File file = classPathResource.getFile();
+            ExcelWriter excelWriter = EasyExcel.write(out).withTemplate(file).build();
+
+            WriteSheet test1 = EasyExcel.writerSheet(1).build();
+            WriteSheet test2 = EasyExcel.writerSheet(2).build();
+            WriteSheet test3 = EasyExcel.writerSheet(3).build();
+            excelWriter.fill(inList,test1).fill(outList,test2).fill(rewardList,test3);
             excelWriter.finish();
         } catch (IOException e) {
             log.error("异常:",e);

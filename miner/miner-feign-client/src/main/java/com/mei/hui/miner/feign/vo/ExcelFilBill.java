@@ -1,7 +1,6 @@
 package com.mei.hui.miner.feign.vo;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.mei.hui.util.BigDecimalUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
