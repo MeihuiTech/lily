@@ -324,8 +324,8 @@ public class FilBillController {
 
         //获取Excel模块
         ClassPathResource classPathResource = new ClassPathResource("templates/templates.xlsx");
-        File file = classPathResource.getFile();
-        ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream()).withTemplate(file).build();
+        ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream())
+                .withTemplate(classPathResource.getInputStream()).build();
 
         WriteSheet sheet0 = EasyExcel.writerSheet(0).build();
         WriteSheet sheet1 = EasyExcel.writerSheet(1).build();
