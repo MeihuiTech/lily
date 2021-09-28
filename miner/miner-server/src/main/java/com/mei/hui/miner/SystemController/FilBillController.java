@@ -4,8 +4,11 @@ package com.mei.hui.miner.SystemController;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.converters.longconverter.LongStringConverter;
+import com.alibaba.excel.enums.WriteDirectionEnum;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -41,7 +44,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -287,7 +292,11 @@ public class FilBillController {
     @NotAop
     @ApiOperation(value = "导出转入、转出、出块奖励",produces="application/octet-stream")
     @PostMapping("/exportMonthTransfer")
-    public void exportMonthTransfer(HttpServletResponse response,@RequestBody ExportMonthTransferBO bo) {
+    public void exportMonthTransfer(HttpServletResponse response,@RequestBody ExportMonthTransferBO bo) throws IOException {
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("明细", "UTF-8") + ".xlsx");
+
         LocalDateTime startDate = bo.getStartMonthDate();
         LocalDateTime endDate = bo.getEndMonthDate();
         String minerId = bo.getMinerId();
@@ -312,33 +321,36 @@ public class FilBillController {
         List<ExcelFilBill> outList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 1);
         //区块奖励
         List<ExcelFilBill> rewardList = filBillService.findFilBillMonthTransfer(minerId, startDate, endDate, 2);
-        ServletOutputStream out = null;
-        try {
-            out = response.getOutputStream();
-            response.setContentType("application/vnd.ms-excel;charset=utf-8");
-            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("明细", "UTF-8") + ".xlsx");
-            //获取Excel模块
-            ClassPathResource classPathResource = new ClassPathResource("templates/templates.xlsx");
-            File file = classPathResource.getFile();
-            ExcelWriter excelWriter = EasyExcel.write(out).withTemplate(file).build();
 
-            WriteSheet test1 = EasyExcel.writerSheet(1).build();
-            WriteSheet test2 = EasyExcel.writerSheet(2).build();
-            WriteSheet test3 = EasyExcel.writerSheet(3).build();
-            excelWriter.fill(inList,test1).fill(outList,test2).fill(rewardList,test3);
-            excelWriter.finish();
-        } catch (IOException e) {
-            log.error("异常:",e);
-        } finally {
-            if(out != null){
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        //获取Excel模块
+        ClassPathResource classPathResource = new ClassPathResource("templates/templates.xlsx");
+        File file = classPathResource.getFile();
+        ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream()).withTemplate(file).build();
+
+        WriteSheet sheet0 = EasyExcel.writerSheet(0).build();
+        WriteSheet sheet1 = EasyExcel.writerSheet(1).build();
+        WriteSheet sheet2 = EasyExcel.writerSheet(2).build();
+        WriteSheet sheet3 = EasyExcel.writerSheet(3).build();
+
+        Map<String, Object> map = new HashMap();
+        map.put("startDate",DateUtils.localDateTimeToString(startDate,DateFormatEnum.yyyy_MM_dd));
+        map.put("endDate",DateUtils.localDateTimeToString(endDate,DateFormatEnum.yyyy_MM_dd));
+        map.put("income",filBillDayAgg.getIn().getTotal().divide(new BigDecimal(Math.pow(10, 18)), 11, BigDecimal.ROUND_HALF_UP));
+        map.put("pay",filBillDayAgg.getOut().getTotal().divide(new BigDecimal(Math.pow(10, 18)), 11, BigDecimal.ROUND_HALF_UP));
+
+        List<BillMethodMoneyVO> inComeList = filBillDayAgg.getIn().getBillMethodMoneyVOList();
+        inComeList.stream().forEach(v->
+            v.setMoney(v.getMoney().divide(new BigDecimal(Math.pow(10, 18)), 11, BigDecimal.ROUND_HALF_UP))
+        );
+        List<BillMethodMoneyVO> payList = filBillDayAgg.getOut().getBillMethodMoneyVOList();
+        payList.stream().forEach(v ->
+            v.setMoney(v.getMoney().divide(new BigDecimal(Math.pow(10, 18)), 11, BigDecimal.ROUND_HALF_UP))
+        );
+        FillConfig fillConfig = FillConfig.builder().direction(WriteDirectionEnum.HORIZONTAL).build();
+        excelWriter.fill(new FillWrapper("in", inComeList),fillConfig,sheet0).fill(new FillWrapper("pay", payList),fillConfig,sheet0)
+                .fill(miner,sheet0).fill(map,sheet0)
+                .fill(inList,sheet1).fill(outList,sheet2).fill(rewardList,sheet3);
+        excelWriter.finish();
     }
 
 
