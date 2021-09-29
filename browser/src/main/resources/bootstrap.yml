@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: browser-server
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+
+---
+#开发环境
+spring:
+  profiles: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.10.15.3:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: e8fc6aa4-d7a3-43bf-bd71-f937444814c5
+      discovery:
+        server-addr: 10.10.15.3:8848
+        namespace: 74afd5e5-00e1-44c5-b1b8-b35e08566bc4
+        group: miner_pool_group
+#        register-enabled: false
+---
+#测试环境
+spring:
+  profiles: test
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.10.15.3:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
+      discovery:
+        server-addr: 10.10.15.3:8848
+        namespace: c4e2a755-544f-4819-8a1a-2bd6704a7a0a
+        group: miner_pool_group
+---
+#生产环境
+spring:
+  profiles: prod
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.10.15.3:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+        namespace: 2b846553-2f3f-4482-997a-8c08e32ade2d
+      discovery:
+        server-addr: 10.10.15.3:8848
+        namespace: 2b846553-2f3f-4482-997a-8c08e32ade2d
+        group: miner_pool_group

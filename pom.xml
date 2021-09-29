@@ -12,6 +12,7 @@
         <module>miner</module>
         <module>gateway</module>
         <module>miner-pool-common</module>
+        <module>browser</module>
     </modules>
 
 
