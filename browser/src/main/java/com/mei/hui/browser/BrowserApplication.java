@@ -14,7 +14,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication(scanBasePackages = {"com.mei.hui.*"})
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"com.mei.hui.*"})
-@MapperScan("com.mei.hui.miner.mapper")
+@MapperScan("com.mei.hui.browser.mapper")
 public class BrowserApplication {
 
     public static void main(String[] args) {
