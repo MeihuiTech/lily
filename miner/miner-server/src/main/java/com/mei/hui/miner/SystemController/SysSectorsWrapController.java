@@ -1,12 +1,14 @@
 package com.mei.hui.miner.SystemController;
 
 import com.alibaba.fastjson.JSON;
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.entity.SysSectorInfo;
 import com.mei.hui.miner.entity.SysSectorsWrap;
+import com.mei.hui.miner.feign.vo.SysSectorsWrapBO;
 import com.mei.hui.miner.service.ISysMinerInfoService;
 import com.mei.hui.miner.service.ISysSectorInfoService;
 import com.mei.hui.miner.service.ISysSectorsWrapService;
@@ -17,6 +19,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,18 +64,28 @@ public class SysSectorsWrapController
             "minerId矿工id\n" +
             "sectorStatus扇区状态\n" +
             "beginTime开始时间，格式样例：2021-06-12\n" +
-            "endTime开始时间，格式样例：2021-06-12\n" +
+            "endTime结束时间，格式样例：2021-06-12\n" +
             "cloumName排序字段名称\n" +
             "asc:true 升序，false 降序")
     @GetMapping("/list")
-    public Map<String,Object> list(SysSectorsWrap sysSectorsWrap)
+    public Map<String,Object> list(SysSectorsWrapBO sysSectorsWrapBO)
     {
-        if(StringUtils.isNotEmpty(sysSectorsWrap.getBeginTime())){
-            sysSectorsWrap.setBeginTime(sysSectorsWrap.getBeginTime() + " 00:00:00");
+        SysSectorsWrap sysSectorsWrap = new SysSectorsWrap();
+        if (StringUtils.isNotEmpty(sysSectorsWrapBO.getSectorNo())){
+            if (!CommonUtil.isNumber(sysSectorsWrapBO.getSectorNo())){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"扇区编号格式不正确");
+            } else {
+                sysSectorsWrap.setSectorNo(Long.valueOf(sysSectorsWrapBO.getSectorNo()));
+            }
         }
-        if(StringUtils.isNotEmpty(sysSectorsWrap.getEndTime())){
-            sysSectorsWrap.setEndTime(sysSectorsWrap.getEndTime() + " 23:59:59");
+        BeanUtils.copyProperties(sysSectorsWrapBO,sysSectorsWrap);
+        if(StringUtils.isNotEmpty(sysSectorsWrapBO.getBeginTime())){
+            sysSectorsWrap.setBeginTime(sysSectorsWrapBO.getBeginTime() + " 00:00:00");
         }
+        if(StringUtils.isNotEmpty(sysSectorsWrapBO.getEndTime())){
+            sysSectorsWrap.setEndTime(sysSectorsWrapBO.getEndTime() + " 23:59:59");
+        }
+
         return sysSectorsWrapService.list(sysSectorsWrap);
     }
 

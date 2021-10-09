@@ -136,6 +136,18 @@ public class CommonUtil {
         return m.matches();
     }
 
+    /**
+     * 验证是不是非负整数（正整数   +   0）
+     * @param number
+     * @return
+     */
+    public static boolean isNumber(String number) {
+        String regex = "^\\d+$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(number);
+        return m.matches();
+    }
+
     public static void main(String[] args) {
 //        String mobile = "18056389877";
 //        String email = "d fafsd@234.com";
