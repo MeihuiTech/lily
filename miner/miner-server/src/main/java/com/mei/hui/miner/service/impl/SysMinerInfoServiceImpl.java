@@ -756,10 +756,10 @@ public class SysMinerInfoServiceImpl extends ServiceImpl<SysMinerInfoMapper,SysM
         List<Long> userIds = adminUserService.findUserIdsByAdmin();
         //用于入参模块模糊查询，获取用户id的list
         String userName = filUserMoneyBO.getUserName();
-        if (StringUtils.isNotEmpty(userName) || filUserMoneyBO.getUserId() != null) {
+        if (StringUtils.isNotEmpty(userName) || StringUtils.isNotEmpty(filUserMoneyBO.getUserId())) {
             FindSysUsersByNameBO bo = new FindSysUsersByNameBO();
             bo.setName(StringUtils.isNotEmpty(userName) ? userName : null);
-            bo.setUserId(filUserMoneyBO.getUserId() != null ? filUserMoneyBO.getUserId() : null);
+            bo.setUserId(filUserMoneyBO.getUserId() != null ? Long.valueOf(filUserMoneyBO.getUserId()) : null);
             Result<List<FindSysUsersByNameVO>> userResult = userFeignClient.findSysUsersByName(bo);
             log.info("模糊查询用户id集合结果:{}", JSON.toJSONString(userResult));
             if(!ErrorCode.MYB_000000.getCode().equals(userResult.getCode())){

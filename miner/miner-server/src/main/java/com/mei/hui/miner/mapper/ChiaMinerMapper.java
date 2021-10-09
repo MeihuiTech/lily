@@ -88,6 +88,6 @@ public interface ChiaMinerMapper extends BaseMapper<ChiaMiner> {
     * @return com.baomidou.mybatisplus.core.metadata.IPage<com.mei.hui.miner.feign.vo.FilUserMoneyVO>
     * @version v1.4.0
     */
-    public IPage<FilUserMoneyVO> selectUserMoneyList(Page<com.mei.hui.miner.feign.vo.FilUserMoneyVO> page,@Param("userId") Long userId,
+    public IPage<FilUserMoneyVO> selectUserMoneyList(Page<com.mei.hui.miner.feign.vo.FilUserMoneyVO> page,@Param("userId") String userId,
                                                      @Param("cloumName") String cloumName,@Param("isAsc") boolean isAsc,@Param("userIdList") List<Long> userIdList);
 }

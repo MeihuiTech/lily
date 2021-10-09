@@ -17,7 +17,7 @@ import lombok.Data;
 public class FilUserMoneyBO extends BasePage {
 
     @ApiModelProperty(value = "用户Id")
-    private Long userId;
+    private String userId;
 
     @ApiModelProperty(value = "用户名")
     private String userName;

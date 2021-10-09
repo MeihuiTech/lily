@@ -4,6 +4,7 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.fastjson.JSON;
+import com.mei.hui.config.CommonUtil;
 import com.mei.hui.config.HttpRequestUtil;
 import com.mei.hui.config.jwtConfig.RuoYiConfig;
 import com.mei.hui.config.redisConfig.RedisUtil;
@@ -199,6 +200,9 @@ public class SysMinerInfoController {
             "feeRate费率")
     @GetMapping("/selectUserMoneyList")
     public PageResult<FilUserMoneyVO> selectUserMoneyList(FilUserMoneyBO filUserMoneyBO){
+        if (StringUtils.isNotEmpty(filUserMoneyBO.getUserId()) && !CommonUtil.isNumber(filUserMoneyBO.getUserId())){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"userId格式不正确");
+        }
         Long currencyId = HttpRequestUtil.getCurrencyId();
         if(CurrencyEnum.FIL.getCurrencyId().equals(currencyId)){//fil 币
             return sysMinerInfoService.selectUserMoneyList(filUserMoneyBO);
