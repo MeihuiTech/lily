@@ -15,6 +15,7 @@ import com.mei.hui.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -90,6 +91,15 @@ public class SysTransferRecordController
         SysTransferRecord trans = sysTransferRecordService.selectSysTransferRecordById(sysTransferRecord.getId());
         if (trans == null) {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"资源不存在");
+        }
+        if(StringUtils.isNotEmpty(sysTransferRecord.getToHash()) && sysTransferRecord.getToHash().length() > 128){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"提取HASH长度过长");
+        }
+        if(StringUtils.isNotEmpty(sysTransferRecord.getFeeHash()) && sysTransferRecord.getFeeHash().length() > 128){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"费用HASH长度过长");
+        }
+        if(StringUtils.isNotEmpty(sysTransferRecord.getRemark()) && sysTransferRecord.getRemark().length() > 2000){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"备注信息长度过长");
         }
         int rows = sysTransferRecordService.updateSysTransferRecord(sysTransferRecord);
 
