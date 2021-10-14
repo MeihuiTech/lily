@@ -212,4 +212,10 @@ public class SysTransferRecordController
     public Result<TakeOutInfoVO> takeOutInfo(@RequestBody TakeOutInfoBO takeOutInfoBO){
         return sysTransferRecordService.takeOutInfo(takeOutInfoBO);
     }
+
+    @ApiOperation(value = "查看提取信息")
+    @PostMapping("/transferRecordDetail")
+    public Result<GetTransferRecordByIdVO> transferRecordDetail(@RequestBody GetTransferRecordByIdBO transferRecordByIdBO){
+        return sysTransferRecordService.getTransferRecordById(transferRecordByIdBO);
+    }
 }
