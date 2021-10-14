@@ -73,7 +73,7 @@ public class SysTransferRecordController
     /**
      * 获取系统划转记录详细信息
      */
-    @ApiOperation(value = "获取系统划转记录详细信息")
+    @ApiOperation(value = "获取系统划转记录详细信息-【废弃】")
     @GetMapping(value = "/{id}")
     public Result getInfo(@PathVariable("id") Long id)
     {
@@ -204,6 +204,15 @@ public class SysTransferRecordController
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {
+        if(sysTransferRecordWrap.getMinerId() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择矿工");
+        }
+        if(sysTransferRecordWrap.getTotalBlockAward().compareTo(BigDecimal.ZERO) == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"截止到当前时间,累计出块奖励不能为空");
+        }
+        if(sysTransferRecordWrap.getLockAward().compareTo(BigDecimal.ZERO) == 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"截止到当前时间,锁仓奖励不能为空");
+        }
         return sysTransferRecordService.withdraw(sysTransferRecordWrap);
     }
 
@@ -213,7 +222,7 @@ public class SysTransferRecordController
         return sysTransferRecordService.takeOutInfo(takeOutInfoBO);
     }
 
-    @ApiOperation(value = "查看提取信息")
+    @ApiOperation(value = "获取系统划转记录详细信息")
     @PostMapping("/transferRecordDetail")
     public Result<GetTransferRecordByIdVO> transferRecordDetail(@RequestBody GetTransferRecordByIdBO transferRecordByIdBO){
         return sysTransferRecordService.getTransferRecordById(transferRecordByIdBO);

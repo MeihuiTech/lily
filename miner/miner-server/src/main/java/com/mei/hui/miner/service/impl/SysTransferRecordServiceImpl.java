@@ -388,9 +388,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result withdraw(SysTransferRecordWrap sysTransferRecordWrap){
-        if(sysTransferRecordWrap.getMinerId() == null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择矿工");
-        }
         Long userId = HttpRequestUtil.getUserId();
         Long currencyId = HttpRequestUtil.getCurrencyId();
         String currencyType = CurrencyEnum.getCurrency(currencyId).name();
@@ -455,8 +452,12 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper();
         wrapper.eq(SysMinerInfo::getMinerId,takeOutInfoBO.getMinerId());
         SysMinerInfo sysMinerInfo = sysMinerInfoMapper.selectOne(wrapper);
+        log.info("矿工信息:{}",JSON.toJSONString(sysMinerInfo));
         if(sysMinerInfo == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId 错误");
+        }
+        if(sysMinerInfo.getUserId() != HttpRequestUtil.getUserId()){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"没有提现权限");
         }
         /**
          * 获取上次提取时的解锁奖励
@@ -485,10 +486,10 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
         BigDecimal arriveMoney = takeOutMoney.subtract(fee);
         TakeOutInfoVO takeOutInfoVO = new TakeOutInfoVO()
-                .setArriveMoney(arriveMoney)
-                .setFee(fee)
-                .setLockAward(sysMinerInfo.getLockAward())
-                .setTotalBlockAward(sysMinerInfo.getTotalBlockAward());
+                .setArriveMoney(BigDecimalUtil.formatFour(arriveMoney))
+                .setFee(BigDecimalUtil.formatFour(fee))
+                .setLockAward(BigDecimalUtil.formatFour(sysMinerInfo.getLockAward()))
+                .setTotalBlockAward(BigDecimalUtil.formatFour(sysMinerInfo.getTotalBlockAward()));
         return Result.success(takeOutInfoVO);
     }
 
