@@ -78,4 +78,7 @@ public class SysTransferRecord
     @TableField(exist = false)
     private String cloumName;
 
+    //当前时间点位置，已解锁奖励
+    private BigDecimal unlockAward;
+
 }

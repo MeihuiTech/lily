@@ -2,6 +2,8 @@ package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysTransferRecord;
 import com.mei.hui.miner.entity.SysTransferRecordUserName;
+import com.mei.hui.miner.feign.vo.TakeOutInfoBO;
+import com.mei.hui.miner.feign.vo.TakeOutInfoVO;
 import com.mei.hui.miner.model.AggWithdrawBO;
 import com.mei.hui.miner.model.GetUserEarningInput;
 import com.mei.hui.miner.model.SysTransferRecordWrap;
@@ -126,5 +128,7 @@ public interface ISysTransferRecordService
      * @return
      */
     Result getUserChiaEarning(GetUserEarningInput input);
+
+    Result<TakeOutInfoVO> takeOutInfo(TakeOutInfoBO takeOutInfoBO);
 
 }

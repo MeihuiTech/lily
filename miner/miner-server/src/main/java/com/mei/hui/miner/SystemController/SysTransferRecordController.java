@@ -7,6 +7,8 @@ import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.entity.Currency;
 import com.mei.hui.miner.entity.FilAdminUser;
 import com.mei.hui.miner.entity.SysTransferRecord;
+import com.mei.hui.miner.feign.vo.TakeOutInfoBO;
+import com.mei.hui.miner.feign.vo.TakeOutInfoVO;
 import com.mei.hui.miner.model.*;
 import com.mei.hui.miner.service.FilAdminUserService;
 import com.mei.hui.miner.service.ISysCurrencyService;
@@ -196,12 +198,18 @@ public class SysTransferRecordController
 
     /**
      * 用户提币：
-     * 1、先校验现有余额是否 大于 将要提取的fil, 余额 - 带提币中的fil > 即将提取的fil
+     * 1、先校验现有余额是否 大于 将要提取的fil, 余额 - 待提币中的fil > 即将提取的fil
      */
     @ApiOperation(value = "用户提币")
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {
         return sysTransferRecordService.withdraw(sysTransferRecordWrap);
+    }
+
+    @ApiOperation(value = "获取用户提现金额、平台佣金")
+    @PostMapping("/takeOutInfo")
+    public Result<TakeOutInfoVO> takeOutInfo(@RequestBody TakeOutInfoBO takeOutInfoBO){
+        return sysTransferRecordService.takeOutInfo(takeOutInfoBO);
     }
 }
