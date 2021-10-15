@@ -78,10 +78,11 @@ public class SysTransferRecord
     @TableField(exist = false)
     private String cloumName;
 
-    //截止到当前时间,锁仓奖励
-    private BigDecimal lockAward;
+    //上次已结算解锁奖励
+    private BigDecimal prevUnLockAward;
 
-    //截止到当前时间,累计出块奖励
-    private BigDecimal totalBlockAward;
+    @TableField(exist = false)
+    //本次解锁奖励
+    private BigDecimal unLockAward;
 
 }

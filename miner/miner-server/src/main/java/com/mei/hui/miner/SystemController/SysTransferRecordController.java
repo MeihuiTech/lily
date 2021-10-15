@@ -207,12 +207,6 @@ public class SysTransferRecordController
         if(sysTransferRecordWrap.getMinerId() == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择矿工");
         }
-        if(sysTransferRecordWrap.getTotalBlockAward().compareTo(BigDecimal.ZERO) == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"截止到当前时间,累计出块奖励不能为空");
-        }
-        if(sysTransferRecordWrap.getLockAward().compareTo(BigDecimal.ZERO) == 0){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"截止到当前时间,锁仓奖励不能为空");
-        }
         return sysTransferRecordService.withdraw(sysTransferRecordWrap);
     }
 

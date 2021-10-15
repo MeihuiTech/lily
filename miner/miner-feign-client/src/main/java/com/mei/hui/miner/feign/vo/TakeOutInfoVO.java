@@ -18,10 +18,4 @@ public class TakeOutInfoVO {
 
     @ApiModelProperty("提现到账金额")
     private BigDecimal arriveMoney;
-
-    @ApiModelProperty("截止到当前时间,锁仓奖励")
-    private BigDecimal lockAward;
-
-    @ApiModelProperty("截止到当前时间,累计出块奖励")
-    private BigDecimal totalBlockAward;
 }
