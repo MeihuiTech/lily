@@ -79,7 +79,7 @@ public class SysTransferRecord
     private String cloumName;
 
     //上次已结算解锁奖励
-    private BigDecimal prevUnLockAward;
+    private BigDecimal prevUnlockAward;
 
     @TableField(exist = false)
     //本次解锁奖励

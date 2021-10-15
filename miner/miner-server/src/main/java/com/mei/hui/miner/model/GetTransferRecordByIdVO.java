@@ -52,7 +52,7 @@ public class GetTransferRecordByIdVO {
     private BigDecimal unLockAward;
 
     @ApiModelProperty("上次解锁奖励")
-    private BigDecimal prevUnLockAward;
+    private BigDecimal prevUnlockAward;
 
     @ApiModelProperty("实结收益")
     private BigDecimal realMoney;

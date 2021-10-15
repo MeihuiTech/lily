@@ -121,7 +121,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         }
 
         sysTransferRecord.setUpdateTime(LocalDateTime.now());
-        sysTransferRecord.setPrevUnLockAward(sysTransferRecord.getUnLockAward());
+        sysTransferRecord.setPrevUnlockAward(sysTransferRecord.getUnLockAward());
         /**
          * 修改提现记录状态
          */
@@ -474,7 +474,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         log.info("获取最后一条提取记录:{}",JSON.toJSONString(list));
         if(list.size() != 0){
             SysTransferRecord record = list.get(0);
-            unlockAward = record.getPrevUnLockAward();
+            unlockAward = record.getPrevUnlockAward();
         }
         //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
         BigDecimal takeOutMoney = sysMinerInfo.getTotalBlockAward().subtract(sysMinerInfo.getLockAward()).subtract(unlockAward);
@@ -515,7 +515,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         getTransferRecordByIdVO.setUserName(user.getUserName());
 
         //上次解锁收益
-        BigDecimal prevUnLockAward = BigDecimal.ZERO;
+        BigDecimal prevUnlockAward = BigDecimal.ZERO;
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(SysTransferRecord::getMinerId,transferRecord.getMinerId());
         queryWrapper.orderByDesc(SysTransferRecord::getCreateTime).last("limit 2");
@@ -523,12 +523,12 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         log.info("获取最后一条提取记录:{}",JSON.toJSONString(list));
         if(list.size() == 2){
             SysTransferRecord  prevTransferRecord = list.get(1);
-            prevUnLockAward = prevTransferRecord.getPrevUnLockAward();
+            prevUnlockAward = prevTransferRecord.getPrevUnlockAward();
         }
         //计算解锁奖励
         getTransferRecordByIdVO.setUnLockAward(miner.getTotalBlockAward().subtract(miner.getLockAward()));
         getTransferRecordByIdVO.setRealMoney(getTransferRecordByIdVO.getAmount().add(getTransferRecordByIdVO.getFee()));
-        getTransferRecordByIdVO.setPrevUnLockAward(prevUnLockAward);
+        getTransferRecordByIdVO.setPrevUnlockAward(prevUnlockAward);
         return Result.success(getTransferRecordByIdVO);
     }
 
