@@ -24,12 +24,6 @@ public class GetTransferRecordByIdVO {
     @ApiModelProperty("服务费【普通用户提币时所填】")
     private BigDecimal fee;
 
-    @ApiModelProperty("可结算奖励【当前最新值】")
-    private BigDecimal newAmount;
-
-    @ApiModelProperty("服务费【当前最新值】")
-    private BigDecimal newFee;
-
     @ApiModelProperty("费用HASH")
     private String feeHash;
 
@@ -60,7 +54,14 @@ public class GetTransferRecordByIdVO {
     @ApiModelProperty("上次解锁奖励")
     private BigDecimal prevUnlockAward;
 
-    @ApiModelProperty("实结收益")
+    //newAmount = realMoney + newFee
+    @ApiModelProperty("实结收益【当前最新值】")
+    private BigDecimal newAmount;
+
+    @ApiModelProperty("服务费【当前最新值】")
+    private BigDecimal newFee;
+
+    @ApiModelProperty("可结算奖励")
     private BigDecimal realMoney;
 
 }
