@@ -529,6 +529,20 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         getTransferRecordByIdVO.setUnLockAward(miner.getTotalBlockAward().subtract(miner.getLockAward()));
         getTransferRecordByIdVO.setRealMoney(getTransferRecordByIdVO.getAmount().add(getTransferRecordByIdVO.getFee()));
         getTransferRecordByIdVO.setPrevUnlockAward(prevUnlockAward);
+        /**
+         * 计算最近的可结算金额
+         */
+        //获取费率
+        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(HttpRequestUtil.getUserId());
+        BigDecimal feeRate = rateMap.get(CurrencyEnum.FIL.name());//费率
+        log.info("费率:{}",feeRate);
+        //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
+        BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
+        log.info("本次实结已解锁奖励:{}",takeOutMoney);
+        BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
+        BigDecimal newAmount = takeOutMoney.subtract(fee);
+        getTransferRecordByIdVO.setNewAmount(newAmount);
+        getTransferRecordByIdVO.setNewFee(fee);
         return Result.success(getTransferRecordByIdVO);
     }
 

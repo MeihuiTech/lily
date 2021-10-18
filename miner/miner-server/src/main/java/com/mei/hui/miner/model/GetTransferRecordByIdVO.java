@@ -18,11 +18,17 @@ public class GetTransferRecordByIdVO {
     @ApiModelProperty("用户名")
     private String userName;
 
-    @ApiModelProperty("可结算奖励")
+    @ApiModelProperty("可结算奖励【普通用户提币时所填】")
     private BigDecimal amount;
 
-    @ApiModelProperty("服务费")
+    @ApiModelProperty("服务费【普通用户提币时所填】")
     private BigDecimal fee;
+
+    @ApiModelProperty("可结算奖励【当前最新值】")
+    private BigDecimal newAmount;
+
+    @ApiModelProperty("服务费【当前最新值】")
+    private BigDecimal newFee;
 
     @ApiModelProperty("费用HASH")
     private String feeHash;
