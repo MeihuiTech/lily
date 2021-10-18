@@ -119,9 +119,10 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(transferRecord.getStatus() != 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"审核已经完成");
         }
-
         sysTransferRecord.setUpdateTime(LocalDateTime.now());
         sysTransferRecord.setPrevUnlockAward(sysTransferRecord.getUnLockAward());
+        sysTransferRecord.setAmount(sysTransferRecord.getNewAmount());
+        sysTransferRecord.setFee(sysTransferRecord.getNewFfee());
         /**
          * 修改提现记录状态
          */

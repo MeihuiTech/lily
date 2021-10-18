@@ -85,4 +85,13 @@ public class SysTransferRecord
     //本次解锁奖励
     private BigDecimal unLockAward;
 
+
+    /** 提取金额[管理员最后审批通过的金额] */
+    @TableField(exist = false)
+    private BigDecimal newAmount;
+
+    /** 平台收取手续费【管理员最后审批通过的平台费用】 */
+    @TableField(exist = false)
+    private BigDecimal newFfee;
+
 }
