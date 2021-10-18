@@ -109,7 +109,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateSysTransferRecord(SysTransferRecord sysTransferRecord){
-        if(sysTransferRecord.getUnLockAward()==null || sysTransferRecord.getUnLockAward().compareTo(BigDecimal.ZERO) == 0){
+        if(sysTransferRecord.getUnLockAward()==null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励不能为空");
         }
         SysTransferRecord transferRecord = sysTransferRecordMapper.selectById(sysTransferRecord.getId());
