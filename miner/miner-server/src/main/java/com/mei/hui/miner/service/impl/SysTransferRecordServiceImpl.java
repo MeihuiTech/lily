@@ -525,8 +525,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         queryWrapper.eq(SysTransferRecord::getStatus,1);
         List<SysTransferRecord> list = sysTransferRecordMapper.selectList(queryWrapper);
         log.info("获取最后一条提取记录:{}",JSON.toJSONString(list));
-        if(list.size() == 2){
-            SysTransferRecord  prevTransferRecord = list.get(1);
+        if(list.size() != 0){
+            SysTransferRecord  prevTransferRecord = list.get(0);
             prevUnlockAward = prevTransferRecord.getPrevUnlockAward();
         }
         //计算解锁奖励
