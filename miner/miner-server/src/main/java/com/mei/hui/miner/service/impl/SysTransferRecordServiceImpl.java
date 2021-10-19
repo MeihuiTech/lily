@@ -532,9 +532,16 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         /**
          * 只在审核完后，查看的时候需要显示
          */
-        getTransferRecordByIdVO.setNewFee(transferRecord.getFee());
-        getTransferRecordByIdVO.setRealMoney(transferRecord.getAmount());
-        getTransferRecordByIdVO.setNewAmount(transferRecord.getFee().add(transferRecord.getAmount()));
+
+        //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
+        BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
+        log.info("本次实结已解锁奖励:{}",takeOutMoney);
+        BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
+        BigDecimal realMoney = takeOutMoney.subtract(fee);
+        getTransferRecordByIdVO.setNewAmount(takeOutMoney);
+        getTransferRecordByIdVO.setNewFee(fee);
+        getTransferRecordByIdVO.setRealMoney(realMoney);
+
         return Result.success(getTransferRecordByIdVO);
     }
 
