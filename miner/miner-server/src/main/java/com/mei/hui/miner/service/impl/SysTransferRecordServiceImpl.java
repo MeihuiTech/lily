@@ -476,7 +476,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         /**
          * 获取费率
          */
-        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(HttpRequestUtil.getUserId());
+        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(sysMinerInfo.getUserId());
         BigDecimal feeRate = rateMap.get(CurrencyEnum.FIL.name());//费率
         log.info("费率:{}",feeRate);
 
@@ -522,7 +522,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
          * 计算最近的可结算金额
          */
         //获取费率
-        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(HttpRequestUtil.getUserId());
+        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(miner.getUserId());
         BigDecimal feeRate = rateMap.get(CurrencyEnum.FIL.name());//费率
         log.info("费率:{}",feeRate);
         if(feeRate.compareTo(BigDecimal.ZERO) > 0){
