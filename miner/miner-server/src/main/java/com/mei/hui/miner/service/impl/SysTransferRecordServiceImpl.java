@@ -509,13 +509,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         getTransferRecordByIdVO.setUserName(user.getUserName());
 
         //上次解锁收益:如果划转记录是“审核中”则通过getPrevUnlockAward获取；否则，获取划转记录中的 prev_unlock_award 字段
+        BigDecimal unLockAward = BigDecimalUtil.formatFour(miner.getTotalBlockAward().subtract(miner.getLockAward()));
         BigDecimal prevUnlockAward = getPrevUnlockAward(transferRecord.getMinerId());
         if(transferRecord.getStatus() != 0){
             prevUnlockAward = transferRecord.getPrevUnlockAward();
+            unLockAward = transferRecord.getUnLockAward();
         }
-
         //计算解锁奖励
-        getTransferRecordByIdVO.setUnLockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward().subtract(miner.getLockAward())));
+        getTransferRecordByIdVO.setUnLockAward(unLockAward);
         getTransferRecordByIdVO.setPrevUnlockAward(BigDecimalUtil.formatFour(prevUnlockAward));
         /**
          * 计算最近的可结算金额
@@ -527,9 +528,13 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(feeRate.compareTo(BigDecimal.ZERO) > 0){
             getTransferRecordByIdVO.setFeeRate(feeRate.divide(new BigDecimal(100),BigDecimal.ROUND_HALF_UP));
         }
-        //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
-     /*   BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
-        log.info("本次实结已解锁奖励:{}",takeOutMoney);*/
+
+        /**
+         * 只在审核完后，查看的时候需要显示
+         */
+        getTransferRecordByIdVO.setNewFee(transferRecord.getFee());
+        getTransferRecordByIdVO.setRealMoney(transferRecord.getAmount());
+        getTransferRecordByIdVO.setNewAmount(transferRecord.getFee().add(transferRecord.getAmount()));
         return Result.success(getTransferRecordByIdVO);
     }
 

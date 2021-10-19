@@ -54,12 +54,18 @@ public class GetTransferRecordByIdVO {
     @ApiModelProperty("上次解锁奖励")
     private BigDecimal prevUnlockAward;
 
-    //newAmount = realMoney + newFee
-/*    @ApiModelProperty("理论收益【当前最新值】")
-    private BigDecimal newAmount;*/
-
     @ApiModelProperty("服务费率")
     private BigDecimal feeRate = BigDecimal.ZERO;
+
+    //newAmount = realMoney + newFee
+    @ApiModelProperty("理论收益【只在查看时显示】")
+    private BigDecimal newAmount;
+
+    @ApiModelProperty("服务费【只在查看时显示】")
+    private BigDecimal newFee;
+
+    @ApiModelProperty("实际收益【只在查看时显示】")
+    private BigDecimal realMoney;
 
 
 }
