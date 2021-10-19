@@ -538,9 +538,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         log.info("本次实结已解锁奖励:{}",takeOutMoney);
         BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
         BigDecimal realMoney = takeOutMoney.subtract(fee);
-        getTransferRecordByIdVO.setNewAmount(takeOutMoney);
+        getTransferRecordByIdVO.setNewAmount(realMoney);
         getTransferRecordByIdVO.setNewFee(fee);
-        getTransferRecordByIdVO.setRealMoney(realMoney);
+        getTransferRecordByIdVO.setRealMoney(takeOutMoney);
 
         return Result.success(getTransferRecordByIdVO);
     }
