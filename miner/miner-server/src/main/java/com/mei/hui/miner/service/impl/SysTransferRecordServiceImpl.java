@@ -502,8 +502,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         minerQuery.eq(SysMinerInfo::getMinerId,transferRecord.getMinerId());
         SysMinerInfo miner = sysMinerInfoMapper.selectOne(minerQuery);
         log.info("矿工数据:{}",JSON.toJSONString(miner));
-        getTransferRecordByIdVO.setTotalBlockAward(miner.getTotalBlockAward());
-        getTransferRecordByIdVO.setLockAward(miner.getLockAward());
+        getTransferRecordByIdVO.setTotalBlockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward()));
+        getTransferRecordByIdVO.setLockAward( BigDecimalUtil.formatFour(miner.getLockAward()));
         //获取用户姓名
         SysUserOut user = userManager.getUserById(transferRecord.getUserId());
         getTransferRecordByIdVO.setUserName(user.getUserName());
@@ -515,9 +515,9 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         }
 
         //计算解锁奖励
-        getTransferRecordByIdVO.setUnLockAward(miner.getTotalBlockAward().subtract(miner.getLockAward()));
-        getTransferRecordByIdVO.setRealMoney(getTransferRecordByIdVO.getAmount().add(getTransferRecordByIdVO.getFee()));
-        getTransferRecordByIdVO.setPrevUnlockAward(prevUnlockAward);
+        getTransferRecordByIdVO.setUnLockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward().subtract(miner.getLockAward())));
+        getTransferRecordByIdVO.setRealMoney(BigDecimalUtil.formatFour(getTransferRecordByIdVO.getAmount().add(getTransferRecordByIdVO.getFee())));
+        getTransferRecordByIdVO.setPrevUnlockAward(BigDecimalUtil.formatFour(prevUnlockAward));
         /**
          * 计算最近的可结算金额
          */
@@ -530,8 +530,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         log.info("本次实结已解锁奖励:{}",takeOutMoney);
         BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
         BigDecimal newAmount = takeOutMoney.subtract(fee);
-        getTransferRecordByIdVO.setNewAmount(newAmount);
-        getTransferRecordByIdVO.setNewFee(fee);
+        getTransferRecordByIdVO.setNewAmount(BigDecimalUtil.formatFour(newAmount));
+        getTransferRecordByIdVO.setNewFee(BigDecimalUtil.formatFour(fee));
         return Result.success(getTransferRecordByIdVO);
     }
 
