@@ -93,6 +93,6 @@ public class SysTransferRecord
 
     /** 平台收取手续费【管理员最后审批通过的平台费用】 */
     @TableField(exist = false)
-    private BigDecimal newFfee;
+    private BigDecimal newfee;
 
 }

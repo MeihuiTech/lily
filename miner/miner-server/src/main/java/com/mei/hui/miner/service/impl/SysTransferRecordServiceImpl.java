@@ -123,7 +123,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         sysTransferRecord.setUnLockAward(sysTransferRecord.getUnLockAward());
         sysTransferRecord.setPrevUnlockAward(sysTransferRecord.getPrevUnlockAward());
         sysTransferRecord.setAmount(sysTransferRecord.getNewAmount());
-        sysTransferRecord.setFee(sysTransferRecord.getNewFfee());
+        sysTransferRecord.setFee(sysTransferRecord.getNewfee());
         /**
          * 修改提现记录状态
          */
