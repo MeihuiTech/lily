@@ -528,9 +528,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             getTransferRecordByIdVO.setFeeRate(feeRate.divide(new BigDecimal(100),BigDecimal.ROUND_HALF_UP));
         }
         //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
-        BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
-        log.info("本次实结已解锁奖励:{}",takeOutMoney);
-        getTransferRecordByIdVO.setNewAmount(BigDecimalUtil.formatFour(takeOutMoney));
+     /*   BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
+        log.info("本次实结已解锁奖励:{}",takeOutMoney);*/
         return Result.success(getTransferRecordByIdVO);
     }
 
