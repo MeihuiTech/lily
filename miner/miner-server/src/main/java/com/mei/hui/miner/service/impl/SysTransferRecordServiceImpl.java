@@ -520,7 +520,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         BigDecimal prevUnlockAward = BigDecimal.ZERO;
         LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(SysTransferRecord::getMinerId,transferRecord.getMinerId());
-        queryWrapper.lt(SysTransferRecord::getUpdateTime,transferRecord.getUpdateTime());
         queryWrapper.eq(SysTransferRecord::getStatus,1);
         queryWrapper.orderByDesc(SysTransferRecord::getUpdateTime).last("limit 1");
         List<SysTransferRecord> list = sysTransferRecordMapper.selectList(queryWrapper);
