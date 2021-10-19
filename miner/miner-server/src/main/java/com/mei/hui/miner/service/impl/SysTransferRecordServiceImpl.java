@@ -509,14 +509,14 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         getTransferRecordByIdVO.setUserName(user.getUserName());
 
         //上次解锁收益:如果划转记录是“审核中”则通过getPrevUnlockAward获取；否则，获取划转记录中的 prev_unlock_award 字段
-        BigDecimal unLockAward = BigDecimalUtil.formatFour(miner.getTotalBlockAward().subtract(miner.getLockAward()));
+        BigDecimal unLockAward = miner.getTotalBlockAward().subtract(miner.getLockAward());
         BigDecimal prevUnlockAward = getPrevUnlockAward(transferRecord.getMinerId());
         if(transferRecord.getStatus() != 0){
             prevUnlockAward = transferRecord.getPrevUnlockAward();
             unLockAward = transferRecord.getUnLockAward();
         }
         //计算解锁奖励
-        getTransferRecordByIdVO.setUnLockAward(unLockAward);
+        getTransferRecordByIdVO.setUnLockAward(BigDecimalUtil.formatFour(unLockAward));
         getTransferRecordByIdVO.setPrevUnlockAward(BigDecimalUtil.formatFour(prevUnlockAward));
         /**
          * 计算最近的可结算金额
@@ -534,13 +534,13 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
          */
 
         //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
-        BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
+        BigDecimal takeOutMoney = unLockAward.subtract(prevUnlockAward);
         log.info("本次实结已解锁奖励:{}",takeOutMoney);
         BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
         BigDecimal realMoney = takeOutMoney.subtract(fee);
-        getTransferRecordByIdVO.setNewAmount(realMoney);
-        getTransferRecordByIdVO.setNewFee(fee);
-        getTransferRecordByIdVO.setRealMoney(takeOutMoney);
+        getTransferRecordByIdVO.setNewAmount(BigDecimalUtil.formatFour(realMoney));
+        getTransferRecordByIdVO.setNewFee(BigDecimalUtil.formatFour(fee));
+        getTransferRecordByIdVO.setRealMoney(BigDecimalUtil.formatFour(takeOutMoney));
 
         return Result.success(getTransferRecordByIdVO);
     }
