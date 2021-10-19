@@ -516,7 +516,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
 
         //计算解锁奖励
         getTransferRecordByIdVO.setUnLockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward().subtract(miner.getLockAward())));
-        getTransferRecordByIdVO.setRealMoney(BigDecimalUtil.formatFour(getTransferRecordByIdVO.getAmount().add(getTransferRecordByIdVO.getFee())));
         getTransferRecordByIdVO.setPrevUnlockAward(BigDecimalUtil.formatFour(prevUnlockAward));
         /**
          * 计算最近的可结算金额
@@ -525,13 +524,13 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(HttpRequestUtil.getUserId());
         BigDecimal feeRate = rateMap.get(CurrencyEnum.FIL.name());//费率
         log.info("费率:{}",feeRate);
+        if(feeRate.compareTo(BigDecimal.ZERO) > 0){
+            getTransferRecordByIdVO.setFeeRate(feeRate.divide(new BigDecimal(100),BigDecimal.ROUND_HALF_UP));
+        }
         //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
         BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
         log.info("本次实结已解锁奖励:{}",takeOutMoney);
-        BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
-        BigDecimal newAmount = takeOutMoney.subtract(fee);
-        getTransferRecordByIdVO.setNewAmount(BigDecimalUtil.formatFour(newAmount));
-        getTransferRecordByIdVO.setNewFee(BigDecimalUtil.formatFour(fee));
+        getTransferRecordByIdVO.setNewAmount(BigDecimalUtil.formatFour(takeOutMoney));
         return Result.success(getTransferRecordByIdVO);
     }
 

@@ -55,13 +55,11 @@ public class GetTransferRecordByIdVO {
     private BigDecimal prevUnlockAward;
 
     //newAmount = realMoney + newFee
-    @ApiModelProperty("实结收益【当前最新值】")
+    @ApiModelProperty("理论收益【当前最新值】")
     private BigDecimal newAmount;
 
-    @ApiModelProperty("服务费【当前最新值】")
-    private BigDecimal newFee;
+    @ApiModelProperty("服务费率")
+    private BigDecimal feeRate = BigDecimal.ZERO;
 
-    @ApiModelProperty("可结算奖励")
-    private BigDecimal realMoney;
 
 }
