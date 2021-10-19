@@ -532,7 +532,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         /**
          * 只在审核完后，查看的时候需要显示
          */
-
         //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
         BigDecimal takeOutMoney = unLockAward.subtract(prevUnlockAward);
         log.info("本次实结已解锁奖励:{}",takeOutMoney);
