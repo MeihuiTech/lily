@@ -612,7 +612,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
          */
         earningVo.setTotalEarning(BigDecimalUtil.formatFour(miner.getTotalBlockAward()).doubleValue());
         earningVo.setTotalLockAward(BigDecimalUtil.formatFour(miner.getLockAward()).doubleValue());
-        earningVo.setAvailableEarning(BigDecimalUtil.formatFour(miner.getBalanceMinerAvailable()).doubleValue());
+
         //添加 正在提币中的数量
         LambdaQueryWrapper<SysTransferRecord> drawingWrapper = new LambdaQueryWrapper();
         drawingWrapper.eq(SysTransferRecord::getStatus,0);//提币中
@@ -627,6 +627,17 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             drawing = drawing.add(record.getAmount()).add(record.getFee());
         }
         earningVo.setDrawingEarning(BigDecimalUtil.formatFour(drawing).doubleValue());
+
+        /**
+         * 获取上次提取时的解锁奖励
+         */
+        //上次已解锁奖励
+        BigDecimal prevUnlockAward = getPrevUnlockAward(minerId);
+        //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
+        BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
+        log.info("本次实结已解锁奖励:{}",takeOutMoney);
+        earningVo.setAvailableEarning(BigDecimalUtil.formatFour(takeOutMoney).doubleValue());
+
         return Result.success(earningVo);
     }
     /**
