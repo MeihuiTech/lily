@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mei.hui.util.BasePage;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import retrofit2.http.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -81,8 +82,8 @@ public class SysTransferRecord
     //上次已结算解锁奖励
     private BigDecimal prevUnlockAward;
 
-    @TableField(exist = false)
     //本次解锁奖励
+    @TableField(value = "unlock_award")
     private BigDecimal unLockAward;
 
 

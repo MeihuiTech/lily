@@ -120,7 +120,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             throw MyException.fail(MinerError.MYB_222222.getCode(),"审核已经完成");
         }
         sysTransferRecord.setUpdateTime(LocalDateTime.now());
-        sysTransferRecord.setPrevUnlockAward(sysTransferRecord.getUnLockAward());
+        sysTransferRecord.setUnLockAward(sysTransferRecord.getUnLockAward());
+        sysTransferRecord.setPrevUnlockAward(sysTransferRecord.getPrevUnlockAward());
         sysTransferRecord.setAmount(sysTransferRecord.getNewAmount());
         sysTransferRecord.setFee(sysTransferRecord.getNewFfee());
         /**
@@ -467,19 +468,10 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
          * 获取上次提取时的解锁奖励
          */
         //上次已解锁奖励
-        BigDecimal unlockAward = BigDecimal.ZERO;
-        LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SysTransferRecord::getMinerId,takeOutInfoBO.getMinerId());
-        queryWrapper.orderByDesc(SysTransferRecord::getCreateTime).last("limit 1");
-        queryWrapper.eq(SysTransferRecord::getStatus,1);
-        List<SysTransferRecord> list = sysTransferRecordMapper.selectList(queryWrapper);
-        log.info("获取最后一条提取记录:{}",JSON.toJSONString(list));
-        if(list.size() != 0){
-            SysTransferRecord record = list.get(0);
-            unlockAward = record.getPrevUnlockAward();
-        }
+        BigDecimal prevUnlockAward = getPrevUnlockAward(takeOutInfoBO.getMinerId());
+
         //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
-        BigDecimal takeOutMoney = sysMinerInfo.getTotalBlockAward().subtract(sysMinerInfo.getLockAward()).subtract(unlockAward);
+        BigDecimal takeOutMoney = sysMinerInfo.getTotalBlockAward().subtract(sysMinerInfo.getLockAward()).subtract(prevUnlockAward);
         log.info("本次实结已解锁奖励:{}",takeOutMoney);
         /**
          * 获取费率
@@ -516,18 +508,12 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         SysUserOut user = userManager.getUserById(transferRecord.getUserId());
         getTransferRecordByIdVO.setUserName(user.getUserName());
 
-        //上次解锁收益
-        BigDecimal prevUnlockAward = BigDecimal.ZERO;
-        LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SysTransferRecord::getMinerId,transferRecord.getMinerId());
-        queryWrapper.eq(SysTransferRecord::getStatus,1);
-        queryWrapper.orderByDesc(SysTransferRecord::getUpdateTime).last("limit 1");
-        List<SysTransferRecord> list = sysTransferRecordMapper.selectList(queryWrapper);
-        log.info("获取最后一条提取记录:{}",JSON.toJSONString(list));
-        if(list.size() != 0){
-            SysTransferRecord  prevTransferRecord = list.get(0);
-            prevUnlockAward = prevTransferRecord.getPrevUnlockAward();
+        //上次解锁收益:如果划转记录是“审核中”则通过getPrevUnlockAward获取；否则，获取划转记录中的 prev_unlock_award 字段
+        BigDecimal prevUnlockAward = getPrevUnlockAward(transferRecord.getMinerId());
+        if(transferRecord.getStatus() != 0){
+            prevUnlockAward = transferRecord.getPrevUnlockAward();
         }
+
         //计算解锁奖励
         getTransferRecordByIdVO.setUnLockAward(miner.getTotalBlockAward().subtract(miner.getLockAward()));
         getTransferRecordByIdVO.setRealMoney(getTransferRecordByIdVO.getAmount().add(getTransferRecordByIdVO.getFee()));
@@ -547,6 +533,26 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         getTransferRecordByIdVO.setNewAmount(newAmount);
         getTransferRecordByIdVO.setNewFee(fee);
         return Result.success(getTransferRecordByIdVO);
+    }
+
+    /**
+     * 获取上次解锁收益
+     * @param minerId
+     * @return
+     */
+    public BigDecimal getPrevUnlockAward(String minerId){
+        BigDecimal prevUnlockAward = BigDecimal.ZERO;
+        LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SysTransferRecord::getMinerId,minerId);
+        queryWrapper.eq(SysTransferRecord::getStatus,1);
+        queryWrapper.orderByDesc(SysTransferRecord::getUpdateTime).last("limit 1");
+        List<SysTransferRecord> list = sysTransferRecordMapper.selectList(queryWrapper);
+        log.info("获取最后一条提取记录:{}",JSON.toJSONString(list));
+        if(list.size() != 0){
+            SysTransferRecord  prevTransferRecord = list.get(0);
+            prevUnlockAward = prevTransferRecord.getUnLockAward();
+        }
+        return prevUnlockAward;
     }
 
     /**
