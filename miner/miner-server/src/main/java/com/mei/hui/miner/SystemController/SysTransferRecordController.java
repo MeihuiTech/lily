@@ -103,8 +103,13 @@ public class SysTransferRecordController
         if(StringUtils.isNotEmpty(sysTransferRecord.getRemark()) && sysTransferRecord.getRemark().length() > 2000){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"备注信息长度过长");
         }
+        if(sysTransferRecord.getUnLockAward()==null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励不能为空");
+        }
+        if(sysTransferRecord.getUnLockAward().compareTo(sysTransferRecord.getPrevUnlockAward()) < 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励或上次解锁奖励错误");
+        }
         int rows = sysTransferRecordService.updateSysTransferRecord(sysTransferRecord);
-
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 

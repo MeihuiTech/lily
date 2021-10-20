@@ -109,15 +109,24 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateSysTransferRecord(SysTransferRecord sysTransferRecord){
-        if(sysTransferRecord.getUnLockAward()==null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励不能为空");
-        }
         SysTransferRecord transferRecord = sysTransferRecordMapper.selectById(sysTransferRecord.getId());
         if(transferRecord == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"提交记录不存在");
         }
         if(transferRecord.getStatus() != 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"审核已经完成");
+        }
+        /**
+         * 校验
+         */
+        LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(SysMinerInfo::getMinerId,transferRecord.getMinerId());
+        SysMinerInfo miner = sysMinerInfoMapper.selectOne(lambdaQueryWrapper);
+        if(miner == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"当前提取记录异常");
+        }
+        if(miner.getTotalBlockAward().subtract(miner.getLockAward()).compareTo(sysTransferRecord.getUnLockAward()) < 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励错误");
         }
         sysTransferRecord.setUpdateTime(LocalDateTime.now());
         sysTransferRecord.setUnLockAward(sysTransferRecord.getUnLockAward());
