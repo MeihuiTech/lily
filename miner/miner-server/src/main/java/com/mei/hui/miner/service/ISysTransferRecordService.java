@@ -1,16 +1,11 @@
 package com.mei.hui.miner.service;
 
 import com.mei.hui.miner.entity.SysTransferRecord;
-import com.mei.hui.miner.entity.SysTransferRecordUserName;
 import com.mei.hui.miner.feign.vo.TakeOutInfoBO;
 import com.mei.hui.miner.feign.vo.TakeOutInfoVO;
-import com.mei.hui.miner.model.AggWithdrawBO;
-import com.mei.hui.miner.model.GetUserEarningInput;
-import com.mei.hui.miner.model.SysTransferRecordWrap;
-import com.mei.hui.miner.model.TransferRecordFeeVO;
+import com.mei.hui.miner.model.*;
 import com.mei.hui.util.Result;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -131,4 +126,5 @@ public interface ISysTransferRecordService
 
     Result<TakeOutInfoVO> takeOutInfo(TakeOutInfoBO takeOutInfoBO);
 
+    Result<GetTransferRecordByIdVO> getTransferRecordById(GetTransferRecordByIdBO transferRecordByIdBO);
 }

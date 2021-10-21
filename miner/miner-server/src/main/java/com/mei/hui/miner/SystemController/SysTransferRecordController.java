@@ -73,7 +73,7 @@ public class SysTransferRecordController
     /**
      * 获取系统划转记录详细信息
      */
-    @ApiOperation(value = "获取系统划转记录详细信息")
+    @ApiOperation(value = "获取系统划转记录详细信息-【废弃】")
     @GetMapping(value = "/{id}")
     public Result getInfo(@PathVariable("id") Long id)
     {
@@ -103,8 +103,13 @@ public class SysTransferRecordController
         if(StringUtils.isNotEmpty(sysTransferRecord.getRemark()) && sysTransferRecord.getRemark().length() > 2000){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"备注信息长度过长");
         }
+        if(sysTransferRecord.getUnLockAward()==null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励不能为空");
+        }
+        if(sysTransferRecord.getUnLockAward().compareTo(sysTransferRecord.getPrevUnlockAward()) < 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励或上次解锁奖励错误");
+        }
         int rows = sysTransferRecordService.updateSysTransferRecord(sysTransferRecord);
-
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 
@@ -204,6 +209,9 @@ public class SysTransferRecordController
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {
+        if(sysTransferRecordWrap.getMinerId() == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择矿工");
+        }
         return sysTransferRecordService.withdraw(sysTransferRecordWrap);
     }
 
@@ -211,5 +219,11 @@ public class SysTransferRecordController
     @PostMapping("/takeOutInfo")
     public Result<TakeOutInfoVO> takeOutInfo(@RequestBody TakeOutInfoBO takeOutInfoBO){
         return sysTransferRecordService.takeOutInfo(takeOutInfoBO);
+    }
+
+    @ApiOperation(value = "获取系统划转记录详细信息")
+    @PostMapping("/transferRecordDetail")
+    public Result<GetTransferRecordByIdVO> transferRecordDetail(@RequestBody GetTransferRecordByIdBO transferRecordByIdBO){
+        return sysTransferRecordService.getTransferRecordById(transferRecordByIdBO);
     }
 }

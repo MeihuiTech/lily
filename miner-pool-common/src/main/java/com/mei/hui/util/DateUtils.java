@@ -40,6 +40,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @return
      */
     public static LocalDateTime stringToLocalDateTime(String string, DateFormatEnum format){
+        if(string == null){
+            return null;
+        }
         DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
         LocalDateTime localDateTime = LocalDateTime.parse(string, timeDtf);
         return localDateTime;
@@ -52,6 +55,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @return
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, DateFormatEnum format){
+        if(localDateTime == null){
+            return null;
+        }
         DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
         return localDateTime.format(timeDtf);
     }
@@ -63,6 +69,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @return
      */
     public static LocalDate stringToLocalDate(String string,DateFormatEnum format){
+        if(string == null){
+            return null;
+        }
         DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
         LocalDate localDate = LocalDate.parse(string, timeDtf);
         return localDate;
@@ -75,6 +84,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @return
      */
     public static String localDateToString(LocalDate localDate, DateFormatEnum format){
+        if(localDate == null){
+            return null;
+        }
         DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern(format.getFormat());
         return localDate.format(timeDtf);
     }

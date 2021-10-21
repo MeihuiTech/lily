@@ -11,6 +11,7 @@ import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
 import com.mei.hui.miner.entity.*;
 import com.mei.hui.miner.feign.vo.TakeOutInfoBO;
 import com.mei.hui.miner.feign.vo.TakeOutInfoVO;
+import com.mei.hui.miner.manager.UserManager;
 import com.mei.hui.miner.mapper.*;
 import com.mei.hui.miner.model.*;
 import com.mei.hui.miner.service.CurrencyRateService;
@@ -60,6 +61,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     private CurrencyRateService currencyRateService;
     @Autowired
     private FilAdminUserService adminUserService;
+    @Autowired
+    private UserManager userManager;
 
     /**
      * 查询系统划转记录
@@ -113,7 +116,23 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if(transferRecord.getStatus() != 0){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"审核已经完成");
         }
+        /**
+         * 校验
+         */
+        LambdaQueryWrapper<SysMinerInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(SysMinerInfo::getMinerId,transferRecord.getMinerId());
+        SysMinerInfo miner = sysMinerInfoMapper.selectOne(lambdaQueryWrapper);
+        if(miner == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"当前提取记录异常");
+        }
+        if(miner.getTotalBlockAward().subtract(miner.getLockAward()).compareTo(sysTransferRecord.getUnLockAward()) < 0){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"本次解锁奖励错误");
+        }
         sysTransferRecord.setUpdateTime(LocalDateTime.now());
+        sysTransferRecord.setUnLockAward(sysTransferRecord.getUnLockAward());
+        sysTransferRecord.setPrevUnlockAward(sysTransferRecord.getPrevUnlockAward());
+        sysTransferRecord.setAmount(sysTransferRecord.getNewAmount());
+        sysTransferRecord.setFee(sysTransferRecord.getNewfee());
         /**
          * 修改提现记录状态
          */
@@ -385,9 +404,6 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result withdraw(SysTransferRecordWrap sysTransferRecordWrap){
-        if(sysTransferRecordWrap.getMinerId() == null){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"请选择矿工");
-        }
         Long userId = HttpRequestUtil.getUserId();
         Long currencyId = HttpRequestUtil.getCurrencyId();
         String currencyType = CurrencyEnum.getCurrency(currencyId).name();
@@ -433,53 +449,128 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         sysTransferRecord.setMinerId(sysTransferRecordWrap.getMinerId());
         sysTransferRecord.setCreateTime(LocalDateTime.now());
         sysTransferRecord.setType(currencyType);
-        sysTransferRecord.setUnlockAward(sysTransferRecordWrap.getUnlockAward());
         log.info("记录提币申请：【{}】", JSON.toJSON(sysTransferRecord));
         int rows = sysTransferRecordMapper.insert(sysTransferRecord);
         return rows > 0 ? Result.OK : Result.fail(MinerError.MYB_222222.getCode(),"失败");
     }
 
+    /**
+     * 提币，获取到账金额、平台佣金
+     * @param takeOutInfoBO
+     * @return
+     */
     public Result<TakeOutInfoVO> takeOutInfo(TakeOutInfoBO takeOutInfoBO){
-        /**
-         * 获取上次提取时的解锁奖励
-         */
-        //上次已解锁奖励
-        BigDecimal unlockAward = BigDecimal.ZERO;
-        LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(SysTransferRecord::getMinerId,takeOutInfoBO.getMinerId());
-        queryWrapper.orderByDesc(SysTransferRecord::getCreateTime).last("limit 1");
-        SysTransferRecord transferRecord = sysTransferRecordMapper.selectOne(queryWrapper);
-        log.info("获取最后一条提取记录:{}",JSON.toJSONString(transferRecord));
-        if(transferRecord != null){
-            unlockAward = transferRecord.getUnlockAward();
-        }
-
         /**
          * 获取矿工基础信息
          */
         LambdaQueryWrapper<SysMinerInfo> wrapper = new LambdaQueryWrapper();
         wrapper.eq(SysMinerInfo::getMinerId,takeOutInfoBO.getMinerId());
         SysMinerInfo sysMinerInfo = sysMinerInfoMapper.selectOne(wrapper);
+        log.info("矿工信息:{}",JSON.toJSONString(sysMinerInfo));
         if(sysMinerInfo == null){
             throw MyException.fail(MinerError.MYB_222222.getCode(),"minerId 错误");
         }
+        if(sysMinerInfo.getUserId() != HttpRequestUtil.getUserId()){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"没有提现权限");
+        }
+        /**
+         * 获取上次提取时的解锁奖励
+         */
+        //上次已解锁奖励
+        BigDecimal prevUnlockAward = getPrevUnlockAward(takeOutInfoBO.getMinerId());
+
         //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
-        BigDecimal takeOutMoney = sysMinerInfo.getTotalBlockAward().subtract(sysMinerInfo.getLockAward()).subtract(unlockAward);
+        BigDecimal takeOutMoney = sysMinerInfo.getTotalBlockAward().subtract(sysMinerInfo.getLockAward()).subtract(prevUnlockAward);
         log.info("本次实结已解锁奖励:{}",takeOutMoney);
         /**
          * 获取费率
          */
-        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(HttpRequestUtil.getUserId());
+        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(sysMinerInfo.getUserId());
         BigDecimal feeRate = rateMap.get(CurrencyEnum.FIL.name());//费率
         log.info("费率:{}",feeRate);
 
         BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
         BigDecimal arriveMoney = takeOutMoney.subtract(fee);
         TakeOutInfoVO takeOutInfoVO = new TakeOutInfoVO()
-                .setArriveMoney(arriveMoney)
-                .setFee(fee)
-                .setUnlockAward(sysMinerInfo.getTotalBlockAward().subtract(sysMinerInfo.getLockAward()));
+                .setArriveMoney(BigDecimalUtil.formatFour(arriveMoney))
+                .setFee(BigDecimalUtil.formatFour(fee));
         return Result.success(takeOutInfoVO);
+    }
+
+    public Result<GetTransferRecordByIdVO> getTransferRecordById(GetTransferRecordByIdBO transferRecordByIdBO){
+        GetTransferRecordByIdVO getTransferRecordByIdVO = new GetTransferRecordByIdVO();
+        SysTransferRecord transferRecord = sysTransferRecordMapper.selectById(transferRecordByIdBO.getId());
+        log.info("系统划转记录:{}",JSON.toJSONString(transferRecord));
+        if(transferRecord == null){
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"ID错误");
+        }
+        BeanUtils.copyProperties(transferRecord,getTransferRecordByIdVO);
+
+        //查询矿工的出块总奖励、总锁仓收益
+        LambdaQueryWrapper<SysMinerInfo> minerQuery = new LambdaQueryWrapper<>();
+        minerQuery.eq(SysMinerInfo::getMinerId,transferRecord.getMinerId());
+        SysMinerInfo miner = sysMinerInfoMapper.selectOne(minerQuery);
+        log.info("矿工数据:{}",JSON.toJSONString(miner));
+        getTransferRecordByIdVO.setTotalBlockAward(BigDecimalUtil.formatFour(miner.getTotalBlockAward()));
+        getTransferRecordByIdVO.setLockAward( BigDecimalUtil.formatFour(miner.getLockAward()));
+        //获取用户姓名
+        SysUserOut user = userManager.getUserById(transferRecord.getUserId());
+        getTransferRecordByIdVO.setUserName(user.getUserName());
+
+        //上次解锁收益:如果划转记录是“审核中”则通过getPrevUnlockAward获取；否则，获取划转记录中的 prev_unlock_award 字段
+        BigDecimal unLockAward = miner.getTotalBlockAward().subtract(miner.getLockAward());
+        BigDecimal prevUnlockAward = getPrevUnlockAward(transferRecord.getMinerId());
+        if(transferRecord.getStatus() != 0){
+            prevUnlockAward = transferRecord.getPrevUnlockAward();
+            unLockAward = transferRecord.getUnLockAward();
+        }
+        //计算解锁奖励
+        getTransferRecordByIdVO.setUnLockAward(BigDecimalUtil.formatFour(unLockAward));
+        getTransferRecordByIdVO.setPrevUnlockAward(BigDecimalUtil.formatFour(prevUnlockAward));
+        /**
+         * 计算最近的可结算金额
+         */
+        //获取费率
+        Map<String, BigDecimal> rateMap = currencyRateService.getUserRateMap(miner.getUserId());
+        BigDecimal feeRate = rateMap.get(CurrencyEnum.FIL.name());//费率
+        log.info("费率:{}",feeRate);
+        if(feeRate.compareTo(BigDecimal.ZERO) > 0){
+            getTransferRecordByIdVO.setFeeRate(feeRate.divide(new BigDecimal(100),BigDecimal.ROUND_HALF_UP));
+        }
+
+        /**
+         * 只在审核完后，查看的时候需要显示
+         */
+        //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
+        BigDecimal takeOutMoney = unLockAward.subtract(prevUnlockAward);
+        log.info("本次实结已解锁奖励:{}",takeOutMoney);
+        BigDecimal fee = feeRate.multiply(takeOutMoney).divide(new BigDecimal(100));
+        BigDecimal realMoney = takeOutMoney.subtract(fee);
+        getTransferRecordByIdVO.setNewAmount(BigDecimalUtil.formatFour(realMoney));
+        getTransferRecordByIdVO.setNewFee(BigDecimalUtil.formatFour(fee));
+        getTransferRecordByIdVO.setRealMoney(BigDecimalUtil.formatFour(takeOutMoney));
+
+        return Result.success(getTransferRecordByIdVO);
+    }
+
+    /**
+     * 获取上次解锁收益
+     * @param minerId
+     * @return
+     */
+    public BigDecimal getPrevUnlockAward(String minerId){
+        BigDecimal prevUnlockAward = BigDecimal.ZERO;
+        LambdaQueryWrapper<SysTransferRecord> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(SysTransferRecord::getMinerId,minerId);
+        queryWrapper.eq(SysTransferRecord::getStatus,1);
+        queryWrapper.orderByDesc(SysTransferRecord::getUpdateTime).last("limit 1");
+        List<SysTransferRecord> list = sysTransferRecordMapper.selectList(queryWrapper);
+        log.info("获取最后一条提取记录:{}",JSON.toJSONString(list));
+        if(list.size() != 0){
+            SysTransferRecord  prevTransferRecord = list.get(0);
+            prevUnlockAward = prevTransferRecord.getUnLockAward();
+        }
+        return prevUnlockAward;
     }
 
     /**
@@ -530,7 +621,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
          */
         earningVo.setTotalEarning(BigDecimalUtil.formatFour(miner.getTotalBlockAward()).doubleValue());
         earningVo.setTotalLockAward(BigDecimalUtil.formatFour(miner.getLockAward()).doubleValue());
-        earningVo.setAvailableEarning(BigDecimalUtil.formatFour(miner.getBalanceMinerAvailable()).doubleValue());
+
         //添加 正在提币中的数量
         LambdaQueryWrapper<SysTransferRecord> drawingWrapper = new LambdaQueryWrapper();
         drawingWrapper.eq(SysTransferRecord::getStatus,0);//提币中
@@ -545,6 +636,17 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             drawing = drawing.add(record.getAmount()).add(record.getFee());
         }
         earningVo.setDrawingEarning(BigDecimalUtil.formatFour(drawing).doubleValue());
+
+        /**
+         * 获取上次提取时的解锁奖励
+         */
+        //上次已解锁奖励
+        BigDecimal prevUnlockAward = getPrevUnlockAward(minerId);
+        //本次实结已解锁奖励 = 累计出块奖励 - 锁仓收益 - 上次提现解锁奖励
+        BigDecimal takeOutMoney = miner.getTotalBlockAward().subtract(miner.getLockAward()).subtract(prevUnlockAward);
+        log.info("本次实结已解锁奖励:{}",takeOutMoney);
+        earningVo.setAvailableEarning(BigDecimalUtil.formatFour(takeOutMoney).doubleValue());
+
         return Result.success(earningVo);
     }
     /**
