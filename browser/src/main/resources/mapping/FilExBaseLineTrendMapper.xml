@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mei.hui.browser.mapper.FilExBaseLineTrendMapper">
+
+
+    <!--近30天有效算力走势-->
+    <select id="selectThirdDayPower" resultType="com.mei.hui.browser.entity.FilExBaseLineTrend">
+        SELECT TIMESTAMP,
+            totalQaBytesPower,
+            baselinePower
+        FROM
+            ( SELECT height, TIMESTAMP, total_qa_bytes_power totalQaBytesPower, baseline_power baselinePower FROM fil_ex_base_line_trend ORDER BY height DESC LIMIT 30 ) TEMP
+        ORDER BY
+            height
+    </select>
+
+</mapper>

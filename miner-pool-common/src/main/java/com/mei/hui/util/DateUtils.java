@@ -346,6 +346,26 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     //------------------------------------       LocalDateTime              ---------------------------------------
 
     /**
+     * LocalDateTime获取当前时间的秒级时间戳
+     * @return
+     */
+    public static Long lDTNowTimestamp(){
+        //获取秒数
+        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        return second;
+    }
+
+    /**
+     * LocalDateTime获取几个小时前或者几个小时后的秒级时间戳
+     * @return
+     */
+    public static Long lDTBeforeOrAfterHourTimestamp(Integer hour){
+        //获取秒数
+        Long second = LocalDateTime.now().plusHours(hour).toEpochSecond(ZoneOffset.of("+8"));
+        return second;
+    }
+
+    /**
      * LocalDateTime获取当前时间YYYY_MM_DD_HH_MM_SS格式的字符串
      * @return
      */
@@ -503,6 +523,28 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * 秒级时间戳转成小时分钟秒，格式为：11:30:30
+     * @param timestamp
+     * @return
+     */
+    public static String timestampToHHmmss(Long timestamp){
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        String sd = sdf.format(new Date(timestamp * 1000)); // 时间戳转换日期
+        return sd;
+    }
+
+    /**
+     * 秒级时间戳转成月日，格式为：08.26
+     * @param timestamp
+     * @return
+     */
+    public static String timestampToMMDD(Long timestamp){
+        SimpleDateFormat sdf = new SimpleDateFormat("MM.dd");
+        String sd = sdf.format(new Date(timestamp * 1000)); // 时间戳转换日期
+        return sd;
+    }
+
+    /**
      * 计算当前月有多少天
      *
      * @return
@@ -539,14 +581,17 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     public static void main(String[] args) {
         // 时间戳转成datetime
-//        String beginDate = "1631500410";
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
-//        System.out.println(sd);
+        String beginDate = "1634700427";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
+        System.out.println(sd);
 
         //获取秒数
         Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
         System.out.println(second);//1629797079
+
+        Long beforeSecond = lDTBeforeOrAfterHourTimestamp(-3);
+        System.out.println(beforeSecond);
     }
 
 }
