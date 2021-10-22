@@ -222,4 +222,14 @@ public interface Constants extends SystemConstants {
      * 补账单-矿工总余额表redis存的key
      */
     String FILBILLBALANCEDAYAGGKEY = "fil_bill_balance_day_agg:%s:%s";
+
+    /**
+     * 提取类型：0提取收益
+     */
+    Integer PLEDGETYPEZERO = 0;
+
+    /**
+     * 提取类型：1提取转质押
+     */
+    Integer PLEDGETYPEONE = 1;
 }

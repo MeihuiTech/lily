@@ -46,4 +46,7 @@ public class MrAggWithdraw {
      */
     private String type;
 
+    /*提取类型：0提取收益，1提取转质押*/
+    private Integer pledgeType;
+
 }

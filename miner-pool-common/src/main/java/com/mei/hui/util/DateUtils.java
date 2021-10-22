@@ -593,17 +593,17 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     public static void main(String[] args) {
         // 时间戳转成datetime
-        String beginDate = "1634700427";
+        String beginDate = "1634723010";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String sd = sdf.format(new Date(Long.parseLong(beginDate) * 1000)); // 时间戳转换日期
         System.out.println(sd);
 
         //获取秒数
-        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-        System.out.println(second);//1629797079
+//        Long second = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+//        System.out.println(second);//1629797079
 
-        Long beforeSecond = lDTBeforeOrAfterHourTimestamp(-3);
-        System.out.println(beforeSecond);
+//        Long beforeSecond = lDTBeforeOrAfterHourTimestamp(-3);
+//        System.out.println(beforeSecond);
     }
 
 }

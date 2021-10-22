@@ -62,5 +62,7 @@ public class GetTransferRecordByIdVO {
     @ApiModelProperty("理论收益【只在查看时显示】")
     private BigDecimal realMoney;
 
+    @ApiModelProperty(value = "提取类型：0提取收益，1提取转质押")
+    private Integer pledgeType;
 
 }

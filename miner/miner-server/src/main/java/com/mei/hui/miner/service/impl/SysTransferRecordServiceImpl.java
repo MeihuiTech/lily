@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
 import com.mei.hui.miner.entity.*;
@@ -147,17 +148,19 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
          */
         Long userId = transferRecord.getUserId();
         String type = transferRecord.getType();
+        Integer pledgeType = transferRecord.getPledgeType();
         if(sysTransferRecord.getStatus() == 1){
             LambdaQueryWrapper<MrAggWithdraw> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(MrAggWithdraw::getSysUserId,userId);
             queryWrapper.eq(MrAggWithdraw::getType,type);
+            queryWrapper.eq(MrAggWithdraw::getPledgeType,pledgeType);
             log.info("查询提现汇总表记录,userId={}",userId);
             List<MrAggWithdraw> aggWithdraws = mrAggWithdrawMapper.selectList(queryWrapper);
             log.info("查询提现汇总表记录,结果:{}",JSON.toJSONString(aggWithdraws));
             if(aggWithdraws.size() == 0){
                 log.info("新增提现汇总信息");
                 MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(transferRecord.getAmount())
-                        .type(type).tatalCount(1).totalFee(transferRecord.getFee()).build();
+                        .type(type).tatalCount(1).totalFee(transferRecord.getFee()).pledgeType(pledgeType).build();
                 mrAggWithdrawMapper.insert(insertAggWithdraw);
             }else{
                 log.info("更新提现汇总信息");
@@ -423,20 +426,24 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         sysTransferRecordWrap.setFee(sysTransferRecordWrap.getFee());
         //实际到账金额 = 提币金额 - 平台佣金
         sysTransferRecordWrap.setAmount(sysTransferRecordWrap.getAmount());
+
+        // 只有提取类型为0提取收益时，才验证提币地址是否正确
         // 通过用户ID、货币ID查询用户货币地址表中的地址
-        QueryWrapper<SysReceiveAddress> sysReceiveAddressQueryWrapper = new QueryWrapper<>();
-        SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
-        sysReceiveAddress.setUserId(userId);
-        sysReceiveAddress.setCurrencyId(currencyId);
-        sysReceiveAddressQueryWrapper.setEntity(sysReceiveAddress);
-        List<SysReceiveAddress> sysReceiveAddressList = sysReceiveAddressMapper.selectList(sysReceiveAddressQueryWrapper);
-        if (sysReceiveAddressList == null || sysReceiveAddressList.size() < 1) {
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址不存在");
-        }
-        String address = sysReceiveAddressList.get(0).getAddress();
-        log.info("sysTransferRecordWrap.getToAddress():【{}】,address:【{}】",sysTransferRecordWrap.getToAddress(),address);
-        if (!sysTransferRecordWrap.getToAddress().equals(address)){
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址错误");
+        if (Constants.PLEDGETYPEZERO.equals(sysTransferRecordWrap.getPledgeType())){
+            QueryWrapper<SysReceiveAddress> sysReceiveAddressQueryWrapper = new QueryWrapper<>();
+            SysReceiveAddress sysReceiveAddress = new SysReceiveAddress();
+            sysReceiveAddress.setUserId(userId);
+            sysReceiveAddress.setCurrencyId(currencyId);
+            sysReceiveAddressQueryWrapper.setEntity(sysReceiveAddress);
+            List<SysReceiveAddress> sysReceiveAddressList = sysReceiveAddressMapper.selectList(sysReceiveAddressQueryWrapper);
+            if (sysReceiveAddressList == null || sysReceiveAddressList.size() < 1) {
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址不存在");
+            }
+            String address = sysReceiveAddressList.get(0).getAddress();
+            log.info("sysTransferRecordWrap.getToAddress():【{}】,address:【{}】",sysTransferRecordWrap.getToAddress(),address);
+            if (!sysTransferRecordWrap.getToAddress().equals(address)){
+                throw MyException.fail(MinerError.MYB_222222.getCode(),"提币地址错误");
+            }
         }
 
         //记录提币申请
@@ -497,6 +504,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         return Result.success(takeOutInfoVO);
     }
 
+    @Override
     public Result<GetTransferRecordByIdVO> getTransferRecordById(GetTransferRecordByIdBO transferRecordByIdBO){
         GetTransferRecordByIdVO getTransferRecordByIdVO = new GetTransferRecordByIdVO();
         SysTransferRecord transferRecord = sysTransferRecordMapper.selectById(transferRecordByIdBO.getId());

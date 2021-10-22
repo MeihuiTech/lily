@@ -95,4 +95,7 @@ public class SysTransferRecord
     @TableField(exist = false)
     private BigDecimal newfee;
 
+    /*提取类型：0提取收益，1提取转质押*/
+    private Integer pledgeType;
+
 }

@@ -205,7 +205,7 @@ public class SysTransferRecordController
      * 用户提币：
      * 1、先校验现有余额是否 大于 将要提取的fil, 余额 - 待提币中的fil > 即将提取的fil
      */
-    @ApiOperation(value = "用户提币")
+    @ApiOperation(value = "用户提币-提取收益")
     @PostMapping("/withdraw")
     public Result withdraw(@Validated  @RequestBody SysTransferRecordWrap sysTransferRecordWrap)
     {

@@ -1,10 +1,7 @@
 package com.mei.hui.miner.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -33,4 +30,8 @@ public class AggWithdrawVO {
 
     @ApiModelProperty("货币种类,FIL,CHIA")
     private String type;
+
+    @ApiModelProperty(value = "提取类型：0提取收益，1提取转质押")
+    private Integer pledgeType;
+
 }

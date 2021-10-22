@@ -1,6 +1,5 @@
 package com.mei.hui.miner.SystemController;
 
-import com.mei.hui.miner.entity.SysMinerInfo;
 import com.mei.hui.miner.model.AggWithdrawBO;
 import com.mei.hui.miner.model.AggWithdrawVO;
 import com.mei.hui.miner.service.MrAggWithdrawService;
