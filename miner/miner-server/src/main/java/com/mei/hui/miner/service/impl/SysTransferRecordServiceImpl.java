@@ -159,15 +159,15 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
             log.info("查询提现汇总表记录,结果:{}",JSON.toJSONString(aggWithdraws));
             if(aggWithdraws.size() == 0){
                 log.info("新增提现汇总信息");
-                MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(transferRecord.getAmount())
-                        .type(type).tatalCount(1).totalFee(transferRecord.getFee()).pledgeType(pledgeType).build();
+                MrAggWithdraw insertAggWithdraw = MrAggWithdraw.builder().sysUserId(userId).takeTotalMony(sysTransferRecord.getNewAmount())
+                        .type(type).tatalCount(1).totalFee(sysTransferRecord.getNewfee()).pledgeType(pledgeType).build();
                 mrAggWithdrawMapper.insert(insertAggWithdraw);
             }else{
                 log.info("更新提现汇总信息");
                 MrAggWithdraw mrAggWithdraw = aggWithdraws.get(0);
-                mrAggWithdraw.setTakeTotalMony(mrAggWithdraw.getTakeTotalMony().add(transferRecord.getAmount()));
+                mrAggWithdraw.setTakeTotalMony(mrAggWithdraw.getTakeTotalMony().add(sysTransferRecord.getNewAmount()));
                 mrAggWithdraw.setTatalCount(mrAggWithdraw.getTatalCount() + 1);
-                mrAggWithdraw.setTotalFee(mrAggWithdraw.getTotalFee().add(transferRecord.getFee()));
+                mrAggWithdraw.setTotalFee(mrAggWithdraw.getTotalFee().add(sysTransferRecord.getNewfee()));
                 mrAggWithdrawMapper.updateById(mrAggWithdraw);
             }
         }
