@@ -49,7 +49,7 @@ public class PowerServiceImpl implements PowerService {
         /**
          * 查询
          */
-        long second = DateUtils.localDateTimeToSecond(LocalDateTime.now());
+        long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.boolQuery()
                 .filter(QueryBuilders.termsQuery("miner_id",minerIds))
@@ -59,12 +59,10 @@ public class PowerServiceImpl implements PowerService {
                 AggregationBuilders.terms("group_by_minerId").field("miner_id")
                 .subAggregation(AggregationBuilders.topHits("max_hit")
                         .size(1)
-                        .fetchSource(new String[]{"quality_adj_power","height","timestamp"},new String[]{})
                         .sort("height",SortOrder.DESC))
 
                 .subAggregation(AggregationBuilders.topHits("min_hit")
                 .size(1)
-                .fetchSource(new String[]{"quality_adj_power","height","timestamp"},new String[]{})
                 .sort("height",SortOrder.ASC))
         );
         SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_INDEX);
