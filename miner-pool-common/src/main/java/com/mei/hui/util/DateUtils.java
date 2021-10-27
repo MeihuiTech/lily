@@ -8,9 +8,7 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,6 +31,17 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
             "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
             "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
 
+
+    /**
+     * 获取秒级时间戳
+     * @param localDateTime
+     * @return
+     */
+    public static long localDateTimeToSecond(LocalDateTime localDateTime){
+        ZoneId zone = ZoneId.systemDefault();
+        Instant instant = LocalDateTime.now().atZone(zone).toInstant();
+        return instant.getEpochSecond();
+    }
     /**
      * String转LocalDateTime
      * @param string
