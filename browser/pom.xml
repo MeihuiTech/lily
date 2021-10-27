@@ -168,6 +168,12 @@
             <version>7.13.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.hakky54</groupId>
+            <artifactId>sslcontext-kickstart</artifactId>
+            <version>7.0.2</version>
+        </dependency>
+
     </dependencies>
 
 
