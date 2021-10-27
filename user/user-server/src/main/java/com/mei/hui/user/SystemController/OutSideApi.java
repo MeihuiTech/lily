@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(tags = "k2Pool-java-sdk相关接口")
+@Api(tags = "nbPool-java-sdk相关接口")
 @RestController
-@RequestMapping("/k2Pool")
+@RequestMapping("/nbPool")
 @Slf4j
 public class OutSideApi {
 
