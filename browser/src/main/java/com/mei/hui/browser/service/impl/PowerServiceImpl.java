@@ -38,12 +38,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class PowerServiceImpl implements PowerService {
-
-    private final int size = 10;
-
     @Autowired
     private RestHighLevelClient client;
-
     @Autowired
     private FilExOverviewService filExOverviewService;
 
