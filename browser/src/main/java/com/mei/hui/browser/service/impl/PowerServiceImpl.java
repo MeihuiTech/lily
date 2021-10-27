@@ -29,10 +29,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,6 +93,7 @@ public class PowerServiceImpl implements PowerService {
         BigDecimal totalQaBytesPower = filExOverviewService.list().get(0).getTotalQaBytesPower();
         List<PowerRankingVO> list = miners.getList().stream().map(v -> {
             PowerRankingVO vo = new PowerRankingVO();
+            vo.setMinerPowerAvailable(v.getPowerAvailable());
             vo.setMinerId(v.getMinerId());
             BigDecimal twentyFourPower = map.get(v.getMinerId());
             if (twentyFourPower == null) {
@@ -103,6 +101,7 @@ public class PowerServiceImpl implements PowerService {
             }
             vo.setTwentyFourPower(twentyFourPower);
             vo.setTotalPowerAvailable(totalQaBytesPower);
+            vo.setSort(v.getSort());
             return vo;
         }).collect(Collectors.toList());
         PageResult pageResult = new PageResult(miners.getTotal(),list);
@@ -128,15 +127,18 @@ public class PowerServiceImpl implements PowerService {
         long total = searchHits.getTotalHits().value;
         SearchHit[] hits = searchHits.getHits();
 
-        List<MinerPower> list = Arrays.stream(hits).map(v->{
+        List<MinerPower> list = new ArrayList<>();
+        for(SearchHit v : hits){
             Map<String, Object> map = v.getSourceAsMap();
             String minerId = (String) map.get("miner_id");
             String powerAvailable = (String) map.get("quality_adj_power");
             MinerPower minerPower = new MinerPower();
             minerPower.setMinerId(minerId);
             minerPower.setPowerAvailable(new BigDecimal(powerAvailable));
-            return  minerPower;
-        }).collect(Collectors.toList());
+            minerPower.setSort(from);
+            list.add(minerPower);
+            from++;
+        }
         Miner miner = new Miner();
         miner.setList(list);
         miner.setTotal(total);

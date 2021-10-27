@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 @Data
 public class PowerRankingVO {
 
-    @ApiModelProperty("排序")
-    private Integer num;
+    @ApiModelProperty("排序号")
+    private long sort;
 
     @ApiModelProperty("存储id")
     private String MinerId;
