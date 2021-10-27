@@ -36,7 +36,7 @@ public class BlockServiceImpl implements BlockService {
 
 
     /**
-     * 24小时出块
+     * 24小时出块奖励
      * @return
      * @throws IOException
      */

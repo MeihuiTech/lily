@@ -4,6 +4,7 @@ import com.mei.hui.browser.common.Constants;
 import com.mei.hui.browser.model.Miner;
 import com.mei.hui.browser.model.MinerPower;
 import com.mei.hui.browser.model.PowerRankingVO;
+import com.mei.hui.browser.service.BlockService;
 import com.mei.hui.browser.service.FilExOverviewService;
 import com.mei.hui.browser.service.PowerService;
 import com.mei.hui.util.BasePage;
@@ -38,6 +39,8 @@ public class PowerServiceImpl implements PowerService {
     @Autowired
     private RestHighLevelClient client;
     @Autowired
+    private BlockService blockService;
+    @Autowired
     private FilExOverviewService filExOverviewService;
 
     public PageResult<PowerRankingVO> powerRanking(BasePage page) throws IOException {
@@ -46,60 +49,27 @@ public class PowerServiceImpl implements PowerService {
          */
         Miner miners = findMiners(page);
         List<String> minerIds = miners.getList().stream().map(v -> v.getMinerId()).collect(Collectors.toList());
-        /**
-         * 查询
-         */
-        long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.boolQuery()
-                .filter(QueryBuilders.termsQuery("miner_id",minerIds))
-                .filter(QueryBuilders.rangeQuery("timestamp").gte(second)));
 
-        sourceBuilder.aggregation(
-                AggregationBuilders.terms("group_by_minerId").field("miner_id")
-                .subAggregation(AggregationBuilders.topHits("max_hit")
-                        .size(1)
-                        .sort("height",SortOrder.DESC))
-
-                .subAggregation(AggregationBuilders.topHits("min_hit")
-                .size(1)
-                .sort("height",SortOrder.ASC))
-        );
-        SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_INDEX);
-        searchRequest.source(sourceBuilder);
-        log.info("DSL:{}",searchRequest.source().toString());
-        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-        Terms terms = response.getAggregations().get("group_by_minerId");
-        List<? extends Terms.Bucket> buckets = terms.getBuckets();
-        Map<String,BigDecimal> map = new HashMap<>();
-        for(Terms.Bucket bucket : buckets){
-            String minerId = bucket.getKeyAsString();
-            //最后一条算力记录
-            TopHits maxHit = bucket.getAggregations().get("max_hit");
-            SearchHit maxSearchHit = maxHit.getHits().getHits()[0];
-            Map<String, Object> maxSource = maxSearchHit.getSourceAsMap();
-            Long maxPower = (Long) maxSource.get("quality_adj_power");
-
-            //最小算力记录
-            TopHits minHit = bucket.getAggregations().get("max_hit");
-            SearchHit minSearchHit = maxHit.getHits().getHits()[0];
-            Map<String, Object> minSource = maxSearchHit.getSourceAsMap();
-            Long minPower = (Long) minSource.get("quality_adj_power");
-            map.put(minerId,new BigDecimal(maxPower).subtract(new BigDecimal(minPower)));
-        }
+        //24小时算力增长
+        Map<String, BigDecimal> minerPowerMap = powerRanking(minerIds);
+        //24小时出块奖励
+        Map<String, BigDecimal> minerBlockMap = blockService.blockRanking(0, minerIds);
         //全网总有效算力
         BigDecimal totalQaBytesPower = filExOverviewService.list().get(0).getTotalQaBytesPower();
         List<PowerRankingVO> list = miners.getList().stream().map(v -> {
             PowerRankingVO vo = new PowerRankingVO();
             vo.setMinerPowerAvailable(v.getPowerAvailable());
             vo.setMinerId(v.getMinerId());
-            BigDecimal twentyFourPower = map.get(v.getMinerId());
+            BigDecimal twentyFourPower = minerPowerMap.get(v.getMinerId());
             if (twentyFourPower == null) {
                 twentyFourPower = BigDecimal.ZERO;
             }
             vo.setTwentyFourPower(twentyFourPower);
             vo.setTotalPowerAvailable(totalQaBytesPower);
             vo.setSort(v.getSort());
+
+            BigDecimal twentyFourBlockAward = minerBlockMap.get(v.getMinerId());
+            vo.setTwentyFourBlockAward(twentyFourBlockAward);
             return vo;
         }).collect(Collectors.toList());
         PageResult pageResult = new PageResult(miners.getTotal(),list);
@@ -141,5 +111,50 @@ public class PowerServiceImpl implements PowerService {
         miner.setList(list);
         miner.setTotal(total);
         return miner;
+    }
+
+    /**
+     * 矿工24小时算力增长
+     * @param minerIds
+     */
+    public Map<String,BigDecimal> powerRanking(List<String> minerIds) throws IOException {
+        long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.boolQuery()
+                .filter(QueryBuilders.termsQuery("miner_id",minerIds))
+                .filter(QueryBuilders.rangeQuery("timestamp").gte(second)));
+
+        sourceBuilder.aggregation(
+                AggregationBuilders.terms("group_by_minerId").field("miner_id")
+                        .subAggregation(AggregationBuilders.topHits("max_hit")
+                                .size(1)
+                                .sort("height",SortOrder.DESC))
+
+                        .subAggregation(AggregationBuilders.topHits("min_hit")
+                                .size(1)
+                                .sort("height",SortOrder.ASC))
+        );
+        SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_INDEX);
+        searchRequest.source(sourceBuilder);
+        log.info("24小时算力增长,DSL:{}",searchRequest.source().toString());
+        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+        Terms terms = response.getAggregations().get("group_by_minerId");
+        List<? extends Terms.Bucket> buckets = terms.getBuckets();
+        Map<String,BigDecimal> map = new HashMap<>();
+        for(Terms.Bucket bucket : buckets){
+            String minerId = bucket.getKeyAsString();
+            //最后一条算力记录
+            TopHits maxHit = bucket.getAggregations().get("max_hit");
+            SearchHit maxSearchHit = maxHit.getHits().getHits()[0];
+            Map<String, Object> maxSource = maxSearchHit.getSourceAsMap();
+            Long maxPower = (Long) maxSource.get("quality_adj_power");
+            //最小算力记录
+            TopHits minHit = bucket.getAggregations().get("max_hit");
+            SearchHit minSearchHit = maxHit.getHits().getHits()[0];
+            Map<String, Object> minSource = maxSearchHit.getSourceAsMap();
+            Long minPower = (Long) minSource.get("quality_adj_power");
+            map.put(minerId,new BigDecimal(maxPower).subtract(new BigDecimal(minPower)));
+        }
+        return map;
     }
 }
