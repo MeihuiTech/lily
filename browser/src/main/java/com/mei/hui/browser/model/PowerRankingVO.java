@@ -22,7 +22,7 @@ public class PowerRankingVO {
     @ApiModelProperty("全网有效算力,单位B")
     private BigDecimal totalPowerAvailable;
 
-    @ApiModelProperty("24小时出块奖励")
+    @ApiModelProperty("24小时出块奖励,单位attoFIL")
     private BigDecimal twentyFourBlockAward;
 
     @ApiModelProperty("24小时算力增长,单位B")
