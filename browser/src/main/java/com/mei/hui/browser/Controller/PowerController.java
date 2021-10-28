@@ -1,10 +1,9 @@
-package com.mei.hui.browser.controller;
+package com.mei.hui.browser.Controller;
 
 import com.mei.hui.browser.model.PowerRankingVO;
 import com.mei.hui.browser.service.PowerService;
 import com.mei.hui.util.BasePage;
 import com.mei.hui.util.PageResult;
-import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

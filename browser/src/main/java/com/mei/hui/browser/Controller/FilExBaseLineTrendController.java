@@ -1,4 +1,4 @@
-package com.mei.hui.browser.controller;
+package com.mei.hui.browser.Controller;
 
 import com.mei.hui.browser.model.FilExBaseLineTrendVO;
 import com.mei.hui.browser.service.FilExBaseLineTrendService;

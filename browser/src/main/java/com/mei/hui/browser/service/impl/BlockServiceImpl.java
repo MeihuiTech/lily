@@ -1,24 +1,19 @@
 package com.mei.hui.browser.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.browser.common.Constants;
-import com.mei.hui.browser.model.BlockRankingBO;
-import com.mei.hui.browser.model.PowerRankingVO;
 import com.mei.hui.browser.service.BlockService;
 import com.mei.hui.util.DateUtils;
-import com.mei.hui.util.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.Sum;
-import org.elasticsearch.search.aggregations.metrics.TopHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -52,8 +47,9 @@ public class BlockServiceImpl implements BlockService {
             second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusYears(1));
         }
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.size(0);
         sourceBuilder.query(QueryBuilders.boolQuery()
-                .filter(QueryBuilders.termsQuery("miner_id",minerIds))
+                .filter(QueryBuilders.termsQuery("miner",minerIds))
                 .filter(QueryBuilders.rangeQuery("timestamp").gte(second)));
         sourceBuilder.aggregation(
                 AggregationBuilders.terms("group_by_minerId").field("miner")
@@ -72,6 +68,7 @@ public class BlockServiceImpl implements BlockService {
             Sum sumMoney = bucket.getAggregations().get("sum_money");
             map.put(minerId,new BigDecimal(sumMoney.getValue()+""));
         }
+        log.info("24小时出块奖励:{}",JSON.toJSONString(map));
         return map;
     }
 

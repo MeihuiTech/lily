@@ -1,5 +1,6 @@
 package com.mei.hui.browser.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.mei.hui.browser.common.Constants;
 import com.mei.hui.browser.model.Miner;
 import com.mei.hui.browser.model.MinerPower;
@@ -110,6 +111,7 @@ public class PowerServiceImpl implements PowerService {
         Miner miner = new Miner();
         miner.setList(list);
         miner.setTotal(total);
+        log.info("获取矿工算力排行榜:{}",JSON.toJSONString(miner));
         return miner;
     }
 
@@ -120,6 +122,7 @@ public class PowerServiceImpl implements PowerService {
     public Map<String,BigDecimal> powerRanking(List<String> minerIds) throws IOException {
         long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.size(0);
         sourceBuilder.query(QueryBuilders.boolQuery()
                 .filter(QueryBuilders.termsQuery("miner_id",minerIds))
                 .filter(QueryBuilders.rangeQuery("timestamp").gte(second)));
@@ -147,14 +150,15 @@ public class PowerServiceImpl implements PowerService {
             TopHits maxHit = bucket.getAggregations().get("max_hit");
             SearchHit maxSearchHit = maxHit.getHits().getHits()[0];
             Map<String, Object> maxSource = maxSearchHit.getSourceAsMap();
-            Long maxPower = (Long) maxSource.get("quality_adj_power");
+            String maxPower = (String) maxSource.get("quality_adj_power");
             //最小算力记录
-            TopHits minHit = bucket.getAggregations().get("max_hit");
-            SearchHit minSearchHit = maxHit.getHits().getHits()[0];
-            Map<String, Object> minSource = maxSearchHit.getSourceAsMap();
-            Long minPower = (Long) minSource.get("quality_adj_power");
+            TopHits minHit = bucket.getAggregations().get("min_hit");
+            SearchHit minSearchHit = minHit.getHits().getHits()[0];
+            Map<String, Object> minSource = minSearchHit.getSourceAsMap();
+            String minPower = (String) minSource.get("quality_adj_power");
             map.put(minerId,new BigDecimal(maxPower).subtract(new BigDecimal(minPower)));
         }
+        log.info("24小时算力增长:{}", JSON.toJSONString(map));
         return map;
     }
 }

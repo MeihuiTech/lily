@@ -1,4 +1,4 @@
-package com.mei.hui.browser.controller;
+package com.mei.hui.browser.Controller;
 
 import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.RequestMapping;
