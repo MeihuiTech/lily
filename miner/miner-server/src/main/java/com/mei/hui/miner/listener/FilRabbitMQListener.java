@@ -32,6 +32,9 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FIL币账单
+ */
 @Slf4j
 @Component
 public class FilRabbitMQListener {
