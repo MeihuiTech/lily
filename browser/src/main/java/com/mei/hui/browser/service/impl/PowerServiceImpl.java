@@ -20,8 +20,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.TopHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -52,7 +54,7 @@ public class PowerServiceImpl implements PowerService {
         List<String> minerIds = miners.getList().stream().map(v -> v.getMinerId()).collect(Collectors.toList());
 
         //24小时算力增长
-        Map<String, BigDecimal> minerPowerMap = twentyFourPowerIncr(minerIds);
+        Map<String, BigDecimal> minerPowerMap = twentyFourPowerIncr(0,minerIds);
         //24小时出块奖励
         Map<String, BigDecimal> minerBlockMap = blockService.twentyFourBlockIncr(0, minerIds);
         //全网总有效算力
@@ -119,8 +121,16 @@ public class PowerServiceImpl implements PowerService {
      * 矿工24小时算力增长
      * @param minerIds
      */
-    public Map<String,BigDecimal> twentyFourPowerIncr(List<String> minerIds) throws IOException {
+    public Map<String,BigDecimal> twentyFourPowerIncr(int range,List<String> minerIds) throws IOException {
+        //0--24小时,1--7天,2--30天,3--1年
         long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
+        if(range == 1){
+            second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusDays(7));
+        }else if(range == 2){
+            second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusDays(30));
+        }else if(range == 3){
+            second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusYears(1));
+        }
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.size(0);
         sourceBuilder.query(QueryBuilders.boolQuery()
@@ -160,5 +170,34 @@ public class PowerServiceImpl implements PowerService {
         }
         log.info("24小时算力增长:{}", JSON.toJSONString(map));
         return map;
+    }
+
+    /**
+     * 获取矿工有效算力
+     * @param minerIds
+     * @return
+     * @throws IOException
+     */
+    public Map<String,BigDecimal> findMinerPower(List<String> minerIds) throws IOException {
+        SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_LATEST_INDEX);
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.constantScoreQuery(QueryBuilders.termsQuery("miner_id",minerIds)));
+        //builder.aggregation(AggregationBuilders.sum("sum_power").field("quality_adj_power"));
+        searchRequest.source(builder);
+        log.info("获取矿工基础信息,DSL:{}",searchRequest.source().toString());
+        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits searchHits = response.getHits();
+        long total = searchHits.getTotalHits().value;
+        SearchHit[] hits = searchHits.getHits();
+        Map<String,BigDecimal> minerMap = new HashMap<>();
+        for(SearchHit v : hits){
+            Map<String, Object> map = v.getSourceAsMap();
+            String minerId = (String) map.get("miner_id");
+            String powerAvailable = (String) map.get("quality_adj_power");
+            minerMap.put(minerId,new BigDecimal(powerAvailable));
+        }
+      /*  Sum sum_power = response.getAggregations().get("sum_power");
+        sum_power.getValue();*/
+        return minerMap;
     }
 }

@@ -2,25 +2,24 @@ package com.mei.hui.browser.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.mei.hui.browser.common.Constants;
+import com.mei.hui.browser.model.Block;
 import com.mei.hui.browser.model.BlockPageListVO;
 import com.mei.hui.browser.model.MinerAndBlock;
 import com.mei.hui.browser.model.RankingBO;
 import com.mei.hui.browser.service.BlockService;
-import com.mei.hui.util.BasePage;
+import com.mei.hui.browser.service.PowerService;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.PageResult;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.PipelineAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.pipeline.BucketSortPipelineAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -29,30 +28,54 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class BlockServiceImpl implements BlockService {
     @Autowired
     private RestHighLevelClient client;
+    @Autowired
+    private PowerService powerService;
 
     public PageResult<BlockPageListVO> blockPageList(@RequestBody RankingBO rankingBO) throws IOException{
+        int range = rankingBO.getRange();
         //查询es获取矿工对应的出块份数，并分页排序
-        List<MinerAndBlock> minerAndBlocks = rankBlock(rankingBO.getRange(), rankingBO.getPageNum(), rankingBO.getPageSize());
+        Block block = rankBlock(range, rankingBO.getPageNum(), rankingBO.getPageSize());
+        List<String> minerIds = block.getList().stream().map(v -> v.getMinerId()).collect(Collectors.toList());
+        //获取矿工24小时算力增量
+        Map<String, BigDecimal> powerMap = powerService.twentyFourPowerIncr(range, minerIds);
+        //获取矿工的有效算力
+        Map<String, BigDecimal> availablePowerMap = powerService.findMinerPower(minerIds);
+        //获取24小时出块奖励增量
+        Map<String, BigDecimal> twentyFourBlockIncrMap = twentyFourBlockIncr(range, minerIds);
 
-
-        return null;
+        List<BlockPageListVO> list = new ArrayList<>();
+        for(MinerAndBlock b : block.getList()){
+            BigDecimal blockIncr = twentyFourBlockIncrMap.get(b.getMinerId());
+            BigDecimal availablePower = availablePowerMap.get(b.getMinerId());
+            BlockPageListVO vo = new BlockPageListVO();
+            vo.setSort(vo.getSort());
+            vo.setMinerId(b.getMinerId());
+            vo.setBlockCount(b.getBlockCount());
+            vo.setTwentyFourBlockAward(blockIncr);
+            //vo.setTwentyFourTotalBlockAward();
+            vo.setMinerPowerAvailable(availablePower);
+            //vo.setTotalPowerAvailable();
+            list.add(vo);
+        }
+        PageResult<BlockPageListVO> pageResult = new PageResult<>(block.getCount(),list);
+        return pageResult;
     }
 
     /**
      * 获取24小时出块份数,并分页
      */
-    public List<MinerAndBlock> rankBlock(int range, long pageNum, long pageSize) throws IOException {
+    public Block rankBlock(int range, long pageNum, long pageSize) throws IOException {
         long from = (pageNum - 1) * pageSize + 1;
         //0--24小时,1--7天,2--30天,3--1年
         long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
@@ -77,10 +100,11 @@ public class BlockServiceImpl implements BlockService {
                         )
                         )
         );
-        SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(Constants.ES_BLOCK_INDEX);
         searchRequest.source(builder);
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
         Terms terms = response.getAggregations().get("group_by_minerId");
+        Cardinality cardinality = response.getAggregations().get("count");
         List<? extends Terms.Bucket> buckets = terms.getBuckets();
         List<MinerAndBlock> list = new ArrayList<>();
         for(Terms.Bucket bucket : buckets){
@@ -95,11 +119,15 @@ public class BlockServiceImpl implements BlockService {
             list.add(minerAndBlock);
             from++;
         }
-        return list;
+        Block block = new Block();
+        block.setList(list);
+        block.setCount(cardinality.getValue());
+        log.info("获取24小时矿工出块份数:{}",JSON.toJSONString(block));
+        return block;
     }
 
     /**
-     * 24小时出块奖励
+     * 24小时出块奖励增量
      * @return
      * @throws IOException
      */
@@ -134,7 +162,7 @@ public class BlockServiceImpl implements BlockService {
             Sum sumMoney = bucket.getAggregations().get("sum_money");
             map.put(minerId,new BigDecimal(sumMoney.getValue()+""));
         }
-        log.info("24小时出块奖励:{}",JSON.toJSONString(map));
+        log.info("24小时出块奖励增量:{}",JSON.toJSONString(map));
         return map;
     }
 

@@ -17,7 +17,7 @@ public class BlockPageListVO {
     private String MinerId;
 
     @ApiModelProperty("出块份数")
-    private String blockCount;
+    private int blockCount;
 
     @ApiModelProperty("24小时出块奖励,单位attoFIL")
     private BigDecimal twentyFourBlockAward;
