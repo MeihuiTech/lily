@@ -7,10 +7,14 @@ import com.mei.hui.util.SystemConstants;
  */
 public interface Constants extends SystemConstants {
 
-    //es算力索引
+    //es算力索引，历史明细
     String ES_POWER_INDEX = "power";
 
+    //算力表，存矿工的最新数据，每个矿工存一条数据
     String ES_POWER_LATEST_INDEX = "power_latest";
+
+    //出块明细
+    String ES_BLOCK_INDEX = "block";
 
 
 

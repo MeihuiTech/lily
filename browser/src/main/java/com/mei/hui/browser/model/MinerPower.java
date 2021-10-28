@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 public class MinerPower {
 
     private String minerId;
-
+    //排序
+    private long sort;
     private BigDecimal powerAvailable;
 
 }

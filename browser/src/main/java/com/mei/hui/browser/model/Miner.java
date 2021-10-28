@@ -6,5 +6,6 @@ import java.util.List;
 @Data
 public class Miner {
     private Long total;
+
     private List<MinerPower> list;
 }

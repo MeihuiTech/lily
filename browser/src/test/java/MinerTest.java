@@ -3,6 +3,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mei.hui.browser.BrowserApplication;
 import com.mei.hui.browser.entity.IdAddresses;
 import com.mei.hui.browser.mapper.IdAddressesMapper;
+import com.mei.hui.browser.service.BlockService;
 import lombok.extern.log4j.Log4j2;
 import net.bytebuddy.asm.Advice;
 import org.junit.Test;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -20,6 +23,8 @@ public class MinerTest {
 
     @Autowired
     private IdAddressesMapper mapper;
+    @Autowired
+    private BlockService blockService;
 
     @Test
     public void test(){
@@ -27,6 +32,17 @@ public class MinerTest {
 
         List<IdAddresses> list = mapper.selectList(queryWrapper);
         log.info(JSON.toJSONString(list));
+    }
+
+    @Test
+    public void blockRanking() throws IOException {
+        List<String> list = new ArrayList<>();
+        list.add("f0128559");
+        list.add("f025002");
+
+        list.add("f0427688");
+        list.add("f0133505");
+        blockService.blockRanking(0,list);
     }
 
 }
