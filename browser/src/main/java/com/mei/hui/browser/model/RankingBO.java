@@ -7,7 +7,7 @@ import lombok.Data;
 
 @ApiModel
 @Data
-public class BlockRankingBO extends BasePage {
+public class RankingBO extends BasePage {
     @ApiModelProperty(required = true,value = "0--24小时,1--7天,2--30天,3--1年")
     private int range;
 }

@@ -48,13 +48,13 @@ public class PowerServiceImpl implements PowerService {
         /**
          * 获取矿工信息
          */
-        Miner miners = findMiners(page);
+        Miner miners = pageListMiners(page);
         List<String> minerIds = miners.getList().stream().map(v -> v.getMinerId()).collect(Collectors.toList());
 
         //24小时算力增长
-        Map<String, BigDecimal> minerPowerMap = powerRanking(minerIds);
+        Map<String, BigDecimal> minerPowerMap = twentyFourPowerIncr(minerIds);
         //24小时出块奖励
-        Map<String, BigDecimal> minerBlockMap = blockService.blockRanking(0, minerIds);
+        Map<String, BigDecimal> minerBlockMap = blockService.twentyFourBlockIncr(0, minerIds);
         //全网总有效算力
         BigDecimal totalQaBytesPower = filExOverviewService.list().get(0).getTotalQaBytesPower();
         List<PowerRankingVO> list = miners.getList().stream().map(v -> {
@@ -78,10 +78,10 @@ public class PowerServiceImpl implements PowerService {
     }
 
     /**
-     *获取存储基本数据
+     *分页获取矿工
      * @return
      */
-    public Miner findMiners(BasePage page) throws IOException {
+    public Miner pageListMiners(BasePage page) throws IOException {
         long from = (page.getPageNum() - 1) * page.getPageSize() + 1;
         SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_LATEST_INDEX);
         SearchSourceBuilder builder = new SearchSourceBuilder();
@@ -119,7 +119,7 @@ public class PowerServiceImpl implements PowerService {
      * 矿工24小时算力增长
      * @param minerIds
      */
-    public Map<String,BigDecimal> powerRanking(List<String> minerIds) throws IOException {
+    public Map<String,BigDecimal> twentyFourPowerIncr(List<String> minerIds) throws IOException {
         long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.size(0);
