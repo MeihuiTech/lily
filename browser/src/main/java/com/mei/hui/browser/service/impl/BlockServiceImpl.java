@@ -57,20 +57,17 @@ public class BlockServiceImpl implements BlockService {
         Map<String, BigDecimal> powerMap = powerService.twentyFourPowerIncr(range, minerIds);
         //获取矿工的有效算力
         Map<String, BigDecimal> availablePowerMap = powerService.findMinerPower(minerIds);
-        //获取24小时出块奖励增量
-        Map<String, BigDecimal> twentyFourBlockIncrMap = twentyFourBlockIncr(range, minerIds);
         //全网总有效算力
         BigDecimal totalQaBytesPower = filExOverviewService.list().get(0).getTotalQaBytesPower();
         List<BlockPageListVO> list = new ArrayList<>();
         for(MinerAndBlock b : block.getList()){
-            BigDecimal blockIncr = twentyFourBlockIncrMap.get(b.getMinerId());
             BigDecimal availablePower = availablePowerMap.get(b.getMinerId());
             BlockPageListVO vo = new BlockPageListVO();
-            vo.setSort(vo.getSort());
+            vo.setSort(b.getSort());
             vo.setMinerId(b.getMinerId());
             vo.setBlockCount(b.getBlockCount());
-            vo.setTwentyFourBlockAward(blockIncr);
-            //vo.setTwentyFourTotalBlockAward();
+            vo.setTwentyFourBlockAward(b.getTwentyFourBlockAward());
+            vo.setTwentyFourTotalBlockAward(block.getTwentyFourTotalBlockAward());
             vo.setMinerPowerAvailable(availablePower);
             vo.setTotalPowerAvailable(totalQaBytesPower);
             list.add(vo);
@@ -95,7 +92,6 @@ public class BlockServiceImpl implements BlockService {
         }
         //查询es
         SearchSourceBuilder builder = new SearchSourceBuilder();
-
         TermsAggregationBuilder groupByMinerId = AggregationBuilders.terms("group_by_minerId").field("miner");
         groupByMinerId.subAggregation(AggregationBuilders.sum("sum_win_count").field("win_count"));
         groupByMinerId.subAggregation(new BucketSortPipelineAggregationBuilder("win_count_sort",Arrays.asList(
@@ -103,14 +99,18 @@ public class BlockServiceImpl implements BlockService {
                 .from(Integer.valueOf(from+""))
                 .size(Integer.valueOf(pageSize+""))
         );
+        //24小时出块奖励
+        groupByMinerId.subAggregation(AggregationBuilders.sum("twentyFourBlockAward").field("money"));
         builder.size(0).query(QueryBuilders.constantScoreQuery(QueryBuilders.rangeQuery("timestamp").gte(second)));
         builder.aggregation(groupByMinerId)
-               .aggregation(AggregationBuilders.cardinality("miner_count").field("miner"));
+               .aggregation(AggregationBuilders.cardinality("miner_count").field("miner"))
+               .aggregation(AggregationBuilders.sum("twentyFourTotalBlockAward").field("money"));
         SearchRequest searchRequest = new SearchRequest(Constants.ES_BLOCK_INDEX);
         searchRequest.source(builder);
         log.info("获取24小时出块份数,DSL:{}",searchRequest.source().toString());
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
         Terms terms = response.getAggregations().get("group_by_minerId");
+        Sum twentyFourTotalBlockAwardSum = response.getAggregations().get("twentyFourTotalBlockAward");
         Cardinality cardinality = response.getAggregations().get("miner_count");
         List<? extends Terms.Bucket> buckets = terms.getBuckets();
         List<MinerAndBlock> list = new ArrayList<>();
@@ -119,14 +119,18 @@ public class BlockServiceImpl implements BlockService {
             Aggregations subAgg = bucket.getAggregations();
             Sum sum = subAgg.get("sum_win_count");
             double sumWinCount = sum.getValue();
+            Sum twentyFourBlockAwardSum = subAgg.get("twentyFourBlockAward");
+            double twentyFourBlockAward = twentyFourBlockAwardSum.getValue();
             MinerAndBlock minerAndBlock = new MinerAndBlock()
                     .setMinerId(minerId)
                     .setBlockCount(new BigDecimal(sumWinCount).intValue())
-                    .setSort(from);
+                    .setSort(from)
+                    .setTwentyFourBlockAward(new BigDecimal(twentyFourBlockAward));
             list.add(minerAndBlock);
             from++;
         }
         Block block = new Block();
+        block.setTwentyFourTotalBlockAward(new BigDecimal(twentyFourTotalBlockAwardSum.getValue()));
         block.setList(list);
         block.setCount(cardinality.getValue());
         log.info("获取24小时矿工出块份数:{}",JSON.toJSONString(block));
