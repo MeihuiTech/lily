@@ -92,7 +92,7 @@ public class BlockServiceImpl implements BlockService {
         }
         //查询es
         SearchSourceBuilder builder = new SearchSourceBuilder();
-        TermsAggregationBuilder groupByMinerId = AggregationBuilders.terms("group_by_minerId").field("miner");
+        TermsAggregationBuilder groupByMinerId = AggregationBuilders.terms("group_by_minerId").field("miner").size(Integer.valueOf(from + pageSize+""));
         groupByMinerId.subAggregation(AggregationBuilders.sum("sum_win_count").field("win_count"));
         groupByMinerId.subAggregation(new BucketSortPipelineAggregationBuilder("win_count_sort",Arrays.asList(
                 new FieldSortBuilder("sum_win_count").order(SortOrder.DESC)))
