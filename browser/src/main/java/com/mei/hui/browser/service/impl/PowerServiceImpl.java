@@ -122,6 +122,22 @@ public class PowerServiceImpl implements PowerService {
      * @param minerIds
      */
     public Map<String,BigDecimal> twentyFourPowerIncr(int range,List<String> minerIds) throws IOException {
+        Map<String, BigDecimal> topMap = powerTwentyFourTopOrButtom(range, minerIds, true);
+        Map<String, BigDecimal> buttomMap = powerTwentyFourTopOrButtom(range, minerIds, false);
+        Map<String, BigDecimal> map = new HashMap<>();
+        for (String minerId : minerIds) {
+            BigDecimal topPower = topMap.getOrDefault(minerId,BigDecimal.ZERO);
+            BigDecimal buttomPower = buttomMap.getOrDefault(minerId,BigDecimal.ZERO);
+            map.put(minerId,topPower.subtract(buttomPower));
+        }
+        return map;
+    }
+
+    /**
+     * 获取24小时顶部算力，相减即是24小时的算力增速, type=0 顶部；type=1底部
+     * @return
+     */
+    public Map<String,BigDecimal> powerTwentyFourTopOrButtom(int range,List<String> minerIds,boolean isTop) throws IOException {
         //0--24小时,1--7天,2--30天,3--1年
         long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
         if(range == 1){
@@ -133,23 +149,24 @@ public class PowerServiceImpl implements PowerService {
         }
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.size(0);
-        sourceBuilder.query(QueryBuilders.boolQuery()
-                .filter(QueryBuilders.termsQuery("miner_id",minerIds))
-                .filter(QueryBuilders.rangeQuery("timestamp").gte(second)));
-
+        if(isTop){
+            sourceBuilder.query(QueryBuilders.boolQuery()
+                    .filter(QueryBuilders.termsQuery("miner_id",minerIds))
+                    .filter(QueryBuilders.rangeQuery("timestamp").gte(second)));
+        }else{
+            sourceBuilder.query(QueryBuilders.boolQuery()
+                    .filter(QueryBuilders.termsQuery("miner_id",minerIds))
+                    .filter(QueryBuilders.rangeQuery("timestamp").lte(second)));
+        }
         sourceBuilder.aggregation(
                 AggregationBuilders.terms("group_by_minerId").field("miner_id")
                         .subAggregation(AggregationBuilders.topHits("max_hit")
                                 .size(1)
                                 .sort("height",SortOrder.DESC))
-
-                        .subAggregation(AggregationBuilders.topHits("min_hit")
-                                .size(1)
-                                .sort("height",SortOrder.ASC))
         );
         SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_INDEX);
         searchRequest.source(sourceBuilder);
-        log.info("24小时算力增长,DSL:{}",searchRequest.source().toString());
+        log.info("24小时顶部算力,DSL:{}",searchRequest.source().toString());
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
         Terms terms = response.getAggregations().get("group_by_minerId");
         List<? extends Terms.Bucket> buckets = terms.getBuckets();
@@ -161,14 +178,9 @@ public class PowerServiceImpl implements PowerService {
             SearchHit maxSearchHit = maxHit.getHits().getHits()[0];
             Map<String, Object> maxSource = maxSearchHit.getSourceAsMap();
             String maxPower = (String) maxSource.get("quality_adj_power");
-            //最小算力记录
-            TopHits minHit = bucket.getAggregations().get("min_hit");
-            SearchHit minSearchHit = minHit.getHits().getHits()[0];
-            Map<String, Object> minSource = minSearchHit.getSourceAsMap();
-            String minPower = (String) minSource.get("quality_adj_power");
-            map.put(minerId,new BigDecimal(maxPower).subtract(new BigDecimal(minPower)));
+            map.put(minerId,new BigDecimal(maxPower));
         }
-        log.info("24小时算力增长:{}", JSON.toJSONString(map));
+        log.info("24小时顶部算力:{}", JSON.toJSONString(map));
         return map;
     }
 
