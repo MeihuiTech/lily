@@ -123,12 +123,18 @@ public class PowerServiceImpl implements PowerService {
      */
     public Map<String,BigDecimal> twentyFourPowerIncr(int range,List<String> minerIds) throws IOException {
         Map<String, BigDecimal> topMap = powerTwentyFourTopOrButtom(range, minerIds, true);
+        log.info("24小时顶部算力:{}", JSON.toJSONString(topMap));
         Map<String, BigDecimal> buttomMap = powerTwentyFourTopOrButtom(range, minerIds, false);
+        log.info("24小时底部算力:{}", JSON.toJSONString(topMap));
         Map<String, BigDecimal> map = new HashMap<>();
         for (String minerId : minerIds) {
-            BigDecimal topPower = topMap.getOrDefault(minerId,BigDecimal.ZERO);
+            BigDecimal topPower = topMap.get(minerId);
             BigDecimal buttomPower = buttomMap.getOrDefault(minerId,BigDecimal.ZERO);
-            map.put(minerId,topPower.subtract(buttomPower));
+            BigDecimal twentyFourPower = BigDecimal.ZERO;
+            if(topPower != null){
+                twentyFourPower = topPower.subtract(buttomPower);
+            }
+            map.put(minerId,twentyFourPower);
         }
         return map;
     }
@@ -180,7 +186,6 @@ public class PowerServiceImpl implements PowerService {
             String maxPower = (String) maxSource.get("quality_adj_power");
             map.put(minerId,new BigDecimal(maxPower));
         }
-        log.info("24小时顶部算力:{}", JSON.toJSONString(map));
         return map;
     }
 
