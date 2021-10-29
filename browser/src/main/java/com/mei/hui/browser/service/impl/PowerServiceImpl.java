@@ -84,7 +84,7 @@ public class PowerServiceImpl implements PowerService {
      * @return
      */
     public Miner pageListMiners(BasePage page) throws IOException {
-        long from = (page.getPageNum() - 1) * page.getPageSize() + 1;
+        long from = (page.getPageNum() - 1) * page.getPageSize();
         SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_LATEST_INDEX);
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.from(Integer.valueOf(from + ""));
@@ -199,7 +199,6 @@ public class PowerServiceImpl implements PowerService {
         SearchRequest searchRequest = new SearchRequest(Constants.ES_POWER_LATEST_INDEX);
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.query(QueryBuilders.constantScoreQuery(QueryBuilders.termsQuery("miner_id",minerIds)));
-        //builder.aggregation(AggregationBuilders.sum("sum_power").field("quality_adj_power"));
         searchRequest.source(builder);
         log.info("获取矿工基础信息,DSL:{}",searchRequest.source().toString());
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -213,8 +212,6 @@ public class PowerServiceImpl implements PowerService {
             String powerAvailable = (String) map.get("quality_adj_power");
             minerMap.put(minerId,new BigDecimal(powerAvailable));
         }
-      /*  Sum sum_power = response.getAggregations().get("sum_power");
-        sum_power.getValue();*/
         return minerMap;
     }
 }

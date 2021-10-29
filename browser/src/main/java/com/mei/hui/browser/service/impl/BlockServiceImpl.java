@@ -80,7 +80,7 @@ public class BlockServiceImpl implements BlockService {
      * 获取24小时出块份数,并分页
      */
     public Block rankBlock(int range, long pageNum, long pageSize) throws IOException {
-        long from = (pageNum - 1) * pageSize + 1;
+        long from = (pageNum - 1) * pageSize;
         //0--24小时,1--7天,2--30天,3--1年
         long second = DateUtils.localDateTimeToSecond(LocalDateTime.now().minusHours(24));
         if(range == 1){
