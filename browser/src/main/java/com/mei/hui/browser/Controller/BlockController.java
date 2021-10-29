@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@Api(tags = "出块份数，排行榜")
+@Api(tags = "首页排行榜-出块份数")
 @RestController
 @RequestMapping("/block")
 public class BlockController {
     @Autowired
     private BlockService blockService;
 
-    @ApiOperation(value = "获取系统划转记录详细信息")
+    @ApiOperation(value = "出块份数排行榜")
     @PostMapping("/transferRecordDetail")
     public PageResult<BlockPageListVO> blockPageList(@RequestBody RankingBO rankingBO) throws IOException {
         return blockService.blockPageList(rankingBO);

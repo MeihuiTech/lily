@@ -34,15 +34,4 @@ public class MinerTest {
         log.info(JSON.toJSONString(list));
     }
 
-    @Test
-    public void blockRanking() throws IOException {
-        List<String> list = new ArrayList<>();
-        list.add("f0128559");
-        list.add("f025002");
-
-        list.add("f0427688");
-        list.add("f0133505");
-        blockService.blockRanking(0,list);
-    }
-
 }

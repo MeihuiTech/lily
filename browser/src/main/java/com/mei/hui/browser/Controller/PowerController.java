@@ -1,6 +1,8 @@
 package com.mei.hui.browser.Controller;
 
+import com.mei.hui.browser.model.BlockPageListVO;
 import com.mei.hui.browser.model.PowerRankingVO;
+import com.mei.hui.browser.model.RankingBO;
 import com.mei.hui.browser.service.PowerService;
 import com.mei.hui.util.BasePage;
 import com.mei.hui.util.PageResult;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@Api(tags = "算力排行【排行榜】")
+@Api(tags = "首页排行榜-有效算力")
 @RestController
 @RequestMapping("/power")
 public class PowerController {
@@ -22,11 +24,10 @@ public class PowerController {
     @Autowired
     private PowerService powerService;
 
-    @ApiOperation(value = "获取系统划转记录详细信息")
+    @ApiOperation(value = "有效算力排行榜")
     @PostMapping("/transferRecordDetail")
     public PageResult<PowerRankingVO> powerRanking(@RequestBody BasePage page) throws IOException {
         return powerService.powerRanking(page);
     }
-
 
 }

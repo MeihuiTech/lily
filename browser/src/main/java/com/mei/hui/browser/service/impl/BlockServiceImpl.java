@@ -7,6 +7,7 @@ import com.mei.hui.browser.model.BlockPageListVO;
 import com.mei.hui.browser.model.MinerAndBlock;
 import com.mei.hui.browser.model.RankingBO;
 import com.mei.hui.browser.service.BlockService;
+import com.mei.hui.browser.service.FilExOverviewService;
 import com.mei.hui.browser.service.PowerService;
 import com.mei.hui.util.DateUtils;
 import com.mei.hui.util.PageResult;
@@ -18,8 +19,11 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.PipelineAggregatorBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.CardinalityAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.pipeline.BucketSortPipelineAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -41,6 +45,8 @@ public class BlockServiceImpl implements BlockService {
     private RestHighLevelClient client;
     @Autowired
     private PowerService powerService;
+    @Autowired
+    private FilExOverviewService filExOverviewService;
 
     public PageResult<BlockPageListVO> blockPageList(@RequestBody RankingBO rankingBO) throws IOException{
         int range = rankingBO.getRange();
@@ -53,7 +59,8 @@ public class BlockServiceImpl implements BlockService {
         Map<String, BigDecimal> availablePowerMap = powerService.findMinerPower(minerIds);
         //获取24小时出块奖励增量
         Map<String, BigDecimal> twentyFourBlockIncrMap = twentyFourBlockIncr(range, minerIds);
-
+        //全网总有效算力
+        BigDecimal totalQaBytesPower = filExOverviewService.list().get(0).getTotalQaBytesPower();
         List<BlockPageListVO> list = new ArrayList<>();
         for(MinerAndBlock b : block.getList()){
             BigDecimal blockIncr = twentyFourBlockIncrMap.get(b.getMinerId());
@@ -65,7 +72,7 @@ public class BlockServiceImpl implements BlockService {
             vo.setTwentyFourBlockAward(blockIncr);
             //vo.setTwentyFourTotalBlockAward();
             vo.setMinerPowerAvailable(availablePower);
-            //vo.setTotalPowerAvailable();
+            vo.setTotalPowerAvailable(totalQaBytesPower);
             list.add(vo);
         }
         PageResult<BlockPageListVO> pageResult = new PageResult<>(block.getCount(),list);
@@ -88,23 +95,23 @@ public class BlockServiceImpl implements BlockService {
         }
         //查询es
         SearchSourceBuilder builder = new SearchSourceBuilder();
-        builder.size(0)
-                .query(QueryBuilders.constantScoreQuery(QueryBuilders.rangeQuery("timestamp").gte(second)));
-        builder.aggregation(
-                AggregationBuilders.terms("group_by_minerId").field("miner")
-                        .subAggregation(AggregationBuilders.sum("sum_win_count").field("win_count")
-                        .subAggregation(new BucketSortPipelineAggregationBuilder("win_count_sort",Arrays.asList(
-                                new FieldSortBuilder("sum_win_count").order(SortOrder.DESC)))
-                                        .from(Integer.valueOf(from+""))
-                                        .size(Integer.valueOf(pageSize+""))
-                        )
-                        )
+
+        TermsAggregationBuilder groupByMinerId = AggregationBuilders.terms("group_by_minerId").field("miner");
+        groupByMinerId.subAggregation(AggregationBuilders.sum("sum_win_count").field("win_count"));
+        groupByMinerId.subAggregation(new BucketSortPipelineAggregationBuilder("win_count_sort",Arrays.asList(
+                new FieldSortBuilder("sum_win_count").order(SortOrder.DESC)))
+                .from(Integer.valueOf(from+""))
+                .size(Integer.valueOf(pageSize+""))
         );
+        builder.size(0).query(QueryBuilders.constantScoreQuery(QueryBuilders.rangeQuery("timestamp").gte(second)));
+        builder.aggregation(groupByMinerId)
+               .aggregation(AggregationBuilders.cardinality("miner_count").field("miner"));
         SearchRequest searchRequest = new SearchRequest(Constants.ES_BLOCK_INDEX);
         searchRequest.source(builder);
+        log.info("获取24小时出块份数,DSL:{}",searchRequest.source().toString());
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
         Terms terms = response.getAggregations().get("group_by_minerId");
-        Cardinality cardinality = response.getAggregations().get("count");
+        Cardinality cardinality = response.getAggregations().get("miner_count");
         List<? extends Terms.Bucket> buckets = terms.getBuckets();
         List<MinerAndBlock> list = new ArrayList<>();
         for(Terms.Bucket bucket : buckets){
@@ -114,7 +121,7 @@ public class BlockServiceImpl implements BlockService {
             double sumWinCount = sum.getValue();
             MinerAndBlock minerAndBlock = new MinerAndBlock()
                     .setMinerId(minerId)
-                    .setBlockCount(Integer.valueOf(sumWinCount+""))
+                    .setBlockCount(new BigDecimal(sumWinCount).intValue())
                     .setSort(from);
             list.add(minerAndBlock);
             from++;
