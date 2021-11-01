@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mei.hui.config.HttpRequestUtil;
+import com.mei.hui.config.redisConfig.RedisUtil;
 import com.mei.hui.miner.common.Constants;
 import com.mei.hui.miner.common.MinerError;
 import com.mei.hui.miner.common.enums.TransferRecordStatusEnum;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +66,8 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
     private FilAdminUserService adminUserService;
     @Autowired
     private UserManager userManager;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 查询系统划转记录
@@ -411,6 +415,15 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         Long currencyId = HttpRequestUtil.getCurrencyId();
         String currencyType = CurrencyEnum.getCurrency(currencyId).name();
         String minerId = sysTransferRecordWrap.getMinerId();
+
+        // 提币每个用户一个小时只允许提币一次
+        String redisKey = String.format(Constants.WITHDRAWKEY,userId);
+        String redisValue = redisUtil.get(redisKey);
+        if (StringUtils.isEmpty(redisValue)){
+            redisUtil.set(redisKey,DateUtils.lDTLocalDateTimeNow(),1,TimeUnit.HOURS);
+        } else {
+            throw MyException.fail(MinerError.MYB_222222.getCode(),"一个小时只允许提币一次");
+        }
 
         /**
          * 一：提取金额 < 可提现金额 - 提币中 金额
