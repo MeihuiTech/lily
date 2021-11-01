@@ -17,6 +17,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -155,17 +156,18 @@ public class PowerServiceImpl implements PowerService {
         }
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.size(0);
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         if(isTop){
-            sourceBuilder.query(QueryBuilders.boolQuery()
-                    .filter(QueryBuilders.termsQuery("miner_id",minerIds))
-                    .filter(QueryBuilders.rangeQuery("timestamp").gte(second)));
+            boolQuery.filter(QueryBuilders.rangeQuery("timestamp").gte(second));
         }else{
-            sourceBuilder.query(QueryBuilders.boolQuery()
-                    .filter(QueryBuilders.termsQuery("miner_id",minerIds))
-                    .filter(QueryBuilders.rangeQuery("timestamp").lte(second)));
+            boolQuery.filter(QueryBuilders.rangeQuery("timestamp").lte(second));
         }
+        if(minerIds != null && minerIds.size() > 0){
+            boolQuery.filter(QueryBuilders.termsQuery("miner_id",minerIds));
+        }
+        sourceBuilder.query(boolQuery);
         sourceBuilder.aggregation(
-                AggregationBuilders.terms("group_by_minerId").field("miner_id")
+                AggregationBuilders.terms("group_by_minerId").field("miner_id").size(4000)
                         .subAggregation(AggregationBuilders.topHits("max_hit")
                                 .size(1)
                                 .sort("height",SortOrder.DESC))
@@ -179,7 +181,6 @@ public class PowerServiceImpl implements PowerService {
         Map<String,BigDecimal> map = new HashMap<>();
         for(Terms.Bucket bucket : buckets){
             String minerId = bucket.getKeyAsString();
-            //最后一条算力记录
             TopHits maxHit = bucket.getAggregations().get("max_hit");
             SearchHit maxSearchHit = maxHit.getHits().getHits()[0];
             Map<String, Object> maxSource = maxSearchHit.getSourceAsMap();
