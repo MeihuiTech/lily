@@ -167,7 +167,7 @@ public class PowerServiceImpl implements PowerService {
         }
         sourceBuilder.query(boolQuery);
         sourceBuilder.aggregation(
-                AggregationBuilders.terms("group_by_minerId").field("miner_id").size(4000)
+                AggregationBuilders.terms("group_by_minerId").field("miner_id").size(6000)
                         .subAggregation(AggregationBuilders.topHits("max_hit")
                                 .size(1)
                                 .sort("height",SortOrder.DESC))
