@@ -232,4 +232,9 @@ public interface Constants extends SystemConstants {
      * 提取类型：1提取转质押
      */
     Integer PLEDGETYPEONE = 1;
+
+    /**
+     * 用户提币：每个用户一个小时只允许提币一次redis存的key
+     */
+    String WITHDRAWKEY = "withdraw:%s";
 }

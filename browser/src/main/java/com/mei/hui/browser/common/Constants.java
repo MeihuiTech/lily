@@ -16,6 +16,8 @@ public interface Constants extends SystemConstants {
     //出块明细
     String ES_BLOCK_INDEX = "block";
 
+    // 首页全站搜索
+    String ES_FULL_TEXT_INDEX = "query_v1";
 
 
 }
