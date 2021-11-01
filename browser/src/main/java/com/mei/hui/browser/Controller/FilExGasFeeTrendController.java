@@ -1,14 +1,10 @@
-package com.mei.hui.browser.controller;
+package com.mei.hui.browser.Controller;
 
-import com.mei.hui.browser.entity.FilExOverview;
 import com.mei.hui.browser.model.FilExGasFeeTrendVO;
-import com.mei.hui.browser.model.FilExOverviewVO;
 import com.mei.hui.browser.service.FilExGasFeeTrendService;
-import com.mei.hui.browser.service.FilExOverviewService;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

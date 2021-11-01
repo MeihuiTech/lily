@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @ApiModel
 @Data
-public class PowerRankingVO {
+public class BlockPageListVO {
 
     @ApiModelProperty("排序号")
     private long sort;
@@ -16,17 +16,19 @@ public class PowerRankingVO {
     @ApiModelProperty("存储id")
     private String MinerId;
 
+    @ApiModelProperty("出块份数")
+    private int blockCount;
+
+    @ApiModelProperty("24小时出块奖励,单位attoFIL")
+    private BigDecimal twentyFourBlockAward;
+
+    @ApiModelProperty("24小时全网出块奖励,单位attoFIL")
+    private BigDecimal twentyFourTotalBlockAward;
+
     @ApiModelProperty("存储有效算力,单位B")
     private BigDecimal minerPowerAvailable;
 
     @ApiModelProperty("全网有效算力,单位B")
     private BigDecimal totalPowerAvailable;
-
-    @ApiModelProperty("24小时出块奖励,单位attoFIL")
-    private BigDecimal twentyFourBlockAward;
-
-    @ApiModelProperty("24小时算力增长,单位B")
-    private BigDecimal twentyFourPower;
-
 
 }

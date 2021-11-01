@@ -39,7 +39,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      */
     public static long localDateTimeToSecond(LocalDateTime localDateTime){
         ZoneId zone = ZoneId.systemDefault();
-        Instant instant = LocalDateTime.now().atZone(zone).toInstant();
+        Instant instant = localDateTime.atZone(zone).toInstant();
         return instant.getEpochSecond();
     }
     /**
