@@ -422,7 +422,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         if (StringUtils.isEmpty(redisValue)){
             redisUtil.set(redisKey,DateUtils.lDTLocalDateTimeNow(),1,TimeUnit.HOURS);
         } else {
-            throw MyException.fail(MinerError.MYB_222222.getCode(),"一个小时只允许提币一次");
+            return Result.success("一个小时只允许提币一次");
         }
 
         /**
