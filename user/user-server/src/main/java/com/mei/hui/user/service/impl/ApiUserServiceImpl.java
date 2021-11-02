@@ -42,11 +42,8 @@ public class ApiUserServiceImpl extends ServiceImpl<ApiUserMapper, ApiUser> impl
     private RuoYiConfig staticRuoYiConfig;
 
     public Result<ApiTokenVO> getToken(@RequestBody GetTokenBO getTokenBO){
-        String aesKey = RSAUtil.decrypt(getTokenBO.getAesKeyEncry());
-        String body = AESUtil.decrypt(getTokenBO.getBodyEncry(), aesKey);
-        JSONObject json = JSON.parseObject(body);
-        String accessKey = json.getString("accessKey");
-        Long tokenExpires = json.getLong("tokenExpires");
+        long tokenExpires = getTokenBO.getTokenExpires();
+        String accessKey = getTokenBO.getAccessKey();
         LambdaQueryWrapper<ApiUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ApiUser::getAccessKey,accessKey);
         ApiUser apiUser = this.getOne(queryWrapper);
