@@ -170,7 +170,7 @@ public class LoginController {
     }
 
     @GetMapping("/user/authority")
-    public Result authority(@RequestParam String token,@RequestParam String url){
+    public Result authority(@RequestParam(required = false) String token,@RequestParam String url){
         //token 验签，校验是否过期
         Claims claims = JwtUtil.parseToken(token);
         String platform = (String) claims.get(SystemConstants.PLATFORM);
