@@ -556,7 +556,7 @@ public class SysTransferRecordServiceImpl implements ISysTransferRecordService {
         BigDecimal feeRate = rateMap.get(CurrencyEnum.FIL.name());//费率
         log.info("费率:{}",feeRate);
         if(feeRate.compareTo(BigDecimal.ZERO) > 0){
-            getTransferRecordByIdVO.setFeeRate(feeRate.divide(new BigDecimal(100),BigDecimal.ROUND_HALF_UP));
+            getTransferRecordByIdVO.setFeeRate(feeRate.divide(new BigDecimal(100),4,BigDecimal.ROUND_HALF_UP));
         }
 
         /**
