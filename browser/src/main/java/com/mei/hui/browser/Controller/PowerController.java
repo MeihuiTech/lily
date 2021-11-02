@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(tags = "首页排行榜-有效算力")
 @RestController
@@ -58,7 +59,7 @@ public class PowerController {
             list.add(vo);
         }
         Collections.sort(list, (o1, o2) -> {
-            int value = o1.getTwentyFourPower().compareTo(o2.getTwentyFourPower());
+            int value = o2.getTwentyFourPower().compareTo(o1.getTwentyFourPower());
             if(value > 0){
                 return 1;
             }else{
@@ -70,9 +71,17 @@ public class PowerController {
         log.info("list size={},from:{},page:{}",list.size(),from,rankingBO.getPageSize());
         for(int n= new BigDecimal(from).intValue();n < from + rankingBO.getPageSize();n++){
             if(list.size() > n){
-                rs.add(list.get(n));
+                PowerIncrRankVO vo = list.get(n);
+                vo.setSort(n);
+                rs.add(vo);
             }
         }
+        List<String> minerIds = rs.stream().map(v -> v.getMinerId()).collect(Collectors.toList());
+        //矿工有效算力
+        Map<String, BigDecimal> powerAvailableMap = powerService.findMinerPower(minerIds);
+        rs.stream().forEach(v->{
+            v.setMinerPowerAvailable(powerAvailableMap.get(v.getMinerId()));
+        });
         PageResult<PowerIncrRankVO> pageResult = new PageResult<>(list.size(),rs);
         return pageResult;
     }
