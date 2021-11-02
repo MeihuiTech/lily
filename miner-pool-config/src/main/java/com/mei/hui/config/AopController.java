@@ -43,13 +43,15 @@ public class AopController {
 			ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 			HttpServletRequest request = attributes.getRequest();
 			String token = request.getHeader(SystemConstants.TOKEN);
-			Claims claims = JwtUtil.parseToken(token);
-			String platform = (String) claims.get(SystemConstants.PLATFORM);
 			Long userId = null;
 			Long currencyId = null;
-			if(StringUtils.isNotEmpty(token) && PlatFormEnum.web.name().equals(platform)){
-				userId = HttpRequestUtil.getUserId();
-				currencyId = HttpRequestUtil.getCurrencyId();
+			if(StringUtils.isNotEmpty(token)){
+				Claims claims = JwtUtil.parseToken(token);
+				String platform = (String) claims.get(SystemConstants.PLATFORM);
+				if(PlatFormEnum.web.name().equals(platform)){
+					userId = HttpRequestUtil.getUserId();
+					currencyId = HttpRequestUtil.getCurrencyId();
+				}
 			}
 			log.info("@请求url:{},userId:{},currencyId:{},请求参数:{}",request.getRequestURL().toString(),userId,
 					currencyId,getReqParameter(joinPoint));
