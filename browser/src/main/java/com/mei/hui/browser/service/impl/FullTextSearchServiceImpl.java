@@ -38,27 +38,23 @@ public class FullTextSearchServiceImpl implements FullTextSearchService {
 
     /*首页全站搜索*/
     @Override
-    public List<String> selectFullTextSearch(String searchText) throws IOException {
+    public String selectFullTextSearch(String searchText) throws IOException {
         SearchRequest request = new SearchRequest();
         request.indices(Constants.ES_FULL_TEXT_INDEX);
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         // 精确查询
-//        sourceBuilder.query(QueryBuilders.termQuery("query_string",searchText));
-        // 模糊查询
-        FuzzyQueryBuilder fuzziness = QueryBuilders.fuzzyQuery("query_string",searchText).fuzziness(Fuzziness.ONE);
-        sourceBuilder.query(fuzziness);
+        sourceBuilder.query(QueryBuilders.termQuery("query_string",searchText));
         request.source(sourceBuilder);
         SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
 
         SearchHits hits = response.getHits();
-        List<String> typeList = new ArrayList<>();
+        FullTextSearchEntity fullTextSearchEntity = new FullTextSearchEntity();
         for (SearchHit searchHit:hits){
-            FullTextSearchEntity fullTextSearchEntity = JSONObject.parseObject(searchHit.getSourceAsString(),FullTextSearchEntity.class);
-            typeList.add(fullTextSearchEntity.getType());
+            fullTextSearchEntity = JSONObject.parseObject(searchHit.getSourceAsString(),FullTextSearchEntity.class);
         }
 
-        return typeList;
+        return fullTextSearchEntity.getType();
     }
 
 
