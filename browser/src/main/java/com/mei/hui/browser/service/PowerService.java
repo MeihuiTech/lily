@@ -16,4 +16,6 @@ public interface PowerService {
     Map<String, BigDecimal> twentyFourPowerIncr(int range, List<String> minerIds) throws IOException;
 
     Map<String,BigDecimal> findMinerPower(List<String> minerIds) throws IOException;
+
+    Map<String,BigDecimal> powerTwentyFourTopOrButtom(int range,List<String> minerIds,boolean isTop) throws IOException;
 }

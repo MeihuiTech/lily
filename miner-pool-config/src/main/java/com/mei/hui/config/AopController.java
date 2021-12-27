@@ -3,8 +3,10 @@ package com.mei.hui.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mei.hui.util.NotAop;
+import com.mei.hui.util.PlatFormEnum;
 import com.mei.hui.util.Result;
 import com.mei.hui.util.SystemConstants;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -44,8 +46,12 @@ public class AopController {
 			Long userId = null;
 			Long currencyId = null;
 			if(StringUtils.isNotEmpty(token)){
-				userId = HttpRequestUtil.getUserId();
-				currencyId = HttpRequestUtil.getCurrencyId();
+				Claims claims = JwtUtil.parseToken(token);
+				String platform = (String) claims.get(SystemConstants.PLATFORM);
+				if(PlatFormEnum.web.name().equals(platform)){
+					userId = HttpRequestUtil.getUserId();
+					currencyId = HttpRequestUtil.getCurrencyId();
+				}
 			}
 			log.info("@请求url:{},userId:{},currencyId:{},请求参数:{}",request.getRequestURL().toString(),userId,
 					currencyId,getReqParameter(joinPoint));

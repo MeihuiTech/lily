@@ -1,7 +1,5 @@
-package com.mei.hui.browser.controller;
+package com.mei.hui.browser.Controller;
 
-import com.mei.hui.browser.model.FilExBaseLineTrendVO;
-import com.mei.hui.browser.service.FilExBaseLineTrendService;
 import com.mei.hui.browser.service.FullTextSearchService;
 import com.mei.hui.util.Result;
 import io.swagger.annotations.Api;
@@ -38,9 +36,9 @@ public class FullTextSearchController {
      * @return
      */
     @GetMapping("/fullTextSearch")
-    public Result<List<String>> selectFullTextSearch(String searchText) throws IOException {
-        List<String> typeList = fullTextSearchService.selectFullTextSearch(searchText);
-        return Result.success(typeList);
+    public Result<String> selectFullTextSearch(String searchText) throws IOException {
+        String type = fullTextSearchService.selectFullTextSearch(searchText);
+        return Result.success(type);
     }
 
 }

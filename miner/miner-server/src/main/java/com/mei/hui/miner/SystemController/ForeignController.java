@@ -16,7 +16,7 @@ import java.util.List;
 
 @Api(tags = "对外部系统提供api接口")
 @RestController
-@RequestMapping("/k2Pool")
+@RequestMapping("/nbPool")
 public class ForeignController {
 
     @Autowired

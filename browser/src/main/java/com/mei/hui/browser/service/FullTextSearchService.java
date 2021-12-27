@@ -14,5 +14,5 @@ public interface FullTextSearchService {
      * 首页全站搜索
      * @return
      */
-    public List<String> selectFullTextSearch(String searchText) throws IOException;
+    public String selectFullTextSearch(String searchText) throws IOException;
 }
