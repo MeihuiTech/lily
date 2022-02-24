@@ -71,7 +71,7 @@ func (p *Task) ProcessMessages(ctx context.Context, ts *types.TipSet, pts *types
 			continue
 		}
 
-		applied, tx, err := p.getTransactionIfApplied(ctx, m.Message, m.Receipt, pts)
+		applied, tx, err := p.getTransactionIfApplied(ctx, m.Message, m.Receipt, ts)
 		if err != nil {
 			errorsDetected = append(errorsDetected, &MultisigError{
 				Addr:  m.Message.To.String(),
@@ -205,7 +205,7 @@ func (p *Task) getTransactionIfApplied(ctx context.Context, msg *types.Message, 
 	case ApproveMethodNum:
 		// If the message is an approve then the params will contain the id of a pending transaction
 
-		// this type is the same between v0 and v6
+		// this type is the same between v0 and v7
 		var ret multisig.ApproveReturn
 		err := ret.UnmarshalCBOR(bytes.NewReader(rcpt.Return))
 		if err != nil {

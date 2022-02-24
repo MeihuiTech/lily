@@ -14,6 +14,7 @@ import (
 	adt{{.v}} "github.com/filecoin-project/specs-actors{{.import}}actors/util/adt"
 )
 
+
 var _ State = (*state{{.v}})(nil)
 
 func load{{.v}}(store adt.Store, root cid.Cid) (State, error) {
@@ -22,6 +23,12 @@ func load{{.v}}(store adt.Store, root cid.Cid) (State, error) {
 	if err != nil {
 		return nil, err
 	}
+	return &out, nil
+}
+
+func make{{.v}}(store adt.Store) (State, error) {
+	out := state{{.v}}{store: store}
+	out.State = paych{{.v}}.State{}
 	return &out, nil
 }
 
@@ -75,6 +82,10 @@ func (s *state{{.v}}) LaneCount() (uint64, error) {
 	return lsamt.Length(), nil
 }
 
+func (s *state{{.v}}) GetState() interface{} {
+	return &s.State
+}
+
 // Iterate lane states
 func (s *state{{.v}}) ForEachLaneState(cb func(idx uint64, dl LaneState) error) error {
 	// Get the lane state from the chain
@@ -103,3 +114,21 @@ func (ls *laneState{{.v}}) Redeemed() (big.Int, error) {
 func (ls *laneState{{.v}}) Nonce() (uint64, error) {
 	return ls.LaneState.Nonce, nil
 }
+
+{{if (ge .v 7)}}
+func toV{{.v}}SignedVoucher(sv SignedVoucher) paych{{.v}}.SignedVoucher {
+	return paych{{.v}}.SignedVoucher{
+		ChannelAddr:     sv.ChannelAddr,
+		TimeLockMin:     sv.TimeLockMin,
+		TimeLockMax:     sv.TimeLockMax,
+		SecretHash:      sv.SecretPreimage,
+		Extra:           sv.Extra,
+		Lane:            sv.Lane,
+		Nonce:           sv.Nonce,
+		Amount:          sv.Amount,
+		MinSettleHeight: sv.MinSettleHeight,
+		Merges:          sv.Merges,
+		Signature:       sv.Signature,
+	}
+}
+{{end}}

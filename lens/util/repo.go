@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/filecoin-project/go-bitfield"
 	"github.com/ipfs/go-cid"
 	logging "github.com/ipfs/go-log/v2"
 	cbg "github.com/whyrusleeping/cbor-gen"
@@ -19,6 +20,7 @@ import (
 	builtin "github.com/filecoin-project/lotus/chain/actors/builtin"
 	"github.com/filecoin-project/lotus/chain/consensus/filcns"
 	"github.com/filecoin-project/lotus/chain/state"
+	"github.com/filecoin-project/lotus/chain/stmgr"
 	"github.com/filecoin-project/lotus/chain/store"
 	"github.com/filecoin-project/lotus/chain/types"
 	"github.com/filecoin-project/lotus/chain/vm"
@@ -100,7 +102,7 @@ func (m *ActorCodes) Set(k address.Address, v cid.Cid) {
 // GetMessagesForTipset returns a list of messages sent as part of pts (parent) with receipts found in ts (child).
 // No attempt at deduplication of messages is made. A list of blocks with their corresponding messages is also returned - it contains all messages
 // in the block regardless if they were applied during the state change.
-func GetExecutedAndBlockMessagesForTipset(ctx context.Context, cs *store.ChainStore, next, current *types.TipSet) (*lens.TipSetMessages, error) {
+func GetExecutedAndBlockMessagesForTipset(ctx context.Context, cs *store.ChainStore, sm *stmgr.StateManager, next, current *types.TipSet) (*lens.TipSetMessages, error) {
 	ctx, span := otel.Tracer("").Start(ctx, "GetExecutedAndBlockMessagesForTipSet")
 	defer span.End()
 	if !types.CidArrsEqual(next.Parents().Cids(), current.Cids()) {
@@ -220,10 +222,13 @@ func GetExecutedAndBlockMessagesForTipset(ctx context.Context, cs *store.ChainSt
 
 	// Create a skeleton vm just for calling ShouldBurn
 	vmi, err := vm.NewVM(ctx, &vm.VMOpts{
-		StateBase:   current.ParentState(),
-		Epoch:       current.Height(),
-		Bstore:      cs.StateBlockstore(),
-		NtwkVersion: DefaultNetwork.Version,
+		StateBase:      current.ParentState(),
+		Epoch:          current.Height(),
+		Bstore:         cs.StateBlockstore(),
+		NtwkVersion:    DefaultNetwork.Version,
+		Actors:         filcns.NewActorRegistry(),
+		Syscalls:       sm.Syscalls,
+		CircSupplyCalc: sm.GetVMCirculatingSupply,
 	})
 	if err != nil {
 		return nil, xerrors.Errorf("creating temporary vm: %w", err)
@@ -294,7 +299,10 @@ func ParseParams(params []byte, method abi.MethodNum, actCode cid.Cid) (string, 
 		return "", m.Name, fmt.Errorf("cbor decode into %s %s:(%s.%d) failed: %v", m.Name, actorName, actCode, method, err)
 	}
 
-	b, err := json.Marshal(p)
+	b, err := MarshalWithOverrides(p, map[reflect.Type]marshaller{
+		reflect.TypeOf(bitfield.BitField{}): bitfieldCountMarshaller,
+	})
+
 	return string(b), m.Name, err
 }
 
@@ -397,4 +405,126 @@ func MakeGetActorCodeFunc(ctx context.Context, store adt.Store, next, current *t
 		actorCodes.Set(a, act.Code)
 		return act.Code, true
 	}, nil
+}
+
+type marshaller func(interface{}) ([]byte, error)
+
+func MarshalWithOverrides(v interface{}, overrides map[reflect.Type]marshaller) ([]byte, error) {
+	pwt := paramWrapperType{
+		obj:     v,
+		replace: overrides,
+	}
+	return pwt.MarshalJSON()
+}
+
+// wrapper type for overloading json marshal methods
+type paramWrapperType struct {
+	obj     interface{}
+	replace map[reflect.Type]marshaller
+}
+
+func (wt *paramWrapperType) MarshalJSON() ([]byte, error) {
+	v := reflect.ValueOf(wt.obj)
+	t := v.Type()
+
+	// if this is the type we want to override marshalling for, do the thing.
+	rf, ok := wt.replace[t]
+	if ok {
+		return rf(wt.obj)
+	}
+
+	// if the type has its own marshaller use that
+	if t.Implements(reflect.TypeOf((*json.Marshaler)(nil)).Elem()) {
+		return json.Marshal(wt.obj)
+	}
+
+	switch t.Kind() {
+	case reflect.Ptr:
+		// unwrap pointer
+		v = v.Elem()
+		t = t.Elem()
+		fallthrough
+
+	case reflect.Struct:
+		// if its a struct, walk its fields and recurse.
+		m := make(map[string]interface{})
+		for i := 0; i < v.NumField(); i++ {
+			if t.Field(i).IsExported() {
+				m[t.Field(i).Name] = &paramWrapperType{
+					obj:     v.Field(i).Interface(),
+					replace: wt.replace,
+				}
+			}
+		}
+		return json.Marshal(m)
+
+	case reflect.Slice:
+		// if its a slice of go types, marshal them, otherwise walk its indexes and recurse
+		var out []interface{}
+		if v.Len() > 0 {
+			switch v.Index(0).Kind() {
+			case
+				reflect.Bool,
+				reflect.String,
+				reflect.Map,
+				reflect.Float32, reflect.Float64,
+				reflect.Complex64, reflect.Complex128,
+				reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				return json.Marshal(v.Interface())
+			default:
+			}
+		}
+		for i := 0; i < v.Len(); i++ {
+			out = append(out, &paramWrapperType{
+				obj:     v.Index(i).Interface(),
+				replace: wt.replace,
+			})
+		}
+		return json.Marshal(out)
+
+	default:
+		return json.Marshal(wt.obj)
+	}
+}
+
+// marshal go-bitfield to json with count value included.
+var bitfieldCountMarshaller = func(v interface{}) ([]byte, error) {
+	rle := v.(bitfield.BitField)
+	r, err := rle.RunIterator()
+	if err != nil {
+		return nil, err
+	}
+	count, err := rle.Count()
+	if err != nil {
+		return nil, err
+	}
+
+	var ret = struct {
+		Count uint64
+		RLE   []uint64
+	}{}
+	if r.HasNext() {
+		first, err := r.NextRun()
+		if err != nil {
+			return nil, err
+		}
+		if first.Val {
+			ret.RLE = append(ret.RLE, 0)
+		}
+		ret.RLE = append(ret.RLE, first.Len)
+
+		for r.HasNext() {
+			next, err := r.NextRun()
+			if err != nil {
+				return nil, err
+			}
+
+			ret.RLE = append(ret.RLE, next.Len)
+		}
+	} else {
+		ret.RLE = []uint64{0}
+	}
+	ret.Count = count
+	return json.Marshal(ret)
 }

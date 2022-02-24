@@ -246,7 +246,7 @@ func (m *LilyNodeAPI) LilyJobList(_ context.Context) ([]schedule.JobListResult, 
 }
 
 func (m *LilyNodeAPI) GetExecutedAndBlockMessagesForTipset(ctx context.Context, ts, pts *types.TipSet) (*lens.TipSetMessages, error) {
-	return util.GetExecutedAndBlockMessagesForTipset(ctx, m.ChainAPI.Chain, ts, pts)
+	return util.GetExecutedAndBlockMessagesForTipset(ctx, m.ChainAPI.Chain, m.StateManager, ts, pts)
 }
 
 func (m *LilyNodeAPI) GetMessageExecutionsForTipSet(ctx context.Context, next *types.TipSet, current *types.TipSet) ([]*lens.MessageExecution, error) {
@@ -346,6 +346,10 @@ func (m *LilyNodeAPI) LogList(ctx context.Context) ([]string, error) {
 
 func (m *LilyNodeAPI) LogSetLevel(ctx context.Context, subsystem, level string) error {
 	return logging.SetLogLevel(subsystem, level)
+}
+
+func (m *LilyNodeAPI) LogSetLevelRegex(ctx context.Context, regex, level string) error {
+	return logging.SetLogLevelRegex(regex, level)
 }
 
 func (m *LilyNodeAPI) Shutdown(ctx context.Context) error {
