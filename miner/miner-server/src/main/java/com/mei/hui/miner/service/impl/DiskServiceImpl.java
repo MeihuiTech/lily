@@ -170,7 +170,13 @@ public class DiskServiceImpl implements DiskService {
         if(StringUtils.isNotEmpty(qi_niu_token)){
             return qi_niu_token;
         }
-        String domain = qiniuStoreConfig.getEcloudDomain()+"/api/proxy/admin-acc/login/signin";
+
+        String domain;
+        if (qiniuStoreConfig.getIdcname().equalsIgnoreCase("zkcy-dg-1")) {
+            domain = qiniuStoreConfig.getEcloudDomain() + "/api/proxy/admin-acc/login/signin";
+        } else {
+            domain = qiniuStoreConfig.getEcloudDomain() + "api/acc/signin";
+        }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("email",qiniuUserName);
         jsonObject.put("password",qiniuPassWord);
