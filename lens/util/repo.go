@@ -298,6 +298,9 @@ func ParseParams(params []byte, method abi.MethodNum, actCode cid.Cid) (string, 
 	b, err := MarshalWithOverrides(p, map[reflect.Type]marshaller{
 		reflect.TypeOf(bitfield.BitField{}): bitfieldCountMarshaller,
 	})
+	if err != nil {
+		return "", "", xerrors.Errorf("failed to parse message params method: %d, actor code: %s, params: %s: %w", method, actCode, string(params), err)
+	}
 
 	return string(b), m.Name, err
 }
@@ -405,7 +408,13 @@ func MakeGetActorCodeFunc(ctx context.Context, store adt.Store, next, current *t
 
 type marshaller func(interface{}) ([]byte, error)
 
-func MarshalWithOverrides(v interface{}, overrides map[reflect.Type]marshaller) ([]byte, error) {
+func MarshalWithOverrides(v interface{}, overrides map[reflect.Type]marshaller) (out []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			out = nil
+			err = xerrors.Errorf("failed to override message param json marshaller: %v", r)
+		}
+	}()
 	pwt := paramWrapperType{
 		obj:     v,
 		replace: overrides,
@@ -434,13 +443,22 @@ func (wt *paramWrapperType) MarshalJSON() ([]byte, error) {
 		return json.Marshal(wt.obj)
 	}
 
-	switch t.Kind() {
-	case reflect.Ptr:
+	if t.Kind() == reflect.Ptr {
 		// unwrap pointer
 		v = v.Elem()
 		t = t.Elem()
-		fallthrough
+	}
 
+	// if v is the zero value use default marshaling
+	if !v.IsValid() {
+		return json.Marshal(wt.obj)
+	}
+	// if v is typed zero value use default marshaling
+	if v.IsZero() {
+		return json.Marshal(wt.obj)
+	}
+
+	switch t.Kind() {
 	case reflect.Struct:
 		// if its a struct, walk its fields and recurse.
 		m := make(map[string]interface{})
@@ -496,10 +514,15 @@ var bitfieldCountMarshaller = func(v interface{}) ([]byte, error) {
 		return nil, err
 	}
 
+	// this struct matches the param schema used in network v14
+	// see https://github.com/filecoin-project/lily/pull/821/files#r821851219
 	var ret = struct {
-		Count uint64
-		RLE   []uint64
-	}{}
+		Count uint64   `json:"elemcount"`
+		RLE   []uint64 `json:"rle"`
+		Type  string   `json:"_type"`
+	}{
+		Type: "bitfield",
+	}
 	if r.HasNext() {
 		first, err := r.NextRun()
 		if err != nil {

@@ -4,22 +4,27 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"reflect"
+	"testing"
+
 	"github.com/filecoin-project/go-bitfield"
+	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/go-state-types/cbor"
 	"github.com/filecoin-project/go-state-types/crypto"
+	market0 "github.com/filecoin-project/specs-actors/actors/builtin/market"
+	builtin3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
+	builtin4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
+	builtin5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
+	builtin6 "github.com/filecoin-project/specs-actors/v6/actors/builtin"
+	paych6 "github.com/filecoin-project/specs-actors/v6/actors/builtin/paych"
+
 	"github.com/filecoin-project/lily/chain/actors/builtin"
 	"github.com/filecoin-project/lily/chain/actors/builtin/market"
 	miner "github.com/filecoin-project/lily/chain/actors/builtin/miner"
-	market0 "github.com/filecoin-project/specs-actors/actors/builtin/market"
-	"reflect"
-	"testing"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/lotus/chain/types"
-	builtin3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
-	builtin4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
-	builtin5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 	"github.com/ipfs/go-cid"
 )
 
@@ -198,7 +203,7 @@ func TestParseMessageParams(t *testing.T) {
 				ChainCommitEpoch: 1287345,
 			}),
 			wantMethod:  "SubmitWindowedPoSt",
-			wantEncoded: "{\"Partitions\":[{\"Index\":0,\"Skipped\":{\"Count\":0,\"RLE\":[0]}}],\"Proofs\":[{\"PoStProof\":9,\"ProofBytes\":\"j67Zt7FnIDTt+WZ+JicmOvZJWNShtEUKQp2djqEamrWFJlJ5WWGfhpTmYSimapHhjnSJoQYddySoqKHw6klIY6INz0A4aHmF2xveYKLYcqKxaB6Izis7zWyw4CMLTc3GE93wBuajQ32V1qH5qBsTw3ELzUdlFNgClUhHWushxg7kvmqvtmh9lipXzGnPnrG9p68KnBp40dvhiMBVedNch/pP7cxMH5piwGIQxsn99sQVrZxfVy1+y0SN30t03yjc\"}],\"ChainCommitEpoch\":1287345,\"ChainCommitRand\":\"VyY9gIC10V8w8C1ltrpjqNN6mkk3xgW3Stpnp2ThNW4=\",\"Deadline\":38}",
+			wantEncoded: "{\"Partitions\":[{\"Index\":0,\"Skipped\":{\"elemcount\":0,\"rle\":[0],\"_type\":\"bitfield\"}}],\"Proofs\":[{\"PoStProof\":9,\"ProofBytes\":\"j67Zt7FnIDTt+WZ+JicmOvZJWNShtEUKQp2djqEamrWFJlJ5WWGfhpTmYSimapHhjnSJoQYddySoqKHw6klIY6INz0A4aHmF2xveYKLYcqKxaB6Izis7zWyw4CMLTc3GE93wBuajQ32V1qH5qBsTw3ELzUdlFNgClUhHWushxg7kvmqvtmh9lipXzGnPnrG9p68KnBp40dvhiMBVedNch/pP7cxMH5piwGIQxsn99sQVrZxfVy1+y0SN30t03yjc\"}],\"ChainCommitEpoch\":1287345,\"ChainCommitRand\":\"VyY9gIC10V8w8C1ltrpjqNN6mkk3xgW3Stpnp2ThNW4=\",\"Deadline\":38}",
 			wantErr:     false,
 			deepEqual:   true,
 		},
@@ -230,7 +235,35 @@ func TestParseMessageParams(t *testing.T) {
 				},
 			}),
 			wantMethod:  "DeclareFaultsRecovered",
-			wantEncoded: "{\"Recoveries\":[{\"Deadline\":1,\"Partition\":1,\"Sectors\":{\"Count\":10,\"RLE\":[1,10]}}]}",
+			wantEncoded: "{\"Recoveries\":[{\"Deadline\":1,\"Partition\":1,\"Sectors\":{\"elemcount\":10,\"rle\":[1,10],\"_type\":\"bitfield\"}}]}",
+			wantErr:     false,
+		},
+		// from https://github.com/filecoin-project/lily/issues/892
+		{
+			name:      "UpdateChannelState",
+			method:    2,
+			actorCode: builtin6.PaymentChannelActorCodeID,
+			params: mustMarshalCbor(t, &paych6.UpdateChannelStateParams{
+				Sv: paych6.SignedVoucher{
+					ChannelAddr:     mustParseAddress(t, "t2agxsfeq274rqk5f2mduseovdmrpxv52r6gp4mky"),
+					TimeLockMin:     0,
+					TimeLockMax:     0,
+					SecretPreimage:  nil,
+					Extra:           nil,
+					Lane:            6,
+					Nonce:           87,
+					Amount:          big.NewInt(7960172680),
+					MinSettleHeight: 0,
+					Merges:          nil,
+					Signature: &crypto.Signature{
+						Type: 2,
+						Data: mustDecodeBase64(t, "rm9VcNjZrn2MMkCMsQsPSRWjtmVud+ARR1lXSRsM13fTsSeeuoaImDxLTc4UJMwfEZFz/TuunrzhSqiKHfVbq5RHKTw9g4ZusbNlSUgk5VTXgfiIW1IBLHG1fGSqopUs"),
+					},
+				},
+				Secret: nil,
+			}),
+			wantMethod:  "UpdateChannelState",
+			wantEncoded: "{\"Secret\":null,\"Sv\":{\"Amount\":{\"Int\":7960172680},\"ChannelAddr\":\"f2agxsfeq274rqk5f2mduseovdmrpxv52r6gp4mky\",\"Extra\":null,\"Lane\":6,\"Merges\":null,\"MinSettleHeight\":0,\"Nonce\":87,\"SecretPreimage\":null,\"Signature\":{\"Data\":\"rm9VcNjZrn2MMkCMsQsPSRWjtmVud+ARR1lXSRsM13fTsSeeuoaImDxLTc4UJMwfEZFz/TuunrzhSqiKHfVbq5RHKTw9g4ZusbNlSUgk5VTXgfiIW1IBLHG1fGSqopUs\",\"Type\":2},\"TimeLockMax\":0,\"TimeLockMin\":0}}",
 			wantErr:     false,
 		},
 	}
@@ -293,6 +326,15 @@ func mustMarshalCbor(t *testing.T, v cbor.Marshaler) []byte {
 		t.Fatalf("bad cbor: %v", err)
 	}
 	return buf.Bytes()
+}
+
+func mustParseAddress(t *testing.T, addrStr string) address.Address {
+	t.Helper()
+	a, err := address.NewFromString(addrStr)
+	if err != nil {
+		t.Fatalf("bad address: %v", err)
+	}
+	return a
 }
 
 func mustMakeMapFromJsonString(t *testing.T, str string) map[string]interface{} {
